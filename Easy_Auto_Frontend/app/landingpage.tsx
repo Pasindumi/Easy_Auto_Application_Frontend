@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-export default function HomeScreen() {
+export default function LandingPage() {
   const router = useRouter();
 
   return (
@@ -42,7 +42,9 @@ export default function HomeScreen() {
       </View>
     </SafeAreaView>
   );
-}const styles = StyleSheet.create({
+}
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#235CF8',
