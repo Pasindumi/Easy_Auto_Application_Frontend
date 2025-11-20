@@ -5,6 +5,7 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -36,6 +37,35 @@ export default function TabLayout() {
           title: 'Explore',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
           tabBarStyle: { display: 'none' },
+        }}
+      />
+      <Tabs.Screen
+        name="compare"
+        options={{
+          title: 'Compare',
+          tabBarIcon: ({ color }) => <Ionicons name="car-sport" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="login"
+        options={{
+          title: 'Login',
+          tabBarIcon: ({ color }) => <Ionicons name="person" size={24} color={color} />,
+        }}
+      />
+      {/* keep routes available but hide them from the tab bar */}
+      <Tabs.Screen
+        name="signup"
+        options={{
+          title: 'Signup',
+          tabBarButton: () => null,
+        }}
+      />
+      <Tabs.Screen
+        name="reset-password"
+        options={{
+          title: 'Reset Password',
+          tabBarButton: () => null,
         }}
       />
     </Tabs>
