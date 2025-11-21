@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Footer, { FOOTER_HEIGHT } from '../components/Footer';
-import Header from '../components/Header';
+import Header, { HEADER_HEIGHT } from '../components/Header';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -21,7 +21,9 @@ export default function SignupScreen() {
   const [agree, setAgree] = useState(false);
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.safe}>
       {/* Header */}
       <Header />
 
@@ -31,7 +33,7 @@ export default function SignupScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* ScrollView allows scrolling if content is longer than screen */}
-        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: FOOTER_HEIGHT + 24 }]} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: FOOTER_HEIGHT + 24, paddingTop: HEADER_HEIGHT }]} keyboardShouldPersistTaps="handled">
           
           {/* Toggle Row: Signup / Login */}
           <View style={styles.toggleRow}>
@@ -133,10 +135,11 @@ export default function SignupScreen() {
           </View>
 
           {/* Fixed full-width footer (does not overlap because of paddingBottom) */}
-          <Footer fixed />
+          <Footer fixed/>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -146,6 +149,9 @@ const styles = StyleSheet.create({
 
   // Scrollable container content
   scrollContent: { padding: 16, paddingBottom: 40, flexGrow: 1 }, // paddingBottom ensures footer has space
+
+  // Neutralize ScrollView padding so footer reaches screen edges
+  footerWrap: { width: '100%', marginHorizontal: -16 },
 
   // Toggle buttons
   toggleRow: { flexDirection: 'row', alignSelf: 'center', marginTop: 12, borderRadius: 28, overflow: 'hidden' },

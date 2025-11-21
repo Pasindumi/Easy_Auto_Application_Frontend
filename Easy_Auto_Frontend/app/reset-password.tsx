@@ -1,25 +1,24 @@
 // PROJECT_ROOT/app/reset-password.tsx
 
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-         Alert,
-         KeyboardAvoidingView,
-         Platform,
-         ScrollView,
-         StatusBar,
-         StyleSheet,
-         Text,
-         TextInput,
-         TouchableOpacity,
-         View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Import shared components
 import Footer, { FOOTER_HEIGHT } from '../components/Footer';
-import Header from '../components/Header';
+import Header, { HEADER_HEIGHT } from '../components/Header';
 
 export default function ResetPasswordScreen() {
   const router = useRouter(); // Router to navigate between screens
@@ -42,20 +41,22 @@ export default function ResetPasswordScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      {/* Status bar with blue background */}
-      <StatusBar backgroundColor="#235CF8" barStyle="light-content" />
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.safe}>
 
+         {/* Shared header component with back button */}
+        <Header />
+        
       {/* KeyboardAvoidingView shifts content above keyboard */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Shared header component with back button */}
-        <Header />
+       
 
         {/* Scrollable content */}
-        <ScrollView contentContainerStyle={[styles.container, { paddingBottom: FOOTER_HEIGHT + 24 }]} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[styles.container, { paddingBottom: FOOTER_HEIGHT + 24, paddingTop: HEADER_HEIGHT }]} keyboardShouldPersistTaps="handled">
           {/* Toggle buttons row: Login / Reset Password */}
           <View style={styles.toggleRow}>
             {/* Navigate to Login screen */}
@@ -119,7 +120,8 @@ export default function ResetPasswordScreen() {
           <Footer fixed />
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
 
   container: {
     padding: 16,
-    paddingTop: 32,
+    paddingTop: 16,
     paddingBottom: 40,
     backgroundColor: '#F5F5F5',
   },
