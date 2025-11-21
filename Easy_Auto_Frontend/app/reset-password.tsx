@@ -21,18 +21,15 @@ import Footer, { FOOTER_HEIGHT } from '../components/Footer';
 import Header, { HEADER_HEIGHT } from '../components/Header';
 
 export default function ResetPasswordScreen() {
-  const router = useRouter(); // Router to navigate between screens
-  const [contact, setContact] = useState(''); // State to store email or phone input
+  const router = useRouter(); // Router for navigation
+  const [contact, setContact] = useState(''); // State for email/phone input
 
-  // Handle continue button press
+  // Handle Continue button press
   const handleContinue = () => {
     if (!contact) {
-      // Validate input
       Alert.alert('Validation', 'Please enter your email or phone.');
       return;
     }
-
-    // Show alert and navigate back to login
     Alert.alert(
       'Reset link sent',
       `If ${contact} is registered, you will receive instructions to reset your password.`,
@@ -42,100 +39,106 @@ export default function ResetPasswordScreen() {
 
   return (
     <>
+      {/* Hide default header */}
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safe}>
-
-         {/* Shared header component with back button */}
+        {/* Top shared header */}
         <Header />
-        
-      {/* KeyboardAvoidingView shifts content above keyboard */}
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-       
 
-        {/* Scrollable content */}
-        <ScrollView contentContainerStyle={[styles.container, { paddingBottom: FOOTER_HEIGHT + 24, paddingTop: HEADER_HEIGHT }]} keyboardShouldPersistTaps="handled">
-          {/* Toggle buttons row: Login / Reset Password */}
-          <View style={styles.toggleRow}>
-            {/* Navigate to Login screen */}
-            <TouchableOpacity
-              style={[styles.toggleButton, styles.toggleInactive]}
-              onPress={() => router.push('/login')}
-            >
-              <Text style={[styles.toggleText, styles.toggleTextBlue]}>Login</Text>
-            </TouchableOpacity>
-
-            {/* Active tab: Reset Password */}
-            <TouchableOpacity style={[styles.toggleButton, styles.toggleActiveBlue]}>
-              <Text style={[styles.toggleText, styles.toggleTextWhite]}>Reset Password</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Form card */}
-          <View style={styles.form}>
-            {/* Label */}
-            <Text style={styles.label}>Email or Phone Number</Text>
-
-            {/* Input field */}
-            <View style={styles.inputRow}>
-              {/* Icon left side */}
-              <Text style={styles.inputIcon}>📧</Text>
-
-              {/* TextInput */}
-              <TextInput
-                placeholder="Enter your email or phone"
-                value={contact}
-                onChangeText={setContact}
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-
-            {/* Continue button */}
-            <TouchableOpacity activeOpacity={0.9} onPress={handleContinue}>
-              <LinearGradient
-                colors={['#4E9FE5', '#235CF8', '#4E9FE5']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.loginButton}
+        {/* KeyboardAvoidingView moves form above keyboard */}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          {/* ScrollView to allow scrolling if keyboard overlaps */}
+          <ScrollView
+            contentContainerStyle={[
+              styles.container,
+              { paddingTop: HEADER_HEIGHT, paddingBottom: FOOTER_HEIGHT + 24 },
+            ]}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Toggle bar: Login / Reset Password */}
+            <View style={styles.toggleRow}>
+              <TouchableOpacity
+                style={[styles.toggleButton, styles.toggleInactive]}
+                onPress={() => router.push('/login')}
               >
-                <Text style={styles.loginButtonText}>Continue</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+                <Text style={[styles.toggleText, styles.toggleTextBlue]}>Login</Text>
+              </TouchableOpacity>
 
-            {/* Link to login screen */}
-            <View style={styles.loginRow}>
-              <Text style={styles.smallText}>Remember your password?</Text>
-              <TouchableOpacity onPress={() => router.push('/login')}>
-                <Text style={styles.loginLink}> Sign In</Text>
+              <TouchableOpacity style={[styles.toggleButton, styles.toggleActiveBlue]}>
+                <Text style={[styles.toggleText, styles.toggleTextWhite]}>Reset Password</Text>
               </TouchableOpacity>
             </View>
-          </View>
 
-          {/* Fixed full-width footer */}
+            {/* Centered Form Container */}
+            <View style={styles.centeredFormWrapper}>
+              <View style={styles.form}>
+                {/* Email / Phone label */}
+                <Text style={styles.label}>Email or Phone Number</Text>
+
+                {/* Input row */}
+                <View style={styles.inputRow}>
+                  <Text style={styles.inputIcon}>📧</Text>
+                  <TextInput
+                    placeholder="Enter your email or phone"
+                    value={contact}
+                    onChangeText={setContact}
+                    style={styles.input}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+
+                {/* Continue button */}
+                <TouchableOpacity activeOpacity={0.9} onPress={handleContinue}>
+                  <LinearGradient
+                    colors={['#4E9FE5', '#235CF8', '#4E9FE5']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.loginButton}
+                  >
+                    <Text style={styles.loginButtonText}>Continue</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                {/* Sign in link */}
+                <View style={styles.loginRow}>
+                  <Text style={styles.smallText}>Remember your password?</Text>
+                  <TouchableOpacity onPress={() => router.push('/login')}>
+                    <Text style={styles.loginLink}> Sign In</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+
+        {/* Fixed Footer at bottom */}
+        <View style={styles.footerWrapper}>
           <Footer fixed />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
       </SafeAreaView>
     </>
   );
 }
 
+// ---------------------------
 // Styles
+// ---------------------------
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' }, // Main container
+  // Main container
+  safe: { flex: 1, backgroundColor: '#fff' },
 
+  // ScrollView container padding
   container: {
-    padding: 16,
-    paddingTop: 16,
-    paddingBottom: 40,
+    paddingHorizontal: 16,
     backgroundColor: '#F5F5F5',
   },
 
+  // Toggle bar row at top
   toggleRow: {
     flexDirection: 'row',
     alignSelf: 'center',
@@ -143,7 +146,6 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
   },
-
   toggleButton: { flex: 1, paddingVertical: 10, alignItems: 'center' },
   toggleActiveBlue: { backgroundColor: '#235CF8' },
   toggleInactive: { backgroundColor: '#fff' },
@@ -151,9 +153,24 @@ const styles = StyleSheet.create({
   toggleTextWhite: { color: '#fff' },
   toggleTextBlue: { color: '#235CF8' },
 
-  form: { marginTop: 18 },
+  // Wrapper to center the form vertically and horizontally
+  centeredFormWrapper: {
+    flex: 1,
+    justifyContent: 'center', // Vertical center
+    alignItems: 'center',     // Horizontal center
+    marginTop: 24,            // Optional top spacing below toggle
+  },
+
+  // Form card
+  form: {
+    width: '100%',
+    maxWidth: 400, // Optional max width for tablet/desktop
+  },
+
+  // Label text
   label: { fontSize: 12, color: '#333', marginBottom: 6 },
 
+  // Input row
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -163,19 +180,22 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 12,
   },
-
   inputIcon: { marginRight: 8, fontSize: 18 },
   input: { flex: 1, height: 36 },
 
-  loginButton: {
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 10,
-  },
+  // Continue button
+  loginButton: { borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 10 },
   loginButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 
+  // Sign-in link row
   loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 16 },
   loginLink: { color: '#235CF8', fontWeight: '700' },
   smallText: { color: '#444' },
+
+  // Footer wrapper fixed at bottom
+  footerWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+  },
 });
