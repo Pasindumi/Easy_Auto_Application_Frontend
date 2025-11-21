@@ -14,18 +14,18 @@ import Header, { HEADER_HEIGHT } from '../components/Header';
 const SAMPLE_COMPARISONS = [
   {
     id: '1',
-    left: { name: 'Nissan Juke', year: '2020', img: require('../assets/images/nisan.jpg') },
-    right: { name: 'Mitsubishi Pajero', year: '2021', img: require('../assets/images/nissangtr.jpeg') },
+    left: { name: 'Nissan Juke', year: '2020', img: require('../assets/images/car.jpg') },
+    right: { name: 'Mitsubishi Pajero', year: '2021', img: require('../assets/images/car.jpg') },
   },
   {
     id: '2',
-    left: { name: 'Toyota Hilux', year: '2022', img: require('../assets/images/bluecar.jpg') },
-    right: { name: 'Ford Ranger', year: '2022', img: require('../assets/images/suv.jpg') },
+    left: { name: 'Toyota Hilux', year: '2022', img: require('../assets/images/car.jpg') },
+    right: { name: 'Ford Ranger', year: '2022', img: require('../assets/images/car.jpg') },
   },
   {
     id: '3',
-    left: { name: 'Nissan GTR', year: 'R34', img: require('../assets/images/suv.jpg') },
-    right: { name: 'Nissan GTR', year: 'R35', img: require('../assets/images/suv_white.jpg') },
+    left: { name: 'Nissan GTR', year: 'R34', img: require('../assets/images/car.jpg') },
+    right: { name: 'Nissan GTR', year: 'R35', img: require('../assets/images/car.jpg') },
   },
 ];
 
