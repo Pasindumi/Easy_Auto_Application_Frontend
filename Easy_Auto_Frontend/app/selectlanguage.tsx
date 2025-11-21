@@ -1,15 +1,15 @@
-import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as React from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function SelectLanguageScreen() {
   const router = useRouter();
@@ -24,7 +24,12 @@ export default function SelectLanguageScreen() {
     // Here you can store the selected language in AsyncStorage or context
     console.log('Selected language:', languageCode);
     // Navigate to the next screen or main app
-    router.push('/(tabs)');
+    // If English is selected, go directly to Login; otherwise open the main tabs
+    if (languageCode === 'en') {
+      router.push('/login');
+    } else {
+      router.push('/(tabs)');
+    }
   };
 
   return (
