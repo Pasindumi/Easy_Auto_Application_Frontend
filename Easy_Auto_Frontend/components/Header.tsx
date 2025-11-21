@@ -11,6 +11,7 @@ export const HEADER_HEIGHT = 120;
 type HeaderProps = {
 	title?: string;
 	showBack?: boolean;
+  
 	hideLogo?: boolean;
 };
 
