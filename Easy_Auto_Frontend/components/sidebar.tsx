@@ -24,7 +24,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ visible, onClose }: SidebarProps) {
-  const drawerWidth = width * 0.75;
+  const drawerWidth = width * 0.7;
   const slideAnim = React.useRef(new Animated.Value(-drawerWidth)).current;
   const backdropOpacity = React.useRef(new Animated.Value(0)).current;
 
@@ -130,7 +130,11 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
             >
               {/* User Profile Card */}
               <View style={styles.profileCard}>
-                <View style={styles.avatarContainer}>
+                <TouchableOpacity
+                  style={styles.avatarContainer}
+                  onPress={() => handleNavigation("/(tabs)/profile")}
+                  activeOpacity={0.8}
+                >
                   <Image
                     source={{
                       uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
@@ -139,14 +143,22 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                     contentFit="cover"
                     transition={200}
                   />
-                  <View style={styles.avatarBorder} />
+                  <View style={styles.avatarBadge}>
+                    <MaterialIcons name="check" size={14} color="#FFFFFF" />
+                  </View>
+                </TouchableOpacity>
+                <View style={styles.profileInfo}>
+                  <Text style={styles.userName}>Dilmin Ekanayaka</Text>
+                  <Text style={styles.userEmail}>dilmin@example.com</Text>
                 </View>
-                <Text style={styles.userName}>Dilmin Ekanayaka</Text>
-                <Text style={styles.userEmail}>dilmin@example.com</Text>
-                <TouchableOpacity style={styles.premiumButton}>
+                <TouchableOpacity
+                  style={styles.premiumButton}
+                  activeOpacity={0.8}
+                  onPress={() => handleNavigation("/subscriptions")}
+                >
                   <MaterialIcons
                     name="workspace-premium"
-                    size={18}
+                    size={16}
                     color="#FFD700"
                   />
                   <Text style={styles.premiumButtonText}>Premium Member</Text>
@@ -155,61 +167,63 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
 
               {/* Main Navigation Menu Card */}
               <View style={styles.menuCard}>
+                <Text style={styles.sectionLabel}>Menu</Text>
                 {menuItems.map((item, index) => (
-                  <React.Fragment key={index}>
-                    <TouchableOpacity
-                      style={styles.menuItem}
-                      onPress={() => handleNavigation(item.route)}
-                      activeOpacity={0.7}
-                    >
-                      <View style={styles.menuIconContainer}>
-                        <MaterialIcons
-                          name={item.icon as any}
-                          size={22}
-                          color="#235CF8"
-                        />
-                      </View>
-                      <Text style={styles.menuItemText}>{item.label}</Text>
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.menuItem}
+                    onPress={() => handleNavigation(item.route)}
+                    activeOpacity={0.6}
+                  >
+                    <View style={styles.menuIconContainer}>
                       <MaterialIcons
-                        name="chevron-right"
+                        name={item.icon as any}
                         size={20}
-                        color="#9BA1A6"
-                        style={styles.chevron}
+                        color="#235CF8"
                       />
-                    </TouchableOpacity>
-                    {index < menuItems.length - 1 && (
-                      <View style={styles.divider} />
-                    )}
-                  </React.Fragment>
+                    </View>
+                    <Text style={styles.menuItemText}>{item.label}</Text>
+                    <MaterialIcons
+                      name="chevron-right"
+                      size={18}
+                      color="#D1D5DB"
+                      style={styles.chevron}
+                    />
+                  </TouchableOpacity>
                 ))}
               </View>
 
               {/* Settings and Logout Card */}
               <View style={styles.settingsCard}>
+                <Text style={styles.sectionLabel}>Account</Text>
                 <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => handleNavigation("/settings")}
-                  activeOpacity={0.7}
+                  activeOpacity={0.6}
                 >
                   <View style={styles.menuIconContainer}>
-                    <MaterialIcons name="settings" size={22} color="#235CF8" />
+                    <MaterialIcons name="settings" size={20} color="#235CF8" />
                   </View>
                   <Text style={styles.menuItemText}>Settings</Text>
                   <MaterialIcons
                     name="chevron-right"
-                    size={20}
-                    color="#9BA1A6"
+                    size={18}
+                    color="#D1D5DB"
                     style={styles.chevron}
                   />
                 </TouchableOpacity>
-                <View style={styles.divider} />
                 <TouchableOpacity
-                  style={styles.menuItem}
+                  style={[styles.menuItem, styles.logoutItem]}
                   onPress={handleLogout}
-                  activeOpacity={0.7}
+                  activeOpacity={0.6}
                 >
-                  <View style={styles.menuIconContainer}>
-                    <MaterialIcons name="logout" size={22} color="#FF3B30" />
+                  <View
+                    style={[
+                      styles.menuIconContainer,
+                      styles.logoutIconContainer,
+                    ]}
+                  >
+                    <MaterialIcons name="logout" size={20} color="#EF4444" />
                   </View>
                   <Text style={[styles.menuItemText, styles.logoutText]}>
                     Logout
@@ -256,14 +270,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   drawer: {
-    width: width * 0.75,
-    backgroundColor: "#FFFFFF",
+    width: width * 0.7,
+    backgroundColor: "#F9FAFB",
     height: "100%",
     shadowColor: "#000",
     shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
   },
   drawerContent: {
     flex: 1,
@@ -276,121 +290,151 @@ const styles = StyleSheet.create({
   },
   topBlueSection: {
     backgroundColor: "#235CF8",
-    height: 18,
+    height: 12,
     width: "100%",
   },
   profileCard: {
     backgroundColor: "#235CF8",
-    borderRadius: 0,
-    padding: 24,
-    margin: 0,
-    marginBottom: 20,
+    padding: 20,
+    marginBottom: 24,
+    paddingTop: 20,
+    paddingBottom: 24,
     alignItems: "center",
-    paddingTop: 16,
-    paddingBottom: 32,
   },
   avatarContainer: {
-    marginBottom: 16,
     position: "relative",
+    marginBottom: 16,
   },
   avatarImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  avatarBorder: {
-    position: "absolute",
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    borderWidth: 4,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
     borderColor: "#FFFFFF",
-    top: -5,
-    left: -5,
+  },
+  avatarBadge: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#10B981",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileInfo: {
+    alignItems: "center",
+    marginBottom: 16,
   },
   userName: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "700",
     color: "#FFFFFF",
-    marginBottom: 6,
-    letterSpacing: 0.5,
+    marginBottom: 4,
+    letterSpacing: 0.3,
   },
   userEmail: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#FFFFFF",
-    opacity: 0.9,
-    marginBottom: 20,
+    opacity: 0.85,
+    fontWeight: "400",
   },
   premiumButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 24,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    gap: 6,
+    alignSelf: "center",
   },
   premiumButtonText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
   },
   menuCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 0,
-    marginHorizontal: 0,
-    marginBottom: 12,
-    paddingVertical: 8,
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#9BA1A6",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingBottom: 8,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    gap: 14,
   },
   menuIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "#F5F7FA",
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#EEF4FF",
     justifyContent: "center",
     alignItems: "center",
   },
   menuItemText: {
     flex: 1,
-    fontSize: 16,
-    color: "#1A1A1A",
+    fontSize: 15,
+    color: "#1F2937",
     fontWeight: "500",
+    letterSpacing: -0.2,
   },
   chevron: {
-    opacity: 0.5,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#F0F0F0",
-    marginLeft: 24,
-    marginRight: 24,
+    opacity: 0.4,
   },
   settingsCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 0,
-    marginHorizontal: 0,
-    marginBottom: 12,
-    paddingVertical: 8,
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  logoutItem: {
+    marginTop: 4,
+  },
+  logoutIconContainer: {
+    backgroundColor: "#FEF2F2",
   },
   logoutText: {
-    color: "#FF3B30",
+    color: "#EF4444",
   },
   footer: {
     alignItems: "center",
-    paddingVertical: 24,
-    marginBottom: 16,
+    paddingVertical: 20,
+    marginBottom: 20,
+    paddingHorizontal: 16,
   },
   footerText: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#9BA1A6",
+    fontWeight: "400",
+    letterSpacing: 0.3,
   },
 });

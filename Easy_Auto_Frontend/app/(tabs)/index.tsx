@@ -5,7 +5,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   Dimensions,
+  Easing,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
@@ -19,6 +21,49 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
+
+// Animated Button Component
+const AnimatedButton = ({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) => {
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 400,
+        delay,
+        easing: Easing.out(Easing.back(1.1)),
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 400,
+        delay,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <Animated.View
+      style={{
+        opacity: opacityAnim,
+        transform: [{ scale: scaleAnim }],
+      }}
+    >
+      {children}
+    </Animated.View>
+  );
+};
 
 const BANNER_DATA = [
   {
@@ -50,8 +95,46 @@ export default function HomeScreen() {
     useState(false);
   const [wishlistDrawerVisible, setWishlistDrawerVisible] = useState(false);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const [searchFocused, setSearchFocused] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const headerOpacity = useRef(new Animated.Value(0)).current;
+
+  // Initial animations
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 600,
+        easing: Easing.out(Easing.back(1.2)),
+        useNativeDriver: true,
+      }),
+      Animated.timing(headerOpacity, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Auto-play functionality
   useEffect(() => {
@@ -110,35 +193,45 @@ export default function HomeScreen() {
         onClose={() => setWishlistDrawerVisible(false)}
       />
       <SafeAreaView style={styles.safeAreaTop} edges={["top"]}>
-        <View style={styles.header}>
+        <Animated.View
+          style={[
+            styles.header,
+            {
+              opacity: headerOpacity,
+            },
+          ]}
+        >
           <View style={styles.headerTop}>
             <TouchableOpacity
               onPress={() => setSidebarVisible(true)}
               style={styles.menuButton}
+              activeOpacity={0.7}
             >
-              <MaterialIcons name="menu" size={24} color="#FFFFFF" />
+              <MaterialIcons name="menu" size={22} color="#FFFFFF" />
             </TouchableOpacity>
             <View style={styles.logoContainer}>
-              <Text style={styles.logoText}>EASY AUTO</Text>
+              <Text style={styles.logoText}>Easy Auto</Text>
             </View>
             <View style={styles.headerIcons}>
               <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => setNotificationDrawerVisible(true)}
+                activeOpacity={0.7}
               >
                 <MaterialIcons
                   name="notifications-none"
-                  size={24}
+                  size={22}
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => setWishlistDrawerVisible(true)}
+                activeOpacity={0.7}
               >
                 <MaterialIcons
                   name="favorite-border"
-                  size={24}
+                  size={22}
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
@@ -146,30 +239,49 @@ export default function HomeScreen() {
           </View>
 
           {/* Search Bar */}
-          <View style={styles.searchContainer}>
+          <View
+            style={[
+              styles.searchContainer,
+              searchFocused && styles.searchContainerFocused,
+            ]}
+          >
             <MaterialIcons
               name="search"
-              size={20}
-              color="#9BA1A6"
+              size={18}
+              color={searchFocused ? "#235CF8" : "#9BA1A6"}
               style={styles.searchIcon}
             />
             <TextInput
               style={styles.searchInput}
               placeholder="what are you looking for?"
               placeholderTextColor="#9BA1A6"
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
             />
-            <TouchableOpacity>
-              <MaterialIcons name="tune" size={24} color="#9BA1A6" />
+            <TouchableOpacity activeOpacity={0.7}>
+              <MaterialIcons
+                name="tune"
+                size={18}
+                color={searchFocused ? "#235CF8" : "#9BA1A6"}
+              />
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       </SafeAreaView>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
         {/* Find the Right Car By Section */}
-        <View style={styles.section}>
+        <Animated.View
+          style={[
+            styles.section,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <Text style={styles.sectionTitle}>Find the Right Car By</Text>
           <ScrollView
             horizontal
@@ -179,7 +291,7 @@ export default function HomeScreen() {
             <TouchableOpacity style={styles.filterPill}>
               <MaterialIcons
                 name="account-balance-wallet"
-                size={18}
+                size={16}
                 color="#235CF8"
               />
               <Text style={styles.filterPillText}>Budget</Text>
@@ -187,41 +299,33 @@ export default function HomeScreen() {
             <TouchableOpacity style={styles.filterPill}>
               <MaterialIcons
                 name="local-gas-station"
-                size={18}
+                size={16}
                 color="#235CF8"
               />
-
               <Text style={styles.filterPillText}>Fuel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.filterPill}>
-              <MaterialIcons name="directions-car" size={18} color="#235CF8" />
+              <MaterialIcons name="directions-car" size={16} color="#235CF8" />
               <Text style={styles.filterPillText}>Body Type</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.filterPill}>
-              <MaterialIcons
-                name="local-gas-station"
-                size={18}
-                color="#235CF8"
-              />
-
-              <Text style={styles.filterPillText}>Fuel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.filterPill}>
-              <MaterialIcons
-                name="local-gas-station"
-                size={18}
-                color="#235CF8"
-              />
-
-              <Text style={styles.filterPillText}>Fuel</Text>
+              <MaterialIcons name="people" size={16} color="#235CF8" />
+              <Text style={styles.filterPillText}>Seating</Text>
             </TouchableOpacity>
           </ScrollView>
-        </View>
+        </Animated.View>
 
         {/* Promotional Banner */}
-        <View style={styles.bannerContainer}>
+        <Animated.View
+          style={[
+            styles.bannerContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
           <ScrollView
             ref={scrollViewRef}
             horizontal
@@ -265,60 +369,129 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         {/* Action Buttons Grid */}
-        <View style={styles.actionGridContainer}>
-          <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.actionButton}>
-              <View style={styles.actionIconContainer}>
-                <MaterialIcons
-                  name="directions-car"
-                  size={26}
-                  color="#0066FF"
-                />
-              </View>
-              <Text style={styles.actionText}>Buy a Car</Text>
-            </TouchableOpacity>
+        <Animated.View
+          style={[
+            styles.actionGridContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.scrollableActionContainer}
+            style={styles.scrollableActionScrollView}
+          >
+            <AnimatedButton delay={100}>
+              <TouchableOpacity
+                style={styles.scrollableActionCard}
+                activeOpacity={0.85}
+              >
+                <View
+                  style={[
+                    styles.colorfulIconContainer,
+                    { backgroundColor: "#E3F2FD" },
+                  ]}
+                >
+                  <MaterialIcons
+                    name="directions-car"
+                    size={32}
+                    color="#1976D2"
+                  />
+                </View>
+                <Text style={styles.scrollableActionLabel}>Buy a Car</Text>
+              </TouchableOpacity>
+            </AnimatedButton>
 
-            <TouchableOpacity style={styles.actionButton}>
-              <View style={styles.actionIconContainer}>
-                <MaterialIcons name="sell" size={26} color="#0066FF" />
-              </View>
-              <Text style={styles.actionText}>Sell a Car</Text>
-            </TouchableOpacity>
+            <AnimatedButton delay={150}>
+              <TouchableOpacity
+                style={styles.scrollableActionCard}
+                activeOpacity={0.85}
+              >
+                <View
+                  style={[
+                    styles.colorfulIconContainer,
+                    { backgroundColor: "#FFF3E0" },
+                  ]}
+                >
+                  <MaterialIcons name="sell" size={32} color="#F57C00" />
+                </View>
+                <Text style={styles.scrollableActionLabel}>Sell a Car</Text>
+              </TouchableOpacity>
+            </AnimatedButton>
 
-            <TouchableOpacity style={styles.actionButton}>
-              <View style={styles.actionIconContainer}>
-                <MaterialIcons name="vpn-key" size={26} color="#0066FF" />
-              </View>
-              <Text style={styles.actionText}>Rent a Car</Text>
-            </TouchableOpacity>
-          </View>
+            <AnimatedButton delay={200}>
+              <TouchableOpacity
+                style={styles.scrollableActionCard}
+                activeOpacity={0.85}
+              >
+                <View
+                  style={[
+                    styles.colorfulIconContainer,
+                    { backgroundColor: "#E8F5E9" },
+                  ]}
+                >
+                  <MaterialIcons name="vpn-key" size={32} color="#388E3C" />
+                </View>
+                <Text style={styles.scrollableActionLabel}>Rent a Car</Text>
+              </TouchableOpacity>
+            </AnimatedButton>
 
-          <View style={[styles.actionRow, styles.actionRowCentered]}>
-            <TouchableOpacity style={styles.actionButton}>
-              <View style={styles.actionIconContainer}>
-                <MaterialIcons
-                  name="compare-arrows"
-                  size={26}
-                  color="#0066FF"
-                />
-              </View>
-              <Text style={styles.actionText}>Compare Cars</Text>
-            </TouchableOpacity>
+            <AnimatedButton delay={250}>
+              <TouchableOpacity
+                style={styles.scrollableActionCard}
+                activeOpacity={0.85}
+              >
+                <View
+                  style={[
+                    styles.colorfulIconContainer,
+                    { backgroundColor: "#F3E5F5" },
+                  ]}
+                >
+                  <MaterialIcons
+                    name="compare-arrows"
+                    size={32}
+                    color="#7B1FA2"
+                  />
+                </View>
+                <Text style={styles.scrollableActionLabel}>Compare</Text>
+              </TouchableOpacity>
+            </AnimatedButton>
 
-            <TouchableOpacity style={styles.actionButton}>
-              <View style={styles.actionIconContainer}>
-                <MaterialIcons name="store" size={26} color="#0066FF" />
-              </View>
-              <Text style={styles.actionText}>Find Dealers</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            <AnimatedButton delay={300}>
+              <TouchableOpacity
+                style={styles.scrollableActionCard}
+                activeOpacity={0.85}
+              >
+                <View
+                  style={[
+                    styles.colorfulIconContainer,
+                    { backgroundColor: "#FFEBEE" },
+                  ]}
+                >
+                  <MaterialIcons name="store" size={32} color="#C62828" />
+                </View>
+                <Text style={styles.scrollableActionLabel}>Find Dealers</Text>
+              </TouchableOpacity>
+            </AnimatedButton>
+          </ScrollView>
+        </Animated.View>
 
         {/* Trending Cars Section */}
-        <View style={styles.section}>
+        <Animated.View
+          style={[
+            styles.section,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <Text style={styles.sectionTitle}>Trending Cars</Text>
           <ScrollView
             horizontal
@@ -383,10 +556,18 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
 
         {/* Recommended For You Section */}
-        <View style={styles.sectionWhite}>
+        <Animated.View
+          style={[
+            styles.sectionWhite,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <Text style={styles.sectionTitle}>Recommended For You</Text>
           <ScrollView
             horizontal
@@ -455,10 +636,18 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
 
         {/* Explore by Brand Section */}
-        <View style={styles.sectionWhite}>
+        <Animated.View
+          style={[
+            styles.sectionWhite,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <Text style={styles.sectionTitle}>Explore by Brand</Text>
           <View style={styles.brandGrid}>
             {[
@@ -523,10 +712,18 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.viewAllButton}>
             <Text style={styles.viewAllButtonText}>View All Brands</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {/* Compare Cars Section */}
-        <View style={styles.sectionWhite}>
+        <Animated.View
+          style={[
+            styles.sectionWhite,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <Text style={styles.sectionTitle}>Compare Cars</Text>
           <ScrollView
             horizontal
@@ -619,10 +816,18 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.viewAllButton}>
             <Text style={styles.viewAllButtonText}>More Comparisons</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {/* What Our Users Say Section */}
-        <View style={styles.sectionWhite}>
+        <Animated.View
+          style={[
+            styles.sectionWhite,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitleNoMargin}>What Our Users Say</Text>
             <TouchableOpacity>
@@ -679,7 +884,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
       </ScrollView>
     </View>
   );
@@ -688,7 +893,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#235CF8",
+    backgroundColor: "#FFFFFF",
   },
   safeAreaTop: {
     backgroundColor: "#235CF8",
@@ -699,24 +904,24 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#235CF8",
-    paddingTop: 16,
-    paddingBottom: 32,
+    paddingTop: 8,
+    paddingBottom: 24,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    overflow: "hidden",
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 8,
+    marginBottom: -1,
   },
   headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
-    minHeight: 56,
+    minHeight: 48,
+    marginBottom: 4,
   },
   logoContainer: {
     flex: 1,
@@ -727,59 +932,71 @@ const styles = StyleSheet.create({
   },
   logoText: {
     color: "#FFFFFF",
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "700",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   menuButton: {
     padding: 8,
     minWidth: 40,
-    alignItems: "flex-start",
+    height: 40,
+    alignItems: "center",
     justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   headerIcons: {
     flexDirection: "row",
-    gap: 12,
+    gap: 8,
     alignItems: "center",
   },
   iconButton: {
     padding: 8,
     minWidth: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: "#EBEEF2",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  searchContainerFocused: {
+    borderColor: "#235CF8",
   },
   searchIcon: {
-    marginRight: 4,
+    marginRight: 2,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
     color: "#1A1A1A",
     fontWeight: "400",
+    paddingVertical: 0,
   },
   section: {
     paddingHorizontal: 20,
-    paddingVertical: 32,
+    paddingVertical: 20,
     backgroundColor: "#FFFFFF",
   },
   sectionWhite: {
     paddingHorizontal: 20,
-    paddingVertical: 32,
+    paddingVertical: 20,
     backgroundColor: "#FFFFFF",
   },
   sectionHeader: {
@@ -789,23 +1006,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1A1A1A",
-    marginBottom: 20,
-    letterSpacing: -0.2,
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 12,
+    letterSpacing: -0.3,
   },
   sectionTitleNoMargin: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1A1A1A",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#111827",
     marginBottom: 0,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
   },
   seeAllLink: {
-    fontSize: 14,
-    color: "#0066FF",
-    fontWeight: "500",
+    fontSize: 15,
+    color: "#235CF8",
+    fontWeight: "600",
+    letterSpacing: -0.2,
   },
   horizontalScroll: {
     marginHorizontal: -20,
@@ -837,30 +1055,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginRight: 10,
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginRight: 8,
     gap: 6,
-    shadowColor: "#235CF8",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-    borderWidth: 1.5,
-    borderColor: "#E5E5E5",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   filterPillText: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#235CF8",
-    fontWeight: "500",
+    fontWeight: "600",
+    letterSpacing: -0.1,
   },
   bannerContainer: {
     paddingHorizontal: 20,
-    marginBottom: 32,
+    marginBottom: 12,
+    paddingTop: 8,
   },
   bannerScrollView: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   banner: {
     backgroundColor: "#2C3E50",
@@ -871,7 +1091,7 @@ const styles = StyleSheet.create({
     position: "relative",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 20,
     elevation: 8,
     marginRight: 0,
@@ -898,17 +1118,18 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   bannerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: 24,
+    fontWeight: "700",
     color: "#FFFFFF",
-    marginBottom: 4,
-    letterSpacing: -0.3,
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
   bannerSubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#FFFFFF",
-    opacity: 0.9,
+    opacity: 0.95,
     fontWeight: "400",
+    lineHeight: 22,
   },
   carouselDots: {
     flexDirection: "row",
@@ -922,53 +1143,65 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     width: 24,
-    backgroundColor: "#0066FF",
+    backgroundColor: "#235CF8",
   },
   dotInactive: {
     width: 6,
-    backgroundColor: "#D0D0D0",
+    backgroundColor: "#D1D5DB",
   },
   actionGridContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 24,
-    marginBottom: 8,
-    backgroundColor: "#FFFFFF",
-  },
-  actionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 24,
-  },
-  actionRowCentered: {
-    justifyContent: "center",
-    gap: (width - 60) / 3,
+    paddingTop: 12,
+    paddingBottom: 20,
     marginBottom: 0,
-  },
-  actionButton: {
-    width: (width - 60) / 3,
-    alignItems: "center",
-  },
-  actionIconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
     backgroundColor: "#FFFFFF",
+  },
+  scrollableActionScrollView: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  scrollableActionContainer: {
+    flexDirection: "row",
+    gap: 10,
+    paddingRight: 20,
+  },
+  scrollableActionCard: {
+    width: 100,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+    minHeight: 120,
+  },
+  colorfulIconContainer: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
-    shadowColor: "#0066FF",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 5,
-    borderWidth: 2,
-    borderColor: "#F0F0F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  actionText: {
-    fontSize: 13,
-    color: "#1A1A1A",
-    fontWeight: "500",
+  scrollableActionLabel: {
+    fontSize: 12,
+    color: "#1F2937",
+    fontWeight: "600",
     textAlign: "center",
+    letterSpacing: -0.1,
+    marginTop: 2,
   },
   trendingContainer: {
     marginTop: 8,
@@ -983,19 +1216,19 @@ const styles = StyleSheet.create({
   trendingCarCard: {
     width: width * 0.78,
     marginRight: 16,
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: "hidden",
   },
   trendingCarImageContainer: {
     position: "relative",
-    height: 260,
-    borderRadius: 20,
+    height: 280,
+    borderRadius: 24,
     overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 6,
   },
   trendingCarImage: {
     width: "100%",
@@ -1007,19 +1240,20 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#0066FF",
-    padding: 16,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
+    backgroundColor: "#235CF8",
+    padding: 18,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   trendingCarInfo: {
     gap: 8,
   },
   trendingCarModel: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "700",
     color: "#FFFFFF",
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
+    marginBottom: 4,
   },
   trendingCarDetailsRow: {
     flexDirection: "row",
@@ -1044,27 +1278,33 @@ const styles = StyleSheet.create({
   },
   trendingPriceButton: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    minWidth: 90,
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    minWidth: 100,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   trendingPriceText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#0066FF",
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#235CF8",
+    letterSpacing: -0.3,
   },
   // Car Card Styles
   carCard: {
-    width: width * 0.72,
+    width: width * 0.75,
     marginRight: 16,
     borderRadius: 20,
     overflow: "hidden",
   },
   carImageContainer: {
     position: "relative",
-    height: 220,
+    height: 200,
     borderRadius: 20,
     overflow: "hidden",
     shadowColor: "#000",
@@ -1080,31 +1320,40 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     position: "absolute",
-    top: 12,
-    right: 12,
+    top: 10,
+    right: 10,
     zIndex: 2,
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
-    borderRadius: 16,
-    padding: 6,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    borderRadius: 18,
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   carOverlay: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0, 102, 255, 0.9)",
+    backgroundColor: "rgba(35, 92, 248, 0.95)",
     padding: 16,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   carInfo: {
-    gap: 6,
+    gap: 8,
   },
   carName: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
     color: "#FFFFFF",
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
+    marginBottom: 2,
   },
   carDetails: {
     flexDirection: "row",
@@ -1114,36 +1363,37 @@ const styles = StyleSheet.create({
   carDistance: {
     fontSize: 12,
     color: "#FFFFFF",
-    opacity: 0.9,
+    opacity: 0.95,
     fontWeight: "400",
   },
   carPrice: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
     color: "#FFFFFF",
+    letterSpacing: -0.2,
   },
   // Brand Grid Styles
   brandGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   brandCard: {
     width: (width - 56) / 4,
     aspectRatio: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    marginBottom: 12,
+    borderRadius: 18,
+    marginBottom: 8,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: "#E5E5E5",
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowRadius: 10,
+    elevation: 3,
   },
   brandLogoContainer: {
     width: "100%",
@@ -1159,7 +1409,7 @@ const styles = StyleSheet.create({
   brandLogoText: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#0066FF",
+    color: "#235CF8",
     letterSpacing: 1,
   },
   viewAllButton: {
@@ -1181,15 +1431,15 @@ const styles = StyleSheet.create({
     width: width * 0.88,
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    padding: 20,
+    padding: 24,
     marginRight: 16,
     borderWidth: 1,
-    borderColor: "#E5E5E5",
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowRadius: 16,
+    elevation: 4,
   },
   compareContent: {
     flexDirection: "row",
@@ -1203,26 +1453,27 @@ const styles = StyleSheet.create({
   },
   compareCarImageStyle: {
     width: "100%",
-    height: 120,
-    borderRadius: 12,
-    marginBottom: 8,
+    height: 140,
+    borderRadius: 16,
+    marginBottom: 10,
   },
   compareCarName: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#1A1A1A",
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1F2937",
     textAlign: "center",
+    letterSpacing: -0.2,
   },
   highlight: {
-    color: "#0066FF",
-    fontWeight: "600",
+    color: "#235CF8",
+    fontWeight: "700",
   },
   comparePrice: {
-    fontSize: 12,
-    color: "#666",
+    fontSize: 13,
+    color: "#6B7280",
     textAlign: "center",
-    fontWeight: "400",
-    marginTop: 2,
+    fontWeight: "500",
+    marginTop: 4,
   },
   vsContainer: {
     flexDirection: "column",
@@ -1235,29 +1486,39 @@ const styles = StyleSheet.create({
     backgroundColor: "#E5E5E5",
   },
   vsCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F8F8F8",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F9FAFB",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#E5E5E5",
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   vsText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#1A1A1A",
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#235CF8",
   },
   // Testimonial Card Styles
   testimonialCard: {
     width: width * 0.8,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 24,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: "#E5E5E5",
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
   testimonialHeader: {
     flexDirection: "row",
@@ -1266,26 +1527,26 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   avatarContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#F8F8F8",
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#E5E5E5",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
   },
   avatar: {
-    fontSize: 24,
+    fontSize: 26,
   },
   testimonialInfo: {
     flex: 1,
-    gap: 4,
+    gap: 6,
   },
   testimonialName: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: "#1F2937",
     letterSpacing: -0.2,
   },
   ratingContainer: {
@@ -1293,9 +1554,10 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   testimonialQuote: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 20,
+    fontSize: 15,
+    color: "#4B5563",
+    lineHeight: 22,
     fontWeight: "400",
+    letterSpacing: -0.1,
   },
 });
