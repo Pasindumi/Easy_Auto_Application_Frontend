@@ -45,15 +45,13 @@ export default function ResetPasswordScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safe}>
 
-      {/* Shared header component with back button */}
-        <Header />
-        
       {/* KeyboardAvoidingView shifts content above keyboard */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        
+        {/* Shared header component with back button */}
+        <Header />
 
         {/* Scrollable content */}
         <ScrollView contentContainerStyle={[styles.container, { paddingBottom: FOOTER_HEIGHT + 24, paddingTop: HEADER_HEIGHT }]} keyboardShouldPersistTaps="handled">
