@@ -3,6 +3,7 @@ import Sidebar from "@/components/sidebar";
 import WishlistDrawer from "@/components/wishlist-drawer";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -90,6 +91,7 @@ const BANNER_DATA = [
 ];
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [notificationDrawerVisible, setNotificationDrawerVisible] =
     useState(false);
@@ -412,6 +414,7 @@ export default function HomeScreen() {
               <TouchableOpacity
                 style={styles.scrollableActionCard}
                 activeOpacity={0.85}
+                onPress={() => router.push('/post-add')}
               >
                 <View
                   style={[

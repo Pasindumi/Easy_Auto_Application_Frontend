@@ -6,8 +6,8 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export const unstable_settings = {
-  // Start with the landing page (tabs/index)
-  initialRouteName: '(tabs)',
+  // Start with the landing page first
+  initialRouteName: 'landingpage',
 };
 
 export default function RootLayout() {
@@ -20,6 +20,7 @@ export default function RootLayout() {
         <Stack.Screen name="landingpage" options={{ headerShown: false }} />
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
         <Stack.Screen name="selectlanguage" options={{ headerShown: false }} />
+        <Stack.Screen name="post-add" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
