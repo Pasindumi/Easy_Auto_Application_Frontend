@@ -22,6 +22,7 @@ export default function RootLayout() {
         <Stack.Screen name="selectlanguage" options={{ headerShown: false }} />
         <Stack.Screen name="post-add" options={{ headerShown: false }} />
         <Stack.Screen name="subscriptions" options={{ headerShown: false }} />
+        <Stack.Screen name="listings" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />

@@ -484,7 +484,9 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <View style={styles.headerTop}>
+          {/* Header Content: Top bar with menu, logo, and action icons */}
+          <View style={styles.headerContent}>
+            {/* Menu Button - Clean, professional icon */}
             <TouchableOpacity
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -493,15 +495,20 @@ export default function HomeScreen() {
               onPressIn={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }}
-              style={styles.menuButton}
-              activeOpacity={0.6}
+              style={styles.headerButton}
+              activeOpacity={0.8}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              <MaterialIcons name="menu" size={20} color="#FFFFFF" />
+              <MaterialIcons name="menu" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-            <View style={styles.logoContainer}>
+
+            {/* Logo - Centered for balanced layout */}
+            <View style={styles.logoWrapper}>
               <Text style={styles.logoText}>Easy Auto</Text>
             </View>
-            <View style={styles.headerIcons}>
+
+            {/* Action Icons: Notifications and Wishlist */}
+            <View style={styles.headerActions}>
               <View style={styles.iconButtonWrapper}>
                 <TouchableOpacity
                   style={styles.iconButton}
@@ -527,7 +534,7 @@ export default function HomeScreen() {
                 >
                   <MaterialIcons
                     name="notifications-none"
-                    size={20}
+                    size={22}
                     color="#FFFFFF"
                   />
                   {notificationCount > 0 && (
@@ -588,7 +595,7 @@ export default function HomeScreen() {
                         },
                       ].map((notif) => (
                         <TouchableOpacity
-                          key={notif.id}
+                          key={`notification-${notif.id}`}
                           style={[
                             styles.previewItem,
                             notif.unread && styles.previewItemUnread,
@@ -676,8 +683,8 @@ export default function HomeScreen() {
                   activeOpacity={0.6}
                 >
                   <MaterialIcons
-                    name="favorite-border"
-                    size={20}
+                    name="favorite-outline"
+                    size={22}
                     color="#FFFFFF"
                   />
                   {wishlistCount > 0 && (
@@ -736,7 +743,7 @@ export default function HomeScreen() {
                         },
                       ].map((item) => (
                         <TouchableOpacity
-                          key={item.id}
+                          key={`wishlist-${item.id}`}
                           style={styles.previewItem}
                           onPress={() => {
                             Haptics.impactAsync(
@@ -786,39 +793,44 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Search Bar */}
-          <View
-            style={[
-              styles.searchContainer,
-              searchFocused && styles.searchContainerFocused,
-            ]}
-          >
-            <MaterialIcons
-              name="search"
-              size={18}
-              color={searchFocused ? "#235CF8" : "#9BA1A6"}
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="what are you looking for?"
-              placeholderTextColor="#9BA1A6"
-              onFocus={() => {
-                setSearchFocused(true);
-                setShowSearchSuggestions(true);
-              }}
-              onBlur={() => {
-                setSearchFocused(false);
-                setTimeout(() => setShowSearchSuggestions(false), 200);
-              }}
-            />
-            <TouchableOpacity activeOpacity={0.7}>
+          {/* Search Bar - Premium design with refined spacing and typography */}
+          <View style={styles.searchWrapper}>
+            <View
+              style={[
+                styles.searchContainer,
+                searchFocused && styles.searchContainerFocused,
+              ]}
+            >
               <MaterialIcons
-                name="tune"
-                size={18}
-                color={searchFocused ? "#235CF8" : "#9BA1A6"}
+                name="search"
+                size={22}
+                color={searchFocused ? "#235CF8" : "#9CA3AF"}
+                style={styles.searchIcon}
               />
-            </TouchableOpacity>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="What are you looking for?"
+                placeholderTextColor="#9CA3AF"
+                onFocus={() => {
+                  setSearchFocused(true);
+                  setShowSearchSuggestions(true);
+                }}
+                onBlur={() => {
+                  setSearchFocused(false);
+                  setTimeout(() => setShowSearchSuggestions(false), 200);
+                }}
+              />
+              <TouchableOpacity
+                activeOpacity={0.75}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <MaterialIcons
+                  name="tune"
+                  size={22}
+                  color={searchFocused ? "#235CF8" : "#9CA3AF"}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Quick Search Suggestions */}
@@ -828,7 +840,7 @@ export default function HomeScreen() {
               {["Toyota Camry", "Honda Civic", "BMW 3 Series"].map(
                 (suggestion, index) => (
                   <TouchableOpacity
-                    key={index}
+                    key={`recent-search-${index}`}
                     style={styles.suggestionItem}
                     activeOpacity={0.7}
                   >
@@ -930,7 +942,10 @@ export default function HomeScreen() {
                   "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=300&fit=crop",
               },
             ].map((deal) => (
-              <TouchableOpacity key={deal.id} style={styles.dailyDealCard}>
+              <TouchableOpacity
+                key={`deal-${deal.id}`}
+                style={styles.dailyDealCard}
+              >
                 <Image
                   source={{ uri: deal.image }}
                   style={styles.dailyDealImage}
@@ -1053,7 +1068,7 @@ export default function HomeScreen() {
             style={styles.bannerScrollView}
           >
             {BANNER_DATA.map((banner, index) => (
-              <View key={banner.id} style={styles.banner}>
+              <View key={`banner-${banner.id}`} style={styles.banner}>
                 <Image
                   source={{ uri: banner.image }}
                   style={styles.bannerImage}
@@ -1080,7 +1095,7 @@ export default function HomeScreen() {
           <View style={styles.carouselDots}>
             {BANNER_DATA.map((_, index) => (
               <TouchableOpacity
-                key={index}
+                key={`banner-dot-${index}`}
                 onPress={() => handleDotPress(index)}
                 activeOpacity={0.7}
               >
@@ -1260,7 +1275,7 @@ export default function HomeScreen() {
               { name: "Sports", count: 2 },
             ].map((category) => (
               <TouchableOpacity
-                key={category.name}
+                key={`category-${category.name}`}
                 style={[
                   styles.categoryTab,
                   trendingCategory === category.name &&
@@ -1430,7 +1445,7 @@ export default function HomeScreen() {
               },
             ].map((car, index) => (
               <TouchableOpacity
-                key={car.id}
+                key={`trending-${car.id}`}
                 style={styles.trendingCarCard}
                 activeOpacity={0.95}
                 onPress={() => {
@@ -1551,7 +1566,7 @@ export default function HomeScreen() {
               },
             ].map((car) => (
               <TouchableOpacity
-                key={car.id}
+                key={`recommended-${car.id}`}
                 style={styles.recommendedCarCard}
                 activeOpacity={0.95}
                 onPress={() => {
@@ -1641,7 +1656,10 @@ export default function HomeScreen() {
                 viewedAt: "1 day ago",
               },
             ].map((car) => (
-              <TouchableOpacity key={car.id} style={styles.recentlyViewedCard}>
+              <TouchableOpacity
+                key={`recently-viewed-${car.id}`}
+                style={styles.recentlyViewedCard}
+              >
                 <Image
                   source={{ uri: car.image }}
                   style={styles.recentlyViewedImage}
@@ -1785,7 +1803,10 @@ export default function HomeScreen() {
             ]
               .slice(0, 12)
               .map((brand, index) => (
-                <View key={index} style={styles.brandCardWithInfo}>
+                <View
+                  key={`brand-${brand.name}-${index}`}
+                  style={styles.brandCardWithInfo}
+                >
                   <BrandCard brand={brand} index={index} />
                   <Text style={styles.brandName}>{brand.name}</Text>
                   <Text style={styles.brandCarCount}>
@@ -1854,7 +1875,10 @@ export default function HomeScreen() {
                 },
               },
             ].map((comparison) => (
-              <TouchableOpacity key={comparison.id} style={styles.compareCard}>
+              <TouchableOpacity
+                key={`compare-${comparison.id}`}
+                style={styles.compareCard}
+              >
                 <View style={styles.compareContent}>
                   <View style={styles.compareCarImage}>
                     <Image
@@ -1945,7 +1969,10 @@ export default function HomeScreen() {
                 date: "1 week ago",
               },
             ].map((testimonial, index) => (
-              <TouchableOpacity key={index} style={styles.testimonialCard}>
+              <TouchableOpacity
+                key={`testimonial-${index}`}
+                style={styles.testimonialCard}
+              >
                 <View style={styles.testimonialHeader}>
                   <View style={styles.avatarContainer}>
                     <Text style={styles.avatar}>{testimonial.avatar}</Text>
@@ -1962,7 +1989,7 @@ export default function HomeScreen() {
                     <View style={styles.ratingContainer}>
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <MaterialIcons
-                          key={i}
+                          key={`testimonial-${index}-star-${i}`}
                           name="star"
                           size={16}
                           color="#FFD700"
@@ -2008,84 +2035,109 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
+  // Premium Header Design
+  // Design decision: Smooth rounded bottom corners (24px) create elegant, modern transition
+  // Well-balanced radius - not too sharp (would look harsh) or too big (would look excessive)
   header: {
     backgroundColor: "#235CF8",
-    paddingTop: 8,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingTop: 12, // Refined top padding for better spacing
+    paddingBottom: 20, // Adequate bottom padding before rounded corners
+    paddingHorizontal: 24, // Premium horizontal spacing
+    borderBottomLeftRadius: 24, // Smooth, well-balanced corner radius
+    borderBottomRightRadius: 24, // Matches left for symmetry
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.1, // Refined shadow for subtle depth
     shadowRadius: 12,
     elevation: 8,
-    marginBottom: -1,
+    marginBottom: 0,
   },
-  headerTop: {
+  // Header Content: Top bar with menu, logo, and action icons
+  // Design decision: Balanced 3-column layout with refined spacing for visual harmony
+  headerContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    minHeight: 44,
-    marginBottom: 12,
+    minHeight: 52, // Increased for better touch targets and premium feel
+    marginBottom: 18, // Premium vertical spacing
   },
-  logoContainer: {
-    flex: 1,
-    flexDirection: "row",
+  // Header Button: Menu button with clean, professional styling
+  // Design decision: Glassmorphism effect with refined opacity (0.2) for modern premium look
+  headerButton: {
+    width: 44, // Fixed width for consistency and better touch target
+    height: 44,
+    borderRadius: 14, // Increased for modern, premium feel
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Refined opacity for better visibility
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
+  // Logo Wrapper: Centered for balanced, professional layout
+  logoWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16, // Increased padding for better spacing
+  },
+  // Logo Text: Enhanced typography hierarchy for premium brand presence
   logoText: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 20, // Increased for prominence and readability
     fontWeight: "700",
-    letterSpacing: 0.3,
+    letterSpacing: -0.4, // Tighter letter spacing for modern, refined look
   },
-  menuButton: {
-    padding: 6,
-    minWidth: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    overflow: "hidden",
-  },
-  headerIcons: {
+  // Header Actions: Right side icons container with proper spacing
+  headerActions: {
     flexDirection: "row",
-    gap: 6,
+    gap: 10, // Increased gap for better visual separation
     alignItems: "center",
   },
+  // Icon Button: Action buttons (notifications, wishlist) with consistent styling
+  // Design decision: Matching headerButton style for visual consistency
   iconButton: {
-    padding: 6,
-    minWidth: 36,
-    height: 36,
+    width: 44, // Consistent sizing with menu button
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 14, // Matches headerButton for consistency
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Refined opacity
     position: "relative",
-    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
+  // Badge: Notification/Wishlist count indicator
+  // Design decision: Refined styling with better positioning and premium appearance
   badge: {
     position: "absolute",
-    top: 2,
-    right: 2,
+    top: 6,
+    right: 6,
     backgroundColor: "#FF4444",
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
+    borderRadius: 11, // Slightly larger for better visibility
+    minWidth: 20, // Increased for better readability
+    height: 20,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 3,
-    borderWidth: 2,
+    paddingHorizontal: 5,
+    borderWidth: 2.5,
     borderColor: "#235CF8",
+    shadowColor: "#FF4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35, // Refined shadow for depth
+    shadowRadius: 4,
+    elevation: 5,
   },
   badgeText: {
     color: "#FFFFFF",
-    fontSize: 9,
+    fontSize: 11, // Increased for better readability
     fontWeight: "700",
+    letterSpacing: -0.3,
   },
   iconButtonWrapper: {
     position: "relative",
@@ -2225,35 +2277,46 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.3)",
     zIndex: 999,
   },
+  // Search Wrapper: Container for search bar with refined spacing
+  searchWrapper: {
+    paddingBottom: 0, // No extra padding needed with rounded corners
+  },
+  // Search Container: Premium search bar design
+  // Design decision: Refined borders, spacing, and shadows for modern premium look
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    gap: 10,
-    marginTop: 0,
-    borderWidth: 1,
-    borderColor: "#EBEEF2",
+    borderRadius: 16, // Increased for more premium, modern feel
+    paddingHorizontal: 18, // Increased for premium spacing
+    paddingVertical: 14, // Increased for better touch targets
+    gap: 14, // Increased gap for better icon-text separation
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.3)", // Refined border opacity
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   searchContainerFocused: {
-    borderColor: "#235CF8",
+    borderColor: "#FFFFFF",
+    borderWidth: 2,
+    backgroundColor: "#FFFFFF",
+    shadowOpacity: 0.12, // Enhanced shadow on focus
+    shadowRadius: 14,
   },
   searchIcon: {
-    marginRight: 2,
+    marginRight: 0,
   },
+  // Search Input: Enhanced typography for premium readability
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    color: "#1A1A1A",
+    fontSize: 16, // Optimal size for readability
+    color: "#111827",
     fontWeight: "400",
     paddingVertical: 0,
+    letterSpacing: -0.2, // Tighter spacing for modern look
   },
   searchSuggestions: {
     backgroundColor: "#FFFFFF",
@@ -2523,8 +2586,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     backgroundColor: "#FFF5F5",
     marginBottom: 12,
-    borderTopWidth: 3,
-    borderTopColor: "#FF4444",
   },
   dailyDealsHeader: {
     flexDirection: "row",
