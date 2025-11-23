@@ -24,7 +24,7 @@ export default function ProfileScreen() {
           <View style={styles.section}>
             <TouchableOpacity
               style={styles.signupButton}
-              onPress={() => router.push('/(tabs)/signup')}
+              onPress={() => router.push('/signup')}
               activeOpacity={0.8}
             >
               <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
