@@ -390,25 +390,17 @@ export default function HomeScreen() {
             style={styles.scrollableActionScrollView}
           >
             <AnimatedButton delay={100}>
-              <TouchableOpacity
-                style={styles.scrollableActionCard}
-                activeOpacity={0.85}
-              >
-                <View
-                  style={[
-                    styles.colorfulIconContainer,
-                    { backgroundColor: "#E3F2FD" },
-                  ]}
-                >
-                  <MaterialIcons
-                    name="directions-car"
-                    size={32}
-                    color="#1976D2"
-                  />
-                </View>
-                <Text style={styles.scrollableActionLabel}>Buy a Car</Text>
-              </TouchableOpacity>
-            </AnimatedButton>
+  <TouchableOpacity
+    style={styles.scrollableActionCard}
+    activeOpacity={0.85}
+    onPress={() => router.push("/buy-car")}
+  >
+    <View style={[styles.colorfulIconContainer, { backgroundColor: "#E3F2FD" }]}>
+      <MaterialIcons name="directions-car" size={32} color="#1976D2" />
+    </View>
+    <Text style={styles.scrollableActionLabel}>Buy a Car</Text>
+  </TouchableOpacity>
+</AnimatedButton>
 
             <AnimatedButton delay={150}>
               <TouchableOpacity
@@ -449,6 +441,7 @@ export default function HomeScreen() {
               <TouchableOpacity
                 style={styles.scrollableActionCard}
                 activeOpacity={0.85}
+                onPress={() => router.push('/compare')}
               >
                 <View
                   style={[

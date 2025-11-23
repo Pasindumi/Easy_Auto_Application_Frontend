@@ -1,86 +1,273 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+// PROJECT_ROOT/app/ratings.tsx
 
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
+import React from 'react';
+import {
+         FlatList,
+         Image,
+         SafeAreaView,
+         ScrollView,
+         StyleSheet,
+         Text,
+         TouchableOpacity,
+         View,
+} from 'react-native';
+
+// ---- Review Data ----
+const REVIEWS = [
+  {
+    id: '1',
+    name: 'Martin Luthur',
+    rating: 4.0,
+    date: '2 week ago',
+    image: require('../assets/images/user.jpeg'),
+    comment: 'Best Seller, excellent communication, quick response',
+  },
+  {
+    id: '2',
+    name: 'Dilmin Ekanayaka',
+    rating: 4.8,
+    date: '3 week ago',
+    image: require('../assets/images/user1.jpg'),
+    comment: 'Best Seller, excellent communication, quick response',
+  },
+  {
+    id: '3',
+    name: 'Ishini Gimhani',
+    rating: 5.0,
+    date: '4 week ago',
+    image: require('../assets/images/user.jpeg'),
+    comment: 'Best Seller, excellent communication, quick response',
+  },
+  {
+    id: '4',
+    name: 'Piumi Rajapakse',
+    rating: 4.0,
+    date: '1 month ago',
+    image: require('../assets/images/user.jpeg'),
+    comment: 'Best Seller, excellent communication, quick response',
+  },
+  {
+    id: '5',
+    name: 'Malsha Nethmini',
+    rating: 4.0,
+    date: '2 month ago',
+    image: require('../assets/images/user.jpeg'),
+    comment: 'Best Seller, excellent communication, quick response',
+  },
+];
+
+// ---- Star Component ----
+const StarRating = ({ rating }: { rating: number }) => {
+  const stars = [];
+
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <Ionicons
+        key={i}
+        name={i <= rating ? 'star' : 'star-outline'}
+        size={14}
+        color="#F9C74F"
+        style={{ marginRight: 2 }}
+      />
+    );
+  }
+
+  return <View style={{ flexDirection: 'row' }}>{stars}</View>;
+};
+
+// ---- Main Screen ----
 export default function RatingsScreen() {
+  const router = useRouter();
+
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialIcons
-            name="arrow-back"
-            size={24}
-            color="#FFFFFF"
-            style={styles.backButton}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Ratings</Text>
-      </View>
-      <ScrollView style={styles.content}>
-        <View style={styles.card}>
-          <MaterialIcons name="star-outline" size={48} color="#0066FF" />
-          <Text style={styles.title}>Ratings</Text>
-          <Text style={styles.subtitle}>View your ratings and reviews</Text>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <SafeAreaView style={styles.safe}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>RATINGS</Text>
+          <View style={{ width: 24 }} />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        <ScrollView contentContainerStyle={styles.container}>
+
+          {/* Overall Rating */}
+          <View style={styles.overallContainer}>
+            <Text style={styles.overallTitle}>Overall Ratings</Text>
+
+            <Text style={styles.overallNumber}>4.9</Text>
+
+            <View style={{ flexDirection: 'row', marginVertical: 6 }}>
+              <StarRating rating={5} />
+            </View>
+
+            <Text style={styles.reviewText}>Based on 20 Reviews</Text>
+          </View>
+
+          {/* Reviews List */}
+          <FlatList
+            data={REVIEWS}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false}
+            renderItem={({ item }) => (
+              <View style={styles.reviewCard}>
+                <Image source={item.image} style={styles.avatar} />
+
+                <View style={styles.reviewContent}>
+                  <View style={styles.reviewHeader}>
+                    <Text style={styles.reviewName}>{item.name}</Text>
+                    <Text style={styles.reviewDate}>{item.date}</Text>
+                  </View>
+
+                  <View style={styles.reviewStars}>
+                    <StarRating rating={Math.round(item.rating)} />
+                    <Text style={styles.ratingNum}>({item.rating})</Text>
+                  </View>
+
+                  <Text style={styles.comment}>"{item.comment}"</Text>
+                </View>
+              </View>
+            )}
+          />
+
+          {/* View All Button */}
+          <TouchableOpacity style={styles.viewAllBtn}>
+            <Text style={styles.viewAllText}>View All Ratings</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 }
 
+// ---- Styles ----
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#F5F5F5',
   },
+
   header: {
-    backgroundColor: "#0066FF",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
+    height: 100,
+    backgroundColor: '#235CF8',
+    paddingTop: 50,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  backButton: {
-    padding: 4,
-  },
+
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
-  content: {
-    flex: 1,
-    padding: 20,
+
+  container: {
+    padding: 16,
+    paddingBottom: 40,
   },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 32,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+
+  overallContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#1A1A1A",
-    marginTop: 16,
+
+  overallTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111',
     marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 16,
-    color: "#9BA1A6",
-    textAlign: "center",
+
+  overallNumber: {
+    fontSize: 56,
+    fontWeight: '800',
+    color: '#235CF8',
+  },
+
+  reviewText: {
+    fontSize: 12,
+    color: '#666',
+  },
+
+  reviewCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    flexDirection: 'row',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    marginRight: 12,
+  },
+
+  reviewContent: {
+    flex: 1,
+  },
+
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  reviewName: {
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#111',
+  },
+
+  reviewDate: {
+    fontSize: 11,
+    color: '#888',
+  },
+
+  reviewStars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+
+  ratingNum: {
+    fontSize: 12,
+    marginLeft: 6,
+    color: '#777',
+  },
+
+  comment: {
+    fontSize: 12,
+    color: '#444',
+  },
+
+  viewAllBtn: {
+    marginTop: 16,
+    backgroundColor: '#fff',
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+
+  viewAllText: {
+    fontWeight: '700',
+    color: '#111',
   },
 });
