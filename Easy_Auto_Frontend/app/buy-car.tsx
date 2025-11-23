@@ -3,17 +3,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-         Dimensions,
-         FlatList,
-         Image,
-         ImageBackground,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TextInput,
-         TouchableOpacity,
-         View,
+  Dimensions,
+  FlatList,
+  Image,
+  ImageBackground,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import BottomNav from '../components/BottomNav';
 

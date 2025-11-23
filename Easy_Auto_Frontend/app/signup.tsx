@@ -136,7 +136,7 @@ export default function SignupScreen() {
               <Text style={styles.label}>Confirm Password</Text>
               <View style={styles.inputRow}>
                 <Ionicons name="lock-closed-outline" size={18} color="#9AA0A6" style={styles.inputIcon} />
-                <TextInput secureTextEntry placeholder="●●●●●●●●" value={confirm} onChangeText={setConfirm} style={styles.input} />
+                <TextInput secureTextEntry placeholder="Enter your password" value={confirm} onChangeText={setConfirm} style={styles.input} />
               </View>
 
               {/* Location */}
