@@ -1731,7 +1731,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-          {/* All Brands Grid */}
+          {/* All Brands Grid - Show only 3 rows (12 brands) */}
           <View style={styles.brandGrid}>
             {[
               {
@@ -3943,5 +3943,73 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#111827",
     textAlign: "center",
+  },
+  // How It Works Styles
+  howItWorksContainer: {
+    gap: 24,
+  },
+  howItWorksStep: {
+    alignItems: "center",
+    position: "relative",
+  },
+  howItWorksStepHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+    gap: 12,
+  },
+  howItWorksIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  howItWorksStepNumber: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#235CF8",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "#FFFFFF",
+    shadowColor: "#235CF8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  howItWorksStepNumberText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  howItWorksStepTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  howItWorksStepDescription: {
+    fontSize: 13,
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 20,
+    paddingHorizontal: 20,
+  },
+  howItWorksConnector: {
+    marginTop: 16,
+    marginBottom: -8,
   },
 });
