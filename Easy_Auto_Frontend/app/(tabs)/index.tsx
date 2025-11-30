@@ -1,7 +1,8 @@
 import NotificationDrawer from "@/components/notification-drawer";
 import Sidebar from "@/components/sidebar";
 import WishlistDrawer from "@/components/wishlist-drawer";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from "react";
@@ -20,7 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -293,6 +294,8 @@ const BANNER_DATA = [
 ];
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [notificationDrawerVisible, setNotificationDrawerVisible] =
     useState(false);
@@ -475,18 +478,19 @@ export default function HomeScreen() {
           }}
         />
       )}
-      <SafeAreaView style={styles.safeAreaTop} edges={["top"]}>
-        <Animated.View
-          style={[
-            styles.header,
-            {
-              opacity: initialHeaderOpacity,
-            },
-          ]}
-        >
+      <Animated.View
+        style={[
+          styles.header,
+          {
+            opacity: initialHeaderOpacity,
+            paddingTop: Math.max(insets.top, 12),
+          },
+        ]}
+        pointerEvents="box-none"
+      >
           {/* Header Content: Top bar with menu, logo, and action icons */}
           <View style={styles.headerContent}>
-            {/* Menu Button - Clean, professional icon */}
+            {/* Menu Button - Modern minimalist icon */}
             <TouchableOpacity
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -496,10 +500,10 @@ export default function HomeScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }}
               style={styles.headerButton}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              <MaterialIcons name="menu" size={24} color="#FFFFFF" />
+              <Ionicons name="menu-outline" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
             {/* Logo - Centered for balanced layout */}
@@ -530,10 +534,10 @@ export default function HomeScreen() {
                       notificationLongPressTimer.current = null;
                     }
                   }}
-                  activeOpacity={0.6}
+                  activeOpacity={0.7}
                 >
-                  <MaterialIcons
-                    name="notifications-none"
+                  <Ionicons
+                    name="notifications-outline"
                     size={22}
                     color="#FFFFFF"
                   />
@@ -682,8 +686,8 @@ export default function HomeScreen() {
                   }}
                   activeOpacity={0.6}
                 >
-                  <MaterialIcons
-                    name="favorite-outline"
+                  <Ionicons
+                    name="heart-outline"
                     size={22}
                     color="#FFFFFF"
                   />
@@ -865,10 +869,10 @@ export default function HomeScreen() {
             </View>
           )}
         </Animated.View>
-      </SafeAreaView>
       <ScrollView
         ref={mainScrollViewRef}
         style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -1128,7 +1132,13 @@ export default function HomeScreen() {
             contentContainerStyle={styles.scrollableActionContainer}
             style={styles.scrollableActionScrollView}
           >
-            <GlassmorphismButton delay={100}>
+            <GlassmorphismButton 
+              delay={100}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/buy-car");
+              }}
+            >
               <View style={styles.scrollableActionCard}>
                 <View
                   style={[
@@ -1149,7 +1159,13 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton delay={150}>
+            <GlassmorphismButton 
+              delay={150}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/sell-car");
+              }}
+            >
               <View style={styles.scrollableActionCard}>
                 <View
                   style={[
@@ -1166,7 +1182,13 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton delay={200}>
+            <GlassmorphismButton 
+              delay={200}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/rent-car");
+              }}
+            >
               <View style={styles.scrollableActionCard}>
                 <View
                   style={[
@@ -1183,7 +1205,13 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton delay={250}>
+            <GlassmorphismButton 
+              delay={250}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/(tabs)/compare");
+              }}
+            >
               <View style={styles.scrollableActionCard}>
                 <View style={styles.actionCardHeader}>
                   <View
@@ -1213,7 +1241,13 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton delay={300}>
+            <GlassmorphismButton 
+              delay={300}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/find-dealers");
+              }}
+            >
               <View style={styles.scrollableActionCard}>
                 <View
                   style={[
@@ -2029,115 +2063,89 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   safeAreaTop: {
-    backgroundColor: "#235CF8",
+    backgroundColor: "transparent",
   },
   scrollView: {
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  // Premium Header Design
-  // Design decision: Smooth rounded bottom corners (24px) create elegant, modern transition
-  // Well-balanced radius - not too sharp (would look harsh) or too big (would look excessive)
+  // Modern Clean Header Design
   header: {
     backgroundColor: "#235CF8",
-    paddingTop: 12, // Refined top padding for better spacing
-    paddingBottom: 20, // Adequate bottom padding before rounded corners
-    paddingHorizontal: 24, // Premium horizontal spacing
-    borderBottomLeftRadius: 24, // Smooth, well-balanced corner radius
-    borderBottomRightRadius: 24, // Matches left for symmetry
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1, // Refined shadow for subtle depth
-    shadowRadius: 12,
-    elevation: 8,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     marginBottom: 0,
+    overflow: 'hidden', // Ensure rounded corners are visible
   },
   // Header Content: Top bar with menu, logo, and action icons
-  // Design decision: Balanced 3-column layout with refined spacing for visual harmony
   headerContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    minHeight: 52, // Increased for better touch targets and premium feel
-    marginBottom: 18, // Premium vertical spacing
+    minHeight: 48,
+    marginBottom: 0,
   },
-  // Header Button: Menu button with clean, professional styling
-  // Design decision: Glassmorphism effect with refined opacity (0.2) for modern premium look
+  // Header Button: Modern minimalist design
   headerButton: {
-    width: 44, // Fixed width for consistency and better touch target
-    height: 44,
-    borderRadius: 14, // Increased for modern, premium feel
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Refined opacity for better visibility
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: "transparent",
   },
-  // Logo Wrapper: Centered for balanced, professional layout
+  // Logo Wrapper: Centered for balanced layout
   logoWrapper: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 16, // Increased padding for better spacing
+    paddingHorizontal: 16,
   },
-  // Logo Text: Enhanced typography hierarchy for premium brand presence
+  // Logo Text: Clean modern typography
   logoText: {
     color: "#FFFFFF",
-    fontSize: 20, // Increased for prominence and readability
+    fontSize: 18,
     fontWeight: "700",
-    letterSpacing: -0.4, // Tighter letter spacing for modern, refined look
+    letterSpacing: -0.3,
   },
-  // Header Actions: Right side icons container with proper spacing
+  // Header Actions: Right side icons container
   headerActions: {
     flexDirection: "row",
-    gap: 10, // Increased gap for better visual separation
+    gap: 8,
     alignItems: "center",
   },
-  // Icon Button: Action buttons (notifications, wishlist) with consistent styling
-  // Design decision: Matching headerButton style for visual consistency
+  // Icon Button: Clean minimalist design
   iconButton: {
-    width: 44, // Consistent sizing with menu button
-    height: 44,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 14, // Matches headerButton for consistency
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Refined opacity
+    borderRadius: 12,
+    backgroundColor: "transparent",
     position: "relative",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
   },
-  // Badge: Notification/Wishlist count indicator
-  // Design decision: Refined styling with better positioning and premium appearance
+  // Badge: Modern notification indicator
   badge: {
     position: "absolute",
-    top: 6,
-    right: 6,
-    backgroundColor: "#FF4444",
-    borderRadius: 11, // Slightly larger for better visibility
-    minWidth: 20, // Increased for better readability
-    height: 20,
+    top: 4,
+    right: 4,
+    backgroundColor: "#EF4444",
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 5,
-    borderWidth: 2.5,
+    paddingHorizontal: 4,
+    borderWidth: 2,
     borderColor: "#235CF8",
-    shadowColor: "#FF4444",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35, // Refined shadow for depth
-    shadowRadius: 4,
-    elevation: 5,
   },
   badgeText: {
     color: "#FFFFFF",
-    fontSize: 11, // Increased for better readability
+    fontSize: 10,
     fontWeight: "700",
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
   iconButtonWrapper: {
     position: "relative",

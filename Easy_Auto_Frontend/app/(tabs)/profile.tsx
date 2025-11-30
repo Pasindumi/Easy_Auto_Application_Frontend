@@ -3,7 +3,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -12,10 +11,23 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import ProfileHeader from '@/components/ProfileHeader';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
+
+  const handleMenuItemPress = (route: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push(route);
+  };
+
+
+  const handleLogout = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // Handle logout logic
+  };
 
   const MenuItem = ({
     icon,
@@ -30,56 +42,57 @@ export default function ProfileScreen() {
     onPress?: () => void;
     rightElement?: React.ReactNode;
   }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={styles.menuItem}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <View style={styles.menuLeft}>
         <View style={styles.menuIcon}>
-          <Ionicons name={icon} size={18} color="#235CF8" />
+          <Ionicons name={icon} size={20} color="#235CF8" />
         </View>
-        <View>
+        <View style={styles.menuTextContainer}>
           <Text style={styles.menuTitle}>{title}</Text>
           {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
         </View>
       </View>
 
-      {rightElement ? rightElement : <Ionicons name="chevron-forward" size={18} color="#B0B6C3" />}
+      {rightElement ? (
+        rightElement
+      ) : (
+        <Ionicons name="chevron-forward" size={18} color="#D1D5DB" />
+      )}
     </TouchableOpacity>
   );
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.safe}>
+      <ProfileHeader title="Profile" showProfileCard={true} />
+      <SafeAreaView style={styles.safe} edges={['bottom']}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
 
-        {/* ✅ HEADER - DOES NOT SCROLL */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-
-          <View style={styles.profileCard}>
-            <Image
-              source={require('../../assets/images/user.jpeg')}
-              style={styles.avatar}
-            />
-
-            <View style={{ flex: 1 }}>
-              <Text style={styles.username}>Dilmin Ekanayaka</Text>
-              <Text style={styles.email}>dilmin@yahoo.com</Text>
-
-              <View style={styles.premiumTag}>
-                <Ionicons name="star" size={12} color="#fff" />
-                <Text style={styles.premiumText}>Premium Member</Text>
-              </View>
+          {/* Quick Stats Section */}
+          <View style={[styles.statsSection, { marginTop: 20 }]}>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>12</Text>
+              <Text style={styles.statLabel}>Listings</Text>
             </View>
-
-            <View style={styles.profileBadge}>
-              <Text style={styles.badgeText}>2</Text>
+            <View style={styles.statDivider} />
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>8</Text>
+              <Text style={styles.statLabel}>Saved</Text>
             </View>
-
-            <Ionicons name="chevron-forward" size={20} color="#fff" />
+            <View style={styles.statDivider} />
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>24</Text>
+              <Text style={styles.statLabel}>Views</Text>
+            </View>
           </View>
-        </View>
-
-        {/* ✅ ONLY THIS SCROLLS NOW */}
-        <ScrollView contentContainerStyle={styles.container}>
 
           {/* Account Section */}
           <View style={styles.section}>
@@ -87,49 +100,49 @@ export default function ProfileScreen() {
 
             <MenuItem
               icon="person-outline"
-              title="Edit profile"
-              subtitle="Update Your profile"
-              onPress={() => router.push('/edit-profile')}
+              title="Edit Profile"
+              subtitle="Update your profile information"
+              onPress={() => handleMenuItemPress('/edit-profile')}
             />
 
             <MenuItem
               icon="location-outline"
               title="Address"
               subtitle="Update your location"
-              onPress={() => router.push('/address')}
+              onPress={() => handleMenuItemPress('/address')}
             />
           </View>
 
-          {/* Preferences */}
+          {/* Preferences Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Preferences</Text>
 
             <MenuItem
               icon="notifications-outline"
               title="Notifications"
-              subtitle="Manage Alerts and Updates"
-              onPress={() => router.push('/notifications-setting')}
+              subtitle="Manage alerts and updates"
+              onPress={() => handleMenuItemPress('/notifications-setting')}
             />
 
             <MenuItem
               icon="card-outline"
               title="Payment Methods"
-              subtitle="Manage your Payments"
-              onPress={() => router.push('/payment-methods')}
+              subtitle="Manage your payments"
+              onPress={() => handleMenuItemPress('/payment-methods')}
             />
 
             <MenuItem
               icon="lock-closed-outline"
               title="Privacy and Security"
-              subtitle="Control your Data"
-              onPress={() => router.push('/privacy-policy')}
+              subtitle="Control your data"
+              onPress={() => handleMenuItemPress('/privacy-policy')}
             />
 
             <MenuItem
               icon="globe-outline"
               title="Language"
               subtitle="English (US)"
-              onPress={() => router.push('/select-language')}
+              onPress={() => handleMenuItemPress('/select-language')}
             />
 
             <MenuItem
@@ -138,36 +151,61 @@ export default function ProfileScreen() {
               rightElement={
                 <Switch
                   value={darkMode}
-                  onValueChange={setDarkMode}
-                  thumbColor="#fff"
-                  trackColor={{ true: '#235CF8', false: '#d1d5db' }}
+                  onValueChange={(value) => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setDarkMode(value);
+                  }}
+                  thumbColor="#FFFFFF"
+                  trackColor={{ true: '#235CF8', false: '#D1D5DB' }}
                 />
               }
             />
           </View>
 
-          {/* Support */}
+          {/* Support Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Support</Text>
 
-            <MenuItem icon="help-circle-outline" title="Help & Support" 
-            onPress={() => router.push('/help-support')}/>
+            <MenuItem
+              icon="help-circle-outline"
+              title="Help & Support"
+              onPress={() => handleMenuItemPress('/help-support')}
+            />
 
-            <MenuItem icon="information-circle-outline" title="About this app" 
-            onPress={() => router.push('/about-app')}/>
+            <MenuItem
+              icon="information-circle-outline"
+              title="About this App"
+              onPress={() => handleMenuItemPress('/about-app')}
+            />
 
-            <MenuItem icon="people-outline" title="Invite Friends" 
-            onPress={() => router.push('/invite-friend')}/>
+            <MenuItem
+              icon="people-outline"
+              title="Invite Friends"
+              onPress={() => handleMenuItemPress('/invite-friend')}
+            />
 
-            <MenuItem icon="repeat-outline" title="Switch Accounts"
-            onPress={() => router.push('/help-support')} />
+            <MenuItem
+              icon="repeat-outline"
+              title="Switch Accounts"
+              onPress={() => handleMenuItemPress('/help-support')}
+            />
+          </View>
 
-            <TouchableOpacity style={styles.logoutBtn}>
-              <Ionicons name="log-out-outline" size={18} color="#E53935" />
+          {/* Logout Button */}
+          <View style={styles.logoutSection}>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+              activeOpacity={0.7}
+            >
+              <View style={styles.logoutIconContainer}>
+                <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+              </View>
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
 
+          <View style={{ height: 24 }} />
         </ScrollView>
       </SafeAreaView>
     </>
@@ -179,158 +217,134 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
-
+  scrollView: {
+    flex: 1,
+  },
   container: {
-    paddingBottom: 40,
+    paddingTop: 180, // Account for header with profile card
+    paddingBottom: 100, // Account for tab bar
   },
-
-  header: {
-    backgroundColor: '#235CF8',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-
-  headerTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 16,
-    paddingTop: 30,
-  },
-
-  profileCard: {
-    backgroundColor: '#356DFF',
+  // Quick Stats Section
+  statsSection: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginBottom: 24,
     borderRadius: 16,
-    flexDirection: 'row',
+    paddingVertical: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  statCard: {
+    flex: 1,
     alignItems: 'center',
-    padding: 14,
   },
-
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    marginRight: 12,
-  },
-
-  username: {
-    color: '#fff',
-    fontSize: 14,
+  statNumber: {
+    fontSize: 24,
     fontWeight: '700',
+    color: '#235CF8',
+    letterSpacing: -0.5,
+    marginBottom: 4,
   },
-
-  email: {
-    color: '#DDE7FF',
-    fontSize: 12,
-  },
-
-  premiumTag: {
-    flexDirection: 'row',
-    backgroundColor: '#235CF8',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-    marginTop: 6,
-    alignItems: 'center',
-  },
-
-  premiumText: {
-    color: '#fff',
-    fontSize: 10,
-    marginLeft: 4,
+  statLabel: {
+    fontSize: 13,
     fontWeight: '600',
+    color: '#6B7280',
   },
-
-  profileBadge: {
-    position: 'absolute',
-    left: 44,
-    top: 8,
-    backgroundColor: '#235CF8',
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
+  statDivider: {
+    width: 1,
+    backgroundColor: '#E5E7EB',
   },
-
-  badgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-
+  // Sections
   section: {
-    marginTop: 20,
+    marginBottom: 24,
     paddingHorizontal: 16,
   },
-
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 20,
     fontWeight: '700',
-    marginBottom: 10,
-    color: '#111',
+    color: '#111827',
+    marginBottom: 12,
+    letterSpacing: -0.3,
   },
-
+  // Menu Items
   menuItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
     marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-
   menuLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
-
   menuIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#EEF2FF',
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F0F4FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-
+  menuTextContainer: {
+    flex: 1,
+  },
   menuTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#111',
+    color: '#111827',
+    letterSpacing: -0.2,
+    marginBottom: 2,
   },
-
   menuSubtitle: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#6B7280',
-    marginTop: 2,
+    fontWeight: '500',
   },
-
-  logoutBtn: {
-    marginTop: 10,
+  // Logout Section
+  logoutSection: {
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-
+  logoutIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
   logoutText: {
-    marginLeft: 10,
-    color: '#E53935',
-    fontWeight: '700',
-    marginBottom: 40,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#EF4444',
+    letterSpacing: -0.2,
   },
 });

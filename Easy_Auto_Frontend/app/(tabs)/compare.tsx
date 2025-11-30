@@ -11,8 +11,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import BottomNav from "@/components/BottomNav";
+import ProfileHeader from "@/components/ProfileHeader";
 
 const SAMPLE_COMPARISONS = [
   {
@@ -34,12 +33,6 @@ const SAMPLE_COMPARISONS = [
 
 export default function CompareScreen() {
   const router = useRouter();
-
-  const [activeNav, setActiveNav] = React.useState<
-    "home" | "search" | "compare" | "chat" | "profile"
-  >("compare");
-
-  const handleNavPress = (key: string) => setActiveNav(key as any);
 
   const renderComparison = ({ item }: { item: typeof SAMPLE_COMPARISONS[0] }) => (
     <View style={[{ paddingHorizontal: 16, marginTop: 16 }, styles.compareCard]}>
@@ -108,18 +101,7 @@ export default function CompareScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-
-      {/* ---------- FULL TOP HEADER ---------- */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color="#fff" />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>COMPARE CARS</Text>
-
-        <View style={{ width: 22 }} />
-      </View>
-
+      <ProfileHeader title="Compare Cars" showProfileCard={false} />
       <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
         <FlatList
           data={SAMPLE_COMPARISONS}
@@ -127,31 +109,14 @@ export default function CompareScreen() {
           renderItem={renderComparison}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           ListHeaderComponent={renderHeaderSection}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingTop: 80, paddingBottom: 100 }}
         />
-
-        <BottomNav activeKey={activeNav} onPress={handleNavPress} />
       </SafeAreaView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: "#235CF8",
-    paddingTop: 50, // covers status bar area
-    paddingBottom: 24,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
   safe: { flex: 1, backgroundColor: "#fff" },
   sectionTitle: { fontSize: 12, color: "#333", fontWeight: "700", marginBottom: 12 },
   selectRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },

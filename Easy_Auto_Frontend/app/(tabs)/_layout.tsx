@@ -1,10 +1,127 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import React from "react";
-import { Platform, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, Easing, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
+
+// Modern Minimalist Tab Icon Component
+const ModernTabIcon = ({
+  focused,
+  iconName,
+  iconNameOutline,
+}: {
+  focused: boolean;
+  iconName: string;
+  iconNameOutline: string;
+}) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(focused ? 1 : 0.6)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: focused ? 1.1 : 1,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 20,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: focused ? 1 : 0.5,
+        duration: 200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [focused, scaleAnim, opacityAnim]);
+
+  return (
+    <Animated.View
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+        transform: [{ scale: scaleAnim }],
+        opacity: opacityAnim,
+      }}
+    >
+      <Ionicons
+        name={focused ? (iconName as any) : (iconNameOutline as any)}
+        size={22}
+        color={focused ? "#235CF8" : "#9CA3AF"}
+      />
+    </Animated.View>
+  );
+};
+
+// Elegant Center Compare Button
+const CompareButton = ({ focused }: { focused: boolean }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const shadowAnim = useRef(new Animated.Value(focused ? 1 : 0.7)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: focused ? 1.05 : 1,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 15,
+      }),
+      Animated.timing(shadowAnim, {
+        toValue: focused ? 1 : 0.7,
+        duration: 200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, [focused, scaleAnim, shadowAnim]);
+
+  const shadowOpacity = shadowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.15, 0.3],
+  });
+
+  return (
+    <View
+      style={{
+        width: 56,
+        height: 56,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {/* Shadow Layer */}
+      <Animated.View
+        style={{
+          position: "absolute",
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: "#235CF8",
+          shadowColor: "#235CF8",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: shadowOpacity,
+          shadowRadius: 12,
+          elevation: focused ? 8 : 6,
+        }}
+      />
+      {/* Button */}
+      <Animated.View
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: "#235CF8",
+          justifyContent: "center",
+          alignItems: "center",
+          transform: [{ scale: scaleAnim }],
+        }}
+      >
+        <Ionicons name="swap-horizontal" size={24} color="#FFFFFF" />
+      </Animated.View>
+    </View>
+  );
+};
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -12,259 +129,238 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        // Color scheme: Refined shades for premium look
+        // Modern Color Scheme
         tabBarActiveTintColor: "#235CF8",
-        tabBarInactiveTintColor: "#9CA3AF", // Refined gray for better contrast
+        tabBarInactiveTintColor: "#9CA3AF",
         headerShown: false,
-        tabBarShowLabel: true, // Ensure labels are always visible
-        // Label typography: Enhanced for readability and premium feel
+
+        // Clean Typography
+        tabBarShowLabel: true,
         tabBarLabelStyle: {
-          fontSize: 12, // Optimal size for readability
+          fontSize: 10,
           fontWeight: "600",
-          marginTop: 5, // Balanced spacing between icon and label
+          marginTop: 4,
           marginBottom: 0,
-          letterSpacing: 0.1,
+          letterSpacing: 0.3,
+          opacity: 1,
+          height: "auto",
         },
+
+        // Icon Styling
         tabBarIconStyle: {
           marginTop: 0,
           marginBottom: 0,
         },
-        // Tab bar container: Full-width with no side margins
-        // Design decision: Removed all horizontal margins/padding to span full width
+
+        // Clean Tab Bar Container
         tabBarStyle: {
-          backgroundColor: "transparent",
-          borderTopWidth: 0,
-          height: Platform.OS === "ios" ? 68 + insets.bottom : 68, // Refined height
-          paddingBottom: Platform.OS === "ios" ? Math.max(insets.bottom, 6) : 6,
-          paddingTop: 8, // Consistent top padding
-          paddingHorizontal: 0, // No horizontal padding to span full width
-          paddingLeft: 0,
-          paddingRight: 0,
-          marginHorizontal: 0, // No horizontal margins
-          marginLeft: 0,
-          marginRight: 0,
+          backgroundColor: "#FFFFFF",
+          borderTopWidth: 0.5,
+          borderTopColor: "rgba(0, 0, 0, 0.06)",
+          height: Platform.OS === "ios" ? 68 + insets.bottom : 68,
+          minHeight: Platform.OS === "ios" ? 68 + insets.bottom : 68,
+          paddingBottom:
+            Platform.OS === "ios" ? Math.max(insets.bottom, 10) : 10,
+          paddingTop: 8,
+          paddingHorizontal: 0,
           position: "absolute",
-          elevation: 0,
-          shadowColor: "transparent",
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0,
-          shadowRadius: 0,
+          elevation: 8,
+          shadowColor: "rgba(0, 0, 0, 0.05)",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 1,
+          shadowRadius: 8,
         },
-        // Background: Premium white with smooth rounded top corners spanning full width
-        // Design decision: Rounded top corners (24px) create modern, premium aesthetic
-        // Background extends to edges with no side gaps
-        tabBarBackground: () => (
-          <View
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0, // Extends to left edge
-              right: 0, // Extends to right edge
-              bottom: 0,
-              backgroundColor: "#FFFFFF",
-              borderTopLeftRadius: 24, // Smooth rounded corners
-              borderTopRightRadius: 24,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: -4 }, // Subtle upward shadow
-              shadowOpacity: 0.08, // Refined shadow opacity
-              shadowRadius: 20,
-              elevation: 12,
-              borderTopWidth: 0.5, // Very subtle top border
-              borderTopColor: "rgba(0, 0, 0, 0.05)", // Refined border opacity
-            }}
-          />
-        ),
-        // Tab item: Improved spacing and alignment for full-width layout
+
+        // Tab Item Styling
         tabBarItemStyle: {
-          paddingVertical: 4, // Vertical padding for better touch targets
+          paddingVertical: 4,
           justifyContent: "center",
           alignItems: "center",
-          paddingHorizontal: 4, // Minimal horizontal padding
           flex: 1,
-          minWidth: 0,
-          maxWidth: "100%",
+          minHeight: 68,
+          height: "100%",
         },
       }}
     >
-      {/* Home Tab - Clean, professional icon with always-visible label */}
+      {/* Home Tab */}
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
           tabBarLabel: "Home",
-          tabBarShowLabel: true, // Ensure label is always visible
+          tabBarAccessibilityLabel: "Home tab",
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontWeight: "600",
+            marginTop: 4,
+            marginBottom: 0,
+            letterSpacing: 0.3,
+            opacity: 1,
+            height: "auto",
+          },
           tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                width: 44, // Optimized touch target size
-                height: 44,
-                borderRadius: 12, // Refined corner radius
-                backgroundColor: focused
-                  ? "rgba(35, 92, 248, 0.12)" // Subtle active background
-                  : "transparent",
-              }}
-            >
-              <MaterialIcons
-                name="home" // Clean, professional icon
-                size={focused ? 25 : 23} // Slightly larger when active
-                color={focused ? "#235CF8" : "#9CA3AF"}
-              />
-            </View>
+            <ModernTabIcon
+              focused={focused}
+              iconName="grid"
+              iconNameOutline="grid-outline"
+            />
           ),
+          tabBarButton: (props) => <HapticTab {...props} />,
+          tabBarItemStyle: {
+            paddingVertical: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+            minHeight: 68,
+            height: "100%",
+          },
         }}
       />
 
-      {/* Search Tab - Professional search icon with always-visible label */}
+      {/* Search Tab */}
       <Tabs.Screen
         name="search"
         options={{
           title: "Search",
           tabBarLabel: "Search",
-          tabBarShowLabel: true, // Ensure label is always visible
+          tabBarAccessibilityLabel: "Search tab",
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontWeight: "600",
+            marginTop: 4,
+            marginBottom: 0,
+            letterSpacing: 0.3,
+            opacity: 1,
+            height: "auto",
+          },
           tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                backgroundColor: focused
-                  ? "rgba(35, 92, 248, 0.12)"
-                  : "transparent",
-              }}
-            >
-              <MaterialIcons
-                name="search" // Clean, professional icon
-                size={focused ? 25 : 23}
-                color={focused ? "#235CF8" : "#9CA3AF"}
-              />
-            </View>
+            <ModernTabIcon
+              focused={focused}
+              iconName="search"
+              iconNameOutline="search-outline"
+            />
           ),
+          tabBarButton: (props) => <HapticTab {...props} />,
+          tabBarItemStyle: {
+            paddingVertical: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+            minHeight: 68,
+            height: "100%",
+          },
         }}
       />
 
-      {/* Compare Tab - Premium floating action button */}
-      {/* Design decision: Elevated center button creates visual hierarchy */}
-      {/* Label is hidden for this special floating button */}
+      {/* Compare Tab - Elegant Center Button */}
       <Tabs.Screen
         name="compare"
         options={{
           title: "Compare",
-          tabBarLabel: "Compare",
-          tabBarShowLabel: false, // Hidden for floating button design
+          tabBarLabel: "",
+          tabBarAccessibilityLabel: "Compare cars tab",
+          tabBarShowLabel: false,
+          tabBarLabelStyle: {
+            height: 0,
+            width: 0,
+            opacity: 0,
+            fontSize: 0,
+            margin: 0,
+            padding: 0,
+            display: "none",
+          },
           tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                width: 54, // Refined size for premium feel
-                height: 54,
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "#235CF8",
-                borderRadius: 27, // Perfect circle
-                shadowColor: "#235CF8",
-                shadowOffset: { width: 0, height: focused ? 6 : 4 }, // Dynamic shadow
-                shadowOpacity: focused ? 0.35 : 0.25, // Enhanced shadow when active
-                shadowRadius: focused ? 14 : 12,
-                elevation: focused ? 12 : 10,
-                borderWidth: 3.5, // White border for premium separation
-                borderColor: "#FFFFFF",
-              }}
-            >
-              <MaterialIcons
-                name="compare-arrows" // Clean, professional icon
-                size={26}
-                color="#FFFFFF"
-              />
+            <View style={{ marginTop: -12 }}>
+              <CompareButton focused={focused} />
             </View>
           ),
-          tabBarButton: (props) => {
-            const { style, ...otherProps } = props;
-            return (
-              <HapticTab
-                {...otherProps}
-                style={[
-                  style,
-                  {
-                    top: -18, // Elevated position for premium feel
-                    width: 54,
-                    height: 54,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: 0,
-                    margin: 0,
-                    flex: 1,
-                  },
-                ]}
-              />
-            );
-          },
+          tabBarButton: (props) => <HapticTab {...props} />,
           tabBarIconStyle: {
             marginTop: 0,
             marginBottom: 0,
           },
+          tabBarItemStyle: {
+            paddingVertical: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+            minHeight: 68,
+            height: "100%",
+          },
         }}
       />
 
-      {/* Chat Tab - Professional messaging icon with always-visible label */}
+      {/* Chat Tab */}
       <Tabs.Screen
         name="chat"
         options={{
           title: "Chat",
           tabBarLabel: "Chat",
-          tabBarShowLabel: true, // Ensure label is always visible
+          tabBarAccessibilityLabel: "Chat tab",
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontWeight: "600",
+            marginTop: 4,
+            marginBottom: 0,
+            letterSpacing: 0.3,
+            opacity: 1,
+            height: "auto",
+          },
           tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                backgroundColor: focused
-                  ? "rgba(35, 92, 248, 0.12)"
-                  : "transparent",
-              }}
-            >
-              <MaterialIcons
-                name="chat" // Clean, professional icon
-                size={focused ? 25 : 23}
-                color={focused ? "#235CF8" : "#9CA3AF"}
-              />
-            </View>
+            <ModernTabIcon
+              focused={focused}
+              iconName="chatbubbles"
+              iconNameOutline="chatbubbles-outline"
+            />
           ),
+          tabBarButton: (props) => <HapticTab {...props} />,
+          tabBarItemStyle: {
+            paddingVertical: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+            minHeight: 68,
+            height: "100%",
+          },
         }}
       />
 
-      {/* Profile Tab - Professional account icon with always-visible label */}
+      {/* Profile Tab */}
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
           tabBarLabel: "Profile",
-          tabBarShowLabel: true, // Ensure label is always visible
+          tabBarAccessibilityLabel: "Profile tab",
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontWeight: "600",
+            marginTop: 4,
+            marginBottom: 0,
+            letterSpacing: 0.3,
+            opacity: 1,
+            height: "auto",
+          },
           tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                backgroundColor: focused
-                  ? "rgba(35, 92, 248, 0.12)"
-                  : "transparent",
-              }}
-            >
-              <MaterialIcons
-                name="person" // Clean, professional icon
-                size={focused ? 25 : 23}
-                color={focused ? "#235CF8" : "#9CA3AF"}
-              />
-            </View>
+            <ModernTabIcon
+              focused={focused}
+              iconName="person-circle"
+              iconNameOutline="person-circle-outline"
+            />
           ),
+          tabBarButton: (props) => <HapticTab {...props} />,
+          tabBarItemStyle: {
+            paddingVertical: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+            minHeight: 68,
+            height: "100%",
+          },
         }}
       />
 
