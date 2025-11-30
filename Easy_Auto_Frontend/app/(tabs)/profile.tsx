@@ -33,6 +33,24 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.adminButton}
+              onPress={() => {
+                try {
+                  router.push({ pathname: '/admin' });
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                  router.replace({ pathname: '/admin' });
+                }
+              }}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons name="admin-panel-settings" size={20} color="#FFFFFF" />
+              <Text style={styles.adminButtonText}>Admin Dashboard</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account</Text>
             <Text style={styles.comingSoon}>Profile functionality coming soon...</Text>
           </View>
@@ -106,6 +124,28 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   signupButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  adminButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#235CF8',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 10,
+    shadowColor: '#235CF8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(35, 92, 248, 0.2)',
+  },
+  adminButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
