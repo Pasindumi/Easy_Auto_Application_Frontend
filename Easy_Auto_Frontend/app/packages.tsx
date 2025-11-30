@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const HEADER_HEIGHT = 140;
@@ -75,9 +75,22 @@ export default function PackagesScreen() {
               <Text style={styles.featureText}>Basic analytics</Text>
             </View>
 
-            <TouchableOpacity style={styles.selectButton}>
+           <TouchableOpacity
+              style={styles.selectButton}
+              onPress={() =>
+                router.push({
+                  pathname: "/invoice",
+                  params: {
+                    plan: "Basic Boost",
+                    price: 19.99,
+                    days: 3
+                  }
+                })
+              }
+            >
               <Text style={styles.selectText}>Select Plan</Text>
             </TouchableOpacity>
+
           </View>
 
           {/* GOLD BOOST */}
@@ -121,9 +134,22 @@ export default function PackagesScreen() {
               <Text style={styles.featureText}>Targeted social media promotion</Text>
             </View>
 
-            <TouchableOpacity style={styles.selectButton}>
-              <Text style={styles.selectText}>Select Plan</Text>
-            </TouchableOpacity>
+           <TouchableOpacity
+                style={styles.selectButton}
+                onPress={() =>
+                  router.push({
+                    pathname: "/invoice",
+                    params: {
+                      plan: "Gold Boost",
+                      price: 39.99,
+                      days: 7
+                    }
+                  })
+                }
+              >
+                <Text style={styles.selectText}>Select Plan</Text>
+              </TouchableOpacity>
+
           </View>
 
           {/* PLATINUM BOOST */}
@@ -188,8 +214,7 @@ const styles = StyleSheet.create({
   justifyContent: 'space-between',
   paddingHorizontal: 16,
   paddingBottom: 20,        // space from bottom
-  borderBottomLeftRadius: 20,
-  borderBottomRightRadius: 20,
+ 
 },
 
 

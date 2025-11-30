@@ -1,159 +1,336 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// app/(tabs)/profile.tsx
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  const [darkMode, setDarkMode] = useState(false);
+
+  const MenuItem = ({
+    icon,
+    title,
+    subtitle,
+    onPress,
+    rightElement,
+  }: {
+    icon: any;
+    title: string;
+    subtitle?: string;
+    onPress?: () => void;
+    rightElement?: React.ReactNode;
+  }) => (
+    <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
+      <View style={styles.menuLeft}>
+        <View style={styles.menuIcon}>
+          <Ionicons name={icon} size={18} color="#235CF8" />
+        </View>
+        <View>
+          <Text style={styles.menuTitle}>{title}</Text>
+          {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+        </View>
+      </View>
+
+      {rightElement ? rightElement : <Ionicons name="chevron-forward" size={18} color="#B0B6C3" />}
+    </TouchableOpacity>
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.content}>
-          <View style={styles.profileHeader}>
-            <View style={styles.avatarContainer}>
-              <MaterialIcons name="person" size={48} color="#235CF8" />
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.safe}>
+
+        {/* ✅ HEADER - DOES NOT SCROLL */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Profile</Text>
+
+          <View style={styles.profileCard}>
+            <Image
+              source={require('../../assets/images/user.jpeg')}
+              style={styles.avatar}
+            />
+
+            <View style={{ flex: 1 }}>
+              <Text style={styles.username}>Dilmin Ekanayaka</Text>
+              <Text style={styles.email}>dilmin@yahoo.com</Text>
+
+              <View style={styles.premiumTag}>
+                <Ionicons name="star" size={12} color="#fff" />
+                <Text style={styles.premiumText}>Premium Member</Text>
+              </View>
             </View>
-            <Text style={styles.title}>Profile</Text>
-            <Text style={styles.subtitle}>Manage your account settings</Text>
-          </View>
 
-          <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.signupButton}
-              onPress={() => router.push('/signup')}
-              activeOpacity={0.8}
-            >
-              <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
-              <Text style={styles.signupButtonText}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.profileBadge}>
+              <Text style={styles.badgeText}>2</Text>
+            </View>
 
-          <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.adminButton}
-              onPress={() => {
-                try {
-                  router.push({ pathname: '/admin' });
-                } catch (error) {
-                  console.error('Navigation error:', error);
-                  router.replace({ pathname: '/admin' });
-                }
-              }}
-              activeOpacity={0.8}
-            >
-              <MaterialIcons name="admin-panel-settings" size={20} color="#FFFFFF" />
-              <Text style={styles.adminButtonText}>Admin Dashboard</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Account</Text>
-            <Text style={styles.comingSoon}>Profile functionality coming soon...</Text>
+            <Ionicons name="chevron-forward" size={20} color="#fff" />
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        {/* ✅ ONLY THIS SCROLLS NOW */}
+        <ScrollView contentContainerStyle={styles.container}>
+
+          {/* Account Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Account</Text>
+
+            <MenuItem
+              icon="person-outline"
+              title="Edit profile"
+              subtitle="Update Your profile"
+              onPress={() => router.push('/edit-profile')}
+            />
+
+            <MenuItem
+              icon="location-outline"
+              title="Address"
+              subtitle="Update your location"
+              onPress={() => router.push('/address')}
+            />
+          </View>
+
+          {/* Preferences */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Preferences</Text>
+
+            <MenuItem
+              icon="notifications-outline"
+              title="Notifications"
+              subtitle="Manage Alerts and Updates"
+              onPress={() => router.push('/notifications-setting')}
+            />
+
+            <MenuItem
+              icon="card-outline"
+              title="Payment Methods"
+              subtitle="Manage your Payments"
+              onPress={() => router.push('/payment-methods')}
+            />
+
+            <MenuItem
+              icon="lock-closed-outline"
+              title="Privacy and Security"
+              subtitle="Control your Data"
+              onPress={() => router.push('/privacy-policy')}
+            />
+
+            <MenuItem
+              icon="globe-outline"
+              title="Language"
+              subtitle="English (US)"
+              onPress={() => router.push('/select-language')}
+            />
+
+            <MenuItem
+              icon="moon-outline"
+              title="Dark Mode"
+              rightElement={
+                <Switch
+                  value={darkMode}
+                  onValueChange={setDarkMode}
+                  thumbColor="#fff"
+                  trackColor={{ true: '#235CF8', false: '#d1d5db' }}
+                />
+              }
+            />
+          </View>
+
+          {/* Support */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Support</Text>
+
+            <MenuItem icon="help-circle-outline" title="Help & Support" 
+            onPress={() => router.push('/help-support')}/>
+
+            <MenuItem icon="information-circle-outline" title="About this app" 
+            onPress={() => router.push('/about-app')}/>
+
+            <MenuItem icon="people-outline" title="Invite Friends" 
+            onPress={() => router.push('/invite-friend')}/>
+
+            <MenuItem icon="repeat-outline" title="Switch Accounts"
+            onPress={() => router.push('/help-support')} />
+
+            <TouchableOpacity style={styles.logoutBtn}>
+              <Ionicons name="log-out-outline" size={18} color="#E53935" />
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+
   container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
+    paddingBottom: 40,
   },
-  scrollView: {
-    flex: 1,
+
+  header: {
+    backgroundColor: '#235CF8',
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    paddingVertical: 32,
-    marginBottom: 24,
-  },
-  avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#EEF4FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#9BA1A6',
-    fontWeight: '400',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
+
+  headerTitle: {
+    color: '#fff',
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontWeight: '700',
     marginBottom: 16,
+    paddingTop: 30,
   },
-  signupButton: {
+
+  profileCard: {
+    backgroundColor: '#356DFF',
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#235CF8',
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    gap: 10,
-    shadowColor: '#235CF8',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 4,
+    padding: 14,
   },
-  signupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+
+  avatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    marginRight: 12,
   },
-  adminButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#235CF8',
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    gap: 10,
-    shadowColor: '#235CF8',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(35, 92, 248, 0.2)',
-  },
-  adminButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  comingSoon: {
+
+  username: {
+    color: '#fff',
     fontSize: 14,
-    color: '#9BA1A6',
-    textAlign: 'center',
-    paddingVertical: 20,
+    fontWeight: '700',
+  },
+
+  email: {
+    color: '#DDE7FF',
+    fontSize: 12,
+  },
+
+  premiumTag: {
+    flexDirection: 'row',
+    backgroundColor: '#235CF8',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginTop: 6,
+    alignItems: 'center',
+  },
+
+  premiumText: {
+    color: '#fff',
+    fontSize: 10,
+    marginLeft: 4,
+    fontWeight: '600',
+  },
+
+  profileBadge: {
+    position: 'absolute',
+    left: 44,
+    top: 8,
+    backgroundColor: '#235CF8',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+
+  section: {
+    marginTop: 20,
+    paddingHorizontal: 16,
+  },
+
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 10,
+    color: '#111',
+  },
+
+  menuItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+
+  menuLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  menuIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+
+  menuTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111',
+  },
+
+  menuSubtitle: {
+    fontSize: 11,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+
+  logoutBtn: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+  },
+
+  logoutText: {
+    marginLeft: 10,
+    color: '#E53935',
+    fontWeight: '700',
+    marginBottom: 40,
   },
 });
