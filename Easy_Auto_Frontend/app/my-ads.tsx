@@ -274,8 +274,7 @@ const styles = StyleSheet.create({
   justifyContent: 'space-between',
   paddingHorizontal: 16,
   paddingBottom: 20,        // space from bottom
-  borderBottomLeftRadius: 20,
-  borderBottomRightRadius: 20,
+  
 },
 
   headerTitle: {
