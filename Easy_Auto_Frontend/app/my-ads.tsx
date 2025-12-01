@@ -2,14 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-         Dimensions,
-         FlatList,
-         Image,
-         SafeAreaView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  Dimensions,
+  FlatList,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const HEADER_HEIGHT = 140;
@@ -231,7 +231,7 @@ export default function MyAdsScreen() {
         {/* Create Button */}
         <TouchableOpacity
           style={styles.createButton}
-          onPress={() => router.push('/create-ad')}
+          onPress={() => router.push('/post-add')}
         >
           <Ionicons name="add" size={20} color="#fff" />
           <Text style={styles.createButtonText}>Create New</Text>
@@ -274,8 +274,7 @@ const styles = StyleSheet.create({
   justifyContent: 'space-between',
   paddingHorizontal: 16,
   paddingBottom: 20,        // space from bottom
-  borderBottomLeftRadius: 20,
-  borderBottomRightRadius: 20,
+  
 },
 
   headerTitle: {

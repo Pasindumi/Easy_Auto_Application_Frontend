@@ -1,3 +1,4 @@
+// app/my-listings.tsx
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -6,6 +7,7 @@ import {
   FlatList,
   Image,
   RefreshControl,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -72,7 +74,7 @@ export default function MyListingsScreen() {
   // Filter listings based on status and search
   const filteredListings = LISTINGS.filter(item => {
     const matchesStatus = !filterStatus || item.status === filterStatus;
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       item.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
@@ -104,19 +106,37 @@ export default function MyListingsScreen() {
     }
   };
 
+  // NAVIGATION HANDLERS (linked to pages)
   const handleEdit = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Add edit action
+    // Navigate to the edit page with id param
+    router.push(`/edit-car?id=${encodeURIComponent(id)}`);
   };
 
   const handleBoost = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Add boost action
+    // Navigate to the boost page with id param
+    router.push(`/packages?id=${encodeURIComponent(id)}`);
   };
 
-  const handleShare = (id: string) => {
+  const handleShare = async (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Add share action
+    // Option 1: Navigate to a dedicated share screen (uncomment if you have share-car screen)
+    // router.push(`/share-car?id=${encodeURIComponent(id)}`);
+
+    // Option 2: Open native share sheet with basic content (keeps user in context)
+    const item = LISTINGS.find(x => x.id === id);
+    if (!item) return;
+
+    try {
+      const result = await Share.share({
+        message: `${item.title} — ${item.price}\nCheck this listing: myapp://view-car?id=${item.id}`,
+        title: `${item.title}`,
+      });
+      // result.action can be used to track share outcome if needed
+    } catch (error) {
+      console.warn('Share failed', error);
+    }
   };
 
   const handleFilterStatus = (status: string | null) => {
@@ -126,7 +146,8 @@ export default function MyListingsScreen() {
 
   const handleBoostCard = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Add boost card action
+    // Add boost card action (e.g. navigate to boost screen)
+    router.push('/packages'); // example
   };
 
   const onRefresh = React.useCallback(() => {
@@ -138,18 +159,17 @@ export default function MyListingsScreen() {
 
   const handleBulkDelete = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Add bulk delete action
+    // Add bulk delete action: call API to delete selected then refresh UI
     setSelected([]);
   };
 
   const handleBulkPause = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Add bulk pause action
+    // Add bulk pause action: call API to pause selected then refresh UI
     setSelected([]);
   };
 
   // Render individual listing card with premium design
-  // Design decision: Full-width action buttons for better visibility and accessibility
   const renderListing = ({ item, index }: { item: typeof LISTINGS[0]; index: number }) => (
     <View style={[
       styles.listingCard,
@@ -157,7 +177,7 @@ export default function MyListingsScreen() {
     ]}>
       {/* Card Header: Checkbox positioned at top-left */}
       <View style={styles.cardHeader}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => toggleSelect(item.id)}
           activeOpacity={0.7}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -178,8 +198,8 @@ export default function MyListingsScreen() {
       <View style={styles.cardBody}>
         {/* Car Image with status badge */}
         <View style={styles.imageWrapper}>
-          <Image 
-            source={item.image} 
+          <Image
+            source={item.image}
             style={styles.carImage}
             resizeMode="cover"
           />
@@ -234,9 +254,9 @@ export default function MyListingsScreen() {
         </View>
       </View>
 
-      {/* Full-Width Action Buttons: Spanning entire card width for maximum visibility */}
+      {/* Full-Width Action Buttons */}
       <View style={styles.actionButtonsRow}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.actionButton}
           onPress={() => handleEdit(item.id)}
           activeOpacity={0.75}
@@ -247,7 +267,7 @@ export default function MyListingsScreen() {
 
         <View style={styles.actionDivider} />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.actionButton}
           onPress={() => handleBoost(item.id)}
           activeOpacity={0.75}
@@ -258,7 +278,7 @@ export default function MyListingsScreen() {
 
         <View style={styles.actionDivider} />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.actionButton}
           onPress={() => handleShare(item.id)}
           activeOpacity={0.75}
@@ -280,17 +300,18 @@ export default function MyListingsScreen() {
         {searchQuery ? 'No listings found' : 'No listings yet'}
       </Text>
       <Text style={styles.emptyMessage}>
-        {searchQuery 
+        {searchQuery
           ? `No listings match "${searchQuery}"`
-          : filterStatus 
+          : filterStatus
             ? `You don't have any ${filterStatus.toLowerCase()} listings`
             : 'Start by creating your first listing'
         }
       </Text>
       {!searchQuery && !filterStatus && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.emptyButton}
           activeOpacity={0.8}
+          onPress={() => router.push('/post-add')}
         >
           <Ionicons name="add-circle-outline" size={18} color="#fff" />
           <Text style={styles.emptyButtonText}>Create New Listing</Text>
@@ -304,7 +325,7 @@ export default function MyListingsScreen() {
       {/* Header */}
       <SafeAreaView edges={['top']} style={styles.headerWrapper}>
         <View style={styles.header}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleBack}
             activeOpacity={0.7}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
@@ -337,7 +358,7 @@ export default function MyListingsScreen() {
                   returnKeyType="search"
                 />
                 {searchQuery.length > 0 && (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => setSearchQuery('')}
                     activeOpacity={0.7}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -350,18 +371,18 @@ export default function MyListingsScreen() {
 
             {/* Status Filter Cards */}
             <View style={styles.statusRow}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[
-                  styles.statusCard, 
+                  styles.statusCard,
                   filterStatus === 'Active' && styles.statusCardActive
                 ]}
                 onPress={() => handleFilterStatus('Active')}
                 activeOpacity={0.85}
               >
-                <Ionicons 
-                  name="checkmark-circle" 
-                  size={18} 
-                  color={filterStatus === 'Active' ? '#235CF8' : '#9CA3AF'} 
+                <Ionicons
+                  name="checkmark-circle"
+                  size={18}
+                  color={filterStatus === 'Active' ? '#235CF8' : '#9CA3AF'}
                 />
                 <Text style={[
                   styles.statusCardLabel,
@@ -377,7 +398,7 @@ export default function MyListingsScreen() {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[
                   styles.statusCard,
                   filterStatus === 'Draft' && styles.statusCardActive
@@ -385,10 +406,10 @@ export default function MyListingsScreen() {
                 onPress={() => handleFilterStatus('Draft')}
                 activeOpacity={0.85}
               >
-                <Ionicons 
-                  name="document-text" 
-                  size={18} 
-                  color={filterStatus === 'Draft' ? '#235CF8' : '#9CA3AF'} 
+                <Ionicons
+                  name="document-text"
+                  size={18}
+                  color={filterStatus === 'Draft' ? '#235CF8' : '#9CA3AF'}
                 />
                 <Text style={[
                   styles.statusCardLabel,
@@ -404,7 +425,7 @@ export default function MyListingsScreen() {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[
                   styles.statusCard,
                   filterStatus === 'Paused' && styles.statusCardActive
@@ -412,10 +433,10 @@ export default function MyListingsScreen() {
                 onPress={() => handleFilterStatus('Paused')}
                 activeOpacity={0.85}
               >
-                <Ionicons 
-                  name="pause-circle" 
-                  size={18} 
-                  color={filterStatus === 'Paused' ? '#235CF8' : '#9CA3AF'} 
+                <Ionicons
+                  name="pause-circle"
+                  size={18}
+                  color={filterStatus === 'Paused' ? '#235CF8' : '#9CA3AF'}
                 />
                 <Text style={[
                   styles.statusCardLabel,
@@ -439,7 +460,7 @@ export default function MyListingsScreen() {
                 {filterStatus && ` · ${filterStatus}`}
               </Text>
               {filterStatus && (
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => handleFilterStatus(null)}
                   activeOpacity={0.7}
                 >
@@ -449,7 +470,7 @@ export default function MyListingsScreen() {
             </View>
 
             {/* Boost Card */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.boostCard}
               onPress={handleBoostCard}
               activeOpacity={0.9}
@@ -476,7 +497,7 @@ export default function MyListingsScreen() {
             {selected.length > 0 && (
               <View style={styles.bulkActionsBar}>
                 <View style={styles.bulkActionsLeft}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.bulkActionButton}
                     onPress={handleBulkPause}
                     activeOpacity={0.7}
@@ -484,7 +505,7 @@ export default function MyListingsScreen() {
                     <Ionicons name="pause" size={16} color="#235CF8" />
                     <Text style={styles.bulkActionText}>Pause</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[styles.bulkActionButton, styles.bulkActionButtonDanger]}
                     onPress={handleBulkDelete}
                     activeOpacity={0.7}
@@ -495,7 +516,7 @@ export default function MyListingsScreen() {
                     </Text>
                   </TouchableOpacity>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setSelected([])}
                   activeOpacity={0.7}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -506,7 +527,7 @@ export default function MyListingsScreen() {
             )}
 
             {/* Select All */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.selectAllRow}
               onPress={handleSelectAll}
               activeOpacity={0.7}
@@ -529,8 +550,8 @@ export default function MyListingsScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={onRefresh}
             tintColor="#235CF8"
           />
@@ -791,18 +812,17 @@ const styles = StyleSheet.create({
   },
 
   // Listing Card - Premium Design
-  // Design decision: Vertical layout with full-width action buttons for better UX
   listingCard: {
     backgroundColor: '#fff',
     marginHorizontal: 20,
     marginBottom: 16,
-    borderRadius: 20, // Increased for premium feel
+    borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#F0F0F0', // Refined border color
+    borderColor: '#F0F0F0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, // Subtle shadow
+    shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 3,
   },
@@ -847,14 +867,14 @@ const styles = StyleSheet.create({
   cardBody: {
     flexDirection: 'row',
     padding: 16,
-    paddingTop: 48, // Space for checkbox
-    gap: 14, // Increased gap for premium spacing
+    paddingTop: 48,
+    gap: 14,
   },
   imageWrapper: {
     position: 'relative',
   },
   carImage: {
-    width: 104, // Slightly larger for better visibility
+    width: 104,
     height: 78,
     borderRadius: 14,
     backgroundColor: '#F5F5F5',
@@ -883,11 +903,11 @@ const styles = StyleSheet.create({
     borderRadius: 3.5,
     backgroundColor: '#fff',
   },
-  
+
   // Content Section: Improved spacing and hierarchy
   contentSection: {
     flex: 1,
-    gap: 10, // Increased vertical spacing
+    gap: 10,
   },
   titleRow: {
     flexDirection: 'row',
@@ -898,10 +918,10 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    fontSize: 17, // Increased for better readability
+    fontSize: 17,
     fontWeight: '600',
     color: '#111827',
-    letterSpacing: -0.2, // Tighter letter spacing for premium feel
+    letterSpacing: -0.2,
   },
   statusBadge: {
     flexDirection: 'row',
@@ -950,7 +970,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   price: {
-    fontSize: 19, // Larger for prominence
+    fontSize: 19,
     fontWeight: '700',
     color: '#235CF8',
     letterSpacing: -0.3,
@@ -965,11 +985,11 @@ const styles = StyleSheet.create({
   // Stats Section: Refined icon and text alignment
   statsSection: {
     flexDirection: 'row',
-    gap: 18, // Increased gap
+    gap: 18,
     marginTop: 6,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F5F5F5', // Subtle divider
+    borderTopColor: '#F5F5F5',
   },
   statItem: {
     flexDirection: 'row',
@@ -977,7 +997,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   statValue: {
-    fontSize: 13, // Slightly larger
+    fontSize: 13,
     fontWeight: '500',
     color: '#6B7280',
   },
@@ -985,10 +1005,10 @@ const styles = StyleSheet.create({
   // Full-Width Action Buttons: Premium design spanning entire card
   actionButtonsRow: {
     flexDirection: 'row',
-    backgroundColor: '#FAFAFA', // Subtle background for action area
+    backgroundColor: '#FAFAFA',
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
-    height: 56, // Fixed height for consistency
+    height: 56,
   },
   actionButton: {
     flex: 1,
