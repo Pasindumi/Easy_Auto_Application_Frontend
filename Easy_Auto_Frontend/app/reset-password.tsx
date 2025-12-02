@@ -1,201 +1,147 @@
-// PROJECT_ROOT/app/reset-password.tsx
-
-import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+// app/reset-password.tsx
+import { Stack, useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import Button from "../components/Button";
+import Footer, { FOOTER_HEIGHT } from "../components/Footer";
+import Header from "../components/Header";
+import InputField from "../components/InputField";
+import { colors } from "../components/theme";
 
-// Import shared components
-import Footer, { FOOTER_HEIGHT } from '../components/Footer';
-import Header, { HEADER_HEIGHT } from '../components/Header';
 
 export default function ResetPasswordScreen() {
-  const router = useRouter(); // Router for navigation
-  const [contact, setContact] = useState(''); // State for email/phone input
+  const router = useRouter();
+  const [contact, setContact] = useState("");
 
-  // Handle Continue button press
   const handleContinue = () => {
-    if (!contact) {
-      Alert.alert('Validation', 'Please enter your email or phone.');
-      return;
-    }
+    if (!contact.trim())
+      return Alert.alert("Validation", "Please enter your email or phone.");
     Alert.alert(
-      'Reset link sent',
+      "Reset link sent",
       `If ${contact} is registered, you will receive instructions to reset your password.`,
-      [{ text: 'OK', onPress: () => router.push('/login') }]
+      [{ text: "OK", onPress: () => router.push("/login") }]
     );
   };
 
   return (
     <>
-      {/* Hide default header */}
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safe}>
-        {/* Top shared header */}
         <Header />
 
-        {/* KeyboardAvoidingView moves form above keyboard */}
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
-          {/* ScrollView to allow scrolling if keyboard overlaps */}
+          {/* Scrollable form */}
           <ScrollView
-            contentContainerStyle={[
-              styles.container,
-              { paddingTop: HEADER_HEIGHT, paddingBottom: FOOTER_HEIGHT + 24 },
-            ]}
+            contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Toggle bar: Login / Reset Password */}
+            {/* Toggle inline */}
             <View style={styles.toggleRow}>
               <TouchableOpacity
-                style={[styles.toggleButton, styles.toggleInactive]}
-                onPress={() => router.push('/login')}
+                style={[styles.toggleBtn, styles.toggleInactive]}
+                onPress={() => router.push("/login")}
               >
-                <Text style={[styles.toggleText, styles.toggleTextBlue]}>Login</Text>
+                <Text style={[styles.toggleText, styles.blueText]}>Login</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.toggleButton, styles.toggleActiveBlue]}>
-                <Text style={[styles.toggleText, styles.toggleTextWhite]}>Reset Password</Text>
+              <TouchableOpacity style={[styles.toggleBtn, styles.toggleActive]}>
+                <Text style={[styles.toggleText, styles.whiteText]}>
+                  Reset Password
+                </Text>
               </TouchableOpacity>
             </View>
 
-            {/* Centered Form Container */}
+            {/* Form */}
             <View style={styles.centeredFormWrapper}>
               <View style={styles.form}>
-                {/* Email / Phone label */}
                 <Text style={styles.label}>Email or Phone Number</Text>
 
-                {/* Input row */}
-                <View style={styles.inputRow}>
-                  <Text style={styles.inputIcon}>📧</Text>
-                  <TextInput
-                    placeholder="Enter your email or phone"
-                    value={contact}
-                    onChangeText={setContact}
-                    style={styles.input}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </View>
+                <InputField
+                  icon="mail-outline"
+                  placeholder="Enter your email or phone"
+                  value={contact}
+                  onChange={setContact}
+                  keyboardType="email-address"
+                />
 
-                {/* Continue button */}
-                <TouchableOpacity activeOpacity={0.9} onPress={handleContinue}>
-                  <LinearGradient
-                    colors={['#4E9FE5', '#235CF8', '#4E9FE5']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.loginButton}
-                  >
-                    <Text style={styles.loginButtonText}>Continue</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                <Button title="Continue" onPress={() => router.push("/login")}  // <-- navigation
+/>
 
-                {/* Sign in link */}
                 <View style={styles.loginRow}>
                   <Text style={styles.smallText}>Remember your password?</Text>
-                  <TouchableOpacity onPress={() => router.push('/login')}>
+                  <TouchableOpacity onPress={() => router.push("/login")}>
                     <Text style={styles.loginLink}> Sign In</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
 
-        {/* Fixed Footer at bottom */}
-        <View style={styles.footerWrapper}>
-          <Footer fixed />
-        </View>
+          {/* Footer fixed at bottom */}
+          <View style={styles.footerWrapper}>
+            <Footer fixed />
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </>
   );
 }
 
-// ---------------------------
-// Styles
-// ---------------------------
 const styles = StyleSheet.create({
-  // Main container
-  safe: { flex: 1, backgroundColor: '#fff' },
+  safe: { flex: 1, backgroundColor: colors.white },
 
-  // ScrollView container padding
-  container: {
+  scrollContent: {
     paddingHorizontal: 16,
-    backgroundColor: '#F5F5F5',
+    paddingBottom: FOOTER_HEIGHT + 24,
+    backgroundColor: "#F5F5F5",
   },
 
-  // Toggle bar row at top
+  // Toggle
   toggleRow: {
-    flexDirection: 'row',
-    alignSelf: 'center',
+    flexDirection: "row",
+    alignSelf: "center",
     marginTop: 12,
     borderRadius: 28,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
-  toggleButton: { flex: 1, paddingVertical: 10, alignItems: 'center' },
-  toggleActiveBlue: { backgroundColor: '#235CF8' },
-  toggleInactive: { backgroundColor: '#fff' },
-  toggleText: { fontWeight: '700', fontSize: 14 },
-  toggleTextWhite: { color: '#fff' },
-  toggleTextBlue: { color: '#235CF8' },
+  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center" },
+  toggleActive: { backgroundColor: colors.primary },
+  toggleInactive: { backgroundColor: colors.bgLight },
+  toggleText: { fontWeight: "700", fontSize: 14 },
+  whiteText: { color: colors.white },
+  blueText: { color: colors.primary },
 
-  // Wrapper to center the form vertically and horizontally
-  centeredFormWrapper: {
-    flex: 1,
-    justifyContent: 'center', // Vertical center
-    alignItems: 'center',     // Horizontal center
-    marginTop: 24,            // Optional top spacing below toggle
-  },
+  centeredFormWrapper: { flex: 1, justifyContent: "center", alignItems: "center", marginTop: 24 },
+  form: { width: "100%", maxWidth: 400 },
 
-  // Form card
-  form: {
-    width: '100%',
-    maxWidth: 400, // Optional max width for tablet/desktop
-  },
+  label: { fontSize: 12, color: colors.textGray, marginBottom: 6 },
 
-  // Label text
-  label: { fontSize: 12, color: '#333', marginBottom: 6 },
+  continueBtn: { borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 10 },
+  continueText: { color: colors.white, fontWeight: "700", fontSize: 16 },
 
-  // Input row
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 12,
-  },
-  inputIcon: { marginRight: 8, fontSize: 18 },
-  input: { flex: 1, height: 36 },
-
-  // Continue button
-  loginButton: { borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 10 },
-  loginButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-
-  // Sign-in link row
-  loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 16 },
-  loginLink: { color: '#235CF8', fontWeight: '700' },
-  smallText: { color: '#444' },
+  loginRow: { flexDirection: "row", justifyContent: "center", marginTop: 16 },
+  smallText: { color: colors.textGray },
+  loginLink: { color: colors.primary, fontWeight: "700" },
 
   // Footer wrapper fixed at bottom
   footerWrapper: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
-    width: '100%',
+    left: 0,
+    right: 0,
+    height: FOOTER_HEIGHT,
   },
 });

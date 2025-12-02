@@ -1,5 +1,7 @@
 // app/(tabs)/profile.tsx
+import ProfileHeader from '@/components/ProfileHeader';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -11,8 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import ProfileHeader from '@/components/ProfileHeader';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -187,7 +187,7 @@ export default function ProfileScreen() {
             <MenuItem
               icon="repeat-outline"
               title="Switch Accounts"
-              onPress={() => handleMenuItemPress('/help-support')}
+              onPress={() => handleMenuItemPress('/signup')}
             />
           </View>
 
