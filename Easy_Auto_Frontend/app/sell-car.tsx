@@ -372,7 +372,7 @@ export default function SellCarScreen() {
 
           {/* Submit Button */}
           <View style={styles.submitSection}>
-            <TouchableOpacity style={styles.reviewButton}>
+            <TouchableOpacity style={styles.reviewButton} onPress={() => router.push('/review add')}>
               <Text style={styles.reviewButtonText}>Review</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.postAdButton} onPress={handleSubmit}>
