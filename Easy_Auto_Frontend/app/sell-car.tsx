@@ -40,7 +40,6 @@ export default function SellCarScreen() {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   const [hidePhoneNumber, setHidePhoneNumber] = useState(false);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setCarDetails(prev => ({
@@ -50,32 +49,15 @@ export default function SellCarScreen() {
   };
 
   const handleSubmit = () => {
-    // Validate required fields
-    const requiredFields = [
-      { key: 'title', label: 'Title' },
-      { key: 'brand', label: 'Brand' },
-      { key: 'model', label: 'Model' },
-      { key: 'year', label: 'Year' },
-      { key: 'price', label: 'Price' },
-      { key: 'contactNumber', label: 'Contact Number' },
-      { key: 'email', label: 'Email' }, // Added email as required
-    ];
-    const missing = requiredFields.filter(f => !(carDetails as any)[f.key]).map(f => f.label);
-    setMissingFields(missing);
-    if (missing.length > 0) {
-      return;
-    }
-    
-    // Here you would typically send the data to your backend
+    // Removed required field validation per request
     Alert.alert('Success', 'Your car listing has been submitted successfully!', [
-      { text: 'OK', onPress: () => router.back() }
+      { text: 'OK', onPress: () => router.replace('/posted-ad') }
     ]);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      
-
+      {/* ...existing code... */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -361,14 +343,6 @@ export default function SellCarScreen() {
               </View>
             </View>
           </View>
-
-          {/* Show missing fields message above the submit buttons */}
-          {missingFields.length > 0 && (
-            <View style={{ marginHorizontal: 16, marginBottom: 8, backgroundColor: '#FFF4F4', borderRadius: 8, padding: 12, borderColor: '#EF4444', borderWidth: 1 }}>
-              <Text style={{ color: '#EF4444', fontWeight: 'bold', marginBottom: 4 }}>Required to fill:</Text>
-              <Text style={{ color: '#EF4444' }}>{missingFields.join(', ')}</Text>
-            </View>
-          )}
 
           {/* Submit Button */}
           <View style={styles.submitSection}>
