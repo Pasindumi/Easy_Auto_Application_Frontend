@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { dummyData } from "./dummydata/reviewadd";
+import { router } from 'expo-router';
 
 export default function ReviewAd() {
   const [negotiable, setNegotiable] = useState(true);
@@ -178,7 +179,7 @@ export default function ReviewAd() {
         </View>
 
         {/* Post Button */}
-        <TouchableOpacity style={styles.postButton}>
+        <TouchableOpacity style={styles.postButton} onPress={() => router.push('/posted-ad' as any)}>
           <Text style={styles.postButtonText}>Post</Text>
         </TouchableOpacity>
       </View>
@@ -217,11 +218,11 @@ const styles = StyleSheet.create({
   pillText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   negotiableToggle: { flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: 8, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 8, backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE' },
   negotiableText: { color: '#2563eb', fontSize: 12, fontWeight: '600' },
-  section: { marginTop: 16, backgroundColor: '#eff6ff', borderRadius: 8, padding: 12 },
-  sectionBox: { marginTop: 16, backgroundColor: '#F1F5FE', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#D8E4FF' },
-  sectionHeader: { fontWeight: 'bold', color: '#1F2937', marginBottom: 8 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, minHeight: 32 },
-  leftRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0, width: 160 },
+  section: { marginTop: 12, backgroundColor: '#eff6ff', borderRadius: 8, padding: 12, alignSelf: 'center', width: '100%' },
+  sectionBox: { marginTop: 12, backgroundColor: '#F1F5FE', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#D8E4FF', alignSelf: 'center', width: '100%' },
+  sectionHeader: { fontWeight: 'bold', color: '#1F2937', marginBottom: 6 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, minHeight: 30 },
+  leftRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0, width: 150 },
   fieldLabel: { color: '#374151', fontWeight: '600' },
   infoValue: { flex: 1, fontWeight: '500', paddingRight: 8 },
   editCell: { width: 60, alignItems: 'flex-end', justifyContent: 'center' },
