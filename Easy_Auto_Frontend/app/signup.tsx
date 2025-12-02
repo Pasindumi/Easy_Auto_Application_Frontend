@@ -1,195 +1,101 @@
-// PROJECT_ROOT/app/signup.tsx
-/**
- * SignupScreen
- *
- * - Same UI as you provided.
- * - When user presses the Sign Up button the app will navigate to the Buy Car page.
- * - Simple front-end validation (checks required fields).
- * - Uses expo-router's useRouter() for navigation.
- *
- * Note:
- * - Ensure you have a page at app/buy-car.tsx (we created one earlier).
- * - If you want to pass data after signup (e.g. user id), use router.push({ pathname: '/buy-car', params: { ... } })
- */
-
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import Footer, { FOOTER_HEIGHT } from '../components/Footer';
-import Header, { HEADER_HEIGHT } from '../components/Header';
+// app/signup.tsx
+import { Ionicons } from "@expo/vector-icons";
+import { Stack, useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Footer, { FOOTER_HEIGHT } from "../components/Footer";
+import Header from "../components/Header"; // keep your Header (unchanged)
+import InputField from "../components/InputField";
+import SocialButton from "../components/SocialButton";
+import { colors } from "../components/theme";
 
 export default function SignupScreen() {
   const router = useRouter();
-
-  // --- Form state ---
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [location, setLocation] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [location, setLocation] = useState("");
   const [agree, setAgree] = useState(false);
 
-  /**
-   * handleSignup
-   * - Basic front-end validation
-   * - If valid, navigate to /buy-car
-   * - Replace navigation with the real signup API call when ready
-   */
   const handleSignup = () => {
-    // Basic validation examples
-    if (!fullName.trim()) {
-      alert('Please enter your full name');
-      return;
-    }
-    if (!email.trim()) {
-      alert('Please enter your email');
-      return;
-    }
-    if (!phone.trim()) {
-      alert('Please enter your phone number');
-      return;
-    }
-    if (!password) {
-      alert('Please enter a password');
-      return;
-    }
-    if (password !== confirm) {
-      alert('Passwords do not match');
-      return;
-    }
-    if (!agree) {
-      alert('Please agree to the Terms & Conditions');
-      return;
-    }
+    if (!fullName.trim()) return Alert.alert("Validation", "Enter your full name");
+    if (!email.trim()) return Alert.alert("Validation", "Enter your email");
+    if (!phone.trim()) return Alert.alert("Validation", "Enter your phone number");
+    if (!password) return Alert.alert("Validation", "Enter your password");
+    if (password !== confirm) return Alert.alert("Validation", "Passwords do not match");
+    if (!agree) return Alert.alert("Validation", "Please agree to Terms & Conditions");
 
-    // If you have a backend, call signup API here and on success navigate.
-    // For now we navigate to the Buy Car screen to match your requirement:
-    router.push('/buy-car');
+    router.push("/buy-car");
   };
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safe}>
-        {/* Header */}
         <Header />
 
-        {/* KeyboardAvoidingView ensures keyboard does not overlap inputs */}
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          {/* ScrollView allows scrolling if content is longer than screen */}
-          <ScrollView
-            contentContainerStyle={[styles.scrollContent, { paddingBottom: FOOTER_HEIGHT + 24, paddingTop: HEADER_HEIGHT }]}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Toggle Row: Signup / Login */}
-            <View style={styles.toggleRow}>
-              {/* Active Signup */}
-              <TouchableOpacity style={[styles.toggleButton, styles.toggleActiveBlue]}>
-                <Text style={[styles.toggleText, styles.toggleTextWhite]}>Signup</Text>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+          <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: FOOTER_HEIGHT + 24 }]} keyboardShouldPersistTaps="handled">
+            {/* Toggle inline */}
+            <View style={styles.toggleContainer}>
+              <TouchableOpacity style={[styles.toggleBtn, styles.activeTab]}>
+                <Text style={[styles.toggleText, styles.whiteText]}>Signup</Text>
               </TouchableOpacity>
 
-              {/* Navigate to Login */}
-              <TouchableOpacity style={styles.toggleButton} onPress={() => router.push('/login')}>
-                <Text style={[styles.toggleText, styles.toggleTextBlue]}>Login</Text>
+              <TouchableOpacity style={styles.toggleBtn} onPress={() => router.push("/login")}>
+                <Text style={[styles.toggleText, styles.blueText]}>Login</Text>
               </TouchableOpacity>
             </View>
 
-            {/* === Form Inputs === */}
             <View style={styles.form}>
-              {/* Full Name */}
-              <Text style={styles.label}>Full Name</Text>
-              <View style={styles.inputRow}>
-                <Ionicons name="person-outline" size={18} color="#9AA0A6" style={styles.inputIcon} />
-                <TextInput placeholder="Dilmin Ekanayaka" value={fullName} onChangeText={setFullName} style={styles.input} />
-              </View>
+              <InputField icon="person-outline" placeholder="Full Name" value={fullName} onChange={setFullName} />
+              <InputField icon="mail-outline" placeholder="Email" value={email} onChange={setEmail} keyboardType="email-address" />
+              <InputField icon="call-outline" placeholder="Phone Number" value={phone} onChange={setPhone} keyboardType="phone-pad" />
+              <InputField icon="lock-closed-outline" placeholder="Password" value={password} onChange={setPassword} secure />
+              <InputField icon="lock-closed-outline" placeholder="Confirm Password" value={confirm} onChange={setConfirm} secure />
+              <InputField icon="location-outline" placeholder="Location" value={location} onChange={setLocation} />
 
-              {/* Email */}
-              <Text style={styles.label}>Email</Text>
-              <View style={styles.inputRow}>
-                <Ionicons name="mail-outline" size={18} color="#9AA0A6" style={styles.inputIcon} />
-                <TextInput placeholder="dilmin@example.com" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
-              </View>
-
-              {/* Phone */}
-              <Text style={styles.label}>Phone Number</Text>
-              <View style={styles.inputRow}>
-                <Ionicons name="call-outline" size={18} color="#9AA0A6" style={styles.inputIcon} />
-                <TextInput placeholder="+94 77 123 4567" keyboardType="phone-pad" value={phone} onChangeText={setPhone} style={styles.input} />
-              </View>
-
-              {/* Password */}
-              <Text style={styles.label}>Password</Text>
-              <View style={styles.inputRow}>
-                <Ionicons name="lock-closed-outline" size={18} color="#9AA0A6" style={styles.inputIcon} />
-                <TextInput secureTextEntry placeholder="Enter your password" value={password} onChangeText={setPassword} style={styles.input} />
-              </View>
-
-              {/* Confirm Password */}
-              <Text style={styles.label}>Confirm Password</Text>
-              <View style={styles.inputRow}>
-                <Ionicons name="lock-closed-outline" size={18} color="#9AA0A6" style={styles.inputIcon} />
-                <TextInput secureTextEntry placeholder="Enter your password" value={confirm} onChangeText={setConfirm} style={styles.input} />
-              </View>
-
-              {/* Location */}
-              <Text style={styles.label}>Location</Text>
-              <View style={styles.inputRow}>
-                <Ionicons name="location-outline" size={18} color="#9AA0A6" style={styles.inputIcon} />
-                <TextInput placeholder="Colombo" value={location} onChangeText={setLocation} style={styles.input} />
-              </View>
-
-              {/* Terms & Conditions */}
-              <TouchableOpacity style={styles.termsRow} onPress={() => setAgree(!agree)}>
+              <TouchableOpacity style={styles.termRow} onPress={() => setAgree((s) => !s)}>
                 <View style={[styles.checkbox, agree && styles.checkboxChecked]}>
-                  {agree && <Ionicons name="checkmark" size={14} color="#fff" />}
+                  {agree && <Ionicons name="checkmark" size={14} color={colors.primary} />}
                 </View>
-                <Text style={styles.termsText}>I agree to the Terms & Conditions</Text>
+                <Text style={styles.termText}>I agree to the Terms & Conditions</Text>
               </TouchableOpacity>
 
-              {/* Signup Button -> NAVIGATES to Buy Car page */}
-              <TouchableOpacity onPress={handleSignup} activeOpacity={0.9}>
-                <LinearGradient colors={['#4E9FE5', '#235CF8', '#4E9FE5']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.gradientButton}>
-                  <Text style={styles.signupButtonText}>Sign Up</Text>
-                </LinearGradient>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary }]} onPress={handleSignup} activeOpacity={0.9}>
+                <Text style={styles.actionText}>Sign Up</Text>
               </TouchableOpacity>
 
-              {/* OR Divider */}
               <View style={styles.orRow}>
-                <View style={styles.orLine} />
-                <Text style={styles.orText}>OR</Text>
-                <View style={styles.orLine} />
+                <View style={styles.line} />
+                <Text style={styles.or}>OR</Text>
+                <View style={styles.line} />
               </View>
 
-              {/* Social Buttons */}
-              <TouchableOpacity style={styles.socialButton} onPress={() => alert('Apple signin - front-end only')}>
-                <Ionicons name="logo-apple" size={18} color="#000" style={{ marginRight: 10 }} />
-                <Text style={styles.socialText}>Sign in With Apple</Text>
-              </TouchableOpacity>
+              <SocialButton icon="logo-apple" text="Sign in With Apple" onPress={() => Alert.alert("Apple Sign in")} />
+              <SocialButton icon="logo-google" text="Sign in With Google" iconColor="#DB4437" onPress={() => Alert.alert("Google Sign in")} />
 
-              <TouchableOpacity style={styles.socialButton} onPress={() => alert('Google signin - front-end only')}>
-                <Ionicons name="logo-google" size={18} color="#DB4437" style={{ marginRight: 10 }} />
-                <Text style={styles.socialText}>Sign in With Google</Text>
-              </TouchableOpacity>
-
-              {/* Login Link */}
-              <View style={styles.loginRow}>
-                <Text style={styles.smallText}>Already have an account?</Text>
-                <TouchableOpacity onPress={() => router.push('/login')}>
+              <View style={styles.bottomRow}>
+                <Text style={styles.small}>Already have an account?</Text>
+                <TouchableOpacity onPress={() => router.push("/login")}>
                   <Text style={styles.loginLink}> Login</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Fixed full-width footer (does not overlap because of paddingBottom) */}
-            <Footer fixed/>
+            <Footer fixed />
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -197,54 +103,34 @@ export default function SignupScreen() {
   );
 }
 
-// === Styles ===
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
+  safe: { flex: 1, backgroundColor: "#fff" },
+  scrollContent: { padding: 16, flexGrow: 1 },
 
-  // Scrollable container content
-  scrollContent: { padding: 16, paddingBottom: 40, flexGrow: 1 }, // paddingBottom ensures footer has space
+  // Toggle
+  toggleContainer: { flexDirection: "row", alignSelf: "center", borderRadius: 28, overflow: "hidden", marginTop: 10 },
+  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center", backgroundColor: colors.bgLight },
+  activeTab: { backgroundColor: colors.primary },
+  toggleText: { fontWeight: "700", fontSize: 14 },
+  whiteText: { color: colors.white },
+  blueText: { color: colors.primary },
 
-  // Neutralize ScrollView padding so footer reaches screen edges
-  footerWrap: { width: '100%', marginHorizontal: -16 },
-
-  // Toggle buttons
-  toggleRow: { flexDirection: 'row', alignSelf: 'center', marginTop: 12, borderRadius: 28, overflow: 'hidden' },
-  toggleButton: { flex: 1, paddingVertical: 10, alignItems: 'center' },
-  toggleActiveBlue: { backgroundColor: '#235CF8' },
-  toggleText: { fontWeight: '700', fontSize: 14 },
-  toggleTextWhite: { color: '#fff' },
-  toggleTextBlue: { color: '#235CF8' },
-
-  // Form container
+  // Form
   form: { marginTop: 18 },
-  label: { fontSize: 12, color: '#333', marginBottom: 6 },
 
-  // Input fields
-  inputRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 12 },
-  inputIcon: { marginRight: 8 },
-  input: { flex: 1, height: 36 },
+  termRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: colors.bgLight, marginRight: 8, justifyContent: "center", alignItems: "center" },
+  checkboxChecked: { backgroundColor: colors.white, borderColor: colors.primary },
+  termText: { color: colors.textGray },
 
-  // Terms
-  termsRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },
-  checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: '#ccc', marginRight: 8, alignItems: 'center', justifyContent: 'center' },
-  checkboxChecked: { backgroundColor: '#235CF8', borderColor: '#235CF8' },
-  termsText: { color: '#444' },
+  actionBtn: { borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 10 },
+  actionText: { color: colors.white, fontWeight: "700", fontSize: 16 },
 
-  // Buttons
-  gradientButton: { borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 10 },
-  signupButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  orRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
+  line: { flex: 1, height: 1, backgroundColor: colors.divider },
+  or: { marginHorizontal: 12, fontWeight: "700", color: colors.textLight },
 
-  // OR Divider
-  orRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 16 },
-  orLine: { flex: 1, height: 1, backgroundColor: '#E6E6E6' },
-  orText: { marginHorizontal: 12, color: '#9AA0A6', fontWeight: '700' },
-
-  // Social Buttons
-  socialButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 12, paddingHorizontal: 14, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#eee' },
-  socialText: { fontWeight: '700' },
-
-  // Login redirect
-  loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
-  smallText: { color: '#666' },
-  loginLink: { color: '#235CF8', fontWeight: '700' },
+  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 8 },
+  small: { color: "#666" },
+  loginLink: { color: colors.primary, fontWeight: "700" },
 });
