@@ -1,12 +1,11 @@
-// app/sell-car.tsx
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Dimensions,
-  FlatList,
+  Alert,
   Image,
-  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,262 +13,490 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ProfileHeader from '@/components/ProfileHeader';
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const CARD_GAP = 16;
-const CARD_WIDTH = (SCREEN_WIDTH - 32 - CARD_GAP) / 2;
-
-const SELLING_STEPS = [
-  {
-    id: '1',
-    title: 'Enter Car Details',
-    description: 'Add your car information',
-    icon: 'car-outline',
-  },
-  {
-    id: '2',
-    title: 'Get Instant Quote',
-    description: 'Receive valuation in minutes',
-    icon: 'calculator-outline',
-  },
-  {
-    id: '3',
-    title: 'Schedule Inspection',
-    description: 'Book a convenient time',
-    icon: 'calendar-outline',
-  },
-  {
-    id: '4',
-    title: 'Complete Sale',
-    description: 'Finalize the transaction',
-    icon: 'checkmark-circle-outline',
-  },
-];
-
-const DEALER_QUOTES = [
-  {
-    id: '1',
-    dealerName: 'AutoMax Dealers',
-    quote: 'Rs. 4.8Mn',
-    rating: 4.8,
-    distance: '2.5 km',
-  },
-  {
-    id: '2',
-    dealerName: 'Premium Motors',
-    quote: 'Rs. 5.2Mn',
-    rating: 4.9,
-    distance: '5.1 km',
-  },
-  {
-    id: '3',
-    dealerName: 'City Auto Center',
-    quote: 'Rs. 4.6Mn',
-    rating: 4.7,
-    distance: '3.8 km',
-  },
-];
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SellCarScreen() {
   const router = useRouter();
+  
+  // Form state
   const [carDetails, setCarDetails] = useState({
-    make: '',
+    title: '',
+    brand: '',
     model: '',
     year: '',
+    condition: '',
     mileage: '',
+    fuelType: '',
+    transmission: '',
+    engineCapacity: '',
+    price: '',
+    description: '',
+    contactNumber: '',
+    email: '',
+    location: '',
+    negotiable: false,
   });
 
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
+  const [hidePhoneNumber, setHidePhoneNumber] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setCarDetails(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = () => {
+    // Validate required fields
+    const requiredFields = [
+      { key: 'title', label: 'Title' },
+      { key: 'brand', label: 'Brand' },
+      { key: 'model', label: 'Model' },
+      { key: 'year', label: 'Year' },
+      { key: 'price', label: 'Price' },
+      { key: 'contactNumber', label: 'Contact Number' },
+      { key: 'email', label: 'Email' }, // Added email as required
+    ];
+    const missing = requiredFields.filter(f => !(carDetails as any)[f.key]).map(f => f.label);
+    setMissingFields(missing);
+    if (missing.length > 0) {
+      return;
+    }
+    
+    // Here you would typically send the data to your backend
+    Alert.alert('Success', 'Your car listing has been submitted successfully!', [
+      { text: 'OK', onPress: () => router.back() }
+    ]);
+  };
+
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Sell Your Car" showProfileCard={false} />
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
-        <ScrollView
+    <SafeAreaView style={styles.container}>
+      
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView 
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
         >
-          {/* Hero Section */}
-          <View style={styles.heroSection}>
-            <View style={styles.heroIconContainer}>
-              <Ionicons name="car-sport" size={64} color="#235CF8" />
+          {/* Basic Information Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Basic Information</Text>
+            
+            <Text style={styles.label}>Title</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Yaris Cross"
+              value={carDetails.title}
+              onChangeText={(value) => handleInputChange('title', value)}
+            />
+
+            <Text style={styles.label}>Price ($)</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+              <TextInput
+                style={[styles.input, { width: 120, marginBottom: 0, marginRight: 12 }]}
+                placeholder="125,500,000"
+                value={carDetails.price}
+                onChangeText={(value) => handleInputChange('price', value)}
+                keyboardType="numeric"
+              />
+              <TouchableOpacity 
+                style={styles.checkboxContainer}
+                onPress={() => handleInputChange('negotiable', !carDetails.negotiable)}
+              >
+                <View style={[styles.checkbox, carDetails.negotiable && styles.checkboxChecked]}>
+                  {carDetails.negotiable && (
+                    <View style={styles.checkboxInner} />
+                  )}
+                </View>
+                <Text style={styles.negotiableText}>Negotiable</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.heroTitle}>Sell Your Car Fast</Text>
-            <Text style={styles.heroSubtitle}>
-              Get instant quotes from verified dealers
-            </Text>
+
+            <Text style={styles.label}>Location</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nugegoda, Sri Lanka"
+              value={carDetails.location}
+              onChangeText={(value) => handleInputChange('location', value)}
+            />
+
+            <Text style={styles.label}>Description</Text>
+            <TextInput
+              style={[styles.input, styles.descriptionTextArea]}
+              placeholder="The all-new Toyota Yaris Cross combines compact design with SUV styling, offering excellent space for all your safety features. Designed for city driving and highway adventures, it delivers an unbeatable smart connectivity and excellent fuel economy."
+              value={carDetails.description}
+              onChangeText={(value) => handleInputChange('description', value)}
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+            />
           </View>
 
-          {/* Car Details Form */}
-          <View style={styles.formSection}>
+          {/* Car Details Section */}
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Car Details</Text>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Make</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., Toyota"
-                value={carDetails.make}
-                onChangeText={(text) =>
-                  setCarDetails({ ...carDetails, make: text })
-                }
-                placeholderTextColor="#9CA3AF"
-              />
+            
+            <View style={styles.formRow}>
+              <View style={styles.formHalf}>
+                <Text style={styles.label}>Brand</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Toyota"
+                  value={carDetails.brand}
+                  onChangeText={(value) => handleInputChange('brand', value)}
+                />
+              </View>
+              
+              <View style={styles.formHalf}>
+                <Text style={styles.label}>Model</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Yaris Cross"
+                  value={carDetails.model}
+                  onChangeText={(value) => handleInputChange('model', value)}
+                />
+              </View>
             </View>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Model</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., Camry"
-                value={carDetails.model}
-                onChangeText={(text) =>
-                  setCarDetails({ ...carDetails, model: text })
-                }
-                placeholderTextColor="#9CA3AF"
-              />
-            </View>
-            <View style={styles.inputRow}>
-              <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
+
+            <View style={styles.formRow}>
+              <View style={styles.formHalf}>
                 <Text style={styles.label}>Year</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="2020"
+                  placeholder="2025"
                   value={carDetails.year}
-                  onChangeText={(text) =>
-                    setCarDetails({ ...carDetails, year: text })
-                  }
-                  placeholderTextColor="#9CA3AF"
+                  onChangeText={(value) => handleInputChange('year', value)}
                   keyboardType="numeric"
                 />
               </View>
-              <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+              
+              <View style={styles.formHalf}>
                 <Text style={styles.label}>Mileage</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="50,000 km"
+                  placeholder="75,000Km"
                   value={carDetails.mileage}
-                  onChangeText={(text) =>
-                    setCarDetails({ ...carDetails, mileage: text })
-                  }
-                  placeholderTextColor="#9CA3AF"
+                  onChangeText={(value) => handleInputChange('mileage', value)}
                 />
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={() => {
-                // Handle form submission
-              }}
-            >
-              <Text style={styles.submitButtonText}>Get Instant Quote</Text>
-            </TouchableOpacity>
+
+            <Text style={styles.label}>Transmission :</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Automatic"
+              value={carDetails.transmission}
+              onChangeText={(value) => handleInputChange('transmission', value)}
+            />
+
+            <Text style={styles.label}>Fuel Type:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Petrol/Hybrid"
+              value={carDetails.fuelType}
+              onChangeText={(value) => handleInputChange('fuelType', value)}
+            />
           </View>
 
-          {/* How It Works */}
-          <View style={styles.stepsSection}>
-            <Text style={styles.sectionTitle}>How It Works</Text>
-            {SELLING_STEPS.map((step, index) => (
-              <View key={step.id} style={styles.stepCard}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>{index + 1}</Text>
-                </View>
-                <View style={styles.stepContent}>
-                  <Ionicons name={step.icon as any} size={24} color="#235CF8" />
-                  <View style={styles.stepText}>
-                    <Text style={styles.stepTitle}>{step.title}</Text>
-                    <Text style={styles.stepDescription}>
-                      {step.description}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-
-          {/* Dealer Quotes */}
-          <View style={styles.quotesSection}>
-            <Text style={styles.sectionTitle}>Top Dealer Quotes</Text>
-            {DEALER_QUOTES.map((quote) => (
-              <View key={quote.id} style={styles.quoteCard}>
-                <View style={styles.quoteHeader}>
-                  <View>
-                    <Text style={styles.dealerName}>{quote.dealerName}</Text>
-                    <View style={styles.quoteMeta}>
-                      <Ionicons name="star" size={14} color="#FFD700" />
-                      <Text style={styles.rating}>{quote.rating}</Text>
-                      <Text style={styles.distance}>• {quote.distance}</Text>
+          {/* Car Photos Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Car Photos</Text>
+            <Text style={styles.sectionSubtitle}>Upload up to 5 photos. First photo will be the cover image</Text>
+            <View style={{ alignItems: 'center' }}>
+              <View style={styles.photoRowUniform}>
+                {[0,1,2].map((i) => (
+                  selectedImages[i] ? (
+                    <View key={i} style={styles.photoContainerUniform}>
+                      <Image source={{ uri: selectedImages[i] }} style={styles.carPhotoUniform} />
+                      <TouchableOpacity 
+                        style={styles.removePhotoButtonUniform}
+                        onPress={() => {
+                          setSelectedImages(prev => prev.filter((_, idx) => idx !== i));
+                        }}
+                      >
+                        <Ionicons name="close" size={16} color="white" />
+                      </TouchableOpacity>
                     </View>
-                  </View>
-                  <Text style={styles.quotePrice}>{quote.quote}</Text>
-                </View>
-                <TouchableOpacity style={styles.contactButton}>
-                  <Text style={styles.contactButtonText}>Contact Dealer</Text>
+                  ) : (
+                    <View key={i} style={styles.photoPlaceholderUniform}>
+                      <Ionicons name="car-outline" size={32} color="#C1C9D2" />
+                    </View>
+                  )
+                ))}
+              </View>
+              <View style={styles.photoRowUniform}>
+                {[3,4].map((i) => (
+                  selectedImages[i] ? (
+                    <View key={i} style={styles.photoContainerUniform}>
+                      <Image source={{ uri: selectedImages[i] }} style={styles.carPhotoUniform} />
+                      <TouchableOpacity 
+                        style={styles.removePhotoButtonUniform}
+                        onPress={() => {
+                          setSelectedImages(prev => prev.filter((_, idx) => idx !== i));
+                        }}
+                      >
+                        <Ionicons name="close" size={16} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View key={i} style={styles.photoPlaceholderUniform}>
+                      <Ionicons name="car-outline" size={32} color="#C1C9D2" />
+                    </View>
+                  )
+                ))}
+                {selectedImages.length < 5 && (
+                  <TouchableOpacity style={styles.addPhotoButtonUniform}>
+                    <Text style={styles.addPhotoTextUniform}>Add Photo</Text>
+                    <Ionicons name="add" size={32} color="#235CF8" style={{ marginTop: 2 }} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </View>
+
+          {/* Additional Images Section */}
+          <View style={styles.section}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={styles.sectionTitle}>Additional Images</Text>
+              <View style={styles.pricePill}><Text style={styles.pricePillText}>$2.00/image</Text></View>
+            </View>
+            <View style={{ alignItems: 'center' }}>
+              {/* First row: 3 images */}
+              <View style={styles.photoRowUniform}>
+                {[0,1,2].map((i) => (
+                  additionalImages && additionalImages[i] ? (
+                    <View key={i} style={styles.photoContainerUniform}>
+                      <Image source={{ uri: additionalImages[i] }} style={styles.carPhotoUniform} />
+                      <TouchableOpacity 
+                        style={styles.removePhotoButtonUniform}
+                        onPress={() => {
+                          setAdditionalImages(prev => prev.filter((_, idx) => idx !== i));
+                        }}
+                      >
+                        <Ionicons name="close" size={16} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View key={i} style={styles.photoPlaceholderUniform}>
+                      <Ionicons name="car-outline" size={32} color="#C1C9D2" />
+                    </View>
+                  )
+                ))}
+              </View>
+              {/* Second row: 2 images + add photo button if needed */}
+              <View style={styles.photoRowUniform}>
+                {[3,4].map((i) => (
+                  additionalImages && additionalImages[i] ? (
+                    <View key={i} style={styles.photoContainerUniform}>
+                      <Image source={{ uri: additionalImages[i] }} style={styles.carPhotoUniform} />
+                      <TouchableOpacity 
+                        style={styles.removePhotoButtonUniform}
+                        onPress={() => {
+                          setAdditionalImages(prev => prev.filter((_, idx) => idx !== i));
+                        }}
+                      >
+                        <Ionicons name="close" size={16} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View key={i} style={styles.photoPlaceholderUniform}>
+                      <Ionicons name="car-outline" size={32} color="#C1C9D2" />
+                    </View>
+                  )
+                ))}
+                {additionalImages.length < 5 && (
+                  <TouchableOpacity style={styles.addPhotoButtonUniform}>
+                    <Text style={styles.addPhotoTextUniform}>Add Photo</Text>
+                    <Ionicons name="add" size={32} color="#235CF8" style={{ marginTop: 2 }} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+            <Text style={[styles.sectionSubtitle, { textAlign: 'center', marginTop: 8 }]}>Add more images for more sales and engagements.</Text>
+          </View>
+
+          {/* Contact Details Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Contact Details</Text>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="your@email.com"
+              value={carDetails.email}
+              onChangeText={(value) => handleInputChange('email', value)}
+            />
+            <View style={styles.contactBox}>
+              <Text style={styles.contactBoxTitle}>Add phone number and Verify</Text>
+              <View style={styles.contactRow}>
+                <TextInput
+                  style={styles.contactPhoneInput}
+                  placeholder="075 2597638"
+                  value={carDetails.contactNumber}
+                  onChangeText={(value) => handleInputChange('contactNumber', value)}
+                  keyboardType="phone-pad"
+                />
+                <TouchableOpacity style={styles.contactAddButton}>
+                  <Text style={styles.contactAddButtonText}>Add</Text>
                 </TouchableOpacity>
               </View>
-            ))}
+              <View style={styles.contactInfoBox}>
+                <Text style={styles.contactInfoText}>Buyers can WhatsApp your first number. Make sure it&apos;s active</Text>
+              </View>
+              <View style={styles.contactCheckboxRow}>
+                <TouchableOpacity style={styles.contactCheckboxOuter} onPress={() => setHidePhoneNumber(prev => !prev)}>
+                  {hidePhoneNumber && (
+                    <View style={styles.contactCheckboxInner}>
+                      <Ionicons name="checkmark" size={14} color="#235CF8" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+                <Text style={styles.contactCheckboxLabel}>Hide phone number</Text>
+              </View>
+            </View>
           </View>
+
+          {/* Show missing fields message above the submit buttons */}
+          {missingFields.length > 0 && (
+            <View style={{ marginHorizontal: 16, marginBottom: 8, backgroundColor: '#FFF4F4', borderRadius: 8, padding: 12, borderColor: '#EF4444', borderWidth: 1 }}>
+              <Text style={{ color: '#EF4444', fontWeight: 'bold', marginBottom: 4 }}>Required to fill:</Text>
+              <Text style={{ color: '#EF4444' }}>{missingFields.join(', ')}</Text>
+            </View>
+          )}
+
+          {/* Submit Button */}
+          <View style={styles.submitSection}>
+            <TouchableOpacity style={styles.reviewButton} onPress={() => router.push('/review add')}>
+              <Text style={styles.reviewButtonText}>Review</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.postAdButton} onPress={handleSubmit}>
+              <Text style={styles.postAdButtonText}>Post Ad</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.disclaimer}>
+            By posting this listing, you agree to our Terms of Service and Privacy Policy.
+          </Text>
         </ScrollView>
-      </SafeAreaView>
-    </>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
+  container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F8F9FA',
+  },
+  header: {
+    backgroundColor: '#235CF8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 16,
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 40, // Balance the back button
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 80, // Account for header
-    paddingBottom: 100, // Account for tab bar (68px) + safe area + extra spacing
+    paddingBottom: 40,
   },
-  heroSection: {
-    alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-  },
-  heroIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#E3F2FD',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  heroSubtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  formSection: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginBottom: 24,
-    borderRadius: 16,
+  section: {
+    backgroundColor: 'white',
+    margin: 16,
+    borderRadius: 12,
     padding: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 4,
   },
-  inputGroup: {
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
     marginBottom: 16,
   },
-  inputRow: {
+  required: {
+    color: '#EF4444',
+  },
+  photoScroll: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  addPhotoButton: {
+    width: 120,
+    height: 80,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#235CF8',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  addPhotoText: {
+    fontSize: 12,
+    color: '#235CF8',
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  photoContainer: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  carPhoto: {
+    width: 120,
+    height: 80,
+    borderRadius: 8,
+  },
+  removePhotoButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  formRow: {
     flexDirection: 'row',
+    gap: 12,
+  },
+  formHalf: {
+    flex: 1,
   },
   label: {
     fontSize: 14,
@@ -278,125 +505,286 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#111827',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: 'white',
+    marginBottom: 16,
   },
-  submitButton: {
+  textArea: {
+    height: 100,
+    paddingTop: 12,
+  },
+  conditionContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  conditionButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    backgroundColor: 'white',
+  },
+  conditionButtonActive: {
     backgroundColor: '#235CF8',
+    borderColor: '#235CF8',
+  },
+  conditionButtonText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  conditionButtonTextActive: {
+    color: 'white',
+  },
+  submitSection: {
+    margin: 16,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  reviewButton: {
+    backgroundColor: 'white',
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
     borderRadius: 12,
     paddingVertical: 16,
+    paddingHorizontal: 32,
+    minWidth: 120,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginRight: 8,
   },
-  submitButtonText: {
-    color: '#FFFFFF',
+  reviewButtonText: {
+    color: '#1F2937',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: 'bold',
   },
-  stepsSection: {
-    paddingHorizontal: 16,
-    marginBottom: 24,
+  postAdButton: {
+    backgroundColor: '#8EE87C',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    minWidth: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  stepCard: {
+  postAdButtonText: {
+    color: 'Black',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  disclaimer: {
+    fontSize: 12,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 16,
+    paddingHorizontal: 32,
+    lineHeight: 18,
+  },
+  priceContainer: {
+    marginBottom: 16,
+  },
+  priceInput: {
+    marginBottom: 8,
+  },
+  negotiableContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
     alignItems: 'center',
   },
-  stepNumber: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 16,
+    height: 16,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+  },
+  checkboxChecked: {
     backgroundColor: '#235CF8',
-    alignItems: 'center',
+    borderColor: '#235CF8',
+  },
+  checkboxInner: {
+    width: 6,
+    height: 6,
+    backgroundColor: 'white',
+    borderRadius: 3,
+  },
+  negotiableText: {
+    fontSize: 14,
+    color: '#374151',
+  },
+  descriptionTextArea: {
+    height: 120,
+    paddingTop: 12,
+  },
+  photoRowUniform: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 12,
+    justifyContent: 'flex-start',
+  },
+  photoContainerUniform: {
+    position: 'relative',
+    width: 70,
+    height: 70,
+    marginBottom: 12,
+    marginRight: 12,
+  },
+  carPhotoUniform: {
+    width: 70,
+    height: 70,
+    borderRadius: 8,
+  },
+  removePhotoButtonUniform: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
-    marginRight: 16,
-  },
-  stepNumberText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  stepContent: {
-    flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
+    zIndex: 2,
   },
-  stepText: {
-    marginLeft: 12,
-    flex: 1,
+  photoPlaceholderUniform: {
+    width: 70,
+    height: 70,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginRight: 12,
   },
-  stepTitle: {
-    fontSize: 16,
+  addPhotoButtonUniform: {
+    width: 70,
+    height: 70,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#235CF8',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginRight: 12,
+    flexDirection: 'column',
+  },
+  addPhotoTextUniform: {
+    fontSize: 12,
+    color: '#235CF8',
     fontWeight: '600',
-    color: '#111827',
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  stepDescription: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  quotesSection: {
-    paddingHorizontal: 16,
-    marginBottom: 24,
-  },
-  quoteCard: {
-    backgroundColor: '#FFFFFF',
+  pricePill: {
+    backgroundColor: '#E0F2FE',
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  quoteHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  dealerName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  quoteMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rating: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
-    marginLeft: 4,
-  },
-  distance: {
-    fontSize: 14,
-    color: '#6B7280',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
     marginLeft: 8,
   },
-  quotePrice: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#235CF8',
+  pricePillText: {
+    fontSize: 12,
+    color: '#0A4D92',
+    fontWeight: '500',
   },
-  contactButton: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 10,
+  contactBox: {
+    backgroundColor: '#F3F8FF',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 12,
+  },
+  contactBoxTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 8,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  contactPhoneInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: 'white',
+  },
+  contactAddButton: {
+    backgroundColor: '#235CF8',
+    borderRadius: 8,
+    paddingHorizontal: 18,
     paddingVertical: 10,
+    marginLeft: 8,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  contactButtonText: {
-    color: '#235CF8',
-    fontSize: 14,
-    fontWeight: '600',
+  contactAddButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  contactInfoBox: {
+    backgroundColor: '#FFF9C4',
+    borderRadius: 8,
+    padding: 8,
+    marginVertical: 8,
+  },
+  contactInfoText: {
+    color: '#7A6A00',
+    fontSize: 13,
+  },
+  contactCheckboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  contactCheckboxOuter: {
+    width: 18,
+    height: 18,
+    borderWidth: 1.5,
+    borderColor: '#235CF8', 
+    borderRadius: 4,
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  contactCheckboxInner: {
+    position: 'absolute',
+    left: 2,
+    top: 2,
+    width: 14,
+    height: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contactCheckboxLabel: {
+    fontSize: 13,
+    color: '#374151',
   },
 });
-
