@@ -19,6 +19,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import ProfileHeader from "@/components/ProfileHeader";
 
 const { width } = Dimensions.get("window");
 
@@ -36,74 +37,6 @@ const adminStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F3F4F6",
-  },
-  headerSafeArea: {
-    backgroundColor: "#235CF8",
-  },
-  headerGradient: {
-    paddingTop: 0,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.horizontal,
-    paddingTop: spacing.vertical,
-    paddingBottom: 0,
-    minHeight: 56,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.gap,
-    flexShrink: 1,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.gap,
-  },
-  logoContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoTextContainer: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: 4,
-  },
-  logoText: {
-    fontSize: width < 375 ? 18 : 20,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    letterSpacing: 0.5,
-    flexShrink: 0,
-  },
-  logoReg: {
-    fontSize: 10,
-    color: "#FFFFFF",
-    opacity: 0.9,
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
   },
   headerActionButton: {
     position: "relative",
@@ -147,12 +80,10 @@ const adminStyles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginHorizontal: spacing.horizontal,
-    marginTop: spacing.gap,
-    marginBottom: spacing.vertical,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
     minHeight: 44,
+    flex: 1,
   },
   searchIcon: {
     marginRight: 10,
@@ -172,17 +103,43 @@ const adminStyles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: 100,
+    paddingTop: 20,
+  },
+  adminHeaderExtras: {
+    backgroundColor: "#235CF8",
+    paddingHorizontal: spacing.horizontal,
+    paddingTop: 8,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+    alignSelf: "flex-start",
+  },
+  adminActionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginTop: 12,
   },
   statsContainer: {
     paddingHorizontal: spacing.horizontal,
+    marginTop: 0,
     marginBottom: spacing.section,
   },
   statsRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: spacing.card,
-    gap: spacing.card,
+    marginBottom: 12,
+    gap: 12,
   },
   statCard: {
     flex: 1,
@@ -194,59 +151,67 @@ const adminStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
     overflow: "hidden",
-    maxWidth: "48%",
+    width: "48%",
   },
   statCardContent: {
-    padding: spacing.card,
+    padding: 16,
+    minHeight: 130,
   },
   statCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 12,
+    gap: 8,
   },
   statCardTitle: {
     fontSize: 13,
     fontWeight: "600",
     color: "#6B7280",
     flex: 1,
+    flexShrink: 1,
   },
   statIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
+    flexShrink: 0,
   },
   statCardValue: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "800",
     color: "#1F2937",
     marginBottom: 4,
+    flexShrink: 1,
   },
   statCardFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 4,
+    marginTop: 8,
+    gap: 8,
   },
   statCardLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#9CA3AF",
     fontWeight: "500",
+    flex: 1,
     flexShrink: 1,
-    marginRight: 8,
+    marginRight: 4,
   },
   trendContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
     flexShrink: 0,
+    minWidth: 50,
   },
   trendUp: {},
   trendDown: {},
   trendText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
   trendTextUp: {
@@ -258,9 +223,10 @@ const adminStyles = StyleSheet.create({
   timeFiltersContainer: {
     flexDirection: "row",
     paddingHorizontal: spacing.horizontal,
-    marginBottom: spacing.section,
+    marginTop: 8,
+    marginBottom: 16,
     gap: spacing.gap,
-    flexWrap: "nowrap",
+    flexWrap: "wrap",
     justifyContent: "flex-start",
   },
   timeFilterButton: {
@@ -290,7 +256,7 @@ const adminStyles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: "center",
-    marginTop: spacing.gap,
+    marginTop: 8,
     marginBottom: spacing.section,
     paddingHorizontal: spacing.horizontal,
   },
@@ -316,7 +282,7 @@ const adminStyles = StyleSheet.create({
   tabButton: {
     flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     borderRadius: 20,
     backgroundColor: "#FFFFFF",
     alignItems: "center",
@@ -330,14 +296,14 @@ const adminStyles = StyleSheet.create({
     borderColor: "#E5E7EB",
     position: "relative",
     minHeight: 44,
-    minWidth: 60,
+    minWidth: 70,
   },
   tabButtonActive: {
     backgroundColor: "#DBEAFE",
     borderColor: "#3B82F6",
   },
   tabButtonText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "600",
     color: "#6B7280",
     textAlign: "center",
@@ -365,7 +331,7 @@ const adminStyles = StyleSheet.create({
   },
   quickActionsContainer: {
     paddingHorizontal: spacing.horizontal,
-    marginTop: spacing.gap,
+    marginTop: 0,
     marginBottom: spacing.section,
   },
   sectionTitle: {
@@ -379,8 +345,8 @@ const adminStyles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
-    padding: spacing.card,
-    marginBottom: spacing.gap,
+    padding: 16,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -388,7 +354,7 @@ const adminStyles = StyleSheet.create({
     elevation: 3,
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    gap: spacing.gap + 2,
+    gap: 12,
     minHeight: 72,
   },
   quickActionIconWrapper: {
@@ -436,7 +402,7 @@ const adminStyles = StyleSheet.create({
   },
   recentActivityContainer: {
     paddingHorizontal: spacing.horizontal,
-    marginTop: spacing.gap,
+    marginTop: 0,
     marginBottom: spacing.section,
   },
   sectionHeader: {
@@ -455,8 +421,8 @@ const adminStyles = StyleSheet.create({
     alignItems: "flex-start",
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
-    padding: spacing.card,
-    marginBottom: spacing.gap,
+    padding: 16,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -650,6 +616,7 @@ const adminStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     paddingTop: 8,
+    zIndex: 100,
   },
   bottomNavItem: {
     flex: 1,
@@ -672,15 +639,6 @@ const adminStyles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
-// EASYAUTO Logo Component
-const EasyAutoLogo = ({ size = 24, color = "#FFFFFF" }: { size?: number; color?: string }) => {
-  return (
-    <View style={[adminStyles.logoContainer, { width: size * 1.2, height: size }]}>
-      <Ionicons name="car-sport" size={size} color={color} />
-    </View>
-  );
-};
 
 // Enhanced Stat Card with Trends
 const StatCard = ({
@@ -757,6 +715,75 @@ const StatCard = ({
   };
 
   const CardContent = (
+    <View style={adminStyles.statCardContent}>
+      <View style={adminStyles.statCardHeader}>
+        <Text style={adminStyles.statCardTitle} numberOfLines={2} ellipsizeMode="tail">
+          {title}
+        </Text>
+        <View style={[adminStyles.statIconContainer, { backgroundColor: `${iconColor}15` }]}>
+          <Ionicons name={iconName} size={20} color={iconColor} />
+        </View>
+      </View>
+      <Text style={adminStyles.statCardValue} numberOfLines={1} ellipsizeMode="tail">
+        {value}
+      </Text>
+      <View style={adminStyles.statCardFooter}>
+        <Text style={adminStyles.statCardLabel} numberOfLines={1} ellipsizeMode="tail">
+          {label}
+        </Text>
+        {trend && trendValue && (
+          <View
+            style={[
+              adminStyles.trendContainer,
+              trend === "up" && adminStyles.trendUp,
+              trend === "down" && adminStyles.trendDown,
+            ]}
+          >
+            <Ionicons
+              name={trend === "up" ? "trending-up" : trend === "down" ? "trending-down" : "remove"}
+              size={12}
+              color={trend === "up" ? "#10B981" : trend === "down" ? "#EF4444" : "#6B7280"}
+            />
+            <Text
+              style={[
+                adminStyles.trendText,
+                trend === "up" && adminStyles.trendTextUp,
+                trend === "down" && adminStyles.trendTextDown,
+              ]}
+              numberOfLines={1}
+            >
+              {trendValue}
+            </Text>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={0.9}
+        style={adminStyles.statCard}
+      >
+        <Animated.View
+          style={[
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }, { scale: scaleAnim }, { scale: pressScale }],
+            },
+          ]}
+        >
+          {CardContent}
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  }
+
+  return (
     <Animated.View
       style={[
         adminStyles.statCard,
@@ -766,59 +793,9 @@ const StatCard = ({
         },
       ]}
     >
-      <View style={adminStyles.statCardContent}>
-        <View style={adminStyles.statCardHeader}>
-          <Text style={adminStyles.statCardTitle}>{title}</Text>
-          <View style={[adminStyles.statIconContainer, { backgroundColor: `${iconColor}15` }]}>
-            <Ionicons name={iconName} size={24} color={iconColor} />
-          </View>
-        </View>
-        <Text style={adminStyles.statCardValue}>{value}</Text>
-        <View style={adminStyles.statCardFooter}>
-          <Text style={adminStyles.statCardLabel}>{label}</Text>
-          {trend && trendValue && (
-            <View
-              style={[
-                adminStyles.trendContainer,
-                trend === "up" && adminStyles.trendUp,
-                trend === "down" && adminStyles.trendDown,
-              ]}
-            >
-              <Ionicons
-                name={trend === "up" ? "trending-up" : trend === "down" ? "trending-down" : "remove"}
-                size={14}
-                color={trend === "up" ? "#10B981" : trend === "down" ? "#EF4444" : "#6B7280"}
-              />
-              <Text
-                style={[
-                  adminStyles.trendText,
-                  trend === "up" && adminStyles.trendTextUp,
-                  trend === "down" && adminStyles.trendTextDown,
-                ]}
-              >
-                {trendValue}
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
+      {CardContent}
     </Animated.View>
   );
-
-  if (onPress) {
-    return (
-      <TouchableOpacity
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        activeOpacity={1}
-      >
-        <Animated.View style={{ transform: [{ scale: pressScale }] }}>{CardContent}</Animated.View>
-      </TouchableOpacity>
-    );
-  }
-
-  return CardContent;
 };
 
 // Tab Button Component
@@ -1113,7 +1090,6 @@ export default function AdminDashboard() {
   const router = useRouter();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const [activeTab, setActiveTab] = React.useState("Overview");
   const [activeTimeFilter, setActiveTimeFilter] = React.useState("Month");
   const [refreshing, setRefreshing] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -1131,44 +1107,27 @@ export default function AdminDashboard() {
     });
   }, [navigation]);
 
-  const headerFade = React.useRef(new Animated.Value(0)).current;
-  const headerSlide = React.useRef(new Animated.Value(-30)).current;
   const titleFade = React.useRef(new Animated.Value(0)).current;
   const titleSlide = React.useRef(new Animated.Value(20)).current;
 
   React.useEffect(() => {
     Animated.parallel([
-      Animated.timing(headerFade, {
+      Animated.timing(titleFade, {
         toValue: 1,
-        duration: 800,
+        duration: 600,
+        delay: 300,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.spring(headerSlide, {
+      Animated.spring(titleSlide, {
         toValue: 0,
         tension: 50,
         friction: 8,
+        delay: 300,
         useNativeDriver: true,
       }),
-      Animated.sequence([
-        Animated.delay(300),
-        Animated.parallel([
-          Animated.timing(titleFade, {
-            toValue: 1,
-            duration: 600,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.spring(titleSlide, {
-            toValue: 0,
-            tension: 50,
-            friction: 8,
-            useNativeDriver: true,
-          }),
-        ]),
-      ]),
     ]).start();
-  }, [headerFade, headerSlide, titleFade, titleSlide]);
+  }, [titleFade, titleSlide]);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -1179,7 +1138,6 @@ export default function AdminDashboard() {
     }, 1500);
   }, []);
 
-  const tabs = ["Overview", "Selling Ads", "Renting Ads", "Settings"];
   const timeFilters = ["Today", "Week", "Month", "Year"];
 
   const recentActivities = [
@@ -1221,8 +1179,8 @@ export default function AdminDashboard() {
     <View style={adminStyles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-      {/* Header */}
-      <SafeAreaView edges={["top"]} style={adminStyles.headerSafeArea}>
+      {/* Header using ProfileHeader component */}
+      <SafeAreaView edges={["top"]} style={{ backgroundColor: "#235CF8" }}>
         <View
           ref={headerRef}
           onLayout={(event) => {
@@ -1231,20 +1189,13 @@ export default function AdminDashboard() {
             setHeaderHeight(totalHeight);
           }}
         >
-          <LinearGradient
-            colors={["#235CF8", "#1E4ED8", "#1A3FD0"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={adminStyles.headerGradient}
-          >
-          <Animated.View
-            style={[
-              adminStyles.headerContent,
-              { opacity: headerFade, transform: [{ translateY: headerSlide }] },
-            ]}
-          >
-            {/* Left: Back Button & Logo */}
-            <View style={adminStyles.headerLeft}>
+          <ProfileHeader title="Admin Dashboard" showProfileCard={false} />
+          
+          {/* Admin-specific features below header */}
+          <View style={adminStyles.adminHeaderExtras}>
+            {/* Search Bar and Actions Row */}
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              {/* Back Button */}
               <TouchableOpacity
                 style={adminStyles.backButton}
                 onPress={() => {
@@ -1255,73 +1206,65 @@ export default function AdminDashboard() {
               >
                 <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
               </TouchableOpacity>
-              <View style={adminStyles.logoSection}>
-                <EasyAutoLogo size={32} />
-                <View style={adminStyles.logoTextContainer}>
-                  <Text style={adminStyles.logoText}>EASYAUTO</Text>
-                  <Text style={adminStyles.logoReg}>®</Text>
-                </View>
+
+              {/* Search Bar */}
+              <View style={[adminStyles.searchContainer, { flex: 1 }]}>
+                <Ionicons name="search" size={20} color="rgba(255, 255, 255, 0.8)" style={adminStyles.searchIcon} />
+                <TextInput
+                  style={adminStyles.searchInput}
+                  placeholder="Search users, ads, reports..."
+                  placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setSearchQuery("");
+                    }}
+                    style={adminStyles.searchClearButton}
+                  >
+                    <Ionicons name="close-circle" size={20} color="rgba(255, 255, 255, 0.8)" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Admin Action Buttons */}
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                <TouchableOpacity
+                  style={adminStyles.headerActionButton}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setShowNotifications(!showNotifications);
+                    setShowProfileMenu(false);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
+                  <View style={adminStyles.notificationBadge}>
+                    <Text style={adminStyles.notificationBadgeText}>3</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={adminStyles.headerActionButton}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setShowProfileMenu(!showProfileMenu);
+                    setShowNotifications(false);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Image
+                    source={{
+                      uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
+                    }}
+                    style={adminStyles.headerProfileImage}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
-
-            {/* Right: Actions */}
-            <View style={adminStyles.headerActions}>
-              <TouchableOpacity
-                style={adminStyles.headerActionButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setShowNotifications(!showNotifications);
-                  setShowProfileMenu(false);
-                }}
-                activeOpacity={0.7}
-              >
-                <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
-                <View style={adminStyles.notificationBadge}>
-                  <Text style={adminStyles.notificationBadgeText}>3</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={adminStyles.headerActionButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setShowProfileMenu(!showProfileMenu);
-                  setShowNotifications(false);
-                }}
-                activeOpacity={0.7}
-              >
-                <Image
-                  source={{
-                    uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
-                  }}
-                  style={adminStyles.headerProfileImage}
-                />
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-
-          {/* Search Bar */}
-          <View style={adminStyles.searchContainer}>
-            <Ionicons name="search" size={20} color="rgba(255, 255, 255, 0.8)" style={adminStyles.searchIcon} />
-            <TextInput
-              style={adminStyles.searchInput}
-              placeholder="Search users, ads, reports..."
-              placeholderTextColor="rgba(255, 255, 255, 0.6)"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setSearchQuery("");
-                }}
-                style={adminStyles.searchClearButton}
-              >
-                <Ionicons name="close-circle" size={20} color="rgba(255, 255, 255, 0.8)" />
-              </TouchableOpacity>
-            )}
           </View>
-        </LinearGradient>
         </View>
       </SafeAreaView>
 
@@ -1331,8 +1274,23 @@ export default function AdminDashboard() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#235CF8" />}
       >
+        {/* Time Filters */}
+        <View style={adminStyles.timeFiltersContainer}>
+          {timeFilters.map((filter) => (
+            <TimeFilterButton
+              key={filter}
+              label={filter}
+              isActive={activeTimeFilter === filter}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setActiveTimeFilter(filter);
+              }}
+            />
+          ))}
+        </View>
+
         {/* Stats Section */}
-        <View style={[adminStyles.statsContainer, { marginTop: headerHeight > 0 ? -50 : 0 }]}>
+        <View style={adminStyles.statsContainer}>
           <View style={adminStyles.statsRow}>
             <StatCard
               delay={100}
@@ -1395,96 +1353,6 @@ export default function AdminDashboard() {
           </View>
         </View>
 
-        {/* Time Filters */}
-        <View style={adminStyles.timeFiltersContainer}>
-          {timeFilters.map((filter) => (
-            <TimeFilterButton
-              key={filter}
-              label={filter}
-              isActive={activeTimeFilter === filter}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setActiveTimeFilter(filter);
-              }}
-            />
-          ))}
-        </View>
-
-        {/* Admin Control Panel Title */}
-        <Animated.View
-          style={[
-            adminStyles.titleContainer,
-            { opacity: titleFade, transform: [{ translateY: titleSlide }] },
-          ]}
-        >
-          <Text style={adminStyles.mainTitle}>EASYAUTO</Text>
-          <Text style={adminStyles.subTitle}>Admin Control Panel</Text>
-        </Animated.View>
-
-        {/* Navigation Tabs */}
-        <View style={adminStyles.tabsContainer}>
-          {tabs.map((tab, index) => (
-            <TabButton
-              key={tab}
-              label={tab}
-              isActive={activeTab === tab}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setActiveTab(tab);
-              }}
-              delay={300 + index * 50}
-              badge={tab === "Selling Ads" ? 5 : tab === "Renting Ads" ? 12 : undefined}
-            />
-          ))}
-        </View>
-
-        {/* Quick Actions */}
-        <View style={adminStyles.quickActionsContainer}>
-          <Text style={adminStyles.sectionTitle}>Quick Actions</Text>
-          <QuickActionItem
-            label="Manage Ads"
-            delay={500}
-            icon="drive-eta"
-            badge={8}
-            description="View and manage all listings"
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              console.log("Manage Ads clicked");
-            }}
-          />
-          <QuickActionItem
-            label="Manage Users"
-            delay={550}
-            icon="people"
-            description="User accounts and permissions"
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              console.log("Manage Users clicked");
-            }}
-          />
-          <QuickActionItem
-            label="Packages & Income"
-            delay={600}
-            icon="account-balance-wallet"
-            description="Revenue and subscription management"
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              console.log("Packages & Income clicked");
-            }}
-          />
-          <QuickActionItem
-            label="EasyAuto Announcements"
-            delay={650}
-            icon="campaign"
-            badge={2}
-            description="System-wide notifications"
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              console.log("EasyAuto Announcements clicked");
-            }}
-          />
-        </View>
-
         {/* Recent Activity */}
         <View style={adminStyles.recentActivityContainer}>
           <View style={adminStyles.sectionHeader}>
@@ -1519,7 +1387,7 @@ export default function AdminDashboard() {
           activeOpacity={1}
           onPress={() => setShowProfileMenu(false)}
         >
-          <View style={[adminStyles.profileMenuContainer, { top: headerHeight > 0 ? headerHeight + 8 : 88 }]}>
+          <View style={[adminStyles.profileMenuContainer, { top: headerHeight > 0 ? headerHeight + 8 : 180 }]}>
             <View style={adminStyles.profileMenuHeader}>
               <Image
                 source={{
@@ -1580,7 +1448,7 @@ export default function AdminDashboard() {
           activeOpacity={1}
           onPress={() => setShowNotifications(false)}
         >
-          <View style={[adminStyles.notificationDrawer, { top: headerHeight > 0 ? headerHeight + 8 : 88 }]}>
+          <View style={[adminStyles.notificationDrawer, { top: headerHeight > 0 ? headerHeight + 8 : 180 }]}>
             <View style={adminStyles.notificationHeader}>
               <Text style={adminStyles.notificationTitle}>Notifications</Text>
               <TouchableOpacity
