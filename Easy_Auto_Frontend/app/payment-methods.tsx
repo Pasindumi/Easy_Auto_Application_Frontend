@@ -119,7 +119,7 @@ export default function PaymentMethods() {
           <View style={styles.otherContainer}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Others</Text>
-              <Text style={styles.countText}>2 Methods Added</Text>
+              <Text style={styles.countText}>5 Methods Added</Text>
             </View>
 
             {/* PayPal */}
@@ -150,6 +150,36 @@ export default function PaymentMethods() {
                 style={styles.otherIcon}
               />
               <Text style={styles.otherText}>Google Pay</Text>
+            </TouchableOpacity>
+
+            {/* Visa Debit */}
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('Visa Debit')}
+              style={[
+                styles.otherItem,
+                selectedMethod === 'Visa Debit' && styles.methodItemActive,
+              ]}
+            >
+              <Image
+                source={require('../assets/images/visa.png')}
+                style={styles.otherIcon}
+              />
+              <Text style={styles.otherText}>Visa Debit</Text>
+            </TouchableOpacity>
+
+            {/* Mastercard Debit */}
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('Mastercard Debit')}
+              style={[
+                styles.otherItem,
+                selectedMethod === 'Mastercard Debit' && styles.methodItemActive,
+              ]}
+            >
+              <Image
+                source={require('../assets/images/mastercard.png')}
+                style={styles.otherIcon}
+              />
+              <Text style={styles.otherText}>Mastercard Debit</Text>
             </TouchableOpacity>
           </View>
 
