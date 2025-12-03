@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React from "react";
 import {
+         Alert,
          SafeAreaView,
          ScrollView,
          StyleSheet,
@@ -13,6 +14,14 @@ import {
 
 export default function Invoice() {
   const router = useRouter();
+
+  const handleDownloadPdf = () => {
+    Alert.alert('Download', 'Invoice PDF is being prepared...');
+    // TODO: Integrate expo-print and expo-sharing to generate and save/share a real PDF
+    // Example:
+    // const { uri } = await Print.printToFileAsync({ html: '<html>...</html>' });
+    // await Sharing.shareAsync(uri);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -30,12 +39,6 @@ export default function Invoice() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
-        {/* Back preview */}
-        <TouchableOpacity style={styles.previewRow}>
-          <Ionicons name="chevron-back" size={18} color="#2563EB" />
-          <Text style={styles.previewText}>Preview add</Text>
-        </TouchableOpacity>
 
         {/* Invoice Details */}
         <View style={styles.card}>
@@ -117,45 +120,18 @@ export default function Invoice() {
           </Text>
         </View>
 
-        {/* Promo code */}
-        <View style={styles.promoContainer}>
-          <TextInput
-            placeholder="Enter Promo Code"
-            style={styles.input}
-          />
-          <TouchableOpacity style={styles.applyBtn}>
-            <Text style={styles.applyText}>Apply</Text>
-          </TouchableOpacity>
-        </View>
+       
 
-        {/* Payment Method */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Payment Method</Text>
+        {/* Download PDF */}
+        <TouchableOpacity style={styles.downloadBtn} onPress={handleDownloadPdf}>
+          <Ionicons name="download-outline" size={18} color="#fff" />
+          <Text style={styles.downloadText}>Download PDF</Text>
+        </TouchableOpacity>
 
-          {["Credit/Debit card", "Apple pay", "Paypal"].map((method, index) => (
-            <TouchableOpacity key={index} style={styles.methodBtn}>
-              <Text style={styles.text}>{method}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Buttons */}
-        
-
-        <TouchableOpacity 
-                  style={styles.payBtn}
-                  onPress={() => router.push("/payment-methods")}
-                  >
-                  <Text style={styles.payText}>Pay Now</Text>
-                  </TouchableOpacity>
-
-        <TouchableOpacity 
-                  style={styles.addBtn}
-                  onPress={() => router.push("/packages")}
-                  >
-                  <Text style={styles.payText}>Add Package</Text>
-                  </TouchableOpacity>
-
+        {/* Go to Posted Ad */}
+        <TouchableOpacity style={styles.goPostedBtn} onPress={() => router.push('/posted-ad' as any)}>
+          <Text style={styles.goPostedText}>Go to Posted Ad</Text>
+        </TouchableOpacity>
 
           
       </ScrollView>
@@ -309,5 +285,34 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "700",
     fontSize: 15,
+  },
+
+  downloadBtn: {
+    marginTop: 16,
+    backgroundColor: '#2563EB',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+
+  downloadText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+
+  goPostedBtn: {
+    marginTop: 10,
+    backgroundColor: '#10B981',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+
+  goPostedText: {
+    color: '#fff',
+    fontWeight: '700',
   },
 });

@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -49,10 +48,9 @@ export default function SellCarScreen() {
   };
 
   const handleSubmit = () => {
-    // Removed required field validation per request
-    Alert.alert('Success', 'Your car listing has been submitted successfully!', [
-      { text: 'OK', onPress: () => router.replace('/posted-ad') }
-    ]);
+    // Removed success Alert per request
+    // Directly navigate to Payment page
+    router.push('/payment' as any);
   };
 
   return (

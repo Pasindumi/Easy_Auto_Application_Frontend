@@ -12,9 +12,6 @@ export default function ReviewAd() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-     
-
-      {/* Main Card */}
       <View style={styles.card}>
         {/* Cover Image */}
         <View style={styles.coverContainer} onLayout={({ nativeEvent }) => setImageWidth(nativeEvent.layout.width)}>
@@ -178,9 +175,9 @@ export default function ReviewAd() {
           </View>
         </View>
 
-        {/* Post Button */}
-        <TouchableOpacity style={styles.postButton} onPress={() => router.push('/posted-ad' as any)}>
-          <Text style={styles.postButtonText}>Post</Text>
+        {/* Proceed to Payment Button */}
+        <TouchableOpacity style={styles.paymentButton} onPress={() => router.push('/payment' as any)}>
+          <Text style={styles.paymentButtonText}>Proceed to Payment</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -234,4 +231,6 @@ const styles = StyleSheet.create({
   sellerInfo: { color: '#6b7280', fontSize: 12 },
   postButton: { marginTop: 16, width: '100%', backgroundColor: '#2563eb', borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
   postButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  paymentButton: { marginTop: 16, width: '100%', backgroundColor: '#10b981', borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
+  paymentButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
