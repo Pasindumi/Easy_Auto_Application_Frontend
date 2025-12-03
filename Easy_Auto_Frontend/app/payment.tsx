@@ -81,9 +81,15 @@ export default function Payment() {
         {/* Payment Method */}
         <View style={styles.sectionBox}>
           <Text style={styles.sectionHeader}>Payment Method</Text>
-          <View style={styles.methodItem}><Text style={styles.methodText}>Credit/Debit card</Text></View>
-          <View style={styles.methodItem}><Text style={styles.methodText}>Apple Pay</Text></View>
-          <View style={styles.methodItem}><Text style={styles.methodText}>Paypal</Text></View>
+          <TouchableOpacity style={styles.methodItem} onPress={() => router.push('/payment-methods' as any)}>
+            <Text style={styles.methodText}>Credit/Debit card</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.methodItem}>
+            <Text style={styles.methodText}>Apple Pay</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.methodItem}>
+            <Text style={styles.methodText}>Paypal</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Continue */}
