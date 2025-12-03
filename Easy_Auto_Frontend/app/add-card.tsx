@@ -148,8 +148,8 @@ export default function AddNewCard() {
             </TouchableOpacity>
 
             {/* Save Button */}
-            <TouchableOpacity style={styles.saveBtn}>
-              <Text style={styles.saveBtnText}>Save</Text>
+            <TouchableOpacity style={styles.saveBtn} onPress={() => router.replace('/successful-payment' as any)}>
+              <Text style={styles.saveBtnText}>Pay Now</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
