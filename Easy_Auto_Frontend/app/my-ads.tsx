@@ -10,12 +10,13 @@ import {
   Share,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../components/Header";
+import SearchBar from "../components/SearchBar";
+import StatusCards from "../components/StatusCards";
 
 // Sample Ads Data
 const ADS_DATA = [
@@ -76,20 +77,36 @@ const ADS_DATA = [
   },
 ];
 
-// Filter Cards
-const FILTERS = [
-  { key: 'all', label: 'Total Ads', icon: 'layers-outline', color: '#3B82F6' },
-  { key: 'active', label: 'Active Ads', icon: 'checkmark-circle-outline', color: '#10B981' },
-  { key: 'expired', label: 'Expired Ads', icon: 'close-circle-outline', color: '#EF4444' },
-  { key: 'draft', label: 'Draft Ads', icon: 'time-outline', color: '#FBBF24' },
-];
-
 export default function MyAdsScreen() {
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  // page-level filter uses: 'all' | 'active' | 'expired' | 'draft'
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'expired' | 'draft'>('all');
+
+  // --- counts for StatusCards component ---
+  const counts = {
+    total: ADS_DATA.length,
+    active: ADS_DATA.filter(a => a.status === 'active').length,
+    draft: ADS_DATA.filter(a => a.status === 'draft').length,
+    paused: ADS_DATA.filter(a => a.status === 'expired').length, // map 'expired' -> paused
+  };
+
+  // Bridge helpers between this page filter and StatusCards keys
+  const mapPageFilterToStatusCard = (f: typeof selectedFilter) => {
+    if (f === 'all') return 'all';
+    if (f === 'active') return 'Active';
+    if (f === 'draft') return 'Draft';
+    if (f === 'expired') return 'Paused';
+    return null;
+  };
+  const handleStatusCardSelect = (key: "all" | "Active" | "Draft" | "Paused" | null) => {
+    if (!key || key === 'all') return setSelectedFilter('all');
+    if (key === 'Active') return setSelectedFilter('active');
+    if (key === 'Draft') return setSelectedFilter('draft');
+    if (key === 'Paused') return setSelectedFilter('expired');
+  };
 
   const filteredAds = ADS_DATA.filter(ad => {
     const statusMatch = selectedFilter === 'all' || ad.status === selectedFilter;
@@ -97,19 +114,21 @@ export default function MyAdsScreen() {
     return statusMatch && searchMatch;
   });
 
-  const getCount = (status: string) => {
-    if (status === 'all') return ADS_DATA.length;
-    return ADS_DATA.filter(ad => ad.status === status).length;
-  };
-
   const toggleSelect = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelected(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
   };
 
+  // <-- Fix: define handleSelectAll so the header "Select all" button works -->
   const handleSelectAll = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (selected.length === filteredAds.length && filteredAds.length > 0) {
+    if (filteredAds.length === 0) {
+      setSelected([]);
+      return;
+    }
+    // if everything already selected, clear; otherwise select all visible
+    const allSelected = filteredAds.every(ad => selected.includes(ad.id));
+    if (allSelected) {
       setSelected([]);
     } else {
       setSelected(filteredAds.map(ad => ad.id));
@@ -223,54 +242,30 @@ export default function MyAdsScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Blue top header component (unchanged) */}
         <Header />
 
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Ionicons name="layers-outline" size={22} color="#235CF8" style={{ marginRight: 6 }} />
-            <Text style={styles.headerTitle}>My Ads</Text>
+        {/* White heading row directly below the blue header (icon + title) */}
+        <View style={localStyles.headerWrap}>
+          <View style={localStyles.header}>
+            <View style={localStyles.headerLeft}>
+              <Ionicons name="layers-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+              <Text style={localStyles.headerTitle}>My Ads</Text>
+            </View>
+
+            <TouchableOpacity onPress={handleSelectAll} style={localStyles.headerRight}>
+              <Text style={localStyles.selectAllText}>{selected.length ? `${selected.length} selected` : 'Select all'}</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Keep search bar same size as original */}
-        <View style={styles.searchWrapper}>
-          <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={18} color="#9CA3AF" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search ads..."
-              placeholderTextColor="#9CA3AF"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={18} color="#9CA3AF" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        <View style={styles.statusRow}>
-          {FILTERS.map(filter => {
-            const active = selectedFilter === filter.key;
-            return (
-              <TouchableOpacity
-                key={filter.key}
-                style={[styles.statusCard, active && styles.statusCardActive]}
-                onPress={() => setSelectedFilter(filter.key as any)}
-              >
-                <Ionicons name={filter.icon} size={16} color={filter.color} style={{ marginBottom: 2 }} />
-                <Text style={[styles.statusCardNumber, active && styles.statusCardNumberActive]}>
-                  {getCount(filter.key)}
-                </Text>
-                <Text style={[styles.statusCardLabel, active && styles.statusCardLabelActive]}>
-                  {filter.label.split(' ')[0]}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {/* Componentized search + status */}
+        <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search ads..." />
+        <StatusCards
+          counts={counts}
+          selectedFilter={mapPageFilterToStatusCard(selectedFilter) as any}
+          onSelect={handleStatusCardSelect}
+        />
 
         {selected.length > 0 && (
           <View style={styles.bulkActionsBar}>
@@ -312,7 +307,7 @@ export default function MyAdsScreen() {
   );
 }
 
-// --- Styles ---
+// --- Styles (kept mostly unchanged) ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F9FAFB' },
   header: { backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', alignItems: 'center' },
@@ -375,4 +370,14 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: 16, fontWeight: '600', color: '#6B7280', marginTop: 12 },
   emptyButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#235CF8', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12, marginTop: 12 },
   emptyButtonText: { color: '#fff', fontWeight: '500', fontSize: 13 },
+});
+
+// small local styles used for the white heading row under the Header
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#fff' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#F3F4F6' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
+  headerRight: { paddingHorizontal: 8, paddingVertical: 4 },
+  selectAllText: { fontSize: 13, color: '#6B7280' },
 });
