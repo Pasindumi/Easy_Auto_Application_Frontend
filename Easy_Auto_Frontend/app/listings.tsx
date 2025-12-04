@@ -14,18 +14,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import ListingCard from "../components/cards/ListingCard";
 import Header from "../components/Header";
-import ListingCard, { Listing } from "../components/ListingCard";
 import styles from "../components/listingStyles";
 import SearchBar from "../components/SearchBar";
 import StatusCards from "../components/StatusCards";
-
-const LISTINGS: Listing[] = [
-  { id: "1", title: "Mercedex Benz", price: "$27,900", km: "42,000km", views: 950, likes: 35, messages: 35, status: "Active", image: require("../assets/images/car.jpg") },
-  { id: "2", title: "Mercedex Benz", price: "$27,900", km: "42,000km", views: 950, likes: 35, messages: 35, status: "Paused", image: require("../assets/images/car.jpg") },
-  { id: "3", title: "Mercedex Benz", price: "$27,900", km: "42,000km", views: 950, likes: 35, messages: 35, status: "Active", image: require("../assets/images/car.jpg") },
-  { id: "4", title: "Mercedex Benz", price: "$27,900", km: "42,000km", views: 950, likes: 35, messages: 35, status: "Paused", image: require("../assets/images/car.jpg") },
-];
+import { LISTINGS } from "./dummydata/listings"; // <- imported dummy data
 
 export default function MyListingsScreen() {
   const router = useRouter();

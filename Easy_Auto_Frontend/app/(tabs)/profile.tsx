@@ -187,7 +187,7 @@ export default function ProfileScreen() {
             <MenuItem
               icon="repeat-outline"
               title="Switch Accounts"
-              onPress={() => handleMenuItemPress('/signup')}
+              onPress={() => handleMenuItemPress('/switch-account')}
             />
           </View>
 

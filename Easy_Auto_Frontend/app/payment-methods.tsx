@@ -1,8 +1,9 @@
 // app/payment-methods.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
+         Alert,
          Image,
          SafeAreaView,
          ScrollView,
@@ -14,6 +15,18 @@ import {
 
 export default function PaymentMethods() {
   const router = useRouter();
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+
+  const handlePayNow = () => {
+    if (!selectedMethod) {
+      Alert.alert('Select a method', 'Please choose a payment method to continue.');
+      return;
+    }
+    Alert.alert('Confirm Payment', `Proceed with ${selectedMethod}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Pay', style: 'default', onPress: () => router.push('/successful-payment' as any) },
+    ]);
+  };
 
   return (
     <>
@@ -39,7 +52,14 @@ export default function PaymentMethods() {
             </View>
 
             {/* Card 01 */}
-            <View style={[styles.creditCard, { backgroundColor: '#143F8C' }]}>
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('**** 4236')}
+              style={[
+                styles.creditCard,
+                { backgroundColor: '#143F8C' },
+                selectedMethod === '**** 4236' && styles.methodItemActive,
+              ]}
+            >
               <View style={styles.cardRow}>
                 <Text style={styles.cardTitle}>Credit Card</Text>
                 <Text style={styles.cardNumber}>**** 4236</Text>
@@ -56,10 +76,17 @@ export default function PaymentMethods() {
                   <Text style={styles.cardDate}>08/25</Text>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
 
             {/* Card 02 */}
-            <View style={[styles.creditCard, { backgroundColor: '#4B216B' }]}>
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('**** 1357')}
+              style={[
+                styles.creditCard,
+                { backgroundColor: '#4B216B' },
+                selectedMethod === '**** 1357' && styles.methodItemActive,
+              ]}
+            >
               <View style={styles.cardRow}>
                 <Text style={styles.cardTitle}>Credit Card</Text>
                 <Text style={styles.cardNumber}>**** 1357</Text>
@@ -76,29 +103,33 @@ export default function PaymentMethods() {
                   <Text style={styles.cardDate}>08/25</Text>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
 
             {/* Add New Card */}
-            {/* Add New Card */}
-                  <TouchableOpacity
-                  style={styles.addBtn}
-                  onPress={() => router.push('/add-card')}
-                  >
-                  <Ionicons name="add" size={18} color="#235CF8" />
-                  <Text style={styles.addText}>Add New Card</Text>
-                  </TouchableOpacity>
-
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => router.push('/add-card')}
+            >
+              <Ionicons name="add" size={18} color="#235CF8" />
+              <Text style={styles.addText}>Add New Card</Text>
+            </TouchableOpacity>
           </View>
 
           {/* ---------- OTHER PAYMENT METHODS ---------- */}
           <View style={styles.otherContainer}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Others</Text>
-              <Text style={styles.countText}>2 Methods Added</Text>
+              <Text style={styles.countText}>5 Methods Added</Text>
             </View>
 
             {/* PayPal */}
-            <TouchableOpacity style={styles.otherItem}>
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('Paypal')}
+              style={[
+                styles.otherItem,
+                selectedMethod === 'Paypal' && styles.methodItemActive,
+              ]}
+            >
               <Image
                 source={require('../assets/images/Paypal.png')}
                 style={styles.otherIcon}
@@ -107,14 +138,55 @@ export default function PaymentMethods() {
             </TouchableOpacity>
 
             {/* Google Pay */}
-            <TouchableOpacity style={styles.otherItem}>
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('Google Pay')}
+              style={[
+                styles.otherItem,
+                selectedMethod === 'Google Pay' && styles.methodItemActive,
+              ]}
+            >
               <Image
                 source={require('../assets/images/googlepay.png')}
                 style={styles.otherIcon}
               />
               <Text style={styles.otherText}>Google Pay</Text>
             </TouchableOpacity>
+
+            {/* Visa Debit */}
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('Visa Debit')}
+              style={[
+                styles.otherItem,
+                selectedMethod === 'Visa Debit' && styles.methodItemActive,
+              ]}
+            >
+              <Image
+                source={require('../assets/images/visa.png')}
+                style={styles.otherIcon}
+              />
+              <Text style={styles.otherText}>Visa Debit</Text>
+            </TouchableOpacity>
+
+            {/* Mastercard Debit */}
+            <TouchableOpacity
+              onPress={() => setSelectedMethod('Mastercard Debit')}
+              style={[
+                styles.otherItem,
+                selectedMethod === 'Mastercard Debit' && styles.methodItemActive,
+              ]}
+            >
+              <Image
+                source={require('../assets/images/mastercard.png')}
+                style={styles.otherIcon}
+              />
+              <Text style={styles.otherText}>Mastercard Debit</Text>
+            </TouchableOpacity>
           </View>
+
+          {/* Pay Now CTA */}
+          <TouchableOpacity style={styles.payNowBtn} onPress={handlePayNow}>
+            <Text style={styles.payNowText}>Pay Now</Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </>
@@ -274,5 +346,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#111',
+  },
+
+  payNowBtn: {
+    backgroundColor: '#235CF8',
+    paddingVertical: 14,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    alignSelf: 'center',
+    width: '60%',
+  },
+
+  payNowText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+
+  methodItemActive: {
+    borderWidth: 2,
+    borderColor: '#235CF8',
   },
 });

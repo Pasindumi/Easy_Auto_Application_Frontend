@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { dummyData } from "./dummydata/reviewadd";
+import { router } from 'expo-router';
 
 export default function ReviewAd() {
   const [negotiable, setNegotiable] = useState(true);
@@ -11,9 +12,6 @@ export default function ReviewAd() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-     
-
-      {/* Main Card */}
       <View style={styles.card}>
         {/* Cover Image */}
         <View style={styles.coverContainer} onLayout={({ nativeEvent }) => setImageWidth(nativeEvent.layout.width)}>
@@ -177,9 +175,9 @@ export default function ReviewAd() {
           </View>
         </View>
 
-        {/* Post Button */}
-        <TouchableOpacity style={styles.postButton}>
-          <Text style={styles.postButtonText}>Post</Text>
+        {/* Proceed to Payment Button */}
+        <TouchableOpacity style={styles.paymentButton} onPress={() => router.push('/payment' as any)}>
+          <Text style={styles.paymentButtonText}>Proceed to Payment</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -217,11 +215,11 @@ const styles = StyleSheet.create({
   pillText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   negotiableToggle: { flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: 8, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 8, backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE' },
   negotiableText: { color: '#2563eb', fontSize: 12, fontWeight: '600' },
-  section: { marginTop: 16, backgroundColor: '#eff6ff', borderRadius: 8, padding: 12 },
-  sectionBox: { marginTop: 16, backgroundColor: '#F1F5FE', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#D8E4FF' },
-  sectionHeader: { fontWeight: 'bold', color: '#1F2937', marginBottom: 8 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, minHeight: 32 },
-  leftRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0, width: 160 },
+  section: { marginTop: 12, backgroundColor: '#eff6ff', borderRadius: 8, padding: 12, alignSelf: 'center', width: '100%' },
+  sectionBox: { marginTop: 12, backgroundColor: '#F1F5FE', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#D8E4FF', alignSelf: 'center', width: '100%' },
+  sectionHeader: { fontWeight: 'bold', color: '#1F2937', marginBottom: 6 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, minHeight: 30 },
+  leftRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0, width: 150 },
   fieldLabel: { color: '#374151', fontWeight: '600' },
   infoValue: { flex: 1, fontWeight: '500', paddingRight: 8 },
   editCell: { width: 60, alignItems: 'flex-end', justifyContent: 'center' },
@@ -233,4 +231,6 @@ const styles = StyleSheet.create({
   sellerInfo: { color: '#6b7280', fontSize: 12 },
   postButton: { marginTop: 16, width: '100%', backgroundColor: '#2563eb', borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
   postButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  paymentButton: { marginTop: 16, width: '100%', backgroundColor: '#10b981', borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
+  paymentButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
