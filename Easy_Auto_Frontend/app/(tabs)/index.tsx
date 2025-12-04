@@ -2,9 +2,9 @@ import NotificationDrawer from "@/components/notification-drawer";
 import Sidebar from "@/components/sidebar";
 import WishlistDrawer from "@/components/wishlist-drawer";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -21,7 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 

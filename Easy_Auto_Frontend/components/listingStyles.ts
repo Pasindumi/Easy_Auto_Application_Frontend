@@ -17,47 +17,8 @@ export default StyleSheet.create({
   },
   headerTitle: { fontSize: 17, fontWeight: "600", color: "#fff", letterSpacing: 0.3 },
 
-  // Search
-  searchWrapper: { paddingHorizontal: 20, paddingTop: 0, paddingBottom: 10 },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: "#111827",
-    padding: 0,
-    fontWeight: "400",
-  },
-
-  // Status Cards
   
-  statusRow: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 10 },
-  statusCard: { flex: 1, backgroundColor: '#fff', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 8, alignItems: 'center', borderWidth: 1, borderColor: '#F3F4F6', marginRight: 8 },
-  statusCardActive: {
-    backgroundColor: "#F0F7FF",
-    borderColor: "#235CF8",
-    borderWidth: 1.5,
-    shadowColor: "#235CF8",
-    shadowOpacity: 0.08,
-  },
-  statusCardLabel: { fontSize: 10, fontWeight: "500", color: "#6B7280", letterSpacing: 0.2 },
-  statusCardLabelActive: { color: "#235CF8" },
-  statusCardNumber: { fontSize: 15, fontWeight: "700", color: "#111827" },
-  statusCardNumberActive: { color: "#235CF8" },
+
 
   // Total Row
   totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingBottom: 12 },
@@ -87,7 +48,7 @@ export default StyleSheet.create({
   boostTitle: { fontSize: 15, fontWeight: "600", color: "#111827" },
   boostDescription: { fontSize: 12, fontWeight: "400", color: "#6B7280", marginBottom: 8 },
   progressBar: { height: 6, backgroundColor: "#E5E7EB", borderRadius: 3, overflow: "hidden" },
-  progressFill: { height: 6, backgroundColor: "#235CF8", borderRadius: 3 },
+  progressFill: { height: 6, backgroundColor: "#25dd6fff", borderRadius: 3 },
   boostMeta: { alignItems: "flex-end", gap: 4 },
   boostPercent: { fontSize: 15, fontWeight: "700", color: "#235CF8" },
 
