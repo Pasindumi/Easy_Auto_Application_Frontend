@@ -13,12 +13,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Button from "../components/Button";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import InputField from "../components/InputField";
-import SocialButton from "../components/SocialButton";
-import { colors } from "../components/theme";
+import Button from "../../components/Button";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import InputField from "../../components/InputField";
+import SocialButton from "../../components/SocialButton";
+import { colors } from "../../components/theme";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function LoginScreen() {
             <View style={styles.toggleRow}>
               <TouchableOpacity
                 style={[styles.toggleBtn, styles.toggleInactive]}
-                onPress={() => router.push("/signup")}
+                onPress={() => router.push("./signup")}
               >
                 <Text style={[styles.toggleText, styles.blueText]}>Signup</Text>
               </TouchableOpacity>
@@ -91,7 +91,7 @@ export default function LoginScreen() {
                   <Text style={styles.smallText}>Remember Me</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => router.push("/reset-password")}>
+                <TouchableOpacity onPress={() => router.push("./reset-password")}>
                   <Text style={styles.forgot}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
@@ -124,7 +124,7 @@ export default function LoginScreen() {
               {/* Signup link */}
               <View style={styles.bottomRow}>
                 <Text style={styles.smallText}>Don’t have an account?</Text>
-                <TouchableOpacity onPress={() => router.push("/signup")}>
+                <TouchableOpacity onPress={() => router.push("./signup")}>
                   <Text style={styles.loginLink}> Sign Up</Text>
                 </TouchableOpacity>
               </View>

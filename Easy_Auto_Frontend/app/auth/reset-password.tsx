@@ -12,11 +12,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Button from "../components/Button";
-import Footer, { FOOTER_HEIGHT } from "../components/Footer";
-import Header from "../components/Header";
-import InputField from "../components/InputField";
-import { colors } from "../components/theme";
+import Button from "../../components/Button";
+import Footer, { FOOTER_HEIGHT } from "../../components/Footer";
+import Header from "../../components/Header";
+import InputField from "../../components/InputField";
+import { colors } from "../../components/theme";
 
 
 export default function ResetPasswordScreen() {
@@ -29,7 +29,7 @@ export default function ResetPasswordScreen() {
     Alert.alert(
       "Reset link sent",
       `If ${contact} is registered, you will receive instructions to reset your password.`,
-      [{ text: "OK", onPress: () => router.push("/login") }]
+      [{ text: "OK", onPress: () => router.push("./login") }]
     );
   };
 
@@ -52,7 +52,7 @@ export default function ResetPasswordScreen() {
             <View style={styles.toggleRow}>
               <TouchableOpacity
                 style={[styles.toggleBtn, styles.toggleInactive]}
-                onPress={() => router.push("/login")}
+                onPress={() => router.push("./login")}
               >
                 <Text style={[styles.toggleText, styles.blueText]}>Login</Text>
               </TouchableOpacity>
@@ -67,7 +67,7 @@ export default function ResetPasswordScreen() {
             {/* Form */}
             <View style={styles.centeredFormWrapper}>
               <View style={styles.form}>
-                <Text style={styles.label}>Email or Phone Number</Text>
+                
 
                 <InputField
                   icon="mail-outline"
@@ -77,12 +77,12 @@ export default function ResetPasswordScreen() {
                   keyboardType="email-address"
                 />
 
-                <Button title="Continue" onPress={() => router.push("/login")}  // <-- navigation
+                <Button title="Continue" onPress={() => router.push("./login")}  // <-- navigation
 />
 
                 <View style={styles.loginRow}>
                   <Text style={styles.smallText}>Remember your password?</Text>
-                  <TouchableOpacity onPress={() => router.push("/login")}>
+                  <TouchableOpacity onPress={() => router.push("./login")}>
                     <Text style={styles.loginLink}> Sign In</Text>
                   </TouchableOpacity>
                 </View>

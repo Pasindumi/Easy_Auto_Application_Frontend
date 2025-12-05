@@ -15,7 +15,7 @@ export const LISTINGS: Listing[] = [
   },
   {
     id: "2",
-    title: "Toyota Prius",
+    title: "Toyota Prius", 
     price: "$18,500",
     km: "58,300km",
     views: 412,
