@@ -24,7 +24,7 @@ export const ADS_DATA: Ad[] = [
     likes: 50,
     messages: 15,
     status: 'active',
-    image: require('@/assets/images/car.jpg'),
+    image: require('@/assets/images/car1.jpg'),
   },
   {
     id: '2',

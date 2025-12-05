@@ -1,57 +1,125 @@
 // components/InputField.tsx
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { colors } from "./theme";
 
 type Props = {
-  icon: React.ComponentProps<typeof Ionicons>["name"];
+  icon?: React.ComponentProps<typeof Ionicons>["name"];
   placeholder?: string;
+  label?: string;
   value: string;
   onChange: (t: string) => void;
   secure?: boolean;
-  keyboardType?: "default" | "email-address" | "phone-pad";
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+  onIconPress?: () => void;
 };
 
 export default function InputField({
   icon,
   placeholder,
+  label,
   value,
   onChange,
-  secure = false,
+  secure,
   keyboardType = "default",
-  autoCapitalize = "none",
+  onIconPress,
 }: Props) {
+  const derivedLabel =
+    label ??
+    (placeholder
+      ? String(placeholder).replace(/(^\w)|(\s\w)/g, (c) => c.toUpperCase())
+      : "");
+
   return (
-    <View style={styles.row}>
-      <Ionicons name={icon} size={18} color={colors.primary} style={styles.icon} />
-      <TextInput
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChange}
-        secureTextEntry={secure}
-        keyboardType={keyboardType}
-        style={styles.input}
-        autoCapitalize={autoCapitalize}
-        autoCorrect={false}
-      />
+    <View style={styles.container}>
+      {/* Label */}
+      {derivedLabel ? <Text style={styles.label}>{derivedLabel}</Text> : null}
+
+      {/* Field with Shadow */}
+      <View style={[styles.inputRow, styles.shadow]}>
+        {icon ? <Ionicons name={icon} size={20} style={styles.icon} /> : null}
+
+        <TextInput
+          style={[styles.input, icon ? { paddingLeft: 8 } : undefined]}
+          placeholder={placeholder}
+          placeholderTextColor="#999"
+          value={value}
+          onChangeText={onChange}
+          secureTextEntry={!!secure}
+          keyboardType={keyboardType}
+          autoCapitalize={
+            keyboardType === "email-address" ? "none" : "sentences"
+          }
+          autoCorrect={false}
+        />
+
+        {onIconPress ? (
+          <TouchableOpacity
+            onPress={onIconPress}
+            style={styles.rightIconTouchable}
+          >
+            <Ionicons name="eye" size={18} />
+          </TouchableOpacity>
+        ) : null}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
+  container: {
+    marginBottom: 12,
+  },
+
+  label: {
+    color: "#767575ff",
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+
+  inputRow: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
     borderColor: colors.bgLight,
     borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 12,
+    paddingHorizontal: 12,
+    height: Platform.OS === "ios" ? 48 : 46,
     backgroundColor: colors.white,
   },
-  icon: { marginRight: 8 },
-  input: { flex: 1, height: 36 },
+
+  // ⭐ Shadow added here
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5, // Android
+  },
+
+  icon: {
+    marginRight: 8,
+    color: colors.darkblue,
+  },
+
+  input: {
+    flex: 1,
+    fontSize: 15,
+    color: "#888888ff",
+    paddingVertical: 0,
+  },
+
+  rightIconTouchable: {
+    marginLeft: 8,
+    padding: 4,
+  },
 });
