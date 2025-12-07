@@ -1,25 +1,24 @@
+import ProfileHeader from "@/components/ProfileHeader";
+import { Z_INDEX } from "@/constants/zIndex";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import * as React from "react";
 import {
   Animated,
   Dimensions,
   Easing,
   Image,
-  Platform,
   RefreshControl,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import * as Haptics from "expo-haptics";
-import ProfileHeader from "@/components/ProfileHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -36,28 +35,42 @@ const spacing = {
 const adminStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#F8F9FA",
+  },
+  backgroundGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   headerActionButton: {
     position: "relative",
-    width: 44,
+    width: 44, // Minimum touch target size (WCAG 2.1 AA)
     height: 44,
+    minWidth: 44, // Ensure minimum on all platforms
+    minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
   },
   headerProfileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0.3)",
   },
+  imagePlaceholder: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   notificationBadge: {
     position: "absolute",
-    top: 2,
-    right: 2,
+    top: -2,
+    right: -2,
     backgroundColor: "#EF4444",
     borderRadius: 10,
     minWidth: 20,
@@ -65,76 +78,48 @@ const adminStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 5,
-    borderWidth: 2.5,
-    borderColor: "#1E4ED8",
+    borderWidth: 2,
+    borderColor: "#235CF8",
+    zIndex: Z_INDEX.HEADER_ACTIONS + 1,
+    elevation: Z_INDEX.HEADER_ACTIONS + 1,
+    shadowColor: "#EF4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
   },
   notificationBadgeText: {
     color: "#FFFFFF",
     fontSize: 10,
     fontWeight: "700",
   },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    minHeight: 44,
-    flex: 1,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "500",
-  },
-  searchClearButton: {
-    marginLeft: 8,
-    padding: 4,
-    borderRadius: 12,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingBottom: 100,
-    paddingTop: 20,
+    paddingTop: 20, // Slightly reduced for better spacing
   },
-  adminHeaderExtras: {
-    backgroundColor: "#235CF8",
-    paddingHorizontal: spacing.horizontal,
-    paddingTop: 8,
-    paddingBottom: 16,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+  headerContainer: {
+    position: "relative",
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-    alignSelf: "flex-start",
-  },
-  adminActionsRow: {
+  // Removed headerWrapper - no longer needed with simplified structure
+  headerActionsRow: {
+    position: "absolute",
+    top: 0, // Will be adjusted dynamically based on ProfileHeader's safe area
+    right: width < 375 ? 16 : 20, // Improved spacing to match header padding
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 8,
-    marginTop: 12,
+    gap: width < 375 ? 8 : 12, // Increased gap for better visual separation
+    paddingTop: 0, // Removed - ProfileHeader already handles safe area
+    zIndex: Z_INDEX.HEADER_ACTIONS,
+    elevation: Z_INDEX.HEADER_ACTIONS, // Android elevation
+    minHeight: 44, // Minimum touch target size
+    justifyContent: "center",
   },
   statsContainer: {
     paddingHorizontal: spacing.horizontal,
-    marginTop: 0,
-    marginBottom: spacing.section,
+    marginTop: 8, // Increased top margin
+    marginBottom: spacing.section + 4, // More spacing
   },
   statsRow: {
     flexDirection: "row",
@@ -144,47 +129,61 @@ const adminStyles = StyleSheet.create({
   statCard: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: 20, // Increased for modern feel
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.12, // Enhanced shadow
+    shadowRadius: 16, // Larger blur radius for softer shadow
+    elevation: 4, // Increased for better depth
     overflow: "hidden",
     width: "48%",
+    borderWidth: 0, // Removed border for cleaner look
+  },
+  statCardGradientOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.04, // Subtle gradient overlay
   },
   statCardContent: {
-    padding: 16,
-    minHeight: 130,
+    padding: 22, // More generous padding for premium feel
+    minHeight: 145, // Slightly taller
   },
   statCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 12,
+    marginBottom: 14,
     gap: 8,
   },
   statCardTitle: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#6B7280",
+    color: "#4B5563", // Slightly darker for better readability
     flex: 1,
     flexShrink: 1,
+    lineHeight: 18,
+    letterSpacing: 0.1,
   },
   statIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40, // Larger for better visual impact
+    height: 40,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     flexShrink: 0,
+    // Gradient will be applied via LinearGradient component
   },
   statCardValue: {
-    fontSize: 22,
+    fontSize: 28, // Larger for more impact
     fontWeight: "800",
-    color: "#1F2937",
-    marginBottom: 4,
+    color: "#111827", // Darker for better contrast
+    marginBottom: 8,
     flexShrink: 1,
+    lineHeight: 34,
+    letterSpacing: -0.7,
   },
   statCardFooter: {
     flexDirection: "row",
@@ -194,12 +193,13 @@ const adminStyles = StyleSheet.create({
     gap: 8,
   },
   statCardLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: "#9CA3AF",
     fontWeight: "500",
     flex: 1,
     flexShrink: 1,
     marginRight: 4,
+    lineHeight: 16,
   },
   trendContainer: {
     flexDirection: "row",
@@ -223,36 +223,55 @@ const adminStyles = StyleSheet.create({
   timeFiltersContainer: {
     flexDirection: "row",
     paddingHorizontal: spacing.horizontal,
-    marginTop: 8,
-    marginBottom: 16,
-    gap: spacing.gap,
+    marginTop: 16, // Increased
+    marginBottom: 24, // Increased
+    gap: spacing.gap + 2, // More gap between buttons
     flexWrap: "wrap",
     justifyContent: "flex-start",
   },
   timeFilterButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingVertical: 11,
+    paddingHorizontal: 20, // More generous padding
+    borderRadius: 25, // More pill-shaped
     backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    minHeight: 40,
+    borderWidth: 0, // Removed border for cleaner look
+    minHeight: 44, // Taller for better touch target
     justifyContent: "center",
     alignItems: "center",
     flexShrink: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+    overflow: "hidden", // For gradient overlay
+  },
+  timeFilterButtonGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   timeFilterButtonActive: {
-    backgroundColor: "#235CF8",
-    borderColor: "#235CF8",
+    backgroundColor: "transparent", // Gradient will be used instead
+    shadowColor: "#235CF8",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
+    transform: [{ scale: 1.02 }], // Slightly larger when active
   },
   timeFilterText: {
-    fontSize: 12,
+    fontSize: 13, // Slightly larger
     fontWeight: "600",
     color: "#6B7280",
     textAlign: "center",
+    letterSpacing: 0.2,
   },
   timeFilterTextActive: {
     color: "#FFFFFF",
+    fontWeight: "700", // Bolder when active
   },
   titleContainer: {
     alignItems: "center",
@@ -335,10 +354,12 @@ const adminStyles = StyleSheet.create({
     marginBottom: spacing.section,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1F2937",
-    marginBottom: 16,
+    fontSize: 24, // Larger for better hierarchy
+    fontWeight: "800", // Bolder
+    color: "#0F172A", // Even darker for more contrast
+    marginBottom: 20,
+    letterSpacing: -0.5,
+    lineHeight: 30,
   },
   quickActionItem: {
     flexDirection: "row",
@@ -373,12 +394,15 @@ const adminStyles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#1F2937",
-    marginBottom: 2,
+    marginBottom: 4,
+    lineHeight: 20,
+    letterSpacing: -0.2,
   },
   quickActionDescription: {
     fontSize: 12,
     color: "#6B7280",
     fontWeight: "400",
+    lineHeight: 16,
   },
   quickActionRight: {
     flexDirection: "row",
@@ -409,7 +433,7 @@ const adminStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 18,
   },
   viewAllText: {
     fontSize: 14,
@@ -420,44 +444,58 @@ const adminStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 18, // More rounded
+    padding: 20, // More generous padding
+    marginBottom: 14, // More spacing
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12, // Softer blur
     elevation: 3,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderLeftWidth: 3, // Colored left border for visual interest
+    borderLeftColor: "transparent", // Will be set dynamically
+    overflow: "hidden",
+  },
+  activityItemGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.03,
   },
   activityIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48, // Larger
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: spacing.gap + 2,
+    marginRight: spacing.gap + 4,
     flexShrink: 0,
+    // Gradient will be applied via LinearGradient component
   },
   activityContent: {
     flex: 1,
   },
   activityTitle: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#1F2937",
+    fontWeight: "700", // Bolder for better hierarchy
+    color: "#111827", // Darker
     marginBottom: 4,
+    lineHeight: 20,
+    letterSpacing: -0.2,
   },
   activityDescription: {
     fontSize: 13,
     color: "#6B7280",
     marginBottom: 4,
+    lineHeight: 18,
   },
   activityTime: {
     fontSize: 11,
     color: "#9CA3AF",
     fontWeight: "500",
+    lineHeight: 14,
   },
   profileMenuOverlay: {
     position: "absolute",
@@ -465,64 +503,103 @@ const adminStyles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1000,
+    backgroundColor: "rgba(0, 0, 0, 0.4)", // Lighter overlay for modern feel
+    zIndex: Z_INDEX.OVERLAY,
   },
   profileMenuContainer: {
     position: "absolute",
     right: 20,
-    width: 280,
+    width: 300, // Slightly wider
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: 24, // More rounded
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 28, // Even softer shadow
+    elevation: 14,
     overflow: "hidden",
+    borderWidth: 0,
+  },
+  profileMenuGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.5,
   },
   profileMenuHeader: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    gap: 12,
+    padding: 20, // Increased padding
+    gap: 14,
+    backgroundColor: "transparent", // Gradient will be used
+    overflow: "hidden",
+  },
+  profileMenuHeaderGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   profileMenuImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
+    width: 56, // Larger
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 3,
+    borderColor: "#235CF8", // Brand color border
+    shadowColor: "#235CF8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   profileMenuInfo: {
     flex: 1,
   },
   profileMenuName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 2,
+    fontSize: 17, // Larger
+    fontWeight: "700", // Bolder
+    color: "#111827",
+    marginBottom: 4,
+    letterSpacing: -0.2,
   },
   profileMenuEmail: {
     fontSize: 13,
     color: "#6B7280",
+    fontWeight: "500",
   },
   profileMenuDivider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
-    marginHorizontal: 16,
+    marginHorizontal: 20,
+    marginVertical: 8,
+    overflow: "hidden",
+  },
+  profileMenuDividerGradient: {
+    height: 1,
+    opacity: 0.15,
   },
   profileMenuItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    gap: 12,
+    padding: 18, // Increased padding
+    gap: 14,
+    borderRadius: 14, // More rounded for modern feel
+    marginHorizontal: 10,
+    marginVertical: 3,
+    overflow: "hidden",
+  },
+  profileMenuItemPressed: {
+    backgroundColor: "rgba(35, 92, 248, 0.05)",
+    transform: [{ scale: 0.98 }],
   },
   profileMenuItemText: {
     flex: 1,
     fontSize: 15,
-    fontWeight: "500",
-    color: "#1F2937",
+    fontWeight: "600", // Bolder
+    color: "#111827",
+    letterSpacing: -0.1,
   },
   notificationOverlay: {
     position: "absolute",
@@ -531,55 +608,78 @@ const adminStyles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1000,
+      zIndex: Z_INDEX.OVERLAY,
   },
   notificationDrawer: {
     position: "absolute",
     right: 20,
-    width: 320,
-    maxHeight: 500,
+    width: 340, // Slightly wider
+    maxHeight: 520,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: 24, // More rounded
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 28, // Even softer shadow
+    elevation: 14,
     overflow: "hidden",
+    borderWidth: 0,
   },
   notificationHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    padding: 20, // Increased padding
+    borderBottomWidth: 0.5,
+    borderBottomColor: "rgba(0, 0, 0, 0.08)",
+    backgroundColor: "transparent", // Gradient will be used
+    overflow: "hidden",
+  },
+  notificationHeaderGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   notificationTitle: {
-    fontSize: 18,
+    fontSize: 20, // Larger
     fontWeight: "700",
-    color: "#1F2937",
+    color: "#111827",
+    letterSpacing: -0.3,
   },
   notificationCloseButton: {
-    width: 32,
-    height: 32,
+    width: 36, // Larger
+    height: 36,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 16,
-    backgroundColor: "#F3F4F6",
+    borderRadius: 18,
+    backgroundColor: "rgba(0, 0, 0, 0.04)", // Softer background
+    overflow: "hidden",
+  },
+  notificationCloseButtonPressed: {
+    backgroundColor: "rgba(0, 0, 0, 0.08)",
+    transform: [{ scale: 0.95 }],
   },
   notificationList: {
-    maxHeight: 400,
+    maxHeight: 420,
   },
   notificationItem: {
     flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    alignItems: "flex-start",
+    padding: 18, // Increased padding
+    borderBottomWidth: 0.5,
+    borderBottomColor: "rgba(0, 0, 0, 0.06)",
+    position: "relative",
+    overflow: "hidden",
+  },
+  notificationItemPressed: {
+    backgroundColor: "rgba(35, 92, 248, 0.03)",
   },
   notificationItemUnread: {
-    backgroundColor: "#F0F9FF",
+    backgroundColor: "rgba(35, 92, 248, 0.04)", // Softer unread background
+    borderLeftWidth: 3,
+    borderLeftColor: "#235CF8", // Accent border
   },
   notificationItemContent: {
     flex: 1,
@@ -587,19 +687,28 @@ const adminStyles = StyleSheet.create({
   notificationItemTitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 4,
+    color: "#111827",
+    marginBottom: 6,
+    lineHeight: 20,
+    letterSpacing: -0.1,
   },
   notificationItemTime: {
     fontSize: 12,
     color: "#6B7280",
+    fontWeight: "500",
   },
   notificationItemDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10, // Larger
+    height: 10,
+    borderRadius: 5,
     backgroundColor: "#235CF8",
-    marginLeft: 8,
+    marginLeft: 12,
+    marginTop: 4,
+    shadowColor: "#235CF8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
+    elevation: 2,
   },
   bottomNav: {
     position: "absolute",
@@ -608,15 +717,22 @@ const adminStyles = StyleSheet.create({
     right: 0,
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopWidth: 0, // Removed border
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-    paddingTop: 8,
-    zIndex: 100,
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 12,
+    paddingTop: 10,
+    zIndex: Z_INDEX.HEADER_ACTIONS,
+    overflow: "hidden",
+  },
+  bottomNavGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   bottomNavItem: {
     flex: 1,
@@ -626,7 +742,18 @@ const adminStyles = StyleSheet.create({
     minHeight: 56,
   },
   bottomNavItemActive: {
-    backgroundColor: "rgba(35, 92, 248, 0.05)",
+    backgroundColor: "transparent", // Gradient will be used
+    borderRadius: 16,
+    marginHorizontal: 4,
+  },
+  bottomNavActiveIndicator: {
+    position: "absolute",
+    top: 0,
+    left: "50%",
+    marginLeft: -20,
+    width: 40,
+    height: 3,
+    borderRadius: 2,
   },
   bottomNavLabel: {
     fontSize: 11,
@@ -641,6 +768,101 @@ const adminStyles = StyleSheet.create({
 });
 
 // Enhanced Stat Card with Trends
+/**
+ * Animated Header Button Component
+ * Provides scale animation and haptic feedback on press
+ */
+const AnimatedHeaderButton = ({
+  children,
+  onPress,
+  accessibilityLabel,
+  accessibilityHint,
+}: {
+  children: React.ReactNode;
+  onPress: () => void;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+}) => {
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Animated.spring(scaleAnim, {
+      toValue: 0.9,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
+
+  return (
+    <TouchableOpacity
+      style={adminStyles.headerActionButton}
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      activeOpacity={0.8}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      accessibilityRole="button"
+    >
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        {children}
+      </Animated.View>
+    </TouchableOpacity>
+  );
+};
+
+/**
+ * Pulsing Badge Component
+ * Provides subtle pulse animation for notification badges
+ */
+const PulsingBadge = ({ count }: { count: number }) => {
+  const pulseAnim = React.useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.15,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [pulseAnim]);
+
+  return (
+    <Animated.View
+      style={[
+        adminStyles.notificationBadge,
+        { transform: [{ scale: pulseAnim }] },
+      ]}
+    >
+      <Text style={adminStyles.notificationBadgeText}>{count}</Text>
+    </Animated.View>
+  );
+};
+
+
 const StatCard = ({
   delay,
   title,
@@ -720,9 +942,14 @@ const StatCard = ({
         <Text style={adminStyles.statCardTitle} numberOfLines={2} ellipsizeMode="tail">
           {title}
         </Text>
-        <View style={[adminStyles.statIconContainer, { backgroundColor: `${iconColor}15` }]}>
-          <Ionicons name={iconName} size={20} color={iconColor} />
-        </View>
+        <LinearGradient
+          colors={[`${iconColor}35`, `${iconColor}20`]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={adminStyles.statIconContainer}
+        >
+          <Ionicons name={iconName} size={22} color={iconColor} />
+        </LinearGradient>
       </View>
       <Text style={adminStyles.statCardValue} numberOfLines={1} ellipsizeMode="tail">
         {value}
@@ -777,6 +1004,12 @@ const StatCard = ({
             },
           ]}
         >
+          <LinearGradient
+            colors={[iconColor, iconColor]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={adminStyles.statCardGradientOverlay}
+          />
           {CardContent}
         </Animated.View>
       </TouchableOpacity>
@@ -793,6 +1026,12 @@ const StatCard = ({
         },
       ]}
     >
+      <LinearGradient
+        colors={[iconColor, iconColor]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={adminStyles.statCardGradientOverlay}
+      />
       {CardContent}
     </Animated.View>
   );
@@ -913,6 +1152,21 @@ const TimeFilterButton = ({
       onPressOut={handlePressOut}
       activeOpacity={0.8}
     >
+      {isActive ? (
+        <LinearGradient
+          colors={["#235CF8", "#1E40AF"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={adminStyles.timeFilterButtonGradient}
+        />
+      ) : (
+        <LinearGradient
+          colors={["#FFFFFF", "#F9FAFB"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={adminStyles.timeFilterButtonGradient}
+        />
+      )}
       <Animated.Text
         style={[
           adminStyles.timeFilterText,
@@ -1071,12 +1325,23 @@ const RecentActivityItem = ({
     <Animated.View
       style={[
         adminStyles.activityItem,
-        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+        { opacity: fadeAnim, transform: [{ translateY: slideAnim }], borderLeftColor: color },
       ]}
     >
-      <View style={[adminStyles.activityIconContainer, { backgroundColor: `${color}15` }]}>
-        <Ionicons name={icon as any} size={20} color={color} />
-      </View>
+      <LinearGradient
+        colors={[`${color}08`, `${color}03`]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={adminStyles.activityItemGradient}
+      />
+      <LinearGradient
+        colors={[`${color}40`, `${color}25`]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={adminStyles.activityIconContainer}
+      >
+        <Ionicons name={icon as any} size={22} color={color} />
+      </LinearGradient>
       <View style={adminStyles.activityContent}>
         <Text style={adminStyles.activityTitle}>{title}</Text>
         <Text style={adminStyles.activityDescription}>{description}</Text>
@@ -1092,12 +1357,15 @@ export default function AdminDashboard() {
   const insets = useSafeAreaInsets();
   const [activeTimeFilter, setActiveTimeFilter] = React.useState("Month");
   const [refreshing, setRefreshing] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [showProfileMenu, setShowProfileMenu] = React.useState(false);
   const [activeNavTab, setActiveNavTab] = React.useState("Dashboard");
   const [headerHeight, setHeaderHeight] = React.useState(0);
+  const [profileHeaderHeight, setProfileHeaderHeight] = React.useState(0);
+  const [profileImageError, setProfileImageError] = React.useState(false);
+  const [isImageLoading, setIsImageLoading] = React.useState(true);
   const headerRef = React.useRef<View>(null);
+  const profileHeaderRef = React.useRef<View>(null);
 
   // Ensure header is hidden
   React.useLayoutEffect(() => {
@@ -1177,96 +1445,84 @@ export default function AdminDashboard() {
 
   return (
     <View style={adminStyles.container}>
+      <LinearGradient
+        colors={["#F8F9FA", "#E8EAED"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={adminStyles.backgroundGradient}
+      />
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-      {/* Header using ProfileHeader component */}
-      <SafeAreaView edges={["top"]} style={{ backgroundColor: "#235CF8" }}>
-        <View
-          ref={headerRef}
-          onLayout={(event) => {
-            const { height } = event.nativeEvent.layout;
-            const totalHeight = height + insets.top;
-            setHeaderHeight(totalHeight);
-          }}
-        >
-          <ProfileHeader title="Admin Dashboard" showProfileCard={false} />
+      {/* Header using ProfileHeader component with integrated actions */}
+      <View
+        ref={headerRef}
+        onLayout={(event) => {
+          const { height } = event.nativeEvent.layout;
+          const totalHeight = height + insets.top;
+          setHeaderHeight(totalHeight);
+        }}
+      >
+        {/* Simplified header structure - ProfileHeader with actions positioned absolutely */}
+        <View style={adminStyles.headerContainer}>
+          <View
+            ref={profileHeaderRef}
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout;
+              setProfileHeaderHeight(height);
+            }}
+          >
+            <ProfileHeader title="Admin Dashboard" showProfileCard={false} />
+          </View>
           
-          {/* Admin-specific features below header */}
-          <View style={adminStyles.adminHeaderExtras}>
-            {/* Search Bar and Actions Row */}
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-              {/* Back Button */}
-              <TouchableOpacity
-                style={adminStyles.backButton}
+          {/* Header Actions Row - Positioned dynamically based on ProfileHeader height */}
+          <View style={[adminStyles.headerActionsRow, { top: Math.max(insets.top, 20) }]}>
+            <View style={{ position: "relative" }}>
+              <AnimatedHeaderButton
                 onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  router.back();
+                  setShowNotifications(!showNotifications);
+                  setShowProfileMenu(false);
                 }}
-                activeOpacity={0.7}
+                accessibilityLabel="Notifications"
+                accessibilityHint="Opens notification drawer"
               >
-                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-              </TouchableOpacity>
-
-              {/* Search Bar */}
-              <View style={[adminStyles.searchContainer, { flex: 1 }]}>
-                <Ionicons name="search" size={20} color="rgba(255, 255, 255, 0.8)" style={adminStyles.searchIcon} />
-                <TextInput
-                  style={adminStyles.searchInput}
-                  placeholder="Search users, ads, reports..."
-                  placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-                {searchQuery.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      setSearchQuery("");
-                    }}
-                    style={adminStyles.searchClearButton}
-                  >
-                    <Ionicons name="close-circle" size={20} color="rgba(255, 255, 255, 0.8)" />
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              {/* Admin Action Buttons */}
-              <View style={{ flexDirection: "row", gap: 8 }}>
-                <TouchableOpacity
-                  style={adminStyles.headerActionButton}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setShowNotifications(!showNotifications);
-                    setShowProfileMenu(false);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
-                  <View style={adminStyles.notificationBadge}>
-                    <Text style={adminStyles.notificationBadgeText}>3</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={adminStyles.headerActionButton}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setShowProfileMenu(!showProfileMenu);
-                    setShowNotifications(false);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Image
-                    source={{
-                      uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
-                    }}
-                    style={adminStyles.headerProfileImage}
-                  />
-                </TouchableOpacity>
-              </View>
+                <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
+              </AnimatedHeaderButton>
+              <PulsingBadge count={3} />
             </View>
+            <AnimatedHeaderButton
+              onPress={() => {
+                setShowProfileMenu(!showProfileMenu);
+                setShowNotifications(false);
+              }}
+              accessibilityLabel="User Profile"
+              accessibilityHint="Opens profile menu"
+            >
+              {isImageLoading && !profileImageError && (
+                <View style={[adminStyles.headerProfileImage, adminStyles.imagePlaceholder]}>
+                  <Ionicons name="person" size={20} color="rgba(255, 255, 255, 0.6)" />
+                </View>
+              )}
+              {profileImageError ? (
+                <View style={[adminStyles.headerProfileImage, adminStyles.imagePlaceholder]}>
+                  <Ionicons name="person-circle" size={36} color="rgba(255, 255, 255, 0.8)" />
+                </View>
+              ) : (
+                <Image
+                  source={{
+                    uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
+                  }}
+                  style={[adminStyles.headerProfileImage, isImageLoading && { opacity: 0 }]}
+                  onLoad={() => setIsImageLoading(false)}
+                  onError={() => {
+                    setProfileImageError(true);
+                    setIsImageLoading(false);
+                  }}
+                />
+              )}
+            </AnimatedHeaderButton>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
 
       <ScrollView
         style={adminStyles.scrollView}
@@ -1303,7 +1559,7 @@ export default function AdminDashboard() {
               trendValue="+12%"
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                console.log("Total Ads pressed");
+                router.push("/admin/ads");
               }}
             />
             <StatCard
@@ -1389,18 +1645,46 @@ export default function AdminDashboard() {
         >
           <View style={[adminStyles.profileMenuContainer, { top: headerHeight > 0 ? headerHeight + 8 : 180 }]}>
             <View style={adminStyles.profileMenuHeader}>
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
-                }}
-                style={adminStyles.profileMenuImage}
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.08)", "rgba(35, 92, 248, 0.02)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={adminStyles.profileMenuHeaderGradient}
               />
+              <View style={{ position: "relative" }}>
+                <Image
+                  source={{
+                    uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
+                  }}
+                  style={adminStyles.profileMenuImage}
+                />
+                <View
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    width: 16,
+                    height: 16,
+                    borderRadius: 8,
+                    backgroundColor: "#10B981",
+                    borderWidth: 2,
+                    borderColor: "#FFFFFF",
+                  }}
+                />
+              </View>
               <View style={adminStyles.profileMenuInfo}>
                 <Text style={adminStyles.profileMenuName}>Sajid Admani</Text>
                 <Text style={adminStyles.profileMenuEmail}>sajid@easyauto.com</Text>
               </View>
             </View>
-            <View style={adminStyles.profileMenuDivider} />
+            <View style={adminStyles.profileMenuDivider}>
+              <LinearGradient
+                colors={["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.1)", "rgba(0, 0, 0, 0)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={adminStyles.profileMenuDividerGradient}
+              />
+            </View>
             <TouchableOpacity
               style={adminStyles.profileMenuItem}
               onPress={() => {
@@ -1408,10 +1692,22 @@ export default function AdminDashboard() {
                 setShowProfileMenu(false);
                 console.log("Profile clicked");
               }}
+              activeOpacity={0.7}
             >
-              <Ionicons name="person-outline" size={20} color="#6B7280" />
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.1)", "rgba(35, 92, 248, 0.05)"]}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons name="person" size={20} color="#235CF8" />
+              </LinearGradient>
               <Text style={adminStyles.profileMenuItemText}>Profile</Text>
-              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+              <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
             </TouchableOpacity>
             <TouchableOpacity
               style={adminStyles.profileMenuItem}
@@ -1420,12 +1716,31 @@ export default function AdminDashboard() {
                 setShowProfileMenu(false);
                 console.log("Settings clicked");
               }}
+              activeOpacity={0.7}
             >
-              <Ionicons name="settings-outline" size={20} color="#6B7280" />
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.1)", "rgba(35, 92, 248, 0.05)"]}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons name="settings" size={20} color="#235CF8" />
+              </LinearGradient>
               <Text style={adminStyles.profileMenuItemText}>Settings</Text>
-              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+              <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
             </TouchableOpacity>
-            <View style={adminStyles.profileMenuDivider} />
+            <View style={adminStyles.profileMenuDivider}>
+              <LinearGradient
+                colors={["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.1)", "rgba(0, 0, 0, 0)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={adminStyles.profileMenuDividerGradient}
+              />
+            </View>
             <TouchableOpacity
               style={adminStyles.profileMenuItem}
               onPress={() => {
@@ -1433,8 +1748,20 @@ export default function AdminDashboard() {
                 setShowProfileMenu(false);
                 router.back();
               }}
+              activeOpacity={0.7}
             >
-              <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+              <LinearGradient
+                colors={["rgba(239, 68, 68, 0.1)", "rgba(239, 68, 68, 0.05)"]}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons name="log-out" size={20} color="#EF4444" />
+              </LinearGradient>
               <Text style={[adminStyles.profileMenuItemText, { color: "#EF4444" }]}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -1450,19 +1777,40 @@ export default function AdminDashboard() {
         >
           <View style={[adminStyles.notificationDrawer, { top: headerHeight > 0 ? headerHeight + 8 : 180 }]}>
             <View style={adminStyles.notificationHeader}>
-              <Text style={adminStyles.notificationTitle}>Notifications</Text>
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.08)", "rgba(35, 92, 248, 0.02)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={adminStyles.notificationHeaderGradient}
+              />
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: "rgba(35, 92, 248, 0.1)",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Ionicons name="notifications" size={22} color="#235CF8" />
+                </View>
+                <Text style={adminStyles.notificationTitle}>Notifications</Text>
+              </View>
               <TouchableOpacity
                 onPress={() => setShowNotifications(false)}
                 style={adminStyles.notificationCloseButton}
+                activeOpacity={0.7}
               >
-                <Ionicons name="close" size={24} color="#6B7280" />
+                <Ionicons name="close" size={20} color="#6B7280" />
               </TouchableOpacity>
             </View>
             <ScrollView style={adminStyles.notificationList} showsVerticalScrollIndicator={false}>
               {[
-                { id: "1", title: "New user registered", time: "2 min ago", unread: true },
-                { id: "2", title: "Payment received", time: "15 min ago", unread: true },
-                { id: "3", title: "Listing reported", time: "1 hour ago", unread: false },
+                { id: "1", title: "New user registered", time: "2 min ago", unread: true, icon: "person-add", color: "#235CF8" },
+                { id: "2", title: "Payment received", time: "15 min ago", unread: true, icon: "cash", color: "#10B981" },
+                { id: "3", title: "Listing reported", time: "1 hour ago", unread: false, icon: "alert-circle", color: "#F59E0B" },
               ].map((notif) => (
                 <TouchableOpacity
                   key={notif.id}
@@ -1471,7 +1819,21 @@ export default function AdminDashboard() {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     setShowNotifications(false);
                   }}
+                  activeOpacity={0.7}
                 >
+                  <LinearGradient
+                    colors={[`${notif.color}15`, `${notif.color}05`]}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 22,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginRight: 12,
+                    }}
+                  >
+                    <Ionicons name={notif.icon as any} size={22} color={notif.color} />
+                  </LinearGradient>
                   <View style={adminStyles.notificationItemContent}>
                     <Text style={adminStyles.notificationItemTitle}>{notif.title}</Text>
                     <Text style={adminStyles.notificationItemTime}>{notif.time}</Text>
@@ -1486,6 +1848,12 @@ export default function AdminDashboard() {
 
       {/* Bottom Navigation Bar */}
       <View style={[adminStyles.bottomNav, { paddingBottom: insets.bottom }]}>
+        <LinearGradient
+          colors={["#FFFFFF", "#FAFBFC"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={adminStyles.bottomNavGradient}
+        />
         <TouchableOpacity
           style={[adminStyles.bottomNavItem, activeNavTab === "Dashboard" && adminStyles.bottomNavItemActive]}
           onPress={() => {
@@ -1494,6 +1862,22 @@ export default function AdminDashboard() {
           }}
           activeOpacity={0.7}
         >
+          {activeNavTab === "Dashboard" && (
+            <>
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+              />
+              <LinearGradient
+                colors={["#235CF8", "#1E40AF"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={adminStyles.bottomNavActiveIndicator}
+              />
+            </>
+          )}
           <Ionicons
             name={activeNavTab === "Dashboard" ? "grid" : "grid-outline"}
             size={24}
@@ -1513,10 +1897,26 @@ export default function AdminDashboard() {
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             setActiveNavTab("Ads");
-            console.log("Ads clicked");
+            router.push("/admin/ads");
           }}
           activeOpacity={0.7}
         >
+          {activeNavTab === "Ads" && (
+            <>
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+              />
+              <LinearGradient
+                colors={["#235CF8", "#1E40AF"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={adminStyles.bottomNavActiveIndicator}
+              />
+            </>
+          )}
           <Ionicons
             name={activeNavTab === "Ads" ? "car" : "car-outline"}
             size={24}
@@ -1537,6 +1937,22 @@ export default function AdminDashboard() {
           }}
           activeOpacity={0.7}
         >
+          {activeNavTab === "Users" && (
+            <>
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+              />
+              <LinearGradient
+                colors={["#235CF8", "#1E40AF"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={adminStyles.bottomNavActiveIndicator}
+              />
+            </>
+          )}
           <Ionicons
             name={activeNavTab === "Users" ? "people" : "people-outline"}
             size={24}
@@ -1557,6 +1973,22 @@ export default function AdminDashboard() {
           }}
           activeOpacity={0.7}
         >
+          {activeNavTab === "Analytics" && (
+            <>
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+              />
+              <LinearGradient
+                colors={["#235CF8", "#1E40AF"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={adminStyles.bottomNavActiveIndicator}
+              />
+            </>
+          )}
           <Ionicons
             name={activeNavTab === "Analytics" ? "bar-chart" : "bar-chart-outline"}
             size={24}
@@ -1580,6 +2012,22 @@ export default function AdminDashboard() {
           }}
           activeOpacity={0.7}
         >
+          {activeNavTab === "Settings" && (
+            <>
+              <LinearGradient
+                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+              />
+              <LinearGradient
+                colors={["#235CF8", "#1E40AF"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={adminStyles.bottomNavActiveIndicator}
+              />
+            </>
+          )}
           <Ionicons
             name={activeNavTab === "Settings" ? "settings" : "settings-outline"}
             size={24}

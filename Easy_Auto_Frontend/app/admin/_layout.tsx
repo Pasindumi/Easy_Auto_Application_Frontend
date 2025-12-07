@@ -7,7 +7,10 @@ export default function AdminLayout() {
         headerShown: false,
         header: () => null,
         presentation: "card",
-        animation: "default",
+        animation: "slide_from_right",
+        animationDuration: 350,
+        gestureEnabled: true,
+        gestureDirection: "horizontal",
       }}
     >
       <Stack.Screen
@@ -16,6 +19,15 @@ export default function AdminLayout() {
           headerShown: false,
           header: () => null,
           title: "",
+        }}
+      />
+      <Stack.Screen
+        name="ads"
+        options={{
+          headerShown: false,
+          header: () => null,
+          title: "Ads Management",
+          animation: "slide_from_right",
         }}
       />
     </Stack>
