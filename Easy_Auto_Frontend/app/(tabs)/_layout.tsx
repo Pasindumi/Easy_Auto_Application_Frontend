@@ -346,6 +346,7 @@ export default function TabLayout() {
             height: "auto",
           },
           tabBarIcon: ({ focused }) => (
+            
             <ModernTabIcon
               focused={focused}
               iconName="person-circle"
