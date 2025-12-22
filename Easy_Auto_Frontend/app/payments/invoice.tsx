@@ -2,14 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React from "react";
 import {
-         Alert,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TextInput,
-         TouchableOpacity,
-         View,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 export default function Invoice() {
@@ -114,13 +113,13 @@ export default function Invoice() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Important Note</Text>
           <Text style={styles.text}>
-            Your Listing will be active for 30 days from payment confirmation. 
+            Your Listing will be active for 30 days from payment confirmation.
             Refunds permitted within 24 hours of purchase (see policy).{"\n"}
             Contact : support@techgadgethub.com for disputes
           </Text>
         </View>
 
-       
+
 
         {/* Download PDF */}
         <TouchableOpacity style={styles.downloadBtn} onPress={handleDownloadPdf}>
@@ -129,11 +128,11 @@ export default function Invoice() {
         </TouchableOpacity>
 
         {/* Go to Posted Ad */}
-        <TouchableOpacity style={styles.goPostedBtn} onPress={() => router.push('/posted-ad' as any)}>
+        <TouchableOpacity style={styles.goPostedBtn} onPress={() => router.push('/ads/posted-ad' as any)}>
           <Text style={styles.goPostedText}>Go to Posted Ad</Text>
         </TouchableOpacity>
 
-          
+
       </ScrollView>
     </SafeAreaView>
   );

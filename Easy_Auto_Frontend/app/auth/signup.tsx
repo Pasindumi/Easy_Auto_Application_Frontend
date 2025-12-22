@@ -37,7 +37,7 @@ export default function SignupScreen() {
     if (password !== confirm) return Alert.alert("Validation", "Passwords do not match");
     if (!agree) return Alert.alert("Validation", "Please agree to Terms & Conditions");
 
-    router.push("/buy-car");
+    router.push("/cars/buy-car");
   };
 
   return (
@@ -54,7 +54,7 @@ export default function SignupScreen() {
                 <Text style={[styles.toggleText, styles.whiteText]}>Signup</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.toggleBtn} onPress={() => router.push("./login")}>
+              <TouchableOpacity style={styles.toggleBtn} onPress={() => router.push("/auth/login")}>
                 <Text style={[styles.toggleText, styles.blueText]}>Login</Text>
               </TouchableOpacity>
             </View>
@@ -65,8 +65,8 @@ export default function SignupScreen() {
               <InputField icon="call-outline" placeholder="Phone Number" value={phone} onChange={setPhone} keyboardType="phone-pad" />
               <InputField icon="lock-closed-outline" placeholder="Password" value={password} onChange={setPassword} secure />
               <InputField icon="lock-closed-outline" placeholder="Confirm Password" value={confirm} onChange={setConfirm} secure />
-              
-              
+
+
 
               <TouchableOpacity style={styles.termRow} onPress={() => setAgree((s) => !s)}>
                 <View style={[styles.checkbox, agree && styles.checkboxChecked]}>
@@ -90,7 +90,7 @@ export default function SignupScreen() {
 
               <View style={styles.bottomRow}>
                 <Text style={styles.small}>Already have an account?</Text>
-                <TouchableOpacity onPress={() => router.push("./login")}>
+                <TouchableOpacity onPress={() => router.push("/auth/login")}>
                   <Text style={styles.loginLink}> Login</Text>
                 </TouchableOpacity>
               </View>

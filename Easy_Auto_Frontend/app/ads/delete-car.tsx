@@ -3,15 +3,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-         ActivityIndicator,
-         Alert,
-         Image,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 type AdStatus = 'active' | 'draft' | 'expired';
@@ -33,7 +33,7 @@ const SAMPLE_ADS: Ad[] = [
     title: 'BMW 3 Series 2021',
     location: 'Malabe, Sri Lanka',
     price: '$45,000',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
     status: 'active',
     description: 'Well-maintained BMW 3 Series 2021. Single owner, full service history.',
   },
@@ -42,7 +42,7 @@ const SAMPLE_ADS: Ad[] = [
     title: 'Nissan GTR R35',
     location: 'Galle, Sri Lanka',
     price: '$56,000',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
     status: 'expired',
     description: 'High-performance R35. Imported, recently serviced.',
   },
@@ -82,7 +82,7 @@ export default function DeleteCar() {
 
       // After successful delete, navigate back to My Ads (or whichever screen)
       Alert.alert('Deleted', 'The ad has been deleted.');
-      router.replace('/my-ads'); // adjust route if different
+      router.replace('./ads/my-ads'); // adjust route if different
     } catch (error) {
       console.error('Delete error', error);
       Alert.alert('Error', 'Could not delete the ad. Please try again.');

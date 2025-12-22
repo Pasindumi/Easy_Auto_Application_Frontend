@@ -126,7 +126,7 @@ export default function PaymentHistoryScreen() {
               activeOpacity={0.9}
               onPress={() =>
                 router.push({
-                  pathname: '/preview-payment',
+                  pathname: './payments/preview-payment',
                   params: { ...item },
                 })
               }

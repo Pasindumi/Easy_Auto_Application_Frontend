@@ -3,14 +3,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-         Image,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TextInput,
-         TouchableOpacity,
-         View,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function EditCar() {
@@ -42,7 +42,7 @@ export default function EditCar() {
 
           {/* ---------- CAR IMAGE ---------- */}
           <Image
-            source={require('../assets/images/car.jpg')}
+            source={require('@/assets/images/car.jpg')}
             style={styles.carImage}
           />
 

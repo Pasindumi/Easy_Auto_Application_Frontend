@@ -1,15 +1,15 @@
-import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-  StatusBar,
-} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as React from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -26,10 +26,10 @@ export default function WelcomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#235CF8" />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.push('/(tabs)')}
         >
@@ -60,21 +60,21 @@ export default function WelcomeScreen() {
           <Text style={styles.subtitle}>
             Browse thousands of verified cars from trusted sellers near you.
           </Text>
-          
+
 
           {/* Benefits Section */}
           <View style={styles.benefitsSection}>
             <View style={styles.benefitsContainer}>
               <Text style={styles.benefitsTitle}>Benefits of Using CarMart</Text>
-              
+
               <View style={styles.benefitsGrid}>
                 {benefits.map((benefit, index) => (
                   <View key={benefit.id} style={styles.benefitItem}>
                     <View style={styles.checkmarkContainer}>
-                      <Ionicons 
-                        name="checkmark" 
-                        size={14} 
-                        color="#235CF8" 
+                      <Ionicons
+                        name="checkmark"
+                        size={14}
+                        color="#235CF8"
                       />
                     </View>
                     <Text style={styles.benefitText}>{benefit.text}</Text>
@@ -85,11 +85,11 @@ export default function WelcomeScreen() {
           </View>
 
           {/* Continue Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.continueButton}
             onPress={() => {
               // Navigate to language selection screen
-              router.push('/selectlanguage');
+              router.push('/settings/selectlanguage');
             }}
           >
             <Text style={styles.continueButtonText}>Continue</Text>

@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-         Image,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TextInput,
-         TouchableOpacity,
-         View,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function EditProfileScreen() {
@@ -29,7 +29,7 @@ export default function EditProfileScreen() {
 
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
-          
+
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()}>
@@ -42,7 +42,7 @@ export default function EditProfileScreen() {
           {/* Profile Image */}
           <View style={styles.photoContainer}>
             <Image
-              source={require("../assets/images/user.jpeg")}
+              source={require("@/assets/images/user.jpeg")}
               style={styles.profilePhoto}
             />
 
@@ -106,15 +106,15 @@ export default function EditProfileScreen() {
 
         {/* BOTTOM NAVIGATION BAR */}
         <View style={styles.bottomNav}>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/index")}>
+          <TouchableOpacity onPress={() => router.push("./(tabs)/index")}>
             <Ionicons name="home-outline" size={26} color="#235CF8" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/(tabs)/compare")}>
+          <TouchableOpacity onPress={() => router.push("./(tabs)/compare")}>
             <Ionicons name="albums-outline" size={26} color="#235CF8" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>
+          <TouchableOpacity onPress={() => router.push("./(tabs)/profile")}>
             <Ionicons name="person-circle-outline" size={26} color="#235CF8" />
           </TouchableOpacity>
         </View>

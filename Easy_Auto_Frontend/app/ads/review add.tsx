@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { Feather } from '@expo/vector-icons';
-import { dummyData } from "./dummydata/reviewadd";
 import { router } from 'expo-router';
+import React, { useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { dummyData } from "../dummydata/reviewadd";
 
 export default function ReviewAd() {
   const [negotiable, setNegotiable] = useState(true);
@@ -176,7 +176,7 @@ export default function ReviewAd() {
         </View>
 
         {/* Proceed to Payment Button */}
-        <TouchableOpacity style={styles.paymentButton} onPress={() => router.push('/payment' as any)}>
+        <TouchableOpacity style={styles.paymentButton} onPress={() => router.push('/payments/payment' as any)}>
           <Text style={styles.paymentButtonText}>Proceed to Payment</Text>
         </TouchableOpacity>
       </View>

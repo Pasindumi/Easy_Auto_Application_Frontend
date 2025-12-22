@@ -10,7 +10,7 @@ export interface Ad {
   views: number;
   likes: number;
   messages: number;
-  status: 'active' | 'draft' | 'expired';
+  status: 'active' | 'draft' | 'expired' | 'paused';
   image: any; // Use require(...) for local images
 }
 

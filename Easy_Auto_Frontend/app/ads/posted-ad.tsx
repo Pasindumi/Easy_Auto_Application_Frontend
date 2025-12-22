@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Linking } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Alert, Image, Linking, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import { router } from 'expo-router';
-import { dummyData } from './dummydata/reviewadd';
+import { dummyData } from '../dummydata/reviewadd';
 
 export default function PostedAd() {
   const images: (string | number)[] = [dummyData.coverImage, ...dummyData.gallery];

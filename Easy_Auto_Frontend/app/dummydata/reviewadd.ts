@@ -30,13 +30,13 @@ export const dummyData: Listing = {
   transmission: 'Auto',
   description:
     'The all-new Toyota Yaris Cross combines compact SUV styling with advanced safety and hybrid technology. Enjoy a comfortable ride with premium upholstery, smart connectivity, and excellent fuel efficiency.',
-  coverImage: require('../../assets/images/review1.jpg'),
+  coverImage: require('@/assets/images/review1.jpg'),
   gallery: [
-    require('../../assets/images/review2.jpg'),
-    require('../../assets/images/review3.jpg'),
-    require('../../assets/images/review4.jpg'),
-    require('../../assets/images/review5.jpg'),
-    require('../../assets/images/review1.jpg'),
+    require('@/assets/images/review2.jpg'),
+    require('@/assets/images/review3.jpg'),
+    require('@/assets/images/review4.jpg'),
+    require('@/assets/images/review5.jpg'),
+    require('@/assets/images/review1.jpg'),
   ],
   seller: {
     name: 'SKY AUTOMOBILE PVT LTD',

@@ -67,17 +67,17 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     {
       icon: "workspace-premium",
       label: "My Subscriptions",
-      route: "/subscriptions",
+      route: "/packages/subscriptions",
     },
     { icon: "tv", label: "My Listings", route: "/listings" },
     {
       icon: "account-balance-wallet",
       label: "Payment History",
-      route: "/payment-history",
+      route: "/payments/payment-history",
     },
-    { icon: "help-outline", label: "My Ads", route: "/my-ads" },
-    { icon: "star-outline", label: "Ratings", route: "/ratings" },
-    { icon: "phone", label: "Contact Us", route: "/contact-us" },
+    { icon: "help-outline", label: "My Ads", route: "/ads/my-ads" },
+    { icon: "star-outline", label: "Ratings", route: "/profile/ratings" },
+    { icon: "phone", label: "Contact Us", route: "/support/contact-us" },
   ];
 
   const handleNavigation = (route: string) => {
@@ -154,7 +154,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                 <TouchableOpacity
                   style={styles.premiumButton}
                   activeOpacity={0.8}
-                  onPress={() => handleNavigation("/subscriptions")}
+                  onPress={() => handleNavigation("/packages/subscriptions")}
                 >
                   <MaterialIcons
                     name="workspace-premium"
@@ -174,7 +174,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                     style={styles.menuItem}
                     onPress={() => handleNavigation(item.route)}
                     activeOpacity={0.6}
-                  >
+                  >  
                     <View style={styles.menuIconContainer}>
                       <MaterialIcons
                         name={item.icon as any}
@@ -198,7 +198,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                 <Text style={styles.sectionLabel}>Account</Text>
                 <TouchableOpacity
                   style={styles.menuItem}
-                  onPress={() => handleNavigation("/settings")}
+                  onPress={() => handleNavigation("/settings/settings")}
                   activeOpacity={0.6}
                 >
                   <View style={styles.menuIconContainer}>

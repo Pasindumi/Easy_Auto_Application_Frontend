@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-import { dummyData } from './dummydata/reviewadd';
+import React from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { dummyData } from '../dummydata/reviewadd';
 
 export default function Payment() {
   const orderItems = [
@@ -14,8 +14,8 @@ export default function Payment() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      
-       
+
+
 
       {/* Summary Card */}
       <View style={styles.card}>
@@ -81,7 +81,7 @@ export default function Payment() {
         {/* Payment Method */}
         <View style={styles.sectionBox}>
           <Text style={styles.sectionHeader}>Payment Method</Text>
-          <TouchableOpacity style={styles.methodItem} onPress={() => router.push('/payment-methods' as any)}>
+          <TouchableOpacity style={styles.methodItem} onPress={() => router.push('/payments/payment-methods' as any)}>
             <Text style={styles.methodText}>Credit/Debit card</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.methodItem}>
@@ -93,7 +93,7 @@ export default function Payment() {
         </View>
 
         {/* Continue */}
-        <TouchableOpacity style={styles.continueBtn} onPress={() => router.push('/payment-methods' as any)}>
+        <TouchableOpacity style={styles.continueBtn} onPress={() => router.push('/payments/payment-methods' as any)}>
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
       </View>

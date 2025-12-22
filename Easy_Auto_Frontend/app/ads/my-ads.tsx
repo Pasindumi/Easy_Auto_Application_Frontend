@@ -13,11 +13,11 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Header from "../components/Header";
-import SearchBar from "../components/SearchBar";
-import StatusCards from "../components/StatusCards";
-import AdCard from "../components/cards/AdCard";
-import { ADS_DATA } from "./dummydata/ads";
+import Header from "../../components/Header";
+import SearchBar from "../../components/SearchBar";
+import StatusCards from "../../components/StatusCards";
+import AdCard from "../../components/cards/AdCard";
+import { ADS_DATA } from "../dummydata/ads";
 
 export default function MyAdsScreen() {
   const router = useRouter();
@@ -78,9 +78,9 @@ export default function MyAdsScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
-  const handleEdit = (id: string) => router.push(`/edit-car?id=${encodeURIComponent(id)}`);
-  const handleBoost = (id: string) => router.push(`/packages?id=${encodeURIComponent(id)}`);
-  const handleDelete = (id: string) => router.push(`/delete-car?id=${encodeURIComponent(id)}`);
+  const handleEdit = (id: string) => router.push(`/ads/edit-car?id=${encodeURIComponent(id)}`);
+  const handleBoost = (id: string) => router.push(`/packages/packages?id=${encodeURIComponent(id)}`);
+  const handleDelete = (id: string) => router.push(`/ads/delete-car?id=${encodeURIComponent(id)}`);
   const handleShare = async (id: string) => {
     const item = ADS_DATA.find(ad => ad.id === id);
     if (!item) return;
@@ -153,7 +153,7 @@ export default function MyAdsScreen() {
             <View style={styles.emptyContainer}>
               <Ionicons name="car-outline" size={48} color="#D1D5DB" />
               <Text style={styles.emptyTitle}>No ads found</Text>
-              <TouchableOpacity style={styles.emptyButton} onPress={() => router.push('/buy-car')}>
+              <TouchableOpacity style={styles.emptyButton} onPress={() => router.push('/cars/buy-car')}>
                 <Ionicons name="add-circle-outline" size={16} color="#fff" />
                 <Text style={styles.emptyButtonText}>Create New Ad</Text>
               </TouchableOpacity>

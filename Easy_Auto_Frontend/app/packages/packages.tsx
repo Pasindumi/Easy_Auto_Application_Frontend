@@ -23,7 +23,7 @@ export default function PackagesScreen() {
 
         {/* TOP HEADER */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.replace("/my-ads")}>
+          <TouchableOpacity onPress={() => router.replace("./ads/my-ads")}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>PACKAGES</Text>
@@ -79,7 +79,7 @@ export default function PackagesScreen() {
               style={styles.selectButton}
               onPress={() =>
                 router.push({
-                  pathname: "/invoice",
+                  pathname: "./payments/invoice",
                   params: {
                     plan: "Basic Boost",
                     price: 19.99,
@@ -138,7 +138,7 @@ export default function PackagesScreen() {
                 style={styles.selectButton}
                 onPress={() =>
                   router.push({
-                    pathname: "/invoice",
+                    pathname: "./payments/invoice",
                     params: {
                       plan: "Gold Boost",
                       price: 39.99,

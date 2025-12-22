@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function SuccessfulPayment() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function SuccessfulPayment() {
       <Text style={styles.subtitle}>Your payment has been processed successfully.</Text>
 
       {/* CTA */}
-      <TouchableOpacity style={styles.cta} onPress={() => router.push('/invoice' as any)}>
+      <TouchableOpacity style={styles.cta} onPress={() => router.push('/payments/invoice' as any)}>
         <Text style={styles.ctaText}>View Invoice</Text>
       </TouchableOpacity>
     </View>

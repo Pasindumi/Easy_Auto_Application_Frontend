@@ -49,14 +49,14 @@ export default function MyListingsScreen() {
     else setSelected(filteredListings.map((i) => i.id));
   };
 
-  const handleEdit = (id: string) => router.push(`/edit-car?id=${encodeURIComponent(id)}`);
-  const handleBoost = (id: string) => router.push(`/packages?id=${encodeURIComponent(id)}`);
+  const handleEdit = (id: string) => router.push(`/ads/edit-car?id=${encodeURIComponent(id)}`);
+  const handleBoost = (id: string) => router.push(`/packages/packages?id=${encodeURIComponent(id)}`);
   const handleShare = async (id: string) => {
     const item = LISTINGS.find((x) => x.id === id);
     if (!item) return;
     try {
       await Share.share({ message: `${item.title} — ${item.price}` });
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const onRefresh = React.useCallback(() => {
@@ -73,7 +73,7 @@ export default function MyListingsScreen() {
       </View>
       <Text style={styles.emptyTitle}>{searchQuery ? "No listings found" : "No listings yet"}</Text>
       {!searchQuery && !filterStatus && (
-        <TouchableOpacity style={styles.emptyButton} onPress={() => router.push("/post-add")}>
+        <TouchableOpacity style={styles.emptyButton} onPress={() => router.push("/cars/sell-car")}>
           <Text style={styles.emptyButtonText}>Create New Listing</Text>
         </TouchableOpacity>
       )}
@@ -84,7 +84,7 @@ export default function MyListingsScreen() {
   const renderScrollableContent = () => (
     <>
       {/* Boost Card */}
-      <TouchableOpacity style={styles.boostCard} activeOpacity={0.9} onPress={() => router.push("/packages")}>
+      <TouchableOpacity style={styles.boostCard} activeOpacity={0.9} onPress={() => router.push("/packages/packages")}>
         <View style={styles.boostIconWrapper}>
           <Text style={{ fontSize: 18, color: "#235CF8" }}>🚀</Text>
         </View>
