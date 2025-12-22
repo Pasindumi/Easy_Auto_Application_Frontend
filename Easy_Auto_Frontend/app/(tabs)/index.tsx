@@ -1166,6 +1166,7 @@ export default function HomeScreen() {
                 router.push("/auth/login");
               }}
             >
+
               <View style={styles.scrollableActionCard}>
                 <View
                   style={[

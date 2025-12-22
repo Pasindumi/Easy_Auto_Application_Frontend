@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-type StatusType = 'active' | 'draft' | 'paused' | 'expired';
+export type StatusType = 'active' | 'draft' | 'paused' | 'expired';
 
 interface StatusBadgeProps {
   status: StatusType;
@@ -33,8 +33,8 @@ const STATUS_CONFIG: Record<StatusType, StatusConfig> = {
   },
   paused: {
     label: 'Paused',
-   // icon: 'alert-circle',
-   icon: 'pause-circle',
+    // icon: 'alert-circle',
+    icon: 'pause-circle',
     color: '#EF4444',
     bgColor: '#fff2f2ff',
     borderColor: '#FECACA',
