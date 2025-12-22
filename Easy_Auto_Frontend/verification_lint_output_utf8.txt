@@ -1,0 +1,91 @@
+﻿
+> easy_auto_frontend@1.0.0 lint
+> expo lint
+
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\(tabs)\compare.tsx
+   2:10  warning  'Ionicons' is defined but never used          @typescript-eslint/no-unused-vars
+  10:3   warning  'TouchableOpacity' is defined but never used  @typescript-eslint/no-unused-vars
+  35:9   warning  'router' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\(tabs)\index.tsx
+   29:7   warning  'AnimatedButton' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  197:7   warning  'EmptyState' is assigned a value but never used              @typescript-eslint/no-unused-vars
+  223:7   warning  'SkeletonLoader' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  308:24  warning  'setCompareCount' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  309:28  warning  'setNewListingsCount' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  318:10  warning  'isLoading' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  318:21  warning  'setIsLoading' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  319:10  warning  'hasNoResults' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  319:24  warning  'setHasNoResults' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  323:9   warning  'wishlistLongPressTimer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\admin\index.tsx
+    2:10  warning  'LinearGradient' is defined but never used            @typescript-eslint/no-unused-vars
+   10:3   warning  'Platform' is defined but never used                  @typescript-eslint/no-unused-vars
+  802:7   warning  'TabButton' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  933:7   warning  'QuickActionItem' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\ads\edit-car.tsx
+  18:11  warning  'id' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\ads\my-ads.tsx
+  80:9  warning  'handleEdit' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  81:9  warning  'handleBoost' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  82:9  warning  'handleDelete' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  83:9  warning  'handleShare' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\auth\login.tsx
+  29:9  warning  'handleLogin' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\auth\reset-password.tsx
+  26:9  warning  'handleContinue' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\auth\signup.tsx
+  29:10  warning  'location' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  29:20  warning  'setLocation' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\cars\buy-car.tsx
+  99:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\cars\rent-car.tsx
+  75:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\find-dealers.tsx
+  18:7  warning  'SCREEN_WIDTH' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  68:9  warning  'router' is assigned a value but never used        @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\listings.tsx
+  59:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\packages\subscriptions.tsx
+   23:9  warning  'handleBack' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  219:1  warning  Import in body of module; reorder to top         import/first
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\profile\address.tsx
+  18:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\profile\ratings.tsx
+  83:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\settings\invite-friends.tsx
+  15:11  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\settings\privacy-policy.tsx
+  17:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\settings\select-language.tsx
+  17:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\settings\settings.tsx
+  21:9  warning  'handleBack' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\app\support\help-support.tsx
+  14:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\PROJECTS\Easy_Auto_Application_Frontend\Easy_Auto_Frontend\components\haptic-tab.tsx
+  13:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 41 problems (0 errors, 41 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

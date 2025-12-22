@@ -1,0 +1,16 @@
+﻿app/cars/rent-car.tsx(104,41): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: ViewProps): SafeAreaView', gave the following error.
+    Type '{ children: Element; style: { flex: number; backgroundColor: string; }; edges: string[]; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+      Property 'edges' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+  Overload 2 of 2, '(props: ViewProps, context: any): SafeAreaView', gave the following error.
+    Type '{ children: Element; style: { flex: number; backgroundColor: string; }; edges: string[]; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+      Property 'edges' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+app/find-dealers.tsx(114,41): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: ViewProps): SafeAreaView', gave the following error.
+    Type '{ children: Element; style: { flex: number; backgroundColor: string; }; edges: string[]; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+      Property 'edges' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+  Overload 2 of 2, '(props: ViewProps, context: any): SafeAreaView', gave the following error.
+    Type '{ children: Element; style: { flex: number; backgroundColor: string; }; edges: string[]; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+      Property 'edges' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<SafeAreaView> & Readonly<ViewProps>'.
+components/cards/ListingCard.tsx(5,23): error TS2614: Module '"../status/StatusBadge"' has no exported member 'StatusType'. Did you mean to use 'import StatusType from "../status/StatusBadge"' instead?
+components/haptic-tab.tsx(2,10): error TS2305: Module '"@react-navigation/elements"' has no exported member 'Platform'.

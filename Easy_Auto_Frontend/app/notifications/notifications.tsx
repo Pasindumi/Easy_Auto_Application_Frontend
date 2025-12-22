@@ -99,7 +99,7 @@ export default function NotificationsScreen() {
             />
             <Text style={styles.emptyText}>No notifications</Text>
             <Text style={styles.emptySubtext}>
-              You're all caught up! Check back later for updates.
+              You&apos;re all caught up! Check back later for updates.
             </Text>
           </View>
         )}

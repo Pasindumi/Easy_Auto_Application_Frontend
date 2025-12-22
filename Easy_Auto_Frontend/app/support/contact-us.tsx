@@ -48,7 +48,7 @@ export default function ContactUsScreen() {
                 <ScrollView contentContainerStyle={styles.scrollContent}>
                     {/* Intro Text */}
                     <Text style={styles.introText}>
-                        We'd love to hear from you. Please fill out the form below.
+                        We&apos; love to hear from you. Please fill out the form below.
                     </Text>
 
                     {/* Form Fields */}

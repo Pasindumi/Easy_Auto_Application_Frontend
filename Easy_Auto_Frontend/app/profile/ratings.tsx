@@ -133,7 +133,7 @@ export default function RatingsScreen() {
                     <Text style={styles.ratingNum}>({item.rating})</Text>
                   </View>
 
-                  <Text style={styles.comment}>"{item.comment}"</Text>
+                  <Text style={styles.comment}>{"\""}{item.comment}{"\""}</Text>
                 </View>
               </View>
             )}
