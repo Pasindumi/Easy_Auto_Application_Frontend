@@ -3,17 +3,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-	Image,
-	Platform,
-	StatusBar as RNStatusBar,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
+  Image,
+  Platform,
+  StatusBar as RNStatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export const HEADER_HEIGHT = 80;  // small header
+export const HEADER_HEIGHT = 120;  // small header
 
 type Props = {
   showBack?: boolean;

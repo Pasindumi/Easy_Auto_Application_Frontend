@@ -12,11 +12,10 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import AdCard from "../../components/cards/AdCard";
 import Header from "../../components/Header";
 import SearchBar from "../../components/SearchBar";
-import StatusCards from "../../components/StatusCards";
-import AdCard from "../../components/cards/AdCard";
+import StatusCards from "../../components/status/StatusCards";
 import { ADS_DATA } from "../dummydata/ads";
 
 export default function MyAdsScreen() {
@@ -104,7 +103,7 @@ export default function MyAdsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <Header />
 
         <View style={localStyles.headerWrap}>
@@ -162,7 +161,7 @@ export default function MyAdsScreen() {
           contentContainerStyle={{ paddingBottom: 24 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#235CF8" />}
         />
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

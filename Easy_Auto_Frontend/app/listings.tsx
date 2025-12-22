@@ -18,7 +18,7 @@ import ListingCard from "../components/cards/ListingCard";
 import Header from "../components/Header";
 import styles from "../components/listingStyles";
 import SearchBar from "../components/SearchBar";
-import StatusCards from "../components/StatusCards";
+import StatusCards from "../components/status/StatusCards";
 import { LISTINGS } from "./dummydata/listings"; // <- imported dummy data
 
 export default function MyListingsScreen() {

@@ -13,12 +13,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Button from "../../components/Button";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import InputField from "../../components/InputField";
-import SocialButton from "../../components/SocialButton";
 import { colors } from "../../components/theme";
+import Button from "../../components/ui/button/Button";
+import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -97,7 +97,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Login Button */}
-              <Button title="Login" onPress={() => router.push("/(tabs)")} />
+              <Button title="Login" onPress={() => router.push("/cars/sell-car")} />
 
 
 

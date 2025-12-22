@@ -1,88 +1,172 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React from "react";
+import Header from "@/components/Header";
+import InputField from "@/components/InputField";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ContactUsScreen() {
-  return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialIcons
-            name="arrow-back"
-            size={24}
-            color="#FFFFFF"
-            style={styles.backButton}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Contact Us</Text>
-      </View>
-      <ScrollView style={styles.content}>
-        <View style={styles.card}>
-          <MaterialIcons name="phone" size={48} color="#0066FF" />
-          <Text style={styles.title}>Contact Us</Text>
-          <Text style={styles.subtitle}>
-            Get in touch with our support team
-          </Text>
+    const router = useRouter();
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [subject, setSubject] = useState("");
+    const [message, setMessage] = useState("");
+
+    const handleSubmit = () => {
+        // Handle submission logic
+        console.log("Submitted:", { name, email, subject, message });
+        router.back();
+    };
+
+    return (
+        <View style={styles.container}>
+            {/* Custom Header */}
+            <Header />
+            <View style={localStyles.headerWrap}>
+                <View style={localStyles.header}>
+                    <View style={localStyles.headerLeft}>
+                        <Ionicons name="chatbox-ellipses-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+                        <Text style={localStyles.headerTitle}>Contact Us</Text>
+                    </View>
+                </View>
+            </View>
+
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+            >
+                <ScrollView contentContainerStyle={styles.scrollContent}>
+                    {/* Intro Text */}
+                    <Text style={styles.introText}>
+                        We'd love to hear from you. Please fill out the form below.
+                    </Text>
+
+                    {/* Form Fields */}
+                    <InputField
+                        label="Full Name"
+                        placeholder="Enter your full name"
+                        icon="person-outline"
+                        value={name}
+                        onChange={setName}
+                    />
+
+                    <InputField
+                        label="Email Address"
+                        placeholder="Enter your email"
+                        icon="mail-outline"
+                        value={email}
+                        onChange={setEmail}
+                        keyboardType="email-address"
+                    />
+
+                    <InputField
+                        label="Subject"
+                        placeholder="What is this regarding?"
+                        icon="information-circle-outline"
+                        value={subject}
+                        onChange={setSubject}
+                    />
+
+                    <InputField
+                        label="Message"
+                        placeholder="Type your message here..."
+                        icon="chatbubble-outline"
+                        value={message}
+                        onChange={setMessage}
+                    />
+
+                    {/* Submit Button */}
+                    <TouchableOpacity
+                        style={styles.submitButton}
+                        onPress={handleSubmit}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.submitButtonText}>Send Message</Text>
+                        <Ionicons name="send" size={18} color="#fff" />
+                    </TouchableOpacity>
+
+                    {/* Contact Info */}
+                    <View style={styles.contactInfo}>
+                        <View style={styles.infoItem}>
+                            <Ionicons name="call-outline" size={20} color="#235CF8" />
+                            <Text style={styles.infoText}>+1 (555) 123-4567</Text>
+                        </View>
+                        <View style={styles.infoItem}>
+                            <Ionicons name="mail-outline" size={20} color="#235CF8" />
+                            <Text style={styles.infoText}>support@easyauto.com</Text>
+                        </View>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  header: {
-    backgroundColor: "#0066FF",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFFFFF",
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 32,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#1A1A1A",
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#9BA1A6",
-    textAlign: "center",
-  },
+    container: {
+        flex: 1,
+        backgroundColor: "#F9FAFB",
+    },
+    scrollContent: {
+        padding: 20,
+        paddingBottom: 40,
+    },
+    introText: {
+        fontSize: 15,
+        color: "#6B7280",
+        marginBottom: 24,
+        lineHeight: 22,
+    },
+    submitButton: {
+        backgroundColor: "#235CF8",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 14,
+        borderRadius: 12,
+        marginTop: 24,
+        gap: 8,
+        shadowColor: "#235CF8",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    submitButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "700",
+    },
+    contactInfo: {
+        marginTop: 40,
+        paddingTop: 24,
+        borderTopWidth: 1,
+        borderTopColor: "#E5E7EB",
+        gap: 16,
+    },
+    infoItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+    },
+    infoText: {
+        fontSize: 15,
+        color: "#4B5563",
+        fontWeight: "500",
+    },
+});
+
+const localStyles = StyleSheet.create({
+    headerWrap: { backgroundColor: '#F9FAFB' },
+    header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
+    headerLeft: { flexDirection: 'row', alignItems: 'center' },
+    headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

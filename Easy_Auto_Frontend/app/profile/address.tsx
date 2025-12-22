@@ -4,14 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TextInput,
-         TouchableOpacity,
-         View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import Header from "../../components/Header";
 
 export default function Address() {
   const router = useRouter();
@@ -31,13 +32,15 @@ export default function Address() {
         <ScrollView contentContainerStyle={styles.container}>
 
           {/* ---------- HEADER ---------- */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-            </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>MY ADDRESS</Text>
-            <View style={{ width: 22 }} />
+          {/* ---------- HEADER ---------- */}
+          <Header />
+          <View style={localStyles.headerWrap}>
+            <View style={localStyles.header}>
+              <View style={localStyles.headerLeft}>
+                <Ionicons name="location-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+                <Text style={localStyles.headerTitle}>My Address</Text>
+              </View>
+            </View>
           </View>
 
           {/* ---------- ADDRESS CARD ---------- */}
@@ -218,4 +221,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F2F2F2' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E0E0E0' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });
