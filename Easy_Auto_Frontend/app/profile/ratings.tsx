@@ -4,14 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
-         FlatList,
-         Image,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  FlatList,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 // ---- Review Data ----
@@ -21,7 +21,7 @@ const REVIEWS = [
     name: 'Martin Luthur',
     rating: 4.0,
     date: '2 week ago',
-    image: require('../assets/images/user.jpeg'),
+    image: require('@/assets/images/user.jpeg'),
     comment: 'Best Seller, excellent communication, quick response',
   },
   {
@@ -29,7 +29,7 @@ const REVIEWS = [
     name: 'Dilmin Ekanayaka',
     rating: 4.8,
     date: '3 week ago',
-    image: require('../assets/images/user1.jpg'),
+    image: require('@/assets/images/user1.jpg'),
     comment: 'Best Seller, excellent communication, quick response',
   },
   {
@@ -37,7 +37,7 @@ const REVIEWS = [
     name: 'Ishini Gimhani',
     rating: 5.0,
     date: '4 week ago',
-    image: require('../assets/images/user.jpeg'),
+    image: require('@/assets/images/user.jpeg'),
     comment: 'Best Seller, excellent communication, quick response',
   },
   {
@@ -45,7 +45,7 @@ const REVIEWS = [
     name: 'Piumi Rajapakse',
     rating: 4.0,
     date: '1 month ago',
-    image: require('../assets/images/user.jpeg'),
+    image: require('@/assets/images/user.jpeg'),
     comment: 'Best Seller, excellent communication, quick response',
   },
   {
@@ -53,7 +53,7 @@ const REVIEWS = [
     name: 'Malsha Nethmini',
     rating: 4.0,
     date: '2 month ago',
-    image: require('../assets/images/user.jpeg'),
+    image: require('@/assets/images/user.jpeg'),
     comment: 'Best Seller, excellent communication, quick response',
   },
 ];

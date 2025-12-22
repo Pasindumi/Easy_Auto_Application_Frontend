@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SellCarScreen() {
   const router = useRouter();
-  
+
   // Form state
   const [carDetails, setCarDetails] = useState({
     title: '',
@@ -50,7 +50,7 @@ export default function SellCarScreen() {
   const handleSubmit = () => {
     // Removed success Alert per request
     // Directly navigate to Payment page
-    router.push('/payment' as any);
+    router.push('/payments/payment' as any);
   };
 
   return (
@@ -60,7 +60,7 @@ export default function SellCarScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -68,7 +68,7 @@ export default function SellCarScreen() {
           {/* Basic Information Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Basic Information</Text>
-            
+
             <Text style={styles.label}>Title</Text>
             <TextInput
               style={styles.input}
@@ -86,7 +86,7 @@ export default function SellCarScreen() {
                 onChangeText={(value) => handleInputChange('price', value)}
                 keyboardType="numeric"
               />
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.checkboxContainer}
                 onPress={() => handleInputChange('negotiable', !carDetails.negotiable)}
               >
@@ -122,7 +122,7 @@ export default function SellCarScreen() {
           {/* Car Details Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Car Details</Text>
-            
+
             <View style={styles.formRow}>
               <View style={styles.formHalf}>
                 <Text style={styles.label}>Brand</Text>
@@ -133,7 +133,7 @@ export default function SellCarScreen() {
                   onChangeText={(value) => handleInputChange('brand', value)}
                 />
               </View>
-              
+
               <View style={styles.formHalf}>
                 <Text style={styles.label}>Model</Text>
                 <TextInput
@@ -156,7 +156,7 @@ export default function SellCarScreen() {
                   keyboardType="numeric"
                 />
               </View>
-              
+
               <View style={styles.formHalf}>
                 <Text style={styles.label}>Mileage</Text>
                 <TextInput
@@ -191,11 +191,11 @@ export default function SellCarScreen() {
             <Text style={styles.sectionSubtitle}>Upload up to 5 photos. First photo will be the cover image</Text>
             <View style={{ alignItems: 'center' }}>
               <View style={styles.photoRowUniform}>
-                {[0,1,2].map((i) => (
+                {[0, 1, 2].map((i) => (
                   selectedImages[i] ? (
                     <View key={i} style={styles.photoContainerUniform}>
                       <Image source={{ uri: selectedImages[i] }} style={styles.carPhotoUniform} />
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.removePhotoButtonUniform}
                         onPress={() => {
                           setSelectedImages(prev => prev.filter((_, idx) => idx !== i));
@@ -212,11 +212,11 @@ export default function SellCarScreen() {
                 ))}
               </View>
               <View style={styles.photoRowUniform}>
-                {[3,4].map((i) => (
+                {[3, 4].map((i) => (
                   selectedImages[i] ? (
                     <View key={i} style={styles.photoContainerUniform}>
                       <Image source={{ uri: selectedImages[i] }} style={styles.carPhotoUniform} />
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.removePhotoButtonUniform}
                         onPress={() => {
                           setSelectedImages(prev => prev.filter((_, idx) => idx !== i));
@@ -250,11 +250,11 @@ export default function SellCarScreen() {
             <View style={{ alignItems: 'center' }}>
               {/* First row: 3 images */}
               <View style={styles.photoRowUniform}>
-                {[0,1,2].map((i) => (
+                {[0, 1, 2].map((i) => (
                   additionalImages && additionalImages[i] ? (
                     <View key={i} style={styles.photoContainerUniform}>
                       <Image source={{ uri: additionalImages[i] }} style={styles.carPhotoUniform} />
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.removePhotoButtonUniform}
                         onPress={() => {
                           setAdditionalImages(prev => prev.filter((_, idx) => idx !== i));
@@ -272,11 +272,11 @@ export default function SellCarScreen() {
               </View>
               {/* Second row: 2 images + add photo button if needed */}
               <View style={styles.photoRowUniform}>
-                {[3,4].map((i) => (
+                {[3, 4].map((i) => (
                   additionalImages && additionalImages[i] ? (
                     <View key={i} style={styles.photoContainerUniform}>
                       <Image source={{ uri: additionalImages[i] }} style={styles.carPhotoUniform} />
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.removePhotoButtonUniform}
                         onPress={() => {
                           setAdditionalImages(prev => prev.filter((_, idx) => idx !== i));
@@ -344,7 +344,7 @@ export default function SellCarScreen() {
 
           {/* Submit Button */}
           <View style={styles.submitSection}>
-            <TouchableOpacity style={styles.reviewButton} onPress={() => router.push('/review add')}>
+            <TouchableOpacity style={styles.reviewButton} onPress={() => router.push('/ads/review add')}>
               <Text style={styles.reviewButtonText}>Review</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.postAdButton} onPress={handleSubmit}>
@@ -739,7 +739,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderWidth: 1.5,
-    borderColor: '#235CF8', 
+    borderColor: '#235CF8',
     borderRadius: 4,
     marginRight: 8,
     justifyContent: 'center',

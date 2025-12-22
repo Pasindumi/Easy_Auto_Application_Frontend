@@ -1,5 +1,6 @@
 // components/ProfileHeader.tsx
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -12,7 +13,6 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 
 type ProfileHeaderProps = {
   title: string;
@@ -33,7 +33,7 @@ export default function ProfileHeader({
     if (onProfilePress) {
       onProfilePress();
     } else {
-      router.push('/edit-profile');
+      router.push('/profile/edit-profile');
     }
   };
 
@@ -47,39 +47,39 @@ export default function ProfileHeader({
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
         <Text style={styles.headerTitle}>{title}</Text>
 
-          {showProfileCard && (
-            <TouchableOpacity
-              style={styles.profileCard}
-              onPress={handleProfilePress}
-              activeOpacity={0.9}
-            >
-              <View style={styles.profileCardContent}>
-                <View style={styles.avatarContainer}>
-                  <Image
-                    source={require('../assets/images/user.jpeg')}
-                    style={styles.avatar}
-                  />
-                  <View style={styles.notificationBadge}>
-                    <Text style={styles.badgeText}>2</Text>
-                  </View>
-                </View>
-
-                <View style={styles.profileInfo}>
-                  <View style={styles.profileHeader}>
-                    <View style={styles.profileNames}>
-                      <Text style={styles.username}>Dilmin Ekanayaka</Text>
-                      <View style={styles.premiumTag}>
-                        <Ionicons name="star" size={12} color="#FFFFFF" />
-                        <Text style={styles.premiumText}>Premium Member</Text>
-                      </View>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
-                  </View>
-                  <Text style={styles.email}>dilmin@yahoo.com</Text>
+        {showProfileCard && (
+          <TouchableOpacity
+            style={styles.profileCard}
+            onPress={handleProfilePress}
+            activeOpacity={0.9}
+          >
+            <View style={styles.profileCardContent}>
+              <View style={styles.avatarContainer}>
+                <Image
+                  source={require('@/assets/images/user.jpeg')}
+                  style={styles.avatar}
+                />
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.badgeText}>2</Text>
                 </View>
               </View>
-            </TouchableOpacity>
-          )}
+
+              <View style={styles.profileInfo}>
+                <View style={styles.profileHeader}>
+                  <View style={styles.profileNames}>
+                    <Text style={styles.username}>Dilmin Ekanayaka</Text>
+                    <View style={styles.premiumTag}>
+                      <Ionicons name="star" size={12} color="#FFFFFF" />
+                      <Text style={styles.premiumText}>Premium Member</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+                </View>
+                <Text style={styles.email}>dilmin@yahoo.com</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

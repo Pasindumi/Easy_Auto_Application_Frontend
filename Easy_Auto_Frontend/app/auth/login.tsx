@@ -32,7 +32,7 @@ export default function LoginScreen() {
       return;
     }
     // Navigate to home/tabs page
-    router.push("../(tabs)/index");
+    router.push("/(tabs)");
   };
 
   return (
@@ -53,7 +53,7 @@ export default function LoginScreen() {
             <View style={styles.toggleRow}>
               <TouchableOpacity
                 style={[styles.toggleBtn, styles.toggleInactive]}
-                onPress={() => router.push("./signup")}
+                onPress={() => router.push("/auth/signup")}
               >
                 <Text style={[styles.toggleText, styles.blueText]}>Signup</Text>
               </TouchableOpacity>
@@ -91,7 +91,7 @@ export default function LoginScreen() {
                   <Text style={styles.smallText}>Remember Me</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => router.push("./reset-password")}>
+                <TouchableOpacity onPress={() => router.push("/auth/reset-password")}>
                   <Text style={styles.forgot}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
@@ -124,7 +124,7 @@ export default function LoginScreen() {
               {/* Signup link */}
               <View style={styles.bottomRow}>
                 <Text style={styles.smallText}>Don’t have an account?</Text>
-                <TouchableOpacity onPress={() => router.push("./signup")}>
+                <TouchableOpacity onPress={() => router.push("/auth/signup")}>
                   <Text style={styles.loginLink}> Sign Up</Text>
                 </TouchableOpacity>
               </View>

@@ -26,7 +26,7 @@ export default function SelectLanguageScreen() {
     // Navigate to the next screen or main app
     // If English is selected, go directly to Login; otherwise open the main tabs
     if (languageCode === 'en') {
-      router.push('/login');
+      router.push('/auth/login');
     } else {
       router.push('/(tabs)');
     }
@@ -35,10 +35,10 @@ export default function SelectLanguageScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#235CF8" />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -182,5 +182,5 @@ const styles = StyleSheet.create({
     color: '#235CF8',
     textAlign: 'center',
   },
-  
+
 });

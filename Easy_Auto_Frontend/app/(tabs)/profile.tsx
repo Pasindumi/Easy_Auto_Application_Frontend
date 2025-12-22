@@ -5,7 +5,6 @@ import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -13,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function ProfileScreen() {
 
   const handleMenuItemPress = (route: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push(route);
+    router.push(route as any);
   };
 
 
@@ -102,14 +102,14 @@ export default function ProfileScreen() {
               icon="person-outline"
               title="Edit Profile"
               subtitle="Update your profile information"
-              onPress={() => handleMenuItemPress('/edit-profile')}
+              onPress={() => handleMenuItemPress('/profile/edit-profile')}
             />
 
             <MenuItem
               icon="location-outline"
               title="Address"
               subtitle="Update your location"
-              onPress={() => handleMenuItemPress('/address')}
+              onPress={() => handleMenuItemPress('/profile/address')}
             />
           </View>
 
@@ -121,28 +121,28 @@ export default function ProfileScreen() {
               icon="notifications-outline"
               title="Notifications"
               subtitle="Manage alerts and updates"
-              onPress={() => handleMenuItemPress('/notifications-setting')}
+              onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
             />
 
             <MenuItem
               icon="card-outline"
               title="Payment Methods"
               subtitle="Manage your payments"
-              onPress={() => handleMenuItemPress('/payment-methods')}
+              onPress={() => handleMenuItemPress('/payments/payment-methods')}
             />
 
             <MenuItem
               icon="lock-closed-outline"
               title="Privacy and Security"
               subtitle="Control your data"
-              onPress={() => handleMenuItemPress('/privacy-policy')}
+              onPress={() => handleMenuItemPress('/settings/privacy-policy')}
             />
 
             <MenuItem
               icon="globe-outline"
               title="Language"
               subtitle="English (US)"
-              onPress={() => handleMenuItemPress('/select-language')}
+              onPress={() => handleMenuItemPress('/settings/select-language')}
             />
 
             <MenuItem
@@ -169,25 +169,25 @@ export default function ProfileScreen() {
             <MenuItem
               icon="help-circle-outline"
               title="Help & Support"
-              onPress={() => handleMenuItemPress('/help-support')}
+              onPress={() => handleMenuItemPress('/support/help-support')}
             />
 
             <MenuItem
               icon="information-circle-outline"
               title="About this App"
-              onPress={() => handleMenuItemPress('/about-app')}
+              onPress={() => handleMenuItemPress('/settings/about-app')}
             />
 
             <MenuItem
               icon="people-outline"
               title="Invite Friends"
-              onPress={() => handleMenuItemPress('/invite-friend')}
+              onPress={() => handleMenuItemPress('/support/invite-friend')}
             />
 
             <MenuItem
               icon="repeat-outline"
               title="Switch Accounts"
-              onPress={() => handleMenuItemPress('/switch-account')}
+              onPress={() => handleMenuItemPress('/settings/switch-account')}
             />
           </View>
 

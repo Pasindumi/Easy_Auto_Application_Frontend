@@ -2,14 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-         Image,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
-import { Ad } from '../../dummydata/ads';
+import { Ad } from '@/app/dummydata/ads';
 import StatusBadge from '../status/StatusBadge';
 
 interface AdCardProps {
@@ -25,10 +25,10 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
     ad.status === 'active'
       ? 'active'
       : ad.status === 'draft'
-      ? 'draft'
-      : ad.status === 'paused'
-      ? 'paused'
-      : 'expired';
+        ? 'draft'
+        : ad.status === 'paused'
+          ? 'paused'
+          : 'expired';
 
   return (
     <View style={styles.card}>
@@ -39,9 +39,9 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
         {/* Image & Checkbox */}
         <View>
           <Image
-  source={typeof ad.image === 'string' ? { uri: ad.image } : ad.image}
-  style={styles.image}
-/>
+            source={typeof ad.image === 'string' ? { uri: ad.image } : ad.image}
+            style={styles.image}
+          />
 
 
           {/* Checkbox */}
@@ -101,7 +101,7 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
       {/* Actions */}
       <View style={styles.actionRow}>
         <TouchableOpacity
-          onPress={() => router.push(`/view-car?id=${ad.id}`)}
+          onPress={() => router.push(`/cars/view-car?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="eye-outline" size={16} color="#2563EB" />
@@ -109,7 +109,7 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push(`/edit-car?id=${ad.id}`)}
+          onPress={() => router.push(`/ads/edit-car?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="create-outline" size={16} color="#2563EB" />
@@ -117,7 +117,7 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push(`/packages?id=${ad.id}`)}
+          onPress={() => router.push(`/packages/packages?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="rocket-outline" size={16} color="#2563EB" />
@@ -125,7 +125,7 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push(`/delete-car?id=${ad.id}`)}
+          onPress={() => router.push(`/ads/delete-car?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="trash-outline" size={16} color="#EF4444" />

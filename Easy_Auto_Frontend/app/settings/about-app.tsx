@@ -4,14 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
-         Image,
-         Linking,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  Image,
+  Linking,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function AboutApp() {
@@ -39,7 +39,7 @@ export default function AboutApp() {
           <View style={styles.appCard}>
 
             <Image
-              source={require('../assets/images/blueLogo.png')}
+              source={require('@/assets/images/blueLogo.png')}
               style={styles.logo}
             />
 

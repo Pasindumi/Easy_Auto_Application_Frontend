@@ -56,7 +56,7 @@ export default function ProfileScreen() {
             {/* Profile Card */}
             <View style={styles.profileCard}>
               <Image
-                source={require('../assets/images/user.jpeg')}
+                source={require('@/assets/images/user.jpeg')}
                 style={styles.avatar}
               />
 
@@ -86,14 +86,14 @@ export default function ProfileScreen() {
               icon="person-outline"
               title="Edit profile"
               subtitle="Update Your profile"
-              onPress={() => router.push('/edit-profile')}
+              onPress={() => router.push('/profile/edit-profile')}
             />
 
             <MenuItem
               icon="location-outline"
               title="Address"
               subtitle="Update your location"
-              onPress={() => router.push('/address')}
+              onPress={() => router.push('/profile/address')}
             />
           </View>
 

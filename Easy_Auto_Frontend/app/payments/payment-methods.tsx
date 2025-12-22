@@ -3,14 +3,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-         Alert,
-         Image,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function PaymentMethods() {
@@ -70,7 +70,7 @@ export default function PaymentMethods() {
 
                 <View style={styles.cardRight}>
                   <Image
-                    source={require('../assets/images/mastercard.png')}
+                    source={require('@/assets/images/mastercard.png')}
                     style={styles.cardIcon}
                   />
                   <Text style={styles.cardDate}>08/25</Text>
@@ -97,7 +97,7 @@ export default function PaymentMethods() {
 
                 <View style={styles.cardRight}>
                   <Image
-                    source={require('../assets/images/mastercard.png')}
+                    source={require('@/assets/images/mastercard.png')}
                     style={styles.cardIcon}
                   />
                   <Text style={styles.cardDate}>08/25</Text>
@@ -108,7 +108,7 @@ export default function PaymentMethods() {
             {/* Add New Card */}
             <TouchableOpacity
               style={styles.addBtn}
-              onPress={() => router.push('/add-card')}
+              onPress={() => router.push('./payments/add-card')}
             >
               <Ionicons name="add" size={18} color="#235CF8" />
               <Text style={styles.addText}>Add New Card</Text>
@@ -131,7 +131,7 @@ export default function PaymentMethods() {
               ]}
             >
               <Image
-                source={require('../assets/images/Paypal.png')}
+                source={require('@/assets/images/Paypal.png')}
                 style={styles.otherIcon}
               />
               <Text style={styles.otherText}>Paypal</Text>
@@ -146,7 +146,7 @@ export default function PaymentMethods() {
               ]}
             >
               <Image
-                source={require('../assets/images/googlepay.png')}
+                source={require('@/assets/images/googlepay.png')}
                 style={styles.otherIcon}
               />
               <Text style={styles.otherText}>Google Pay</Text>
@@ -161,7 +161,7 @@ export default function PaymentMethods() {
               ]}
             >
               <Image
-                source={require('../assets/images/visa.png')}
+                source={require('@/assets/images/visa.png')}
                 style={styles.otherIcon}
               />
               <Text style={styles.otherText}>Visa Debit</Text>
@@ -176,7 +176,7 @@ export default function PaymentMethods() {
               ]}
             >
               <Image
-                source={require('../assets/images/mastercard.png')}
+                source={require('@/assets/images/mastercard.png')}
                 style={styles.otherIcon}
               />
               <Text style={styles.otherText}>Mastercard Debit</Text>

@@ -3,14 +3,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import {
-         Alert,
-         Image,
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 type AdStatus = 'active' | 'draft' | 'expired';
@@ -32,7 +32,7 @@ const SAMPLE_ADS: Ad[] = [
     title: 'BMW 3 Series 2021',
     location: 'Malabe, Sri Lanka',
     price: '$45,000',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
     status: 'active',
     description:
       'Well-maintained BMW 3 Series 2021. Single owner, full service history, 40,000 km.',
@@ -42,7 +42,7 @@ const SAMPLE_ADS: Ad[] = [
     title: 'Nissan GTR R35',
     location: 'Galle, Sri Lanka',
     price: '$56,000',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
     status: 'expired',
     description: 'High-performance R35. Imported, recently serviced.',
   },
@@ -69,7 +69,7 @@ export default function ViewCar() {
           onPress: () => {
             // TODO: call API to delete, then navigate back or show toast
             Alert.alert('Deleted', 'Ad has been deleted.');
-            router.replace('/my-ads'); // or router.back()
+            router.replace('./ads/my-ads'); // or router.back()
           },
         },
       ],
@@ -129,7 +129,7 @@ export default function ViewCar() {
             <View style={styles.actionsRow}>
               <TouchableOpacity
                 style={styles.actionBtn}
-                onPress={() => router.push(`/edit-car?id=${ad.id}`)}
+                onPress={() => router.push(`/ads/edit-car?id=${ad.id}`)}
               >
                 <Ionicons name="create-outline" size={18} color="#235CF8" />
                 <Text style={styles.actionText}>Edit</Text>
@@ -137,7 +137,7 @@ export default function ViewCar() {
 
               <TouchableOpacity
                 style={styles.actionBtn}
-                onPress={() => router.replace(`/packages?id=${ad.id}`)}
+                onPress={() => router.replace(`./packages/packages?id=${ad.id}`)}
               >
                 <Ionicons name="flash-outline" size={18} color="#235CF8" />
                 <Text style={styles.actionText}>Boost</Text>

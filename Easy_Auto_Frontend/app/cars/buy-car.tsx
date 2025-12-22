@@ -1,11 +1,12 @@
 // app/buy-car.tsx
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import ProfileHeader from '@/components/ProfileHeader';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Dimensions,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,8 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import ProfileHeader from '@/components/ProfileHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
@@ -31,59 +31,59 @@ const CATEGORIES = [
 
 // SUV Cars list
 const SUV_CARS = [
-  { 
-    id: '1', 
-    title: 'Toyota RAV4', 
+  {
+    id: '1',
+    title: 'Toyota RAV4',
     year: '2020',
-    km: '45,000 Km', 
-    location: 'Balangoda, Sri Lanka', 
+    km: '45,000 Km',
+    location: 'Balangoda, Sri Lanka',
     price: 'Rs. 5.6Mn',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
   },
-  { 
-    id: '2', 
-    title: 'Nissan Patrol', 
+  {
+    id: '2',
+    title: 'Nissan Patrol',
     year: '2018',
-    km: '56,000 Km', 
-    location: 'Kurunegala, Sri Lanka', 
+    km: '56,000 Km',
+    location: 'Kurunegala, Sri Lanka',
     price: 'Rs. 6.4Mn',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
   },
-  { 
-    id: '3', 
-    title: 'Honda CRV', 
+  {
+    id: '3',
+    title: 'Honda CRV',
     year: '2019',
-    km: '38,000 Km', 
-    location: 'Galle, Sri Lanka', 
+    km: '38,000 Km',
+    location: 'Galle, Sri Lanka',
     price: 'Rs. 5.0Mn',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
   },
-  { 
-    id: '4', 
-    title: 'Ford Everest', 
+  {
+    id: '4',
+    title: 'Ford Everest',
     year: '2021',
-    km: '22,000 Km', 
-    location: 'Colombo, Sri Lanka', 
+    km: '22,000 Km',
+    location: 'Colombo, Sri Lanka',
     price: 'Rs. 7.2Mn',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
   },
-  { 
-    id: '5', 
-    title: 'Nissan Patrol', 
+  {
+    id: '5',
+    title: 'Nissan Patrol',
     year: '2018',
-    km: '56,000 Km', 
-    location: 'Kurunegala, Sri Lanka', 
+    km: '56,000 Km',
+    location: 'Kurunegala, Sri Lanka',
     price: 'Rs. 6.4Mn',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
   },
-  { 
-    id: '6', 
-    title: 'Honda CRV', 
+  {
+    id: '6',
+    title: 'Honda CRV',
     year: '2019',
-    km: '38,000 Km', 
-    location: 'Galle, Sri Lanka', 
+    km: '38,000 Km',
+    location: 'Galle, Sri Lanka',
     price: 'Rs. 5.0Mn',
-    image: require('../assets/images/car.jpg'),
+    image: require('@/assets/images/car.jpg'),
   },
 ];
 
@@ -126,10 +126,10 @@ export default function BuyCarScreen() {
         activeOpacity={0.7}
       >
         <View style={[styles.categoryIconContainer, isActive && styles.categoryIconContainerActive]}>
-          <Ionicons 
-            name={item.icon as any} 
-            size={24} 
-            color={isActive ? '#235CF8' : '#9CA3AF'} 
+          <Ionicons
+            name={item.icon as any}
+            size={24}
+            color={isActive ? '#235CF8' : '#9CA3AF'}
           />
         </View>
         <Text style={[styles.categoryLabel, isActive && styles.categoryLabelActive]}>
@@ -152,10 +152,10 @@ export default function BuyCarScreen() {
         }}
       >
         <View style={styles.carImageContainer}>
-          <Image 
-            source={item.image} 
-            style={styles.carCardImage} 
-            resizeMode="cover" 
+          <Image
+            source={item.image}
+            style={styles.carCardImage}
+            resizeMode="cover"
           />
           <View style={styles.yearBadge}>
             <Text style={styles.yearBadgeText}>{item.year}</Text>

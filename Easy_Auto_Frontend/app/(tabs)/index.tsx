@@ -488,75 +488,122 @@ export default function HomeScreen() {
         ]}
         pointerEvents="box-none"
       >
-          {/* Header Content: Top bar with menu, logo, and action icons */}
-          <View style={styles.headerContent}>
-            {/* Menu Button - Modern minimalist icon */}
-            <TouchableOpacity
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setSidebarVisible(true);
-              }}
-              onPressIn={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-              style={styles.headerButton}
-              activeOpacity={0.7}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            >
-              <Ionicons name="menu-outline" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
+        {/* Header Content: Top bar with menu, logo, and action icons */}
+        <View style={styles.headerContent}>
+          {/* Menu Button - Modern minimalist icon */}
+          <TouchableOpacity
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setSidebarVisible(true);
+            }}
+            onPressIn={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+            style={styles.headerButton}
+            activeOpacity={0.7}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Ionicons name="menu-outline" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
 
-            {/* Logo - Centered for balanced layout */}
-            <View style={styles.logoWrapper}>
-              <Text style={styles.logoText}>Easy Auto</Text>
-            </View>
+          {/* Logo - Centered for balanced layout */}
+          <View style={styles.logoWrapper}>
+            <Text style={styles.logoText}>Easy Auto</Text>
+          </View>
 
-            {/* Action Icons: Notifications and Wishlist */}
-            <View style={styles.headerActions}>
-              <View style={styles.iconButtonWrapper}>
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setNotificationDrawerVisible(true);
-                    setShowNotificationPreview(false);
-                  }}
-                  onPressIn={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }}
-                  onLongPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    setShowNotificationPreview(true);
-                  }}
-                  onPressOut={() => {
-                    if (notificationLongPressTimer.current) {
-                      clearTimeout(notificationLongPressTimer.current);
-                      notificationLongPressTimer.current = null;
-                    }
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name="notifications-outline"
-                    size={22}
-                    color="#FFFFFF"
-                  />
-                  {notificationCount > 0 && (
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>
-                        {notificationCount > 9 ? "9+" : notificationCount}
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-                {/* Notification Preview */}
-                {showNotificationPreview && (
-                  <View style={styles.notificationPreview}>
-                    <View style={styles.previewHeader}>
-                      <Text style={styles.previewTitle}>
-                        Recent Notifications
-                      </Text>
+          {/* Action Icons: Notifications and Wishlist */}
+          <View style={styles.headerActions}>
+            <View style={styles.iconButtonWrapper}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setNotificationDrawerVisible(true);
+                  setShowNotificationPreview(false);
+                }}
+                onPressIn={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+                onLongPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  setShowNotificationPreview(true);
+                }}
+                onPressOut={() => {
+                  if (notificationLongPressTimer.current) {
+                    clearTimeout(notificationLongPressTimer.current);
+                    notificationLongPressTimer.current = null;
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name="notifications-outline"
+                  size={22}
+                  color="#FFFFFF"
+                />
+                {notificationCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>
+                      {notificationCount > 9 ? "9+" : notificationCount}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+              {/* Notification Preview */}
+              {showNotificationPreview && (
+                <View style={styles.notificationPreview}>
+                  <View style={styles.previewHeader}>
+                    <Text style={styles.previewTitle}>
+                      Recent Notifications
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        Haptics.impactAsync(
+                          Haptics.ImpactFeedbackStyle.Light
+                        );
+                        setShowNotificationPreview(false);
+                        setNotificationDrawerVisible(true);
+                      }}
+                    >
+                      <Text style={styles.previewSeeAll}>See All</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView
+                    style={styles.previewContent}
+                    nestedScrollEnabled
+                  >
+                    {[
+                      {
+                        id: 1,
+                        title: "New car matches your search",
+                        message: "5 new listings for Toyota Camry",
+                        time: "2 min ago",
+                        type: "match",
+                        unread: true,
+                      },
+                      {
+                        id: 2,
+                        title: "Price drop alert",
+                        message: "BMW 3 Series price reduced by $2,000",
+                        time: "15 min ago",
+                        type: "price",
+                        unread: true,
+                      },
+                      {
+                        id: 3,
+                        title: "Deal of the day",
+                        message: "Special offer on Honda Civic",
+                        time: "1 hour ago",
+                        type: "deal",
+                        unread: false,
+                      },
+                    ].map((notif) => (
                       <TouchableOpacity
+                        key={`notification-${notif.id}`}
+                        style={[
+                          styles.previewItem,
+                          notif.unread && styles.previewItemUnread,
+                        ]}
                         onPress={() => {
                           Haptics.impactAsync(
                             Haptics.ImpactFeedbackStyle.Light
@@ -565,146 +612,143 @@ export default function HomeScreen() {
                           setNotificationDrawerVisible(true);
                         }}
                       >
-                        <Text style={styles.previewSeeAll}>See All</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <ScrollView
-                      style={styles.previewContent}
-                      nestedScrollEnabled
-                    >
-                      {[
-                        {
-                          id: 1,
-                          title: "New car matches your search",
-                          message: "5 new listings for Toyota Camry",
-                          time: "2 min ago",
-                          type: "match",
-                          unread: true,
-                        },
-                        {
-                          id: 2,
-                          title: "Price drop alert",
-                          message: "BMW 3 Series price reduced by $2,000",
-                          time: "15 min ago",
-                          type: "price",
-                          unread: true,
-                        },
-                        {
-                          id: 3,
-                          title: "Deal of the day",
-                          message: "Special offer on Honda Civic",
-                          time: "1 hour ago",
-                          type: "deal",
-                          unread: false,
-                        },
-                      ].map((notif) => (
-                        <TouchableOpacity
-                          key={`notification-${notif.id}`}
+                        <View
                           style={[
-                            styles.previewItem,
-                            notif.unread && styles.previewItemUnread,
+                            styles.previewIcon,
+                            notif.type === "match" && styles.previewIconMatch,
+                            notif.type === "price" && styles.previewIconPrice,
+                            notif.type === "deal" && styles.previewIconDeal,
                           ]}
-                          onPress={() => {
-                            Haptics.impactAsync(
-                              Haptics.ImpactFeedbackStyle.Light
-                            );
-                            setShowNotificationPreview(false);
-                            setNotificationDrawerVisible(true);
-                          }}
                         >
-                          <View
-                            style={[
-                              styles.previewIcon,
-                              notif.type === "match" && styles.previewIconMatch,
-                              notif.type === "price" && styles.previewIconPrice,
-                              notif.type === "deal" && styles.previewIconDeal,
-                            ]}
-                          >
-                            <MaterialIcons
-                              name={
-                                notif.type === "match"
-                                  ? "search"
-                                  : notif.type === "price"
+                          <MaterialIcons
+                            name={
+                              notif.type === "match"
+                                ? "search"
+                                : notif.type === "price"
                                   ? "trending-down"
                                   : "local-offer"
-                              }
-                              size={18}
-                              color="#FFFFFF"
-                            />
-                          </View>
-                          <View style={styles.previewText}>
-                            <Text style={styles.previewItemTitle}>
-                              {notif.title}
-                            </Text>
-                            <Text style={styles.previewItemMessage}>
-                              {notif.message}
-                            </Text>
-                            <Text style={styles.previewItemTime}>
-                              {notif.time}
-                            </Text>
-                          </View>
-                          {notif.unread && (
-                            <View style={styles.previewUnreadDot} />
-                          )}
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                    <TouchableOpacity
-                      style={styles.previewMarkAll}
-                      onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                        setNotificationCount(0);
-                        setShowNotificationPreview(false);
-                      }}
-                    >
-                      <MaterialIcons
-                        name="done-all"
-                        size={16}
-                        color="#235CF8"
-                      />
-                      <Text style={styles.previewMarkAllText}>
-                        Mark all as read
-                      </Text>
-                    </TouchableOpacity>
+                            }
+                            size={18}
+                            color="#FFFFFF"
+                          />
+                        </View>
+                        <View style={styles.previewText}>
+                          <Text style={styles.previewItemTitle}>
+                            {notif.title}
+                          </Text>
+                          <Text style={styles.previewItemMessage}>
+                            {notif.message}
+                          </Text>
+                          <Text style={styles.previewItemTime}>
+                            {notif.time}
+                          </Text>
+                        </View>
+                        {notif.unread && (
+                          <View style={styles.previewUnreadDot} />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                  <TouchableOpacity
+                    style={styles.previewMarkAll}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                      setNotificationCount(0);
+                      setShowNotificationPreview(false);
+                    }}
+                  >
+                    <MaterialIcons
+                      name="done-all"
+                      size={16}
+                      color="#235CF8"
+                    />
+                    <Text style={styles.previewMarkAllText}>
+                      Mark all as read
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+            <View style={styles.iconButtonWrapper}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setWishlistDrawerVisible(true);
+                  setShowWishlistPreview(false);
+                }}
+                onPressIn={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+                onLongPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  setShowWishlistPreview(true);
+                }}
+                activeOpacity={0.6}
+              >
+                <Ionicons
+                  name="heart-outline"
+                  size={22}
+                  color="#FFFFFF"
+                />
+                {wishlistCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>
+                      {wishlistCount > 9 ? "9+" : wishlistCount}
+                    </Text>
                   </View>
                 )}
-              </View>
-              <View style={styles.iconButtonWrapper}>
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setWishlistDrawerVisible(true);
-                    setShowWishlistPreview(false);
-                  }}
-                  onPressIn={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }}
-                  onLongPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    setShowWishlistPreview(true);
-                  }}
-                  activeOpacity={0.6}
-                >
-                  <Ionicons
-                    name="heart-outline"
-                    size={22}
-                    color="#FFFFFF"
-                  />
-                  {wishlistCount > 0 && (
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>
-                        {wishlistCount > 9 ? "9+" : wishlistCount}
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-                {/* Wishlist Preview */}
-                {showWishlistPreview && (
-                  <View style={styles.wishlistPreview}>
-                    <View style={styles.previewHeader}>
-                      <Text style={styles.previewTitle}>Wishlist</Text>
+              </TouchableOpacity>
+              {/* Wishlist Preview */}
+              {showWishlistPreview && (
+                <View style={styles.wishlistPreview}>
+                  <View style={styles.previewHeader}>
+                    <Text style={styles.previewTitle}>Wishlist</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        Haptics.impactAsync(
+                          Haptics.ImpactFeedbackStyle.Light
+                        );
+                        setShowWishlistPreview(false);
+                        setWishlistDrawerVisible(true);
+                      }}
+                    >
+                      <Text style={styles.previewSeeAll}>View All</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView
+                    style={styles.previewContent}
+                    nestedScrollEnabled
+                  >
+                    {[
+                      {
+                        id: 1,
+                        name: "Toyota Camry 2024",
+                        price: "$25,000",
+                        image:
+                          "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=200&h=150&fit=crop",
+                        addedAt: "2 days ago",
+                      },
+                      {
+                        id: 2,
+                        name: "Honda Civic 2023",
+                        price: "$22,000",
+                        image:
+                          "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&h=150&fit=crop",
+                        addedAt: "5 days ago",
+                      },
+                      {
+                        id: 3,
+                        name: "BMW 3 Series",
+                        price: "$35,000",
+                        image:
+                          "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&h=150&fit=crop",
+                        addedAt: "1 week ago",
+                      },
+                    ].map((item) => (
                       <TouchableOpacity
+                        key={`wishlist-${item.id}`}
+                        style={styles.previewItem}
                         onPress={() => {
                           Haptics.impactAsync(
                             Haptics.ImpactFeedbackStyle.Light
@@ -713,162 +757,118 @@ export default function HomeScreen() {
                           setWishlistDrawerVisible(true);
                         }}
                       >
-                        <Text style={styles.previewSeeAll}>View All</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <ScrollView
-                      style={styles.previewContent}
-                      nestedScrollEnabled
-                    >
-                      {[
-                        {
-                          id: 1,
-                          name: "Toyota Camry 2024",
-                          price: "$25,000",
-                          image:
-                            "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=200&h=150&fit=crop",
-                          addedAt: "2 days ago",
-                        },
-                        {
-                          id: 2,
-                          name: "Honda Civic 2023",
-                          price: "$22,000",
-                          image:
-                            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&h=150&fit=crop",
-                          addedAt: "5 days ago",
-                        },
-                        {
-                          id: 3,
-                          name: "BMW 3 Series",
-                          price: "$35,000",
-                          image:
-                            "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&h=150&fit=crop",
-                          addedAt: "1 week ago",
-                        },
-                      ].map((item) => (
+                        <Image
+                          source={{ uri: item.image }}
+                          style={styles.previewItemImage}
+                          contentFit="cover"
+                        />
+                        <View style={styles.previewText}>
+                          <Text style={styles.previewItemTitle}>
+                            {item.name}
+                          </Text>
+                          <Text style={styles.previewItemMessage}>
+                            {item.price}
+                          </Text>
+                          <Text style={styles.previewItemTime}>
+                            Added {item.addedAt}
+                          </Text>
+                        </View>
                         <TouchableOpacity
-                          key={`wishlist-${item.id}`}
-                          style={styles.previewItem}
+                          style={styles.previewRemoveButton}
                           onPress={() => {
                             Haptics.impactAsync(
                               Haptics.ImpactFeedbackStyle.Light
                             );
-                            setShowWishlistPreview(false);
-                            setWishlistDrawerVisible(true);
+                            setWishlistCount((prev) => Math.max(0, prev - 1));
                           }}
                         >
-                          <Image
-                            source={{ uri: item.image }}
-                            style={styles.previewItemImage}
-                            contentFit="cover"
+                          <MaterialIcons
+                            name="close"
+                            size={16}
+                            color="#9CA3AF"
                           />
-                          <View style={styles.previewText}>
-                            <Text style={styles.previewItemTitle}>
-                              {item.name}
-                            </Text>
-                            <Text style={styles.previewItemMessage}>
-                              {item.price}
-                            </Text>
-                            <Text style={styles.previewItemTime}>
-                              Added {item.addedAt}
-                            </Text>
-                          </View>
-                          <TouchableOpacity
-                            style={styles.previewRemoveButton}
-                            onPress={() => {
-                              Haptics.impactAsync(
-                                Haptics.ImpactFeedbackStyle.Light
-                              );
-                              setWishlistCount((prev) => Math.max(0, prev - 1));
-                            }}
-                          >
-                            <MaterialIcons
-                              name="close"
-                              size={16}
-                              color="#9CA3AF"
-                            />
-                          </TouchableOpacity>
                         </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
-              </View>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
             </View>
           </View>
+        </View>
 
-          {/* Search Bar - Premium design with refined spacing and typography */}
-          <View style={styles.searchWrapper}>
-            <View
-              style={[
-                styles.searchContainer,
-                searchFocused && styles.searchContainerFocused,
-              ]}
+        {/* Search Bar - Premium design with refined spacing and typography */}
+        <View style={styles.searchWrapper}>
+          <View
+            style={[
+              styles.searchContainer,
+              searchFocused && styles.searchContainerFocused,
+            ]}
+          >
+            <MaterialIcons
+              name="search"
+              size={22}
+              color={searchFocused ? "#235CF8" : "#9CA3AF"}
+              style={styles.searchIcon}
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="What are you looking for?"
+              placeholderTextColor="#9CA3AF"
+              onFocus={() => {
+                setSearchFocused(true);
+                setShowSearchSuggestions(true);
+              }}
+              onBlur={() => {
+                setSearchFocused(false);
+                setTimeout(() => setShowSearchSuggestions(false), 200);
+              }}
+            />
+            <TouchableOpacity
+              activeOpacity={0.75}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <MaterialIcons
-                name="search"
+                name="tune"
                 size={22}
                 color={searchFocused ? "#235CF8" : "#9CA3AF"}
-                style={styles.searchIcon}
               />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="What are you looking for?"
-                placeholderTextColor="#9CA3AF"
-                onFocus={() => {
-                  setSearchFocused(true);
-                  setShowSearchSuggestions(true);
-                }}
-                onBlur={() => {
-                  setSearchFocused(false);
-                  setTimeout(() => setShowSearchSuggestions(false), 200);
-                }}
-              />
-              <TouchableOpacity
-                activeOpacity={0.75}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <MaterialIcons
-                  name="tune"
-                  size={22}
-                  color={searchFocused ? "#235CF8" : "#9CA3AF"}
-                />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
+        </View>
 
-          {/* Quick Search Suggestions */}
-          {showSearchSuggestions && (
-            <View style={styles.searchSuggestions}>
-              <Text style={styles.suggestionsTitle}>Recent Searches</Text>
-              {["Toyota Camry", "Honda Civic", "BMW 3 Series"].map(
-                (suggestion, index) => (
-                  <TouchableOpacity
-                    key={`recent-search-${index}`}
-                    style={styles.suggestionItem}
-                    activeOpacity={0.7}
-                  >
-                    <MaterialIcons name="history" size={16} color="#9BA1A6" />
-                    <Text style={styles.suggestionText}>{suggestion}</Text>
-                  </TouchableOpacity>
-                )
-              )}
-              <Text style={styles.suggestionsTitle}>Popular Searches</Text>
-              {["SUV", "Sedan", "Electric Cars"].map((suggestion, index) => (
+        {/* Quick Search Suggestions */}
+        {showSearchSuggestions && (
+          <View style={styles.searchSuggestions}>
+            <Text style={styles.suggestionsTitle}>Recent Searches</Text>
+            {["Toyota Camry", "Honda Civic", "BMW 3 Series"].map(
+              (suggestion, index) => (
                 <TouchableOpacity
-                  key={`popular-${index}`}
+                  key={`recent-search-${index}`}
                   style={styles.suggestionItem}
                   activeOpacity={0.7}
                 >
-                  <MaterialIcons name="trending-up" size={16} color="#235CF8" />
-                  <Text style={[styles.suggestionText, styles.popularText]}>
-                    {suggestion}
-                  </Text>
+                  <MaterialIcons name="history" size={16} color="#9BA1A6" />
+                  <Text style={styles.suggestionText}>{suggestion}</Text>
                 </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </Animated.View>
+              )
+            )}
+            <Text style={styles.suggestionsTitle}>Popular Searches</Text>
+            {["SUV", "Sedan", "Electric Cars"].map((suggestion, index) => (
+              <TouchableOpacity
+                key={`popular-${index}`}
+                style={styles.suggestionItem}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="trending-up" size={16} color="#235CF8" />
+                <Text style={[styles.suggestionText, styles.popularText]}>
+                  {suggestion}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </Animated.View>
       <ScrollView
         ref={mainScrollViewRef}
         style={styles.scrollView}
@@ -1132,11 +1132,11 @@ export default function HomeScreen() {
             contentContainerStyle={styles.scrollableActionContainer}
             style={styles.scrollableActionScrollView}
           >
-            <GlassmorphismButton 
+            <GlassmorphismButton
               delay={100}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/buy-car");
+                router.push("/cars/buy-car");
               }}
             >
               <View style={styles.scrollableActionCard}>
@@ -1159,11 +1159,11 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton 
+            <GlassmorphismButton
               delay={150}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/sell-car");
+                router.push("/cars/sell-car");
               }}
             >
               <View style={styles.scrollableActionCard}>
@@ -1182,11 +1182,11 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton 
+            <GlassmorphismButton
               delay={200}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/rent-car");
+                router.push("/cars/rent-car");
               }}
             >
               <View style={styles.scrollableActionCard}>
@@ -1205,7 +1205,7 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton 
+            <GlassmorphismButton
               delay={250}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -1241,7 +1241,7 @@ export default function HomeScreen() {
               </View>
             </GlassmorphismButton>
 
-            <GlassmorphismButton 
+            <GlassmorphismButton
               delay={300}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -1313,7 +1313,7 @@ export default function HomeScreen() {
                 style={[
                   styles.categoryTab,
                   trendingCategory === category.name &&
-                    styles.categoryTabActive,
+                  styles.categoryTabActive,
                 ]}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -1324,7 +1324,7 @@ export default function HomeScreen() {
                   style={[
                     styles.categoryTabText,
                     trendingCategory === category.name &&
-                      styles.categoryTabTextActive,
+                    styles.categoryTabTextActive,
                   ]}
                 >
                   {category.name}
@@ -1334,14 +1334,14 @@ export default function HomeScreen() {
                     style={[
                       styles.categoryCountBadge,
                       trendingCategory === category.name &&
-                        styles.categoryCountBadgeActive,
+                      styles.categoryCountBadgeActive,
                     ]}
                   >
                     <Text
                       style={[
                         styles.categoryCountText,
                         trendingCategory === category.name &&
-                          styles.categoryCountTextActive,
+                        styles.categoryCountTextActive,
                       ]}
                     >
                       {category.count}

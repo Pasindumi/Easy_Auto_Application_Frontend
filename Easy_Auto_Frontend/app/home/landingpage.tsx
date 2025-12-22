@@ -1,14 +1,14 @@
-import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as React from 'react';
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function LandingPage() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#235CF8" />
-      
+
       <View style={styles.content}>
         {/* Car Logo */}
         <View style={styles.logoContainer}>
@@ -33,9 +33,9 @@ export default function LandingPage() {
         </View>
 
         {/* Get Started Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.getStartedButton}
-          onPress={() => router.push('/welcome')}
+          onPress={() => router.push('/home/welcome')}
         >
           <Text style={styles.getStartedButtonText}>GET STARTED</Text>
         </TouchableOpacity>
