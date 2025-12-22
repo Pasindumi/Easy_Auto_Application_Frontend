@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 13, // reduced from 16
+    fontSize: 11, // reduced from 13
     color: '#111827',
     padding: 0,
     fontWeight: '500',
