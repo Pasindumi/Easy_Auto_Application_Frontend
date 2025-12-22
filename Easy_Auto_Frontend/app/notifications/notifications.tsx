@@ -1,4 +1,5 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Stack } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -8,6 +9,7 @@ import {
   View,
 } from "react-native";
 import Header from "../../components/Header";
+import { typography } from "../../components/theme";
 
 export default function NotificationsScreen() {
   const notifications = [
@@ -43,6 +45,7 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       <Header />
       <View style={localStyles.headerWrap}>
         <View style={localStyles.header}>
@@ -61,6 +64,7 @@ export default function NotificationsScreen() {
                 styles.notificationCard,
                 !notification.read && styles.unreadCard,
               ]}
+              activeOpacity={0.7}
             >
               <View style={styles.notificationIcon}>
                 <MaterialIcons
@@ -109,25 +113,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  header: {
-    backgroundColor: "#0066FF",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFFFFF",
-  },
-  placeholder: {
-    width: 32,
-  },
   content: {
     flex: 1,
     padding: 20,
@@ -164,23 +149,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationTitle: {
+    ...typography.subheading,
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1A1A1A",
     marginBottom: 4,
   },
   unreadTitle: {
     color: "#0066FF",
   },
   notificationMessage: {
-    fontSize: 14,
-    color: "#666",
+    ...typography.body,
     marginBottom: 6,
-    lineHeight: 20,
   },
   notificationTime: {
-    fontSize: 12,
-    color: "#9BA1A6",
+    ...typography.caption,
   },
   unreadDot: {
     width: 8,
@@ -197,15 +178,13 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyText: {
+    ...typography.heading,
     fontSize: 20,
-    fontWeight: "600",
-    color: "#1A1A1A",
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: "#9BA1A6",
+    ...typography.body,
     textAlign: "center",
     paddingHorizontal: 40,
   },

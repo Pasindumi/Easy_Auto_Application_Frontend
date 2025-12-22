@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import Header from "../../components/Header";
+import { typography } from "../../components/theme";
 
 export default function SwitchAccountScreen() {
   const router = useRouter();
@@ -174,11 +175,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
+    ...typography.subheading,
     fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
     marginBottom: 12,
-    letterSpacing: -0.3,
   },
   accountCard: {
     backgroundColor: '#FFFFFF',
@@ -213,10 +212,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   accountName: {
+    ...typography.subheading,
     fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    letterSpacing: -0.2,
   },
   activeBadge: {
     backgroundColor: '#235CF8',
@@ -230,13 +227,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   accountEmail: {
-    fontSize: 14,
-    color: '#6B7280',
+    ...typography.body,
     marginBottom: 4,
   },
   accountRole: {
-    fontSize: 12,
-    color: '#9CA3AF',
+    ...typography.caption,
     fontWeight: '500',
   },
   adminButton: {
@@ -268,11 +263,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   adminButtonTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    ...typography.subheading,
     color: '#FFFFFF',
     marginBottom: 4,
-    letterSpacing: -0.3,
   },
   adminButtonSubtitle: {
     fontSize: 13,
@@ -320,4 +313,3 @@ const localStyles = StyleSheet.create({
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });
-

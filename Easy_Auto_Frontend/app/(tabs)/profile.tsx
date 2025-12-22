@@ -1,5 +1,6 @@
 // app/(tabs)/profile.tsx
 import ProfileHeader from '@/components/ProfileHeader';
+import { typography } from '@/components/theme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
@@ -23,37 +24,39 @@ export default function ProfileScreen() {
     router.push(route as any);
   };
 
-
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     // Handle logout logic
   };
 
-  const MenuItem = ({
+  const SettingItem = ({
     icon,
     title,
     subtitle,
     onPress,
     rightElement,
+    color = "#235CF8"
   }: {
     icon: any;
     title: string;
     subtitle?: string;
     onPress?: () => void;
     rightElement?: React.ReactNode;
+    color?: string;
   }) => (
     <TouchableOpacity
-      style={styles.menuItem}
+      style={styles.settingItem}
       onPress={onPress}
       activeOpacity={0.7}
+      disabled={!onPress}
     >
-      <View style={styles.menuLeft}>
-        <View style={styles.menuIcon}>
-          <Ionicons name={icon} size={20} color="#235CF8" />
+      <View style={styles.settingLeft}>
+        <View style={[styles.settingIcon, { backgroundColor: `${color}10` }]}>
+          <Ionicons name={icon} size={20} color={color} />
         </View>
-        <View style={styles.menuTextContainer}>
-          <Text style={styles.menuTitle}>{title}</Text>
-          {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+        <View style={styles.settingTextContainer}>
+          <Text style={styles.settingTitle}>{title}</Text>
+          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
 
@@ -66,30 +69,30 @@ export default function ProfileScreen() {
   );
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
       <ProfileHeader title="Profile" showProfileCard={true} />
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
+
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}
         >
-
           {/* Quick Stats Section */}
-          <View style={[styles.statsSection, { marginTop: 20 }]}>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>12</Text>
+          <View style={styles.statsCard}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>12</Text>
               <Text style={styles.statLabel}>Listings</Text>
             </View>
             <View style={styles.statDivider} />
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>8</Text>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>8</Text>
               <Text style={styles.statLabel}>Saved</Text>
             </View>
             <View style={styles.statDivider} />
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>24</Text>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>24</Text>
               <Text style={styles.statLabel}>Views</Text>
             </View>
           </View>
@@ -97,102 +100,105 @@ export default function ProfileScreen() {
           {/* Account Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account</Text>
-
-            <MenuItem
-              icon="person-outline"
-              title="Edit Profile"
-              subtitle="Update your profile information"
-              onPress={() => handleMenuItemPress('/profile/edit-profile')}
-            />
-
-            <MenuItem
-              icon="location-outline"
-              title="Address"
-              subtitle="Update your location"
-              onPress={() => handleMenuItemPress('/profile/address')}
-            />
+            <View style={styles.card}>
+              <SettingItem
+                icon="person-outline"
+                title="Edit Profile"
+                subtitle="Update your profile information"
+                onPress={() => handleMenuItemPress('/profile/edit-profile')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="location-outline"
+                title="Address"
+                subtitle="Update your location"
+                onPress={() => handleMenuItemPress('/profile/address')}
+              />
+            </View>
           </View>
 
           {/* Preferences Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Preferences</Text>
-
-            <MenuItem
-              icon="notifications-outline"
-              title="Notifications"
-              subtitle="Manage alerts and updates"
-              onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
-            />
-
-            <MenuItem
-              icon="card-outline"
-              title="Payment Methods"
-              subtitle="Manage your payments"
-              onPress={() => handleMenuItemPress('/payments/payment-methods')}
-            />
-
-            <MenuItem
-              icon="lock-closed-outline"
-              title="Privacy and Security"
-              subtitle="Control your data"
-              onPress={() => handleMenuItemPress('/settings/privacy-policy')}
-            />
-
-            <MenuItem
-              icon="globe-outline"
-              title="Language"
-              subtitle="English (US)"
-              onPress={() => handleMenuItemPress('/settings/select-language')}
-            />
-
-            <MenuItem
-              icon="moon-outline"
-              title="Dark Mode"
-              rightElement={
-                <Switch
-                  value={darkMode}
-                  onValueChange={(value) => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setDarkMode(value);
-                  }}
-                  thumbColor="#FFFFFF"
-                  trackColor={{ true: '#235CF8', false: '#D1D5DB' }}
-                />
-              }
-            />
+            <View style={styles.card}>
+              <SettingItem
+                icon="notifications-outline"
+                title="Notifications"
+                subtitle="Manage alerts and updates"
+                onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="card-outline"
+                title="Payment Methods"
+                subtitle="Manage your payments"
+                onPress={() => handleMenuItemPress('/payments/payment-methods')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="lock-closed-outline"
+                title="Privacy and Security"
+                subtitle="Control your data"
+                onPress={() => handleMenuItemPress('/settings/privacy-policy')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="globe-outline"
+                title="Language"
+                subtitle="English (US)"
+                onPress={() => handleMenuItemPress('/settings/select-language')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="moon-outline"
+                title="Dark Mode"
+                rightElement={
+                  <Switch
+                    value={darkMode}
+                    onValueChange={(value) => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setDarkMode(value);
+                    }}
+                    thumbColor="#FFFFFF"
+                    trackColor={{ true: '#235CF8', false: '#D1D5DB' }}
+                  />
+                }
+              />
+            </View>
           </View>
 
           {/* Support Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Support</Text>
-
-            <MenuItem
-              icon="help-circle-outline"
-              title="Help & Support"
-              onPress={() => handleMenuItemPress('/support/help-support')}
-            />
-
-            <MenuItem
-              icon="information-circle-outline"
-              title="About this App"
-              onPress={() => handleMenuItemPress('/settings/about-app')}
-            />
-
-            <MenuItem
-              icon="people-outline"
-              title="Invite Friends"
-              onPress={() => handleMenuItemPress('/support/invite-friend')}
-            />
-
-            <MenuItem
-              icon="repeat-outline"
-              title="Switch Accounts"
-              onPress={() => handleMenuItemPress('/settings/switch-account')}
-            />
+            <View style={styles.card}>
+              <SettingItem
+                icon="help-circle-outline"
+                title="Help & Support"
+                onPress={() => handleMenuItemPress('/support/help-support')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="information-circle-outline"
+                title="About this App"
+                onPress={() => handleMenuItemPress('/settings/about-app')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="people-outline"
+                title="Invite Friends"
+                onPress={() => handleMenuItemPress('/settings/invite-friends')}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="repeat-outline"
+                title="Switch Accounts"
+                onPress={() => handleMenuItemPress('/settings/switch-account')}
+              />
+            </View>
           </View>
 
           {/* Logout Button */}
-          <View style={styles.logoutSection}>
+          <View style={styles.section}>
             <TouchableOpacity
               style={styles.logoutButton}
               onPress={handleLogout}
@@ -208,14 +214,14 @@ export default function ProfileScreen() {
           <View style={{ height: 24 }} />
         </ScrollView>
       </SafeAreaView>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F9FAFB',
   },
   scrollView: {
     flex: 1,
@@ -224,127 +230,121 @@ const styles = StyleSheet.create({
     paddingTop: 180, // Account for header with profile card
     paddingBottom: 100, // Account for tab bar
   },
-  // Quick Stats Section
-  statsSection: {
+  // Quick Stats Card
+  statsCard: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
+    marginTop: 20,
     marginBottom: 24,
     borderRadius: 16,
-    paddingVertical: 20,
+    paddingVertical: 18,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    elevation: 2,
   },
-  statCard: {
+  statItem: {
     flex: 1,
     alignItems: 'center',
   },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '700',
+  statValue: {
+    ...typography.subheading,
+    fontSize: 20,
     color: '#235CF8',
-    letterSpacing: -0.5,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   statLabel: {
-    fontSize: 13,
+    ...typography.caption,
     fontWeight: '600',
     color: '#6B7280',
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#F3F4F6',
   },
   // Sections
   section: {
-    marginBottom: 24,
+    marginBottom: 20,
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
+    ...typography.subheading,
+    fontSize: 14,
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
     marginBottom: 12,
-    letterSpacing: -0.3,
+    marginLeft: 4,
   },
-  // Menu Items
-  menuItem: {
+  card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    padding: 14,
   },
-  menuLeft: {
+  settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: '#F0F4FF',
+  settingIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-  menuTextContainer: {
+  settingTextContainer: {
     flex: 1,
   },
-  menuTitle: {
-    fontSize: 16,
+  settingTitle: {
+    ...typography.body,
     fontWeight: '600',
     color: '#111827',
-    letterSpacing: -0.2,
-    marginBottom: 2,
   },
-  menuSubtitle: {
-    fontSize: 13,
-    color: '#6B7280',
-    fontWeight: '500',
+  settingSubtitle: {
+    ...typography.caption,
+    fontSize: 11,
+    marginTop: 1,
   },
-  // Logout Section
-  logoutSection: {
-    paddingHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 8,
+  divider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginLeft: 64,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
   },
   logoutIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: '#FEE2E2',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.body,
+    fontWeight: '700',
     color: '#EF4444',
-    letterSpacing: -0.2,
   },
 });

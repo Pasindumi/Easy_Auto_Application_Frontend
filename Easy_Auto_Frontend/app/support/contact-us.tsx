@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import InputField from "@/components/InputField";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     KeyboardAvoidingView,
@@ -12,6 +12,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { typography } from "../../components/theme";
 
 export default function ContactUsScreen() {
     const router = useRouter();
@@ -28,6 +29,7 @@ export default function ContactUsScreen() {
 
     return (
         <View style={styles.container}>
+            <Stack.Screen options={{ headerShown: false }} />
             {/* Custom Header */}
             <Header />
             <View style={localStyles.headerWrap}>
@@ -120,6 +122,7 @@ const styles = StyleSheet.create({
         paddingBottom: 40,
     },
     introText: {
+        ...typography.body,
         fontSize: 15,
         color: "#6B7280",
         marginBottom: 24,
@@ -158,8 +161,8 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     infoText: {
+        ...typography.body,
         fontSize: 15,
-        color: "#4B5563",
         fontWeight: "500",
     },
 });

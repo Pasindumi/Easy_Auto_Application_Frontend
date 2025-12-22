@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React from "react";
 import {
     Share,
@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { typography } from "../../components/theme";
 
 export default function InviteFriendsScreen() {
     const router = useRouter();
@@ -26,6 +27,7 @@ export default function InviteFriendsScreen() {
 
     return (
         <View style={styles.container}>
+            <Stack.Screen options={{ headerShown: false }} />
             <Header />
             <View style={localStyles.headerWrap}>
                 <View style={localStyles.header}>
@@ -89,29 +91,25 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     title: {
-        fontSize: 24,
-        fontWeight: "700",
-        color: "#111827",
+        ...typography.heading,
         textAlign: "center",
         marginBottom: 12,
     },
     subtitle: {
-        fontSize: 16,
-        color: "#6B7280",
+        ...typography.body,
         textAlign: "center",
         marginBottom: 40,
-        lineHeight: 24,
     },
     codeContainer: {
         width: "100%",
         marginBottom: 24,
     },
     codeLabel: {
+        ...typography.subheading,
         fontSize: 14,
-        fontWeight: "600",
-        color: "#4B5563",
         marginBottom: 8,
         textAlign: "center",
+        color: "#4B5563",
     },
     codeBox: {
         flexDirection: "row",

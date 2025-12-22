@@ -1,9 +1,10 @@
+import Header from "@/components/Header";
+import { typography } from "@/components/theme";
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -12,318 +13,327 @@ import {
   View,
 } from 'react-native';
 
-export default function ProfileScreen() {
+export default function SettingsScreen() {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState(true);
 
-  const MenuItem = ({
+  const handleBack = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.back();
+  };
+
+  const SettingItem = ({
     icon,
     title,
     subtitle,
     onPress,
     rightElement,
+    color = "#235CF8"
   }: {
     icon: any;
     title: string;
     subtitle?: string;
     onPress?: () => void;
     rightElement?: React.ReactNode;
+    color?: string;
   }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.menuLeft}>
-        <View style={styles.menuIcon}>
-          <Ionicons name={icon} size={18} color="#235CF8" />
+    <TouchableOpacity
+      style={styles.settingItem}
+      onPress={onPress}
+      activeOpacity={0.7}
+      disabled={!onPress}
+    >
+      <View style={styles.settingLeft}>
+        <View style={[styles.settingIcon, { backgroundColor: `${color}10` }]}>
+          <Ionicons name={icon} size={20} color={color} />
         </View>
-        <View>
-          <Text style={styles.menuTitle}>{title}</Text>
-          {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+        <View style={styles.settingTextContainer}>
+          <Text style={styles.settingTitle}>{title}</Text>
+          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
 
-      {rightElement ? rightElement : <Ionicons name="chevron-forward" size={18} color="#B0B6C3" />}
+      {rightElement ? (
+        rightElement
+      ) : (
+        <Ionicons name="chevron-forward" size={18} color="#D1D5DB" />
+      )}
     </TouchableOpacity>
   );
 
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.safe}>
-        <ScrollView contentContainerStyle={styles.container}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Profile</Text>
+      <Header />
 
-            {/* Profile Card */}
-            <View style={styles.profileCard}>
-              <Image
-                source={require('@/assets/images/user.jpeg')}
-                style={styles.avatar}
-              />
-
-              <View style={{ flex: 1 }}>
-                <Text style={styles.username}>Dilmin Ekanayaka</Text>
-                <Text style={styles.email}>dilmin@yahoo.com</Text>
-
-                <View style={styles.premiumTag}>
-                  <Ionicons name="star" size={12} color="#fff" />
-                  <Text style={styles.premiumText}>Premium Member</Text>
-                </View>
-              </View>
-
-              <View style={styles.profileBadge}>
-                <Text style={styles.badgeText}>2</Text>
-              </View>
-
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
-            </View>
+      <View style={localStyles.headerWrap}>
+        <View style={localStyles.header}>
+          <View style={localStyles.headerLeft}>
+            <Ionicons name="settings-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+            <Text style={localStyles.headerTitle}>Settings</Text>
           </View>
+        </View>
+      </View>
 
-          {/* Account Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Account</Text>
-
-            <MenuItem
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Account Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Account</Text>
+          <View style={styles.card}>
+            <SettingItem
               icon="person-outline"
-              title="Edit profile"
-              subtitle="Update Your profile"
+              title="Edit Profile"
+              subtitle="Name, Email, Phone number"
               onPress={() => router.push('/profile/edit-profile')}
             />
-
-            <MenuItem
+            <View style={styles.divider} />
+            <SettingItem
               icon="location-outline"
-              title="Address"
-              subtitle="Update your location"
+              title="Manage Address"
+              subtitle="Shipping and billing addresses"
               onPress={() => router.push('/profile/address')}
             />
           </View>
+        </View>
 
-          {/* Preferences */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Preferences</Text>
-
-            <MenuItem
+        {/* Notifications & Security */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Security & Notifications</Text>
+          <View style={styles.card}>
+            <SettingItem
               icon="notifications-outline"
-              title="Notifications"
-              subtitle="Manage Alerts and Updates"
+              title="Push Notifications"
+              rightElement={
+                <Switch
+                  value={notifications}
+                  onValueChange={(val) => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setNotifications(val);
+                  }}
+                  thumbColor="#fff"
+                  trackColor={{ true: '#235CF8', false: '#d1d5db' }}
+                />
+              }
             />
-
-            <MenuItem
-              icon="card-outline"
-              title="Payment Methods"
-              subtitle="Manage your Payments"
-            />
-
-            <MenuItem
+            <View style={styles.divider} />
+            <SettingItem
               icon="lock-closed-outline"
-              title="Privacy and Security"
-              subtitle="Control your Data"
+              title="Privacy Policy"
+              subtitle="Manage your privacy settings"
+              onPress={() => router.push('/settings/privacy-policy')}
             />
+            <View style={styles.divider} />
+            <SettingItem
+              icon="shield-checkmark-outline"
+              title="Security Settings"
+              onPress={() => { }}
+            />
+          </View>
+        </View>
 
-            <MenuItem
+        {/* Preference */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>App Preferences</Text>
+          <View style={styles.card}>
+            <SettingItem
               icon="globe-outline"
               title="Language"
               subtitle="English (US)"
+              onPress={() => router.push('/settings/select-language')}
             />
-
-            <MenuItem
+            <View style={styles.divider} />
+            <SettingItem
               icon="moon-outline"
               title="Dark Mode"
               rightElement={
                 <Switch
                   value={darkMode}
-                  onValueChange={setDarkMode}
+                  onValueChange={(val) => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setDarkMode(val);
+                  }}
                   thumbColor="#fff"
                   trackColor={{ true: '#235CF8', false: '#d1d5db' }}
                 />
               }
             />
           </View>
+        </View>
 
-          {/* Support */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Support</Text>
+        {/* Support & Legal */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Support & Legal</Text>
+          <View style={styles.card}>
+            <SettingItem
+              icon="help-circle-outline"
+              title="Help & Support"
+              onPress={() => router.push('/support/help-support')}
+            />
+            <View style={styles.divider} />
+            <SettingItem
+              icon="information-circle-outline"
+              title="About Easy Auto"
+              onPress={() => router.push('/settings/about-app')}
+            />
+            <View style={styles.divider} />
+            <SettingItem
+              icon="star-outline"
+              title="Rate our App"
+              onPress={() => { }}
+            />
+          </View>
+        </View>
 
-            <MenuItem icon="help-circle-outline" title="Help & Support" />
-            <MenuItem icon="information-circle-outline" title="About this app" />
-            <MenuItem
+        {/* More */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>More</Text>
+          <View style={styles.card}>
+            <SettingItem
               icon="people-outline"
               title="Invite Friends"
               onPress={() => router.push('/settings/invite-friends')}
             />
-            <MenuItem
+            <View style={styles.divider} />
+            <SettingItem
               icon="repeat-outline"
-              title="Switch Accounts"
+              title="Switch Account"
               onPress={() => router.push('/settings/switch-account')}
             />
-
-            {/* Logout */}
-            <TouchableOpacity style={styles.logoutBtn}>
-              <Ionicons name="log-out-outline" size={18} color="#E53935" />
-              <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        </View>
+
+        {/* Danger Zone */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            activeOpacity={0.7}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+          >
+            <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.deleteButton}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.deleteText}>Delete Account</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-
   container: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    paddingTop: 16,
     paddingBottom: 40,
   },
-
-  header: {
-    backgroundColor: '#235CF8',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-
-  headerTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 16,
-    paddingTop: 30,
-  },
-
-  profileCard: {
-    backgroundColor: '#356DFF',
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-  },
-
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    marginRight: 12,
-  },
-
-  username: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-
-  email: {
-    color: '#DDE7FF',
-    fontSize: 12,
-  },
-
-  premiumTag: {
-    flexDirection: 'row',
-    backgroundColor: '#235CF8',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-    marginTop: 6,
-    alignItems: 'center',
-  },
-
-  premiumText: {
-    color: '#fff',
-    fontSize: 10,
-    marginLeft: 4,
-    fontWeight: '600',
-  },
-
-  profileBadge: {
-    position: 'absolute',
-    left: 44,
-    top: 8,
-    backgroundColor: '#235CF8',
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-
-  badgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-
   section: {
-    marginTop: 20,
+    marginBottom: 24,
     paddingHorizontal: 16,
   },
-
   sectionTitle: {
+    ...typography.subheading,
     fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 10,
-    color: '#111',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 12,
+    marginLeft: 4,
   },
-
-  menuItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 2,
+    padding: 14,
   },
-
-  menuLeft: {
+  settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
-
-  menuIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#EEF2FF',
+  settingIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-
-  menuTitle: {
-    fontSize: 14,
+  settingTextContainer: {
+    flex: 1,
+  },
+  settingTitle: {
+    ...typography.body,
     fontWeight: '600',
-    color: '#111',
+    color: '#111827',
   },
-
-  menuSubtitle: {
+  settingSubtitle: {
+    ...typography.caption,
     fontSize: 11,
-    color: '#6B7280',
-    marginTop: 2,
+    marginTop: 1,
   },
-
-  logoutBtn: {
-    marginTop: 10,
+  divider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginLeft: 64,
+  },
+  logoutButton: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
   },
-
   logoutText: {
-    marginLeft: 10,
-    color: '#E53935',
+    ...typography.body,
     fontWeight: '700',
+    color: '#EF4444',
   },
+  deleteButton: {
+    marginTop: 16,
+    alignItems: 'center',
+    padding: 8,
+  },
+  deleteText: {
+    ...typography.caption,
+    color: '#EF4444',
+    fontWeight: '600',
+  },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F9FAFB' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

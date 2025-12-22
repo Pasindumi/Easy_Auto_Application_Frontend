@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
   ScrollView,
@@ -48,6 +48,7 @@ export default function SubscriptionsScreen() {
   return (
     <View style={styles.safe}>
       {/* Header */}
+      <Stack.Screen options={{ headerShown: false }} />
       <Header />
       <View style={localStyles.headerWrap}>
         <View style={localStyles.header}>
@@ -215,32 +216,12 @@ function BenefitItem({ text }: { text: string }) {
 
 /* ================= STYLES ================= */
 
+import { typography } from "../../components/theme";
+
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#E5E3E3',
-  },
-
-  headerContainer: {
-    backgroundColor: '#235CF8',
-  },
-
-  header: {
-    backgroundColor: '#235CF8',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-
-
-
-
-  headerTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    marginLeft: 16,
   },
 
   planCard: {
@@ -299,14 +280,13 @@ const styles = StyleSheet.create({
   },
 
   planTitle: {
-    fontWeight: '800',
+    ...typography.heading,
     fontSize: 20,
     marginTop: 8,
   },
 
   planSubtitle: {
-    color: '#6B7280',
-    fontSize: 12,
+    ...typography.caption,
     marginLeft: 6,
     fontWeight: '500',
   },
@@ -336,7 +316,8 @@ const styles = StyleSheet.create({
   },
 
   benefitsTitle: {
-    fontWeight: '700',
+    ...typography.subheading,
+    fontSize: 14,
     color: '#235CF8',
     marginBottom: 8,
   },
@@ -398,7 +379,7 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontWeight: '700',
+    ...typography.subheading,
     fontSize: 15,
   },
 
@@ -435,9 +416,8 @@ const styles = StyleSheet.create({
   },
 
   paymentTitle: {
-    fontWeight: '600',
+    ...typography.subheading,
     fontSize: 14,
-    color: '#111827',
     marginBottom: 4,
   },
 
@@ -448,8 +428,7 @@ const styles = StyleSheet.create({
   },
 
   paymentDate: {
-    fontSize: 12,
-    color: '#6B7280',
+    ...typography.caption,
     fontWeight: '500',
   },
 
@@ -544,19 +523,15 @@ const styles = StyleSheet.create({
   },
 
   helpTitle: {
-    fontWeight: '700',
-    fontSize: 18,
-    color: '#111827',
+    ...typography.subheading,
     marginBottom: 8,
     textAlign: 'center',
   },
 
   helpText: {
-    color: '#6B7280',
-    fontSize: 14,
+    ...typography.body,
     marginBottom: 16,
     textAlign: 'center',
-    lineHeight: 20,
   },
 
   supportButton: {
