@@ -44,6 +44,7 @@ export default function BuyCarScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>('suv');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const toggleFavorite = (carId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -121,11 +122,11 @@ export default function BuyCarScreen() {
         <View style={styles.carCardBody}>
           <Text style={styles.carTitle} numberOfLines={1}>{item.title}</Text>
           <View style={styles.carMetaRow}>
-            <View style={styles.carMetaItem}>
+            <View style={[styles.carMetaItem, { marginBottom: 4 }]}> {/* km row with more gap below */}
               <Ionicons name="speedometer-outline" size={14} color="#6B7280" />
               <Text style={styles.carMetaText}>{item.km}</Text>
             </View>
-            <View style={styles.carMetaItem}>
+            <View style={[styles.carMetaItem, { marginBottom: 0 }]}> {/* location row, no extra gap below */}
               <Ionicons name="location-outline" size={14} color="#6B7280" />
               <Text style={styles.carMetaText} numberOfLines={1}>{item.location.split(',')[0]}</Text>
             </View>
@@ -172,17 +173,15 @@ export default function BuyCarScreen() {
             <View style={styles.searchContainer}>
               <Ionicons name="search-outline" size={20} color="#9CA3AF" />
               <TextInput
-                placeholder="Search cars, brands, models..."
+                placeholder="Find your dream car, brand or model"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 style={styles.searchInput}
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#B6B8C9" // lighter, modern
               />
               <TouchableOpacity
                 style={styles.filterButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                }}
+                onPress={() => setShowFilters((prev) => !prev)}
                 activeOpacity={0.7}
               >
                 <Ionicons name="options-outline" size={20} color="#235CF8" />
@@ -191,37 +190,40 @@ export default function BuyCarScreen() {
           </View>
 
           {/* Filter Chips */}
-          <View style={styles.filtersSection}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filtersContainer}
-            >
-              {FILTER_OPTIONS.map((filter) => (
-                <TouchableOpacity
-                  key={filter.key}
-                  style={[
-                    styles.filterChip,
-                    selectedFilter === filter.key && styles.filterChipActive,
-                  ]}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setSelectedFilter(filter.key);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Text
+          {showFilters && (
+            <View style={styles.filtersSection}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filtersContainer}
+              >
+                {FILTER_OPTIONS.map((filter) => (
+                  <TouchableOpacity
+                    key={filter.key}
                     style={[
-                      styles.filterChipText,
-                      selectedFilter === filter.key && styles.filterChipTextActive,
+                      styles.filterChip,
+                      selectedFilter === filter.key && styles.filterChipActive,
                     ]}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setSelectedFilter(filter.key);
+                      // Do NOT hide filter section after select
+                    }}
+                    activeOpacity={0.7}
                   >
-                    {filter.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        selectedFilter === filter.key && styles.filterChipTextActive,
+                      ]}
+                    >
+                      {filter.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Section Header: Browse by Category */}
           <View style={styles.sectionHeader}>
@@ -311,9 +313,11 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 13, // reduced from 16
     color: '#111827',
     padding: 0,
+    fontWeight: '500',
+    letterSpacing: 0.1,
   },
   filterButton: {
     width: 40,
@@ -332,24 +336,41 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterChip: {
-    paddingHorizontal: 12, // reduced from 16
-    paddingVertical: 6, // reduced from 8
-    borderRadius: 15, // reduced from 20
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#F6F8FC',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    marginRight: 8,
+    marginBottom: 4,
+    shadowColor: '#235CF8',
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   filterChipActive: {
-    backgroundColor: '#235CF8',
+    backgroundColor: '#235CF8', // solid blue
     borderColor: '#235CF8',
+    shadowColor: '#235CF8',
+    shadowOpacity: 0.15,
+    elevation: 4,
   },
   filterChipText: {
-    fontSize: 11, // reduced from 14
+    fontSize: 12,
     fontWeight: '600',
-    color: '#6B7280',
+    color: '#235CF8',
+    letterSpacing: 0.1,
+    textAlign: 'center',
   },
   filterChipTextActive: {
-    color: '#FFFFFF',
+    color: '#fff', // white text for active
+    textShadowColor: 'rgba(35,92,248,0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   // Section Headers
   sectionHeader: {
@@ -471,20 +492,20 @@ const styles = StyleSheet.create({
   },
   yearBadgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 10, // reduced from 12
+    fontWeight: '600', // slightly lighter for clarity
+    letterSpacing: 0.2, // subtle modern touch
   },
   favoriteButton: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    top: 6, // moved up from 12
+    right: 6, // moved closer to right edge from 12
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
-    backdropFilter: 'blur(10px)',
   },
   carCardBody: {
     padding: 14,
@@ -497,21 +518,25 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   carMetaRow: {
-    flexDirection: 'row',
-    gap: 12,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    gap: 0,
     marginBottom: 10,
+    marginTop: 2,
   },
   carMetaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    flex: 1,
+    minWidth: 0,
   },
   carMetaText: {
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: 11, // smaller for modern look
+    color: '#7B7F8A', // lighter
     fontWeight: '500',
-    flex: 1,
+    flexShrink: 1,
+    marginLeft: 2,
   },
   price: {
     fontSize: 18,
