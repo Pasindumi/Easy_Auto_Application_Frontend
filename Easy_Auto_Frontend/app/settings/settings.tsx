@@ -145,8 +145,16 @@ export default function ProfileScreen() {
 
             <MenuItem icon="help-circle-outline" title="Help & Support" />
             <MenuItem icon="information-circle-outline" title="About this app" />
-            <MenuItem icon="people-outline" title="Invite Friends" />
-            <MenuItem icon="repeat-outline" title="Switch Accounts" />
+            <MenuItem
+              icon="people-outline"
+              title="Invite Friends"
+              onPress={() => router.push('/settings/invite-friends')}
+            />
+            <MenuItem
+              icon="repeat-outline"
+              title="Switch Accounts"
+              onPress={() => router.push('/settings/switch-account')}
+            />
 
             {/* Logout */}
             <TouchableOpacity style={styles.logoutBtn}>

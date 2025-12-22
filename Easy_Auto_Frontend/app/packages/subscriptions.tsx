@@ -3,13 +3,13 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Header from "../../components/Header";
 
 const payments = [
   { id: '1', date: 'Oct 15, 2025' },
@@ -47,162 +47,159 @@ export default function SubscriptionsScreen() {
 
   return (
     <View style={styles.safe}>
-        {/* Header */}
-        <SafeAreaView edges={['top']} style={styles.headerContainer}>
-          <View style={styles.header}>
-            <TouchableOpacity 
-              onPress={handleBack}
-              activeOpacity={0.7}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>SUBSCRIPTIONS</Text>
+      {/* Header */}
+      <Header />
+      <View style={localStyles.headerWrap}>
+        <View style={localStyles.header}>
+          <View style={localStyles.headerLeft}>
+            <Ionicons name="people-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+            <Text style={localStyles.headerTitle}>My Subscribers</Text>
           </View>
-        </SafeAreaView>
-
-        <ScrollView
-          contentContainerStyle={{
-            padding: 16,
-            paddingBottom: 40,
-          }}
-        >
-          {/* Plan Card */}
-          <View style={styles.planCard}>
-            <View style={styles.topRow}>
-              <View style={styles.activeBadge}>
-                <View style={styles.activeDot} />
-                <Text style={styles.activeLabel}>Active</Text>
-              </View>
-              <View style={styles.crownIcon}>
-                <Ionicons name="diamond" size={20} color="#FF9800" />
-              </View>
-            </View>
-
-            <Text style={styles.planTitle}>Premium Plan</Text>
-            <View style={styles.expiryContainer}>
-              <Ionicons name="time-outline" size={14} color="#6B7280" />
-              <Text style={styles.planSubtitle}>Active Until Nov 30, 2025</Text>
-            </View>
-
-            <View style={styles.priceRow}>
-              <Text style={styles.price}>$29.99</Text>
-              <Text style={styles.perMonth}>/month</Text>
-            </View>
-
-            {/* Benefits Box */}
-            <View style={styles.benefitsBox}>
-              <Text style={styles.benefitsTitle}>Plan Benefits</Text>
-
-              <View style={styles.benefitsRow}>
-                <View>
-                  <BenefitItem text="Unlimited Ads" />
-                  <BenefitItem text="Featured Listings" />
-                  <BenefitItem text="Custom Branding" />
-                </View>
-
-                <View>
-                  <BenefitItem text="Priority support" />
-                  <BenefitItem text="Advance analytics" />
-                  <BenefitItem text="Customer Service" />
-                </View>
-              </View>
-            </View>
-
-            {/* Button */}
-            <TouchableOpacity 
-              style={styles.manageButton}
-              onPress={handleManagePlan}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="settings-outline" size={18} color="#fff" />
-              <Text style={styles.manageText}>Manage Plan</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Payment History */}
-          <View style={styles.card}>
-            <View style={styles.historyHeader}>
-              <Text style={styles.sectionTitle}>Payment History</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAll}>View All</Text>
-              </TouchableOpacity>
-            </View>
-
-            {payments.map((item, index) => (
-              <View key={item.id}>
-                <View style={styles.paymentRow}>
-                  <View style={styles.paymentLeft}>
-                    <View style={styles.paymentIconContainer}>
-                      <Ionicons name="receipt-outline" size={20} color="#235CF8" />
-                    </View>
-                    <View style={styles.paymentInfo}>
-                      <Text style={styles.paymentTitle}>Premium Plan - Monthly</Text>
-                      <View style={styles.paymentDateRow}>
-                        <Ionicons name="calendar-outline" size={12} color="#9CA3AF" />
-                        <Text style={styles.paymentDate}>{item.date}</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={styles.paymentRight}>
-                    <View style={styles.paymentAmountContainer}>
-                      <Text style={styles.paymentPrice}>$29.99</Text>
-                      <View style={styles.statusBadge}>
-                        <View style={styles.statusDot} />
-                        <Text style={styles.completed}>Completed</Text>
-                      </View>
-                    </View>
-                    <TouchableOpacity 
-                      style={styles.downloadIcon}
-                      onPress={handleDownload}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons
-                        name="download-outline"
-                        size={18}
-                        color="#235CF8"
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                {index < payments.length - 1 && <View style={styles.paymentDivider} />}
-              </View>
-            ))}
-
-            {/* Download All */}
-            <TouchableOpacity 
-              style={styles.downloadAll}
-              onPress={handleDownloadAll}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="download-outline" size={18} color="#235CF8" />
-              <Text style={styles.downloadText}>Download All Invoices</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Help Card */}
-          <View style={styles.helpCard}>
-            <View style={styles.helpIconContainer}>
-              <Ionicons name="help-circle" size={32} color="#235CF8" />
-            </View>
-            <Text style={styles.helpTitle}>Need Help?</Text>
-            <Text style={styles.helpText}>
-              Have questions about billing or subscriptions? Our support team
-              is here to help.
-            </Text>
-
-            <TouchableOpacity 
-              style={styles.supportButton}
-              onPress={handleContactSupport}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.supportText}>Contact Support</Text>
-              <Ionicons name="arrow-forward" size={18} color="#235CF8" />
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+        </View>
       </View>
+
+      <ScrollView
+        contentContainerStyle={{
+          padding: 16,
+          paddingBottom: 40,
+        }}
+      >
+        {/* Plan Card */}
+        <View style={styles.planCard}>
+          <View style={styles.topRow}>
+            <View style={styles.activeBadge}>
+              <View style={styles.activeDot} />
+              <Text style={styles.activeLabel}>Active</Text>
+            </View>
+            <View style={styles.crownIcon}>
+              <Ionicons name="diamond" size={20} color="#FF9800" />
+            </View>
+          </View>
+
+          <Text style={styles.planTitle}>Premium Plan</Text>
+          <View style={styles.expiryContainer}>
+            <Ionicons name="time-outline" size={14} color="#6B7280" />
+            <Text style={styles.planSubtitle}>Active Until Nov 30, 2025</Text>
+          </View>
+
+          <View style={styles.priceRow}>
+            <Text style={styles.price}>$29.99</Text>
+            <Text style={styles.perMonth}>/month</Text>
+          </View>
+
+          {/* Benefits Box */}
+          <View style={styles.benefitsBox}>
+            <Text style={styles.benefitsTitle}>Plan Benefits</Text>
+
+            <View style={styles.benefitsRow}>
+              <View>
+                <BenefitItem text="Unlimited Ads" />
+                <BenefitItem text="Featured Listings" />
+                <BenefitItem text="Custom Branding" />
+              </View>
+
+              <View>
+                <BenefitItem text="Priority support" />
+                <BenefitItem text="Advance analytics" />
+                <BenefitItem text="Customer Service" />
+              </View>
+            </View>
+          </View>
+
+          {/* Button */}
+          <TouchableOpacity
+            style={styles.manageButton}
+            onPress={handleManagePlan}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="settings-outline" size={18} color="#fff" />
+            <Text style={styles.manageText}>Manage Plan</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Payment History */}
+        <View style={styles.card}>
+          <View style={styles.historyHeader}>
+            <Text style={styles.sectionTitle}>Payment History</Text>
+            <TouchableOpacity>
+              <Text style={styles.viewAll}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {payments.map((item, index) => (
+            <View key={item.id}>
+              <View style={styles.paymentRow}>
+                <View style={styles.paymentLeft}>
+                  <View style={styles.paymentIconContainer}>
+                    <Ionicons name="receipt-outline" size={20} color="#235CF8" />
+                  </View>
+                  <View style={styles.paymentInfo}>
+                    <Text style={styles.paymentTitle}>Premium Plan - Monthly</Text>
+                    <View style={styles.paymentDateRow}>
+                      <Ionicons name="calendar-outline" size={12} color="#9CA3AF" />
+                      <Text style={styles.paymentDate}>{item.date}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.paymentRight}>
+                  <View style={styles.paymentAmountContainer}>
+                    <Text style={styles.paymentPrice}>$29.99</Text>
+                    <View style={styles.statusBadge}>
+                      <View style={styles.statusDot} />
+                      <Text style={styles.completed}>Completed</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.downloadIcon}
+                    onPress={handleDownload}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="download-outline"
+                      size={18}
+                      color="#235CF8"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              {index < payments.length - 1 && <View style={styles.paymentDivider} />}
+            </View>
+          ))}
+
+          {/* Download All */}
+          <TouchableOpacity
+            style={styles.downloadAll}
+            onPress={handleDownloadAll}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="download-outline" size={18} color="#235CF8" />
+            <Text style={styles.downloadText}>Download All Invoices</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Help Card */}
+        <View style={styles.helpCard}>
+          <View style={styles.helpIconContainer}>
+            <Ionicons name="help-circle" size={32} color="#235CF8" />
+          </View>
+          <Text style={styles.helpTitle}>Need Help?</Text>
+          <Text style={styles.helpText}>
+            Have questions about billing or subscriptions? Our support team
+            is here to help.
+          </Text>
+
+          <TouchableOpacity
+            style={styles.supportButton}
+            onPress={handleContactSupport}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.supportText}>Contact Support</Text>
+            <Ionicons name="arrow-forward" size={18} color="#235CF8" />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -236,8 +233,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
 
-   
-  
+
+
 
   headerTitle: {
     color: '#fff',
@@ -575,4 +572,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 15,
   },
+
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#E5E3E3' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#D1D5DB' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

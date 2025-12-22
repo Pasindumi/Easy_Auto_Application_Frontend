@@ -1163,7 +1163,7 @@ export default function HomeScreen() {
               delay={150}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/cars/sell-car");
+                router.push("/auth/login");
               }}
             >
               <View style={styles.scrollableActionCard}>

@@ -2,13 +2,13 @@ import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
+import Header from "../../components/Header";
 
 export default function HelpSupport() {
   const router = useRouter();
@@ -21,14 +21,15 @@ export default function HelpSupport() {
         <ScrollView contentContainerStyle={styles.container}>
 
           {/* ---------- HEADER ---------- */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-            </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>HELP & SUPPORT</Text>
-
-            <View style={{ width: 22 }} />
+          {/* ---------- HEADER ---------- */}
+          <Header />
+          <View style={localStyles.headerWrap}>
+            <View style={localStyles.header}>
+              <View style={localStyles.headerLeft}>
+                <Ionicons name="help-circle-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+                <Text style={localStyles.headerTitle}>Help and Support</Text>
+              </View>
+            </View>
           </View>
 
           {/* ---------- CONTENT ---------- */}
@@ -231,4 +232,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F2F2F2' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E0E0E0' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

@@ -1,14 +1,15 @@
 // app/select-language.tsx
+import Header from "../../components/Header";
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-         SafeAreaView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function SelectLanguage() {
@@ -44,12 +45,15 @@ export default function SelectLanguage() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Select Language</Text>
-        <View style={{ width: 24 }} />
+      {/* Header */}
+      <Header />
+      <View style={localStyles.headerWrap}>
+        <View style={localStyles.header}>
+          <View style={localStyles.headerLeft}>
+            <Ionicons name="language-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+            <Text style={localStyles.headerTitle}>Select Language</Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -119,7 +123,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    
+
   },
   headerTitle: {
     color: "#fff",
@@ -183,4 +187,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 16,
   },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F4F6FA' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

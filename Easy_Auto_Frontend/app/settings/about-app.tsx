@@ -1,4 +1,5 @@
 // app/about-app.tsx
+import Header from "../../components/Header";
 
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -25,13 +26,15 @@ export default function AboutApp() {
         <ScrollView contentContainerStyle={styles.container}>
 
           {/* ---------- HEADER ---------- */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-            </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>ABOUT EASYAUTO</Text>
-            <View style={{ width: 22 }} />
+          {/* ---------- HEADER ---------- */}
+          <Header />
+          <View style={localStyles.headerWrap}>
+            <View style={localStyles.header}>
+              <View style={localStyles.headerLeft}>
+                <Ionicons name="information-circle-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+                <Text style={localStyles.headerTitle}>About App</Text>
+              </View>
+            </View>
           </View>
 
 
@@ -47,7 +50,7 @@ export default function AboutApp() {
 
             <Text style={styles.description}>
               EasyAuto is a powerful and simple vehicle marketplace designed
-              to help users buy, sell, and manage vehicles with ease. 
+              to help users buy, sell, and manage vehicles with ease.
               Discover thousands of vehicles and connect with sellers instantly.
             </Text>
 
@@ -357,4 +360,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F2F2F2' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E0E0E0' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

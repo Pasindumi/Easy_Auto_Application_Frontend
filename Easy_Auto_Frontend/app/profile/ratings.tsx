@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Header from "../../components/Header";
 
 // ---- Review Data ----
 const REVIEWS = [
@@ -87,12 +88,14 @@ export default function RatingsScreen() {
 
       <SafeAreaView style={styles.safe}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>RATINGS</Text>
-          <View style={{ width: 24 }} />
+        <Header />
+        <View style={localStyles.headerWrap}>
+          <View style={localStyles.header}>
+            <View style={localStyles.headerLeft}>
+              <Ionicons name="star-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+              <Text style={localStyles.headerTitle}>Ratings</Text>
+            </View>
+          </View>
         </View>
 
         <ScrollView contentContainerStyle={styles.container}>
@@ -270,4 +273,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#111',
   },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F5F5F5' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E5E5' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

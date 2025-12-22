@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Header from "../../components/Header";
 
 export default function PaymentMethods() {
   const router = useRouter();
@@ -35,13 +36,15 @@ export default function PaymentMethods() {
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.container}>
           {/* ---------- HEADER ---------- */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-            </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>PAYMENT METHODS</Text>
-            <View style={{ width: 22 }} />
+          {/* ---------- HEADER ---------- */}
+          <Header />
+          <View style={localStyles.headerWrap}>
+            <View style={localStyles.header}>
+              <View style={localStyles.headerLeft}>
+                <Ionicons name="card-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+                <Text style={localStyles.headerTitle}>Payment Methods</Text>
+              </View>
+            </View>
           </View>
 
           {/* ---------- CREDIT CARD SECTION ---------- */}
@@ -219,7 +222,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  
+
 
   /* CREDIT CARD SECTION */
   cardContainer: {
@@ -369,4 +372,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#235CF8',
   },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F2F2F2' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E0E0E0' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

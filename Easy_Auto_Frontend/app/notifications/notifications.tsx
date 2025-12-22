@@ -1,5 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import {
   ScrollView,
@@ -8,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Header from "../../components/Header";
 
 export default function NotificationsScreen() {
   const notifications = [
@@ -43,18 +42,15 @@ export default function NotificationsScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialIcons
-            name="arrow-back"
-            size={24}
-            color="#FFFFFF"
-            style={styles.backButton}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notifications</Text>
-        <View style={styles.placeholder} />
+    <View style={styles.container}>
+      <Header />
+      <View style={localStyles.headerWrap}>
+        <View style={localStyles.header}>
+          <View style={localStyles.headerLeft}>
+            <Ionicons name="notifications-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+            <Text style={localStyles.headerTitle}>Notifications</Text>
+          </View>
+        </View>
       </View>
       <ScrollView style={styles.content}>
         {notifications.length > 0 ? (
@@ -104,7 +100,7 @@ export default function NotificationsScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -213,4 +209,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 40,
   },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#FFFFFF' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#F0F0F0' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

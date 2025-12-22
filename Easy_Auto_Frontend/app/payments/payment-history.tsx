@@ -11,6 +11,8 @@ import {
   View,
 } from 'react-native';
 
+import Header from "../../components/Header";
+
 const HEADER_HEIGHT = 140;
 
 export default function PaymentHistoryScreen() {
@@ -95,14 +97,13 @@ export default function PaymentHistoryScreen() {
 
       <SafeAreaView style={styles.safe}>
         {/* HEADER */}
-        <View style={styles.headerBackground}>
-          <View style={styles.headerRow}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>PAYMENT HISTORY</Text>
-            <View style={{ width: 24 }} />
+        <Header />
+        <View style={localStyles.headerWrap}>
+          <View style={localStyles.header}>
+            <View style={localStyles.headerLeft}>
+              <Ionicons name="time-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+              <Text style={localStyles.headerTitle}>Payment History</Text>
+            </View>
           </View>
         </View>
 
@@ -154,8 +155,8 @@ export default function PaymentHistoryScreen() {
                         item.status === 'Successful'
                           ? 'checkmark-circle'
                           : item.status === 'Failed'
-                          ? 'close-circle'
-                          : 'refresh-circle'
+                            ? 'close-circle'
+                            : 'refresh-circle'
                       }
                       size={14}
                       color={statusColors[item.status]}
@@ -318,4 +319,11 @@ const styles = StyleSheet.create({
 
   totalSpent: { fontWeight: '700' },
   totalAmount: { fontWeight: '800' },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F2F4F7' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#D0D5DD' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

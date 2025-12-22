@@ -12,11 +12,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Button from "../../components/Button";
 import Footer, { FOOTER_HEIGHT } from "../../components/Footer";
 import Header from "../../components/Header";
 import InputField from "../../components/InputField";
 import { colors } from "../../components/theme";
+import Button from "../../components/ui/button/Button";
 
 
 export default function ResetPasswordScreen() {

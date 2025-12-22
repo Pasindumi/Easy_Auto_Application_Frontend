@@ -2,7 +2,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
-import { colors } from "./theme";
+import { colors } from "../../theme";
 
 export default function SocialButton({
   icon,

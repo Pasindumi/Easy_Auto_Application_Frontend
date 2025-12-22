@@ -1,25 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import ProfileHeader from '@/components/ProfileHeader';
+import Header from "../../components/Header";
 
 export default function SwitchAccountScreen() {
   const router = useRouter();
-
-  const handleBack = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.back();
-  };
 
   const handleGoToAdmin = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -67,91 +61,99 @@ export default function SwitchAccountScreen() {
   );
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Switch Account" showProfileCard={false} />
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.container}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Current Account Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Current Account</Text>
-            <AccountCard
-              name="Dilmin Ekanayaka"
-              email="dilmin@yahoo.com"
-              role="Premium Member"
-              isActive={true}
-            />
-          </View>
+      <Header />
 
-          {/* Other Accounts Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Other Accounts</Text>
-            <AccountCard
-              name="John Doe"
-              email="john.doe@example.com"
-              role="Standard Member"
-              isActive={false}
-            />
-            <AccountCard
-              name="Jane Smith"
-              email="jane.smith@example.com"
-              role="Premium Member"
-              isActive={false}
-            />
+      <View style={localStyles.headerWrap}>
+        <View style={localStyles.header}>
+          <View style={localStyles.headerLeft}>
+            <Ionicons name="repeat-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+            <Text style={localStyles.headerTitle}>Switch Accounts</Text>
           </View>
+        </View>
+      </View>
 
-          {/* Admin Dashboard Button */}
-          <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.adminButton}
-              onPress={handleGoToAdmin}
-              activeOpacity={0.8}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Current Account Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Current Account</Text>
+          <AccountCard
+            name="Dilmin Ekanayaka"
+            email="dilmin@yahoo.com"
+            role="Premium Member"
+            isActive={true}
+          />
+        </View>
+
+        {/* Other Accounts Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Other Accounts</Text>
+          <AccountCard
+            name="John Doe"
+            email="john.doe@example.com"
+            role="Standard Member"
+            isActive={false}
+          />
+          <AccountCard
+            name="Jane Smith"
+            email="jane.smith@example.com"
+            role="Premium Member"
+            isActive={false}
+          />
+        </View>
+
+        {/* Admin Dashboard Button */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.adminButton}
+            onPress={handleGoToAdmin}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#235CF8', '#1E4ED8', '#1A3FD0']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.adminButtonGradient}
             >
-              <LinearGradient
-                colors={['#235CF8', '#1E4ED8', '#1A3FD0']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.adminButtonGradient}
-              >
-                <View style={styles.adminButtonContent}>
-                  <View style={styles.adminIconContainer}>
-                    <Ionicons name="settings" size={24} color="#FFFFFF" />
-                  </View>
-                  <View style={styles.adminButtonTextContainer}>
-                    <Text style={styles.adminButtonTitle}>Admin Dashboard</Text>
-                    <Text style={styles.adminButtonSubtitle}>
-                      Access admin controls and management
-                    </Text>
-                  </View>
-                  <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+              <View style={styles.adminButtonContent}>
+                <View style={styles.adminIconContainer}>
+                  <Ionicons name="settings" size={24} color="#FFFFFF" />
                 </View>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-
-          {/* Add Account Button */}
-          <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.addAccountButton}
-              activeOpacity={0.7}
-            >
-              <View style={styles.addAccountContent}>
-                <View style={styles.addAccountIconContainer}>
-                  <Ionicons name="add-circle-outline" size={24} color="#235CF8" />
+                <View style={styles.adminButtonTextContainer}>
+                  <Text style={styles.adminButtonTitle}>Admin Dashboard</Text>
+                  <Text style={styles.adminButtonSubtitle}>
+                    Access admin controls and management
+                  </Text>
                 </View>
-                <Text style={styles.addAccountText}>Add Another Account</Text>
+                <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
               </View>
-            </TouchableOpacity>
-          </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
 
-          <View style={{ height: 24 }} />
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        {/* Add Account Button */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.addAccountButton}
+            activeOpacity={0.7}
+          >
+            <View style={styles.addAccountContent}>
+              <View style={styles.addAccountIconContainer}>
+                <Ionicons name="add-circle-outline" size={24} color="#235CF8" />
+              </View>
+              <Text style={styles.addAccountText}>Add Another Account</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ height: 24 }} />
+      </ScrollView>
+    </View>
   );
 }
 
@@ -309,5 +311,13 @@ const styles = StyleSheet.create({
     color: '#235CF8',
     letterSpacing: -0.2,
   },
+  loader: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+});
+
+const localStyles = StyleSheet.create({
+  headerWrap: { backgroundColor: '#F5F5F5' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#D1D5DB' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });
 

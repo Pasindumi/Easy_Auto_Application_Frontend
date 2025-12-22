@@ -16,8 +16,8 @@ import {
 import Footer, { FOOTER_HEIGHT } from "../../components/Footer";
 import Header from "../../components/Header"; // keep your Header (unchanged)
 import InputField from "../../components/InputField";
-import SocialButton from "../../components/SocialButton";
 import { colors } from "../../components/theme";
+import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function SignupScreen() {
   const router = useRouter();
