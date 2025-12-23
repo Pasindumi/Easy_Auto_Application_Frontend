@@ -1,4 +1,5 @@
-export type Listing = {
+export type Listing = 
+{
   title: string;
   subtitle: string;
   price: string;
@@ -14,6 +15,7 @@ export type Listing = {
   gallery: (string | number)[];
   seller: { name: string; location: string; email: string };
 };
+
 
 export const dummyData: Listing = {
   title: 'TOYOTA YARIS CROSS',

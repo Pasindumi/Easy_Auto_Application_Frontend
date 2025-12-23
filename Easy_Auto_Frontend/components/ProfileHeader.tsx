@@ -97,18 +97,21 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#235CF8',
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingHorizontal: 20, // Increased for better spacing
+    paddingBottom: 24, // Increased for better visual balance
+    paddingTop: 0, // PaddingTop is handled by safe area insets
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     overflow: 'hidden', // Ensure rounded corners are visible
   },
   headerTitle: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
-    marginBottom: 16,
-    letterSpacing: -0.3,
+    marginBottom: 0, // Removed bottom margin for better spacing
+    marginTop: 4, // Added top margin for better visual balance
+    letterSpacing: -0.4,
+    lineHeight: 28,
   },
   // Profile Card - Fixed to stand out from header
   profileCard: {
