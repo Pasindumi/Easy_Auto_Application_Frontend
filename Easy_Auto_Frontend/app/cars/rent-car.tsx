@@ -1,7 +1,6 @@
 // app/rent-car.tsx
-import ProfileHeader from '@/components/ProfileHeader';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -14,65 +13,14 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Header from '../../components/Header';
+import { RENTAL_PACKAGES, RENTAL_CARS } from '../../constants/dummydata/rent';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
 const CARD_WIDTH = (SCREEN_WIDTH - 32 - CARD_GAP) / 2;
 
-const RENTAL_CARS = [
-  {
-    id: '1',
-    name: 'Toyota Camry 2023',
-    price: 'Rs. 5,000/day',
-    features: ['Automatic', 'AC', 'GPS'],
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '2',
-    name: 'Honda Civic 2022',
-    price: 'Rs. 4,500/day',
-    features: ['Automatic', 'AC'],
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '3',
-    name: 'BMW 3 Series 2023',
-    price: 'Rs. 12,000/day',
-    features: ['Automatic', 'AC', 'GPS', 'Premium'],
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '4',
-    name: 'Nissan Altima 2022',
-    price: 'Rs. 4,000/day',
-    features: ['Automatic', 'AC'],
-    image: require('@/assets/images/car.jpg'),
-  },
-];
-
-const RENTAL_PACKAGES = [
-  {
-    id: '1',
-    duration: 'Daily',
-    price: 'From Rs. 4,000/day',
-    description: 'Perfect for short trips',
-  },
-  {
-    id: '2',
-    duration: 'Weekly',
-    price: 'From Rs. 24,000/week',
-    description: 'Save 15% on weekly rentals',
-  },
-  {
-    id: '3',
-    duration: 'Monthly',
-    price: 'From Rs. 80,000/month',
-    description: 'Best value for long term',
-  },
-];
-
 export default function RentCarScreen() {
-  const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState('1');
   const [pickupDate, setPickupDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
@@ -83,7 +31,7 @@ export default function RentCarScreen() {
       <View style={styles.rentalCardBody}>
         <Text style={styles.rentalName}>{item.name}</Text>
         <View style={styles.featuresContainer}>
-          {item.features.map((feature, index) => (
+          {item.features.map((feature: string, index: number) => (
             <View key={index} style={styles.featureTag}>
               <Text style={styles.featureText}>{feature}</Text>
             </View>
@@ -100,17 +48,17 @@ export default function RentCarScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Rent a Car" showProfileCard={false} />
+      <Header />
       <SafeAreaView style={styles.safe} edges={['bottom']}>
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingTop: 32 }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Hero Section */}
-          <View style={styles.heroSection}>
-            <View style={styles.heroIconContainer}>
-              <Ionicons name="car-outline" size={64} color="#235CF8" />
+          <View style={[styles.heroSection, { marginTop: -32 }]}>
+            <View style={[styles.heroIconContainerEnhanced, { backgroundColor: '#4274fdff', borderColor: '#FFFFFF' }]}>
+              <Ionicons name="car-sport-outline" size={64} color="#FFFFFF" style={styles.heroIconShadow} />
             </View>
             <Text style={styles.heroTitle}>Rent a Car</Text>
             <Text style={styles.heroSubtitle}>
@@ -148,7 +96,7 @@ export default function RentCarScreen() {
           <View style={styles.packagesSection}>
             <Text style={styles.sectionTitle}>Rental Packages</Text>
             <View style={styles.packagesContainer}>
-              {RENTAL_PACKAGES.map((pkg) => (
+              {RENTAL_PACKAGES.map((pkg: typeof RENTAL_PACKAGES[0]) => (
                 <TouchableOpacity
                   key={pkg.id}
                   style={[
@@ -178,7 +126,7 @@ export default function RentCarScreen() {
           <View style={styles.carsSection}>
             <Text style={styles.sectionTitle}>Available Cars</Text>
             <View style={styles.carsGrid}>
-              {RENTAL_CARS.map((item, index) => {
+              {RENTAL_CARS.map((item: typeof RENTAL_CARS[0], index: number) => {
                 if (index % 2 === 0) {
                   const nextItem = RENTAL_CARS[index + 1];
                   return (
@@ -230,6 +178,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
   },
+  heroIconContainerEnhanced: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#E8F5E9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#B6D0F6',
+    shadowColor: '#235CF8',
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  heroIconShadow: {
+    textShadowColor: '#B6D0F6',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+  },
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
@@ -256,16 +224,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 12, // reduced
+    paddingVertical: 8, // reduced
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    gap: 12,
+    gap: 8, // reduced
+    height: 38, // set fixed smaller height
   },
   dateText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 13, // reduced
     color: '#111827',
+    paddingVertical: 0, // ensure compact
+    paddingHorizontal: 0,
   },
   packagesSection: {
     paddingHorizontal: 16,
