@@ -59,13 +59,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: FOOTER_HEIGHT,
+    height: 120, // reduced from FOOTER_HEIGHT (180)
     backgroundColor: '#111',
-    paddingVertical: 12,
+    paddingVertical: 8, // reduced from 12
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 50,
-    paddingBottom: 50,
+    paddingBottom: 20, // reduced from 50
   },
   logo: { width: 120, height: 40, marginBottom: 12 },
   fallbackLogo: { marginBottom: 12, alignItems: 'center' },
