@@ -1,4 +1,4 @@
-import { COMPARISONS } from "@/app/dummydata/homedummydata";
+import { COMPARISONS } from "@/constants/dummydata/homedummydata";
 import { Image } from "expo-image";
 import React from "react";
 import {

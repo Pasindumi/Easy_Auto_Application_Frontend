@@ -4,13 +4,13 @@ import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function InviteFriend() {
   const router = useRouter();
@@ -138,7 +138,7 @@ export default function InviteFriend() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F2F2F2' },
+  safe: { flex: 1, backgroundColor: '#F9FAFB' },
   container: { paddingBottom: 30 },
 
   /* HEADER */

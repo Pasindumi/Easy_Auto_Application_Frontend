@@ -5,13 +5,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PrivacyPolicy() {
   const router = useRouter();
@@ -98,7 +98,7 @@ export default function PrivacyPolicy() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: "#F9FAFB",
   },
   header: {
     height: 110,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
 });
 
 const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F4F6FA' },
+  headerWrap: { backgroundColor: '#F9FAFB' },
   header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },

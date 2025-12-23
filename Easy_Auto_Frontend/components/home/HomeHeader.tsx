@@ -234,8 +234,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#235CF8",
         paddingBottom: 20,
         paddingHorizontal: 20,
-        borderBottomLeftRadius: 40,
-        borderBottomRightRadius: 40,
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
         marginBottom: 0,
         // overflow: "hidden", // Removed to prevent clipping touches
     },
@@ -246,6 +246,7 @@ const styles = StyleSheet.create({
         minHeight: 50,
         marginBottom: 14,
         zIndex: 50,
+        position: 'relative', // Context for absolute logo
     },
     menuButton: {
         width: 44,
@@ -253,16 +254,24 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         zIndex: 100, // Ensure it sits on top
+        marginBottom: 80,
     },
     rightIconsContainer: {
         flexDirection: "row",
         alignItems: "center",
         gap: 12,
+        marginBottom: 80,
+        zIndex: 100, // Ensure actionable
     },
     centeredLogoContainer: {
-        flex: 1,
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
         alignItems: "center",
         justifyContent: "center",
+        zIndex: 1, // Sit below icons
     },
     topRow: {
         flexDirection: "row",
@@ -292,8 +301,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     logoImage: {
-        width: 300,
-        height: 150,
+        width: 350,
+        height: 155,
     },
     logoText: {
         color: "#FFFFFF",
@@ -463,7 +472,7 @@ const styles = StyleSheet.create({
     },
     // Search Bar Styles
     searchSection: {
-        marginTop: -50,
+        marginTop: -55,
         zIndex: 10,
     },
     searchWrapper: {
@@ -547,5 +556,4 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
 });
-
 export default HomeHeader;

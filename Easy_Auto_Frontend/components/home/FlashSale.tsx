@@ -1,4 +1,4 @@
-import { FLASH_SALES } from "@/app/dummydata/homedummydata";
+import { FLASH_SALES } from "@/constants/dummydata/homedummydata";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useRef, useState } from "react";

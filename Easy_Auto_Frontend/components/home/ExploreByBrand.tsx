@@ -1,4 +1,4 @@
-import { ALL_BRANDS, FEATURED_BRANDS } from "@/app/dummydata/homedummydata";
+import { ALL_BRANDS, FEATURED_BRANDS } from "@/constants/dummydata/homedummydata";
 import { Image } from "expo-image";
 import React, { useRef } from "react";
 import {

@@ -6,13 +6,13 @@ import React from 'react';
 import {
   FlatList,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
 
 // ---- Review Data ----
@@ -153,7 +153,7 @@ export default function RatingsScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F9FAFB',
   },
 
   header: {
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
 });
 
 const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F5F5F5' },
+  headerWrap: { backgroundColor: '#F9FAFB' },
   header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E5E5' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },

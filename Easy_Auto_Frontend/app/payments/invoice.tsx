@@ -3,13 +3,13 @@ import { Stack, useRouter } from "expo-router";
 import React from "react";
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Invoice() {
   const router = useRouter();
@@ -141,7 +141,7 @@ export default function Invoice() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: "#F9FAFB",
   },
 
   header: {

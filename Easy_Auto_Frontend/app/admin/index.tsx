@@ -1,3 +1,4 @@
+
 import ProfileHeader from "@/components/ProfileHeader";
 import { Z_INDEX } from "@/constants/zIndex";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -608,7 +609,7 @@ const adminStyles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-      zIndex: Z_INDEX.OVERLAY,
+    zIndex: Z_INDEX.OVERLAY,
   },
   notificationDrawer: {
     position: "absolute",
@@ -1473,7 +1474,7 @@ export default function AdminDashboard() {
           >
             <ProfileHeader title="Admin Dashboard" showProfileCard={false} />
           </View>
-          
+
           {/* Header Actions Row - Positioned dynamically based on ProfileHeader height */}
           <View style={[adminStyles.headerActionsRow, { top: Math.max(insets.top, 20) }]}>
             <View style={{ position: "relative" }}>

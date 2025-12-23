@@ -1,10 +1,11 @@
-import { paymentData } from '../dummydata/payment';
 import Header from '@/components/Header';
-import { Stack, router } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { paymentData } from "../../constants/dummydata/payment";
 
 export default function Payment() {
+  const router = useRouter();
   const orderItems = paymentData.orderItems;
   const total = orderItems.reduce((acc, i) => acc + i.price, 0);
   const summary = paymentData.summary;

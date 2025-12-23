@@ -1,4 +1,4 @@
-import { TESTIMONIALS } from "@/app/dummydata/homedummydata";
+import { TESTIMONIALS } from "@/constants/dummydata/homedummydata";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import {

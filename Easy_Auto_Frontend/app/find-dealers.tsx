@@ -187,7 +187,7 @@ export default function FindDealersScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F9FAFB',
   },
   scrollView: {
     flex: 1,

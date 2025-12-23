@@ -17,7 +17,7 @@ interface RecentlyViewedProps {
     slideAnim: Animated.Value;
 }
 
-import { RECENTLY_VIEWED } from "@/app/dummydata/homedummydata";
+import { RECENTLY_VIEWED } from "@/constants/dummydata/homedummydata";
 
 const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
     fadeAnim,

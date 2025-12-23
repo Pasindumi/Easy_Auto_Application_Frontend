@@ -5,13 +5,13 @@ import React, { useState } from 'react';
 import {
   Alert,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
 
 export default function PaymentMethods() {
@@ -36,16 +36,7 @@ export default function PaymentMethods() {
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.container}>
           {/* ---------- HEADER ---------- */}
-          {/* ---------- HEADER ---------- */}
-          <Header />
-          <View style={localStyles.headerWrap}>
-            <View style={localStyles.header}>
-              <View style={localStyles.headerLeft}>
-                <Ionicons name="card-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-                <Text style={localStyles.headerTitle}>Payment Methods</Text>
-              </View>
-            </View>
-          </View>
+          <Header showBack={true} title="Payment Methods" />
 
           {/* ---------- CREDIT CARD SECTION ---------- */}
           <View style={styles.cardContainer}>
@@ -190,6 +181,13 @@ export default function PaymentMethods() {
           <TouchableOpacity style={styles.payNowBtn} onPress={handlePayNow}>
             <Text style={styles.payNowText}>Pay Now</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.payNowBtn, { backgroundColor: '#fff', borderWidth: 1, borderColor: '#235CF8', marginTop: 12 }]}
+            onPress={() => router.push('/payments/payment' as any)}
+          >
+            <Text style={[styles.payNowText, { color: '#235CF8' }]}>View Summary</Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </>
@@ -199,7 +197,7 @@ export default function PaymentMethods() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#F9FAFB',
   },
 
   container: {
@@ -375,7 +373,7 @@ const styles = StyleSheet.create({
 });
 
 const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F2F2F2' },
+  headerWrap: { backgroundColor: '#F9FAFB' },
   header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E0E0E0' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },

@@ -1,4 +1,5 @@
 // app/my-ads.tsx
+import { ADS_DATA } from "@/constants/dummydata/ads";
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
@@ -16,7 +17,6 @@ import AdCard from "../../components/cards/AdCard";
 import Header from "../../components/Header";
 import SearchBar from "../../components/SearchBar";
 import StatusCards from "../../components/status/StatusCards";
-import { ADS_DATA } from "../dummydata/ads";
 
 export default function MyAdsScreen() {
   const router = useRouter();
