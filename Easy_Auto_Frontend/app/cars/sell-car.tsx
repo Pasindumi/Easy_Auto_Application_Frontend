@@ -1,22 +1,21 @@
 import Header from '@/components/Header';
-import { useRouter } from 'expo-router';
+import COLORS from "@/constants/Colors";
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Components
 import BasicInformationSection from '../../components/cars/sell/BasicInformationSection';
 import CarDetailsSection from '../../components/cars/sell/CarDetailsSection';
 import ContactDetailsSection from '../../components/cars/sell/ContactDetailsSection';
 import PhotoUploadSection from '../../components/cars/sell/PhotoUploadSection';
 import SubmitSection from '../../components/cars/sell/SubmitSection';
-
-// Types
 import { CarFormState } from '../../types/sell-car.types';
 
 export default function SellCarScreen() {
@@ -65,8 +64,17 @@ export default function SellCarScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header showBack={true} title="Sell Your Car" />
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} />
+
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="pricetag-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Sell Your Car</Text>
+        </View>
+      </View>
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -118,17 +126,30 @@ export default function SellCarScreen() {
             onReview={() => router.push('/ads/review add')}
             onSubmit={handleSubmit}
           />
-
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.background,
+  },
+  subHeaderWrap: {
+    backgroundColor: COLORS.background
+  },
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  subHeaderTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '600'
   },
   scrollView: {
     flex: 1,

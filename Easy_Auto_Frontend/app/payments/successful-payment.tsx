@@ -32,7 +32,10 @@ export default function SuccessfulPayment() {
         <Text style={styles.subtitle}>Your payment has been processed successfully.</Text>
 
         {/* CTA */}
-        <TouchableOpacity style={styles.cta} onPress={() => router.push('/payments/invoice' as any)}>
+        <TouchableOpacity
+          style={styles.cta}
+          onPress={() => router.push('/payments/invoice' as any)}
+        >
           <Text style={styles.ctaText}>View Invoice</Text>
         </TouchableOpacity>
       </View>

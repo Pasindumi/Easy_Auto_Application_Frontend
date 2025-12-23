@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
@@ -10,16 +11,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Assets and Types
-import { CATEGORIES, FILTER_OPTIONS, SUV_CARS } from "../../constants/dummydata/buy-car";
-import { BuyCarItem } from '../../types/buy-car.types';
-
-// Components
 import BuyCarCard from "../../components/cars/buy/BuyCarCard";
 import CategoryCard from "../../components/cars/buy/CategoryCard";
 import SearchFilterBar from "../../components/cars/buy/SearchFilterBar";
+import { CATEGORIES, FILTER_OPTIONS, SUV_CARS } from "../../constants/dummydata/buy-car";
+import { BuyCarItem } from '../../types/buy-car.types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
@@ -48,12 +44,10 @@ export default function BuyCarScreen() {
 
   const handleCarPress = (item: BuyCarItem) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Navigate to car details if needed
   };
 
   const currentCategoryLabel = CATEGORIES.find(c => c.key === selectedCategory)?.label || 'Cars';
 
-  // Filter cars by selected category
   const getFilteredCars = () => {
     let cars: BuyCarItem[] = [];
     if (!selectedCategory || selectedCategory === 'all') {
@@ -61,7 +55,7 @@ export default function BuyCarScreen() {
     } else if (selectedCategory === 'suv') {
       cars = SUV_CARS;
     } else if (selectedCategory === 'car') {
-      cars = SUV_CARS; // Fallback to SUV_CARS if CAR_CARS doesn't exist
+      cars = SUV_CARS;
     }
 
     if (searchQuery) {
@@ -75,120 +69,118 @@ export default function BuyCarScreen() {
   };
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header showBack={true} />
 
-      <View style={[styles.topicWrap, { justifyContent: 'center' }]}>
-        <View style={styles.topicLeft}>
-          <Ionicons name="car-sport" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={styles.topicTitle}>Buy a Car</Text>
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="car-sport-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Buy a Car</Text>
         </View>
       </View>
 
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Search and Filters */}
-          <SearchFilterBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            selectedFilter={selectedFilter}
-            onFilterChange={(key) => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setSelectedFilter(key);
-            }}
-            filterOptions={FILTER_OPTIONS}
-            onFilterButtonPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-          />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Search and Filters */}
+        <SearchFilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedFilter={selectedFilter}
+          onFilterChange={(key) => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setSelectedFilter(key);
+          }}
+          filterOptions={FILTER_OPTIONS}
+          onFilterButtonPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+        />
 
-          {/* Browse by Category */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Browse by Category</Text>
+        {/* Browse by Category */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Browse by Category</Text>
+        </View>
+
+        <View style={styles.categoriesSection}>
+          <View style={styles.categoryRow}>
+            {CATEGORIES.map((item) => (
+              <CategoryCard
+                key={item.key}
+                item={item}
+                isActive={selectedCategory === item.key}
+                onPress={handleCategoryPress}
+              />
+            ))}
           </View>
+        </View>
 
-          <View style={styles.categoriesSection}>
-            <View style={styles.categoryRow}>
-              {CATEGORIES.map((item) => (
-                <CategoryCard
-                  key={item.key}
-                  item={item}
-                  isActive={selectedCategory === item.key}
-                  onPress={handleCategoryPress}
-                />
-              ))}
-            </View>
-          </View>
+        {/* Available Cars */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Available {currentCategoryLabel}</Text>
+          <Text style={styles.sectionSubtitle}>{getFilteredCars().length} listings</Text>
+        </View>
 
-          {/* Available Cars */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Available {currentCategoryLabel}</Text>
-            <Text style={styles.sectionSubtitle}>{getFilteredCars().length} listings</Text>
-          </View>
-
-          <View style={styles.carsSection}>
-            <View style={styles.carsGrid}>
-              {getFilteredCars().map((item, index) => {
-                if (index % 2 === 0) {
-                  const nextItem = getFilteredCars()[index + 1];
-                  return (
-                    <View key={`row-${index}`} style={styles.carsRow}>
+        <View style={styles.carsSection}>
+          <View style={styles.carsGrid}>
+            {getFilteredCars().map((item, index) => {
+              if (index % 2 === 0) {
+                const nextItem = getFilteredCars()[index + 1];
+                return (
+                  <View key={`row-${index}`} style={styles.carsRow}>
+                    <BuyCarCard
+                      item={item}
+                      width={CARD_WIDTH}
+                      isFavorite={favorites.includes(item.id)}
+                      onToggleFavorite={toggleFavorite}
+                      onPress={handleCarPress}
+                    />
+                    {nextItem && (
                       <BuyCarCard
-                        item={item}
+                        item={nextItem}
                         width={CARD_WIDTH}
-                        isFavorite={favorites.includes(item.id)}
+                        isFavorite={favorites.includes(nextItem.id)}
                         onToggleFavorite={toggleFavorite}
                         onPress={handleCarPress}
                       />
-                      {nextItem && (
-                        <BuyCarCard
-                          item={nextItem}
-                          width={CARD_WIDTH}
-                          isFavorite={favorites.includes(nextItem.id)}
-                          onToggleFavorite={toggleFavorite}
-                          onPress={handleCarPress}
-                        />
-                      )}
-                    </View>
-                  );
-                }
-                return null;
-              })}
-            </View>
+                    )}
+                  </View>
+                );
+              }
+              return null;
+            })}
           </View>
+        </View>
 
-          <View style={{ height: 24 }} />
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        <View style={{ height: 24 }} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F5F5F5' },
-  scrollView: { flex: 1 },
-  scrollContent: { paddingTop: 20, paddingBottom: 100 },
-  topicWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+  safe: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  subHeaderWrap: {
+    backgroundColor: COLORS.background
+  },
+  subHeader: {
     paddingHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  topicLeft: {
+    paddingVertical: 12,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   },
-  topicTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1E60FF',
-    letterSpacing: -0.5,
+  subHeaderTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '600'
   },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingBottom: 100 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -197,8 +189,8 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 16,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#111827', letterSpacing: -0.3 },
-  sectionSubtitle: { fontSize: 14, fontWeight: '600', color: '#6B7280' },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: COLORS.text.primary, letterSpacing: -0.3 },
+  sectionSubtitle: { fontSize: 14, fontWeight: '600', color: COLORS.text.muted },
   categoriesSection: { paddingHorizontal: 16, marginBottom: 8 },
   categoryRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 },
   carsSection: { paddingHorizontal: 16 },

@@ -1,5 +1,6 @@
+import COLORS from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -9,11 +10,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Header from "../../components/Header";
 
 const { width } = Dimensions.get("window");
 
 export default function WishlistScreen() {
+  const router = useRouter();
   const [wishlistItems, setWishlistItems] = useState([
     {
       id: 1,
@@ -46,20 +48,11 @@ export default function WishlistScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialIcons
-            name="arrow-back"
-            size={24}
-            color="#FFFFFF"
-            style={styles.backButton}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Wishlist</Text>
-        <View style={styles.placeholder} />
-      </View>
-      <ScrollView style={styles.content}>
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} title="Wishlist" />
+
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {wishlistItems.length > 0 ? (
           <View style={styles.wishlistGrid}>
             {wishlistItems.map((item) => (
@@ -69,18 +62,19 @@ export default function WishlistScreen() {
                     <MaterialIcons
                       name="directions-car"
                       size={60}
-                      color="#666"
+                      color={COLORS.text.muted}
                     />
                   </View>
                   <TouchableOpacity
                     style={styles.favoriteButton}
                     onPress={() => removeFromWishlist(item.id)}
+                    activeOpacity={0.8}
                   >
-                    <MaterialIcons name="favorite" size={24} color="#FF3B30" />
+                    <MaterialIcons name="favorite" size={24} color={COLORS.status.danger} />
                   </TouchableOpacity>
                   <View style={styles.carOverlay}>
                     <View style={styles.carInfo}>
-                      <Text style={styles.carName}>{item.model}</Text>
+                      <Text style={styles.carName} numberOfLines={1}>{item.model}</Text>
                       <View style={styles.carDetails}>
                         <Text style={styles.carLocation}>{item.location}</Text>
                         <Text style={styles.carPrice}>{item.price}</Text>
@@ -94,45 +88,36 @@ export default function WishlistScreen() {
           </View>
         ) : (
           <View style={styles.emptyContainer}>
-            <MaterialIcons name="favorite-border" size={64} color="#9BA1A6" />
+            <View style={styles.emptyIconCircle}>
+              <MaterialIcons name="favorite-border" size={64} color={COLORS.text.muted} />
+            </View>
             <Text style={styles.emptyText}>Your wishlist is empty</Text>
             <Text style={styles.emptySubtext}>
               Start saving your favorite cars to view them here
             </Text>
+
+            <TouchableOpacity
+              style={styles.exploreBtn}
+              onPress={() => router.push("/(tabs)")}
+            >
+              <Text style={styles.exploreBtnText}>Explore Cars</Text>
+            </TouchableOpacity>
           </View>
         )}
+        <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  header: {
-    backgroundColor: "#0066FF",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFFFFF",
-  },
-  placeholder: {
-    width: 32,
+    backgroundColor: COLORS.background,
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 16,
   },
   wishlistGrid: {
     flexDirection: "row",
@@ -140,21 +125,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   wishlistCard: {
-    width: (width - 60) / 2,
+    width: (width - 48) / 2,
     marginBottom: 16,
-    borderRadius: 16,
+    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    shadowColor: COLORS.shadow,
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
     overflow: "hidden",
   },
   carImageContainer: {
     position: "relative",
-    height: 200,
-    borderRadius: 16,
-    overflow: "hidden",
+    height: 220,
   },
   carImagePlaceholder: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#E0E0E0",
+    backgroundColor: COLORS.backgroundMuted,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -163,27 +152,29 @@ const styles = StyleSheet.create({
     top: 12,
     right: 12,
     zIndex: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: COLORS.white,
     borderRadius: 20,
     padding: 8,
+    shadowColor: COLORS.black,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   carOverlay: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0, 102, 255, 0.9)",
+    backgroundColor: "rgba(35, 92, 248, 0.85)",
     padding: 12,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
   },
   carInfo: {
     gap: 4,
   },
   carName: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    fontWeight: "700",
+    color: COLORS.white,
     letterSpacing: -0.2,
   },
   carDetails: {
@@ -192,39 +183,65 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   carLocation: {
-    fontSize: 11,
-    color: "#FFFFFF",
+    fontSize: 10,
+    color: COLORS.white,
     opacity: 0.9,
-    fontWeight: "400",
   },
   carPrice: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    fontWeight: "800",
+    color: COLORS.white,
   },
   carMileage: {
-    fontSize: 11,
-    color: "#FFFFFF",
+    fontSize: 10,
+    color: COLORS.white,
     opacity: 0.9,
-    fontWeight: "400",
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 80,
+    paddingVertical: 100,
+  },
+  emptyIconCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: COLORS.white,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   emptyText: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1A1A1A",
-    marginTop: 16,
+    fontSize: 22,
+    fontWeight: "800",
+    color: COLORS.text.primary,
     marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: "#9BA1A6",
+    fontSize: 15,
+    color: COLORS.text.muted,
     textAlign: "center",
     paddingHorizontal: 40,
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  exploreBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  exploreBtnText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: "700",
   },
 });

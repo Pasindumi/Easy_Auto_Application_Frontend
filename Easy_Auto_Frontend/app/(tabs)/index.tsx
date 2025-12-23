@@ -12,6 +12,7 @@ import RecommendedCars from "@/components/home/RecommendedCars";
 import Testimonials from "@/components/home/Testimonials";
 import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
+import COLORS from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -27,11 +28,6 @@ import {
   View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-// const { width } = Dimensions.get("window");
-
-
-
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -53,11 +49,7 @@ export default function HomeScreen() {
   const [hasNoResults, setHasNoResults] = useState(false);
   const [showNotificationPreview, setShowNotificationPreview] = useState(false);
   const [showWishlistPreview, setShowWishlistPreview] = useState(false);
-  const notificationLongPressTimer = useRef<NodeJS.Timeout | null>(null);
-  const wishlistLongPressTimer = useRef<NodeJS.Timeout | null>(null);
   const mainScrollViewRef = useRef<ScrollView>(null);
-
-
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -121,12 +113,11 @@ export default function HomeScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#235CF8" />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       {/* Sidebars and Drawers */}
       <HomeDrawers
@@ -247,15 +238,15 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.white,
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.white,
   },
   sectionDivider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: COLORS.divider,
     marginVertical: 8,
     marginHorizontal: 20,
     opacity: 0.5,
@@ -266,7 +257,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    backgroundColor: COLORS.overlay,
     zIndex: 999,
   },
 });

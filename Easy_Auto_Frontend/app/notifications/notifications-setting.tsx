@@ -1,3 +1,5 @@
+import Header from "@/components/Header";
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -6,12 +8,10 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Notifications() {
+export default function NotificationsSetting() {
   const router = useRouter();
 
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -19,25 +19,21 @@ export default function Notifications() {
   const [smsEnabled, setSmsEnabled] = useState(false);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>NOTIFICATIONS</Text>
-
-        <View style={{ width: 24 }} />
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="notifications-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Notifications Setting</Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-
         {/* Notifications Card */}
         <View style={styles.card}>
-
           {/* Push Notifications */}
           <View style={styles.row}>
             <View style={styles.textGroup}>
@@ -50,8 +46,8 @@ export default function Notifications() {
             <Switch
               value={pushEnabled}
               onValueChange={setPushEnabled}
-              trackColor={{ false: "#E5E7EB", true: "#2563EB" }}
-              thumbColor="#fff"
+              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
+              thumbColor={COLORS.white}
             />
           </View>
 
@@ -69,8 +65,8 @@ export default function Notifications() {
             <Switch
               value={emailEnabled}
               onValueChange={setEmailEnabled}
-              trackColor={{ false: "#E5E7EB", true: "#2563EB" }}
-              thumbColor="#fff"
+              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
+              thumbColor={COLORS.white}
             />
           </View>
 
@@ -88,82 +84,68 @@ export default function Notifications() {
             <Switch
               value={smsEnabled}
               onValueChange={setSmsEnabled}
-              trackColor={{ false: "#E5E7EB", true: "#2563EB" }}
-              thumbColor="#fff"
+              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
+              thumbColor={COLORS.white}
             />
           </View>
-
         </View>
-
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: COLORS.background,
   },
-
-  header: {
-    height: 110,
-    backgroundColor: "#2563EB",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  subHeaderWrap: {
+    backgroundColor: COLORS.background
   },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "800",
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
-
+  subHeaderTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '600'
+  },
   content: {
     padding: 20,
   },
-
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     borderRadius: 18,
     padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
-
   row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 8,
   },
-
   textGroup: {
     flex: 1,
     paddingRight: 10,
   },
-
   title: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.text.primary,
   },
-
   subText: {
     fontSize: 12,
-    color: "#6B7280",
+    color: COLORS.text.muted,
     marginTop: 3,
   },
-
   divider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: COLORS.divider,
     marginVertical: 10,
   },
 });

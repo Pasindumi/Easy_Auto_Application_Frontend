@@ -1,4 +1,4 @@
-// components/ProfileHeader.tsx
+import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -41,7 +41,7 @@ export default function ProfileHeader({
     <View style={styles.container} pointerEvents="box-none">
       {/* Status Bar */}
       {Platform.OS === 'android' ? (
-        <RNStatusBar backgroundColor="#235CF8" barStyle="light-content" />
+        <RNStatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
       ) : null}
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
@@ -69,11 +69,11 @@ export default function ProfileHeader({
                   <View style={styles.profileNames}>
                     <Text style={styles.username}>Dilmin Ekanayaka</Text>
                     <View style={styles.premiumTag}>
-                      <Ionicons name="star" size={12} color="#FFFFFF" />
+                      <Ionicons name="star" size={12} color={COLORS.white} />
                       <Text style={styles.premiumText}>Premium Member</Text>
                     </View>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+                  <Ionicons name="chevron-forward" size={20} color={COLORS.white} />
                 </View>
                 <Text style={styles.email}>dilmin@yahoo.com</Text>
               </View>
@@ -96,31 +96,29 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   header: {
-    backgroundColor: '#235CF8',
-    paddingHorizontal: 20, // Increased for better spacing
-    paddingBottom: 24, // Increased for better visual balance
-    paddingTop: 0, // PaddingTop is handled by safe area insets
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+    paddingTop: 0,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    overflow: 'hidden', // Ensure rounded corners are visible
+    overflow: 'hidden',
   },
   headerTitle: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 20,
     fontWeight: '700',
-    marginBottom: 0, // Removed bottom margin for better spacing
-    marginTop: 4, // Added top margin for better visual balance
+    marginBottom: 0,
+    marginTop: 4,
     letterSpacing: -0.4,
     lineHeight: 28,
   },
-  // Profile Card - Fixed to stand out from header
   profileCard: {
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)', // Semi-transparent white for distinction
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     overflow: 'hidden',
-    backdropFilter: 'blur(10px)',
   },
   profileCardContent: {
     flexDirection: 'row',
@@ -136,23 +134,23 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: COLORS.white,
   },
   notificationBadge: {
     position: 'absolute',
     top: -2,
     right: -2,
-    backgroundColor: '#EF4444',
+    backgroundColor: COLORS.status.danger,
     width: 20,
     height: 20,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#235CF8',
+    borderColor: COLORS.primary,
   },
   badgeText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 10,
     fontWeight: '700',
   },
@@ -169,7 +167,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   username: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.2,
@@ -186,7 +184,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   premiumText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 10,
     fontWeight: '600',
     letterSpacing: -0.1,
@@ -197,4 +195,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-
