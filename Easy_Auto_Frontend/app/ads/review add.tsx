@@ -1,8 +1,8 @@
+import { dummyData } from "@/constants/dummydata/reviewadd";
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { dummyData } from "../dummydata/reviewadd";
 
 export default function ReviewAd() {
   const [negotiable, setNegotiable] = useState(true);

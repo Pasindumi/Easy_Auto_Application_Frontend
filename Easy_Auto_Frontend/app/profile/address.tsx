@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
 
 export default function Address() {
@@ -143,7 +143,7 @@ export default function Address() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#F9FAFB',
   },
 
   container: {
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
 });
 
 const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F2F2F2' },
+  headerWrap: { backgroundColor: '#F9FAFB' },
   header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E0E0E0' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },

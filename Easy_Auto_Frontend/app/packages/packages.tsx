@@ -2,13 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HEADER_HEIGHT = 140;
 
@@ -75,7 +75,7 @@ export default function PackagesScreen() {
               <Text style={styles.featureText}>Basic analytics</Text>
             </View>
 
-           <TouchableOpacity
+            <TouchableOpacity
               style={styles.selectButton}
               onPress={() =>
                 router.push({
@@ -134,21 +134,21 @@ export default function PackagesScreen() {
               <Text style={styles.featureText}>Targeted social media promotion</Text>
             </View>
 
-           <TouchableOpacity
-                style={styles.selectButton}
-                onPress={() =>
-                  router.push({
-                    pathname: "./payments/invoice",
-                    params: {
-                      plan: "Gold Boost",
-                      price: 39.99,
-                      days: 7
-                    }
-                  })
-                }
-              >
-                <Text style={styles.selectText}>Select Plan</Text>
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.selectButton}
+              onPress={() =>
+                router.push({
+                  pathname: "./payments/invoice",
+                  params: {
+                    plan: "Gold Boost",
+                    price: 39.99,
+                    days: 7
+                  }
+                })
+              }
+            >
+              <Text style={styles.selectText}>Select Plan</Text>
+            </TouchableOpacity>
 
           </View>
 
@@ -203,19 +203,19 @@ export default function PackagesScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFB',
   },
 
- header: {
-  height: HEADER_HEIGHT,
-  backgroundColor: '#235CF8',
-  flexDirection: 'row',
-  alignItems: 'flex-end',   // pushes content down
-  justifyContent: 'space-between',
-  paddingHorizontal: 16,
-  paddingBottom: 20,        // space from bottom
- 
-},
+  header: {
+    height: HEADER_HEIGHT,
+    backgroundColor: '#235CF8',
+    flexDirection: 'row',
+    alignItems: 'flex-end',   // pushes content down
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 20,        // space from bottom
+
+  },
 
 
   headerTitle: {

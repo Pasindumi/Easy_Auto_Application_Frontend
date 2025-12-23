@@ -1,7 +1,7 @@
+import { dummyData } from "@/constants/dummydata/reviewadd";
 import { router } from 'expo-router';
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { dummyData } from '../dummydata/reviewadd';
 
 export default function Payment() {
   const orderItems = [

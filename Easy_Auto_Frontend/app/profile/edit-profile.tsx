@@ -3,7 +3,6 @@ import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -124,7 +124,7 @@ export default function EditProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+  safe: { flex: 1, backgroundColor: "#F9FAFB" },
 
   header: {
     backgroundColor: "#235CF8",

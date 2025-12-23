@@ -11,6 +11,10 @@ import {
 } from 'react-native';
 import Header from "../../components/Header";
 
+/* ================= STYLES ================= */
+
+import { typography } from "../../components/theme";
+
 const payments = [
   { id: '1', date: 'Oct 15, 2025' },
   { id: '2', date: 'Sep 15, 2025' },
@@ -214,14 +218,10 @@ function BenefitItem({ text }: { text: string }) {
   );
 }
 
-/* ================= STYLES ================= */
-
-import { typography } from "../../components/theme";
-
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#E5E3E3',
+    backgroundColor: '#ffffffff',
   },
 
   planCard: {

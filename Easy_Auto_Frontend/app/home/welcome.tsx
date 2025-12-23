@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -89,7 +89,7 @@ export default function WelcomeScreen() {
             style={styles.continueButton}
             onPress={() => {
               // Navigate to language selection screen
-              router.push('/settings/selectlanguage');
+              router.push('/settings/select-language');
             }}
           >
             <Text style={styles.continueButtonText}>Continue</Text>
@@ -103,7 +103,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F9FAFB',
   },
   header: {
     backgroundColor: '#235CF8',

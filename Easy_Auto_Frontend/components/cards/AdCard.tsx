@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import { Ad } from '@/app/dummydata/ads';
+import { Ad } from '@/constants/dummydata/ads';
 import StatusBadge from '../status/StatusBadge';
 
 interface AdCardProps {

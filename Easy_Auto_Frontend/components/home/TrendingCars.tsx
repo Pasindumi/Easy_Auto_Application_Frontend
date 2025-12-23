@@ -18,7 +18,7 @@ interface TrendingCarsProps {
     setTrendingCategory: (category: string) => void;
 }
 
-import { CATEGORIES, TRENDING_CARS } from "@/app/dummydata/homedummydata";
+import { CATEGORIES, TRENDING_CARS } from "@/constants/dummydata/homedummydata";
 
 const TrendingCars: React.FC<TrendingCarsProps> = ({
     fadeAnim,

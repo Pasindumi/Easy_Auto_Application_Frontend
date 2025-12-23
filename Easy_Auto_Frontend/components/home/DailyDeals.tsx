@@ -1,4 +1,4 @@
-import { DAILY_DEALS } from "@/app/dummydata/homedummydata";
+import { DAILY_DEALS } from "@/constants/dummydata/homedummydata";
 import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
 import {

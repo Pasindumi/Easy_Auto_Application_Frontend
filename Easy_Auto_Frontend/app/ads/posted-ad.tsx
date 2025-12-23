@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Alert, Image, Linking, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import { router } from 'expo-router';
-import { dummyData } from '../dummydata/reviewadd';
+import { dummyData } from "@/constants/dummydata/reviewadd";
 
 export default function PostedAd() {
   const images: (string | number)[] = [dummyData.coverImage, ...dummyData.gallery];
@@ -13,7 +13,7 @@ export default function PostedAd() {
   const similarCars = [
     { title: 'Yaris Cross', price: 'Rs 12,500,000', image: images[1] },
     { title: 'Yaris Cross', price: 'Rs 18,500,000', image: images[2] },
-    
+
   ];
 
   // Increment views when page is opened (simple demo)
@@ -200,7 +200,7 @@ export default function PostedAd() {
                   <Text style={styles.sellerInfo}>Email: {dummyData.seller.email}</Text>
                 </View>
               </View>
-             
+
             </View>
           </View>
 

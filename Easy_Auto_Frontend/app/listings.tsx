@@ -14,12 +14,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { LISTINGS } from "@/constants/dummydata/listings"; // <- imported dummy data
 import ListingCard from "../components/cards/ListingCard";
 import Header from "../components/Header";
 import styles from "../components/listingStyles";
 import SearchBar from "../components/SearchBar";
 import StatusCards from "../components/status/StatusCards";
-import { LISTINGS } from "./dummydata/listings"; // <- imported dummy data
 
 export default function MyListingsScreen() {
   const router = useRouter();
@@ -150,7 +150,7 @@ export default function MyListingsScreen() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
         {/* Fixed Top */}
         <Header />
         <View style={{ backgroundColor: "#fff" }}>

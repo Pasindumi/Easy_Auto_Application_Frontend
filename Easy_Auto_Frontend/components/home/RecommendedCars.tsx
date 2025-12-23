@@ -16,7 +16,7 @@ interface RecommendedCarsProps {
     slideAnim: Animated.Value;
 }
 
-import { RECOMMENDED_CARS } from "@/app/dummydata/homedummydata";
+import { RECOMMENDED_CARS } from "@/constants/dummydata/homedummydata";
 
 const RecommendedCars: React.FC<RecommendedCarsProps> = ({
     fadeAnim,
