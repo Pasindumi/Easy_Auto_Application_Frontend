@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SUV_CARS, CAR_CARS } from '../dummydata/buy-a-car';
+import { SUV_CARS, CAR_CARS } from '../../constants/dummydata/buy-a-car';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
