@@ -36,16 +36,7 @@ export default function PaymentMethods() {
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.container}>
           {/* ---------- HEADER ---------- */}
-          {/* ---------- HEADER ---------- */}
-          <Header />
-          <View style={localStyles.headerWrap}>
-            <View style={localStyles.header}>
-              <View style={localStyles.headerLeft}>
-                <Ionicons name="card-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-                <Text style={localStyles.headerTitle}>Payment Methods</Text>
-              </View>
-            </View>
-          </View>
+          <Header showBack={true} title="Payment Methods" />
 
           {/* ---------- CREDIT CARD SECTION ---------- */}
           <View style={styles.cardContainer}>
@@ -189,6 +180,13 @@ export default function PaymentMethods() {
           {/* Pay Now CTA */}
           <TouchableOpacity style={styles.payNowBtn} onPress={handlePayNow}>
             <Text style={styles.payNowText}>Pay Now</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.payNowBtn, { backgroundColor: '#fff', borderWidth: 1, borderColor: '#235CF8', marginTop: 12 }]}
+            onPress={() => router.push('/payments/payment' as any)}
+          >
+            <Text style={[styles.payNowText, { color: '#235CF8' }]}>View Summary</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>

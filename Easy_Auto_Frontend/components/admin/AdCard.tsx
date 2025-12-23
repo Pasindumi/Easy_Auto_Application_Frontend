@@ -1,10 +1,10 @@
 
-import { STATUS_FILTERS } from '@/constants/ads';
 import { Ad } from '@/types/ad.types';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { memo } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { STATUS_FILTERS } from '../../constants/ads';
 
 interface AdCardProps {
   item: Ad;

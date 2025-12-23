@@ -1,8 +1,5 @@
 
 import ProfileHeader from '@/components/ProfileHeader';
-import AdCard from '@/components/admin/AdCard';
-import SkeletonAdCard from '@/components/admin/SkeletonAdCard';
-import { STATUS_FILTERS } from '@/constants/ads';
 import { Ad, AdStatus, NavTab } from '@/types/ad.types';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -23,6 +20,9 @@ import {
          View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AdCard from '../../components/admin/AdCard';
+import SkeletonAdCard from '../../components/admin/SkeletonAdCard';
+import { STATUS_FILTERS } from '../../constants/ads';
 
 
 

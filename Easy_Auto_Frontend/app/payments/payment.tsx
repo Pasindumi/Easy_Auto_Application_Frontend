@@ -1,103 +1,101 @@
-import { dummyData } from "@/constants/dummydata/reviewadd";
-import { router } from 'expo-router';
+import Header from '@/components/Header';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { paymentData } from "../../constants/dummydata/payment";
 
 export default function Payment() {
-  const orderItems = [
-    { label: 'Premium Listing - 30 days', price: 2500 },
-    { label: 'Extra Visibility package', price: 1000 },
-    { label: 'Featured Product Boost', price: 1500 },
-    { label: 'Seasonal Discount', price: -250 },
-  ];
+  const router = useRouter();
+  const orderItems = paymentData.orderItems;
   const total = orderItems.reduce((acc, i) => acc + i.price, 0);
+  const summary = paymentData.summary;
+  const seller = paymentData.seller;
+  const note = paymentData.note;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-
-
-
-      {/* Summary Card */}
-      <View style={styles.card}>
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <Image source={typeof dummyData.coverImage === 'string' ? { uri: dummyData.coverImage } : dummyData.coverImage} style={styles.thumb} />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{dummyData.title}</Text>
-            <Text style={styles.price}>{dummyData.price}</Text>
-          </View>
-        </View>
-
-        {/* Meta */}
-        <View style={styles.sectionBox}>
-          <Text style={styles.metaText}>Date: 2025-12-03</Text>
-          <Text style={styles.metaText}>Settle Pending (expected payout : 2025-12-15)</Text>
-          <Text style={styles.metaText}>Invoice : #INV00258</Text>
-        </View>
-
-        {/* Seller Information */}
-        <View style={styles.sectionBox}>
-          <Text style={styles.sectionHeader}>Seller Information</Text>
-          <Text style={styles.metaText}>Seller: {dummyData.seller.name}</Text>
-          <Text style={styles.metaText}>Contact: +94 712345678</Text>
-          <Text style={styles.metaText}>Address: No. 101, Galle Road, Colombo</Text>
-          <Text style={styles.metaText}>Email: {dummyData.seller.email}</Text>
-        </View>
-
-        {/* Order Items */}
-        <View style={styles.sectionBox}>
-          <Text style={styles.sectionHeader}>Order Items</Text>
-          {orderItems.map((item, idx) => (
-            <View key={idx} style={styles.row}>
-              <Text style={styles.itemLabel}>{item.label}</Text>
-              <Text style={[styles.itemPrice, item.price < 0 && { color: '#ef4444' }]}>
-                {item.price < 0 ? `- LKR ${Math.abs(item.price).toFixed(2)}` : `LKR ${item.price.toFixed(2)}`}
-              </Text>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} title="Payment Summary" />
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        {/* Summary Card */}
+        <View style={styles.card}>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <Image source={typeof summary.coverImage === 'string' ? { uri: summary.coverImage } : summary.coverImage} style={styles.thumb} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>{summary.title}</Text>
+              <Text style={styles.price}>{summary.price}</Text>
             </View>
-          ))}
-          <View style={styles.divider} />
-          <View style={styles.row}>
-            <Text style={[styles.itemLabel, { fontWeight: '700' }]}>Total</Text>
-            <Text style={[styles.itemPrice, { fontWeight: '700' }]}>LKR {total.toFixed(2)}</Text>
           </View>
-        </View>
 
-        {/* Important Note */}
-        <View style={styles.sectionBox}>
-          <Text style={styles.sectionHeader}>Important Note</Text>
-          <Text style={styles.noteText}>
-            Your listing will be live as soon as we have payment confirmation.
-            Non-refundable. Please contact our support for disputes or refund.
-          </Text>
-        </View>
-
-        {/* Promo Code */}
-        <View style={styles.sectionBox}>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <View style={styles.promoField} />
-            <TouchableOpacity style={styles.applyBtn}><Text style={styles.applyText}>Apply</Text></TouchableOpacity>
+          {/* Meta */}
+          <View style={styles.sectionBox}>
+            <Text style={styles.metaText}>Date: {summary.date}</Text>
+            <Text style={styles.metaText}>Settle Pending (expected payout : {summary.payout})</Text>
+            <Text style={styles.metaText}>Invoice : {summary.invoice}</Text>
           </View>
-        </View>
 
-        {/* Payment Method */}
-        <View style={styles.sectionBox}>
-          <Text style={styles.sectionHeader}>Payment Method</Text>
-          <TouchableOpacity style={styles.methodItem} onPress={() => router.push('/payments/payment-methods' as any)}>
-            <Text style={styles.methodText}>Credit/Debit card</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.methodItem}>
-            <Text style={styles.methodText}>Apple Pay</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.methodItem}>
-            <Text style={styles.methodText}>Paypal</Text>
+          {/* Seller Information */}
+          <View style={styles.sectionBox}>
+            <Text style={styles.sectionHeader}>Seller Information</Text>
+            <Text style={styles.metaText}>Seller: {seller.name}</Text>
+            <Text style={styles.metaText}>Contact: {seller.contact}</Text>
+            <Text style={styles.metaText}>Address: {seller.address}</Text>
+            <Text style={styles.metaText}>Email: {seller.email}</Text>
+          </View>
+
+          {/* Order Items */}
+          <View style={styles.sectionBox}>
+            <Text style={styles.sectionHeader}>Order Items</Text>
+            {orderItems.map((item, idx) => (
+              <View key={idx} style={styles.row}>
+                <Text style={styles.itemLabel}>{item.label}</Text>
+                <Text style={[styles.itemPrice, item.price < 0 && { color: '#ef4444' }]}>
+                  {item.price < 0 ? `- LKR ${Math.abs(item.price).toFixed(2)}` : `LKR ${item.price.toFixed(2)}`}
+                </Text>
+              </View>
+            ))}
+            <View style={styles.divider} />
+            <View style={styles.row}>
+              <Text style={[styles.itemLabel, { fontWeight: '700' }]}>Total</Text>
+              <Text style={[styles.itemPrice, { fontWeight: '700' }]}>LKR {total.toFixed(2)}</Text>
+            </View>
+          </View>
+
+          {/* Important Note */}
+          <View style={styles.sectionBox}>
+            <Text style={styles.sectionHeader}>Important Note</Text>
+            <Text style={styles.noteText}>{note}</Text>
+          </View>
+
+          {/* Promo Code */}
+          <View style={styles.sectionBox}>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={styles.promoField} />
+              <TouchableOpacity style={styles.applyBtn}><Text style={styles.applyText}>Apply</Text></TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Payment Method */}
+          <View style={styles.sectionBox}>
+            <Text style={styles.sectionHeader}>Payment Method</Text>
+            <TouchableOpacity style={styles.methodItem} onPress={() => router.push('/payments/payment-methods' as any)}>
+              <Text style={styles.methodText}>Credit/Debit card</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.methodItem}>
+              <Text style={styles.methodText}>Apple Pay</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.methodItem}>
+              <Text style={styles.methodText}>Paypal</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Continue */}
+          <TouchableOpacity style={styles.continueBtn} onPress={() => router.push('/payments/payment-methods' as any)}>
+            <Text style={styles.continueText}>Continue</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Continue */}
-        <TouchableOpacity style={styles.continueBtn} onPress={() => router.push('/payments/payment-methods' as any)}>
-          <Text style={styles.continueText}>Continue</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 
