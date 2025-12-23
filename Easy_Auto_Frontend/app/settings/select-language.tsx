@@ -21,7 +21,7 @@ export default function SelectLanguage() {
       code: "si",
       name: "Sinhala",
       native: "සිංහල",
-      icon: "language",
+      icon: "web",
       color: "#F97316",
     },
     {
