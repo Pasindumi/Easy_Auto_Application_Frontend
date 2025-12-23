@@ -1,4 +1,4 @@
-// app/my-ads.tsx
+import COLORS from "@/constants/Colors";
 import { ADS_DATA } from "@/constants/dummydata/ads";
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import {
   FlatList,
   RefreshControl,
-  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -77,26 +76,7 @@ export default function MyAdsScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
-  const handleEdit = (id: string) => router.push(`/ads/edit-car?id=${encodeURIComponent(id)}`);
-  const handleBoost = (id: string) => router.push(`/packages/packages?id=${encodeURIComponent(id)}`);
-  const handleDelete = (id: string) => router.push(`/ads/delete-car?id=${encodeURIComponent(id)}`);
-  const handleShare = async (id: string) => {
-    const item = ADS_DATA.find(ad => ad.id === id);
-    if (!item) return;
-    try {
-      await Share.share({
-        message: `${item.title} — ${item.price}\nCheck this ad: myapp://view-car?id=${item.id}`,
-        title: item.title,
-      });
-    } catch (error) {
-      console.warn('Share failed', error);
-    }
-  };
-
-  const handleBulkPause = () => setSelected([]);
-  const handleBulkDelete = () => setSelected([]);
-
-  const renderAd = ({ item, index }: { item: typeof ADS_DATA[0]; index: number }) => (
+  const renderAd = ({ item }: { item: typeof ADS_DATA[0]; index: number }) => (
     <AdCard ad={item} selected={selected.includes(item.id)} toggleSelect={toggleSelect} />
   );
 
@@ -109,7 +89,7 @@ export default function MyAdsScreen() {
         <View style={localStyles.headerWrap}>
           <View style={localStyles.header}>
             <View style={localStyles.headerLeft}>
-              <Ionicons name="layers-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+              <Ionicons name="layers-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
               <Text style={localStyles.headerTitle}>My Ads</Text>
             </View>
 
@@ -129,17 +109,17 @@ export default function MyAdsScreen() {
         {selected.length > 0 && (
           <View style={styles.bulkActionsBar}>
             <View style={styles.bulkActionsLeft}>
-              <TouchableOpacity style={styles.bulkActionButton} onPress={handleBulkPause}>
-                <Ionicons name="pause" size={14} color="#235CF8" />
+              <TouchableOpacity style={styles.bulkActionButton} onPress={() => setSelected([])}>
+                <Ionicons name="pause" size={14} color={COLORS.primary} />
                 <Text style={styles.bulkActionText}>Pause</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.bulkActionButton, styles.bulkActionButtonDanger]} onPress={handleBulkDelete}>
-                <Ionicons name="trash-outline" size={14} color="#EF4444" />
-                <Text style={[styles.bulkActionText, styles.bulkActionTextDanger]}>Delete</Text>
+              <TouchableOpacity style={styles.bulkActionButton} onPress={() => setSelected([])}>
+                <Ionicons name="trash-outline" size={14} color={COLORS.status.danger} />
+                <Text style={[styles.bulkActionText, { color: COLORS.status.danger }]}>Delete</Text>
               </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={() => setSelected([])}>
-              <Ionicons name="close" size={16} color="#6B7280" />
+              <Ionicons name="close" size={16} color={COLORS.text.muted} />
             </TouchableOpacity>
           </View>
         )}
@@ -150,16 +130,16 @@ export default function MyAdsScreen() {
           keyExtractor={item => item.id}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="car-outline" size={48} color="#D1D5DB" />
+              <Ionicons name="car-outline" size={48} color={COLORS.divider} />
               <Text style={styles.emptyTitle}>No ads found</Text>
               <TouchableOpacity style={styles.emptyButton} onPress={() => router.push('/cars/buy-car')}>
-                <Ionicons name="add-circle-outline" size={16} color="#fff" />
+                <Ionicons name="add-circle-outline" size={16} color={COLORS.white} />
                 <Text style={styles.emptyButtonText}>Create New Ad</Text>
               </TouchableOpacity>
             </View>
           }
           contentContainerStyle={{ paddingBottom: 24 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#235CF8" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
         />
       </View>
     </View>
@@ -167,25 +147,23 @@ export default function MyAdsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
-  bulkActionsBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#F3F4F6' },
+  container: { flex: 1, backgroundColor: COLORS.background },
+  bulkActionsBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, backgroundColor: COLORS.primaryLight },
   bulkActionsLeft: { flexDirection: 'row', marginRight: 8 },
   bulkActionButton: { flexDirection: 'row', alignItems: 'center', marginRight: 12 },
-  bulkActionText: { fontSize: 13, color: '#235CF8', fontWeight: '500' },
-  bulkActionButtonDanger: {},
-  bulkActionTextDanger: { color: '#EF4444' },
+  bulkActionText: { fontSize: 13, color: COLORS.primary, fontWeight: '500' },
 
   emptyContainer: { justifyContent: 'center', alignItems: 'center', marginTop: 60 },
-  emptyTitle: { fontSize: 16, fontWeight: '600', color: '#6B7280', marginTop: 12 },
-  emptyButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#235CF8', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12, marginTop: 12 },
-  emptyButtonText: { color: '#fff', fontWeight: '500', fontSize: 13 },
+  emptyTitle: { fontSize: 16, fontWeight: '600', color: COLORS.text.muted, marginTop: 12 },
+  emptyButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.primary, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12, marginTop: 12 },
+  emptyButtonText: { color: COLORS.white, fontWeight: '500', fontSize: 13 },
 });
 
 const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#fff' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#F3F4F6' },
+  headerWrap: { backgroundColor: COLORS.background },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
+  headerTitle: { color: COLORS.primary, fontSize: 18, fontWeight: '600' },
   headerRight: { paddingHorizontal: 8, paddingVertical: 4 },
-  selectAllText: { fontSize: 13, color: '#6B7280' },
+  selectAllText: { fontSize: 13, color: COLORS.text.muted },
 });

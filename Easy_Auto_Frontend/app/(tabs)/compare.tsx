@@ -1,5 +1,5 @@
-// app/(tabs)/compare.tsx
 import ProfileHeader from "@/components/ProfileHeader";
+import COLORS from "@/constants/Colors";
 import { Stack } from "expo-router";
 import React from "react";
 import {
@@ -7,31 +7,36 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import ComparisonCard from "../../components/compare/ComparisonCard";
 import SelectCarsHeader from "../../components/compare/SelectCarsHeader";
 import { SAMPLE_COMPARISONS } from "../../constants/dummydata/compare";
 
 export default function CompareScreen() {
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <ProfileHeader title="Compare Cars" showProfileCard={false} />
-      <SafeAreaView style={styles.safe}>
-        <FlatList
-          data={SAMPLE_COMPARISONS}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ComparisonCard item={item} />}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          ListHeaderComponent={SelectCarsHeader}
-          contentContainerStyle={styles.listContent}
-        />
-      </SafeAreaView>
-    </>
+
+      <FlatList
+        data={SAMPLE_COMPARISONS}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <ComparisonCard item={item} />}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        ListHeaderComponent={SelectCarsHeader}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  listContent: { paddingTop: 80, paddingBottom: 100 },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background
+  },
+  listContent: {
+    paddingTop: 80,
+    paddingBottom: 100
+  },
 });

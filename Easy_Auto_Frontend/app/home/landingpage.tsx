@@ -1,3 +1,4 @@
+import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
@@ -15,13 +16,13 @@ export default function LandingPage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#235CF8" />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       <View style={styles.content}>
         {/* Car Logo */}
         <View style={styles.logoContainer}>
           <View style={styles.logoBackground}>
-            <Ionicons name="car-sport" size={60} color="#235CF8" />
+            <Ionicons name="car-sport" size={60} color={COLORS.primary} />
           </View>
           <Text style={styles.logoText}>EASYAUTO</Text>
         </View>
@@ -47,7 +48,7 @@ export default function LandingPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#235CF8',
+    backgroundColor: COLORS.primary,
   },
   content: {
     flex: 1,
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: COLORS.white,
     letterSpacing: 2,
   },
   welcomeContainer: {
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: 'white',
+    color: COLORS.white,
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   getStartedButton: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderRadius: 25,
     paddingVertical: 16,
     paddingHorizontal: 48,
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   getStartedButtonText: {
-    color: '#235CF8',
+    color: COLORS.primary,
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',

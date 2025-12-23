@@ -1,5 +1,5 @@
-// app/rent-car.tsx
-import ProfileHeader from '@/components/ProfileHeader';
+import Header from '@/components/Header';
+import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
@@ -98,123 +97,143 @@ export default function RentCarScreen() {
   );
 
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Rent a Car" showProfileCard={false} />
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Hero Section */}
-          <View style={styles.heroSection}>
-            <View style={styles.heroIconContainer}>
-              <Ionicons name="car-outline" size={64} color="#235CF8" />
-            </View>
-            <Text style={styles.heroTitle}>Rent a Car</Text>
-            <Text style={styles.heroSubtitle}>
-              Flexible daily, weekly & monthly rates
-            </Text>
-          </View>
+      <Header showBack={true} />
 
-          {/* Date Selection */}
-          <View style={styles.dateSection}>
-            <View style={styles.dateRow}>
-              <View style={styles.dateInput}>
-                <Ionicons name="calendar-outline" size={20} color="#235CF8" />
-                <TextInput
-                  style={styles.dateText}
-                  placeholder="Pickup Date"
-                  value={pickupDate}
-                  onChangeText={setPickupDate}
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-              <View style={styles.dateInput}>
-                <Ionicons name="calendar-outline" size={20} color="#235CF8" />
-                <TextInput
-                  style={styles.dateText}
-                  placeholder="Return Date"
-                  value={returnDate}
-                  onChangeText={setReturnDate}
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="key-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Rent a Car</Text>
+        </View>
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <View style={styles.heroIconContainer}>
+            <Ionicons name="car-outline" size={64} color={COLORS.primary} />
+          </View>
+          <Text style={styles.heroTitle}>Flexible Rentals</Text>
+          <Text style={styles.heroSubtitle}>
+            Choose from daily, weekly & monthly rates
+          </Text>
+        </View>
+
+        {/* Date Selection */}
+        <View style={styles.dateSection}>
+          <View style={styles.dateRow}>
+            <View style={styles.dateInput}>
+              <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+              <TextInput
+                style={styles.dateText}
+                placeholder="Pickup Date"
+                value={pickupDate}
+                onChangeText={setPickupDate}
+                placeholderTextColor={COLORS.text.muted}
+              />
+            </View>
+            <View style={styles.dateInput}>
+              <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+              <TextInput
+                style={styles.dateText}
+                placeholder="Return Date"
+                value={returnDate}
+                onChangeText={setReturnDate}
+                placeholderTextColor={COLORS.text.muted}
+              />
             </View>
           </View>
+        </View>
 
-          {/* Rental Packages */}
-          <View style={styles.packagesSection}>
-            <Text style={styles.sectionTitle}>Rental Packages</Text>
-            <View style={styles.packagesContainer}>
-              {RENTAL_PACKAGES.map((pkg) => (
-                <TouchableOpacity
-                  key={pkg.id}
+        {/* Rental Packages */}
+        <View style={styles.packagesSection}>
+          <Text style={styles.sectionTitle}>Rental Packages</Text>
+          <View style={styles.packagesContainer}>
+            {RENTAL_PACKAGES.map((pkg) => (
+              <TouchableOpacity
+                key={pkg.id}
+                style={[
+                  styles.packageCard,
+                  selectedPackage === pkg.id && styles.packageCardActive,
+                ]}
+                onPress={() => setSelectedPackage(pkg.id)}
+              >
+                <Text
                   style={[
-                    styles.packageCard,
-                    selectedPackage === pkg.id && styles.packageCardActive,
+                    styles.packageDuration,
+                    selectedPackage === pkg.id && styles.packageDurationActive,
                   ]}
-                  onPress={() => setSelectedPackage(pkg.id)}
                 >
-                  <Text
-                    style={[
-                      styles.packageDuration,
-                      selectedPackage === pkg.id && styles.packageDurationActive,
-                    ]}
-                  >
-                    {pkg.duration}
-                  </Text>
-                  <Text style={styles.packagePrice}>{pkg.price}</Text>
-                  <Text style={styles.packageDescription}>
-                    {pkg.description}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                  {pkg.duration}
+                </Text>
+                <Text style={styles.packagePrice}>{pkg.price}</Text>
+                <Text style={styles.packageDescription}>
+                  {pkg.description}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
+        </View>
 
-          {/* Available Cars */}
-          <View style={styles.carsSection}>
-            <Text style={styles.sectionTitle}>Available Cars</Text>
-            <View style={styles.carsGrid}>
-              {RENTAL_CARS.map((item, index) => {
-                if (index % 2 === 0) {
-                  const nextItem = RENTAL_CARS[index + 1];
-                  return (
-                    <View key={`row-${index}`} style={styles.carsRow}>
-                      <View key={item.id} style={{ width: CARD_WIDTH }}>
-                        {renderRentalCard({ item })}
-                      </View>
-                      {nextItem && (
-                        <View key={nextItem.id} style={{ width: CARD_WIDTH }}>
-                          {renderRentalCard({ item: nextItem })}
-                        </View>
-                      )}
+        {/* Available Cars */}
+        <View style={styles.carsSection}>
+          <Text style={styles.sectionTitle}>Available Cars</Text>
+          <View style={styles.carsGrid}>
+            {RENTAL_CARS.map((item, index) => {
+              if (index % 2 === 0) {
+                const nextItem = RENTAL_CARS[index + 1];
+                return (
+                  <View key={`row-${index}`} style={styles.carsRow}>
+                    <View key={item.id} style={{ width: CARD_WIDTH }}>
+                      {renderRentalCard({ item })}
                     </View>
-                  );
-                }
-                return null;
-              })}
-            </View>
+                    {nextItem && (
+                      <View key={nextItem.id} style={{ width: CARD_WIDTH }}>
+                        {renderRentalCard({ item: nextItem })}
+                      </View>
+                    )}
+                  </View>
+                );
+              }
+              return null;
+            })}
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
+  container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
+  },
+  subHeaderWrap: {
+    backgroundColor: COLORS.background
+  },
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  subHeaderTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '600'
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 80, // Account for header
-    paddingBottom: 100, // Account for tab bar (68px) + safe area + extra spacing
+    paddingBottom: 40,
   },
   heroSection: {
     alignItems: 'center',
@@ -225,7 +244,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -233,13 +252,13 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#111827',
+    color: COLORS.text.primary,
     marginBottom: 8,
     textAlign: 'center',
   },
   heroSubtitle: {
     fontSize: 16,
-    color: '#6B7280',
+    color: COLORS.text.muted,
     textAlign: 'center',
   },
   dateSection: {
@@ -254,18 +273,18 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.divider,
     gap: 12,
   },
   dateText: {
     flex: 1,
     fontSize: 16,
-    color: '#111827',
+    color: COLORS.text.primary,
   },
   packagesSection: {
     paddingHorizontal: 16,
@@ -274,7 +293,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: COLORS.text.primary,
     marginBottom: 16,
   },
   packagesContainer: {
@@ -283,35 +302,35 @@ const styles = StyleSheet.create({
   },
   packageCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderWidth: 1,
+    borderColor: COLORS.divider,
     alignItems: 'center',
   },
   packageCardActive: {
-    borderColor: '#235CF8',
-    backgroundColor: '#F0F4FF',
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
   },
   packageDuration: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: COLORS.text.primary,
     marginBottom: 8,
   },
   packageDurationActive: {
-    color: '#235CF8',
+    color: COLORS.primary,
   },
   packagePrice: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#235CF8',
+    color: COLORS.primary,
     marginBottom: 4,
   },
   packageDescription: {
     fontSize: 12,
-    color: '#6B7280',
+    color: COLORS.text.muted,
     textAlign: 'center',
   },
   carsSection: {
@@ -327,14 +346,11 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   rentalCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     overflow: 'hidden',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   rentalImage: {
     width: '100%',
@@ -346,7 +362,7 @@ const styles = StyleSheet.create({
   rentalName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: COLORS.text.primary,
     marginBottom: 8,
   },
   featuresContainer: {
@@ -356,7 +372,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   featureTag: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.background,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -364,24 +380,23 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#6B7280',
+    color: COLORS.text.muted,
   },
   rentalPrice: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#235CF8',
+    color: COLORS.primary,
     marginBottom: 12,
   },
   rentButton: {
-    backgroundColor: '#235CF8',
+    backgroundColor: COLORS.primary,
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
   },
   rentButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 14,
     fontWeight: '700',
   },
 });
-

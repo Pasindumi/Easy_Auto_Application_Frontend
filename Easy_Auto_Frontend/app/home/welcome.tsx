@@ -1,15 +1,15 @@
+import Header from '@/components/Header';
+import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import {
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -24,18 +24,9 @@ export default function WelcomeScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#235CF8" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.push('/(tabs)')}
-        >
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} title="Welcome" />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Welcome Text Section */}
@@ -45,10 +36,10 @@ export default function WelcomeScreen() {
           </Text>
         </View>
 
-        {/* Car Image */}
+        {/* Car Image Placeholder */}
         <View style={styles.imageContainer}>
           <View style={styles.carImagePlaceholder}>
-            <Ionicons name="car-sport" size={120} color="#333" />
+            <Ionicons name="car-sport" size={120} color={COLORS.white} />
           </View>
         </View>
 
@@ -61,26 +52,25 @@ export default function WelcomeScreen() {
             Browse thousands of verified cars from trusted sellers near you.
           </Text>
 
-
           {/* Benefits Section */}
           <View style={styles.benefitsSection}>
             <View style={styles.benefitsContainer}>
-              <Text style={styles.benefitsTitle}>Benefits of Using CarMart</Text>
+              <Text style={styles.benefitsTitle}>Benefits of Using EasyAuto</Text>
 
-              <View style={styles.benefitsGrid}>
-                {benefits.map((benefit, index) => (
+              <div style={styles.benefitsGrid as any}>
+                {benefits.map((benefit) => (
                   <View key={benefit.id} style={styles.benefitItem}>
                     <View style={styles.checkmarkContainer}>
                       <Ionicons
                         name="checkmark"
                         size={14}
-                        color="#235CF8"
+                        color={COLORS.primary}
                       />
                     </View>
                     <Text style={styles.benefitText}>{benefit.text}</Text>
                   </View>
                 ))}
-              </View>
+              </div>
             </View>
           </View>
 
@@ -88,7 +78,6 @@ export default function WelcomeScreen() {
           <TouchableOpacity
             style={styles.continueButton}
             onPress={() => {
-              // Navigate to language selection screen
               router.push('/settings/select-language');
             }}
           >
@@ -96,29 +85,14 @@ export default function WelcomeScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  header: {
-    backgroundColor: '#235CF8',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 32,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  backButton: {
-    padding: 8,
+    backgroundColor: COLORS.background,
   },
   content: {
     flex: 1,
@@ -127,16 +101,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 24,
     paddingHorizontal: 16,
-    marginBottom: 4,
   },
   welcomeText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.text.primary,
     fontWeight: '500',
     textAlign: 'center',
   },
   easyAutoText: {
-    color: '#235CF8',
+    color: COLORS.primary,
     fontWeight: 'bold',
   },
   imageContainer: {
@@ -150,8 +123,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
-    overflow: 'hidden',
   },
   mainContent: {
     paddingHorizontal: 24,
@@ -160,17 +131,17 @@ const styles = StyleSheet.create({
   mainTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#235CF8',
+    color: COLORS.primary,
     textAlign: 'center',
     marginBottom: 8,
   },
   dreamCarText: {
-    color: '#000000',
+    color: COLORS.text.primary,
     fontWeight: 'bold',
   },
   subtitle: {
     fontSize: 14,
-    color: '#235CF8',
+    color: COLORS.primary,
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 20,
@@ -179,19 +150,16 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   benefitsContainer: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 20,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   benefitsTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.text.primary,
     marginBottom: 16,
   },
   benefitsGrid: {
@@ -205,34 +173,30 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 12,
   },
-  benefitIcon: {
-    marginRight: 8,
-  },
   checkmarkContainer: {
     width: 20,
     height: 20,
     borderRadius: 4,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderWidth: 2,
-    borderColor: '#235CF8',
+    borderColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
   },
   benefitText: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.text.muted,
     flex: 1,
   },
   continueButton: {
-    backgroundColor: '#235CF8',
+    backgroundColor: COLORS.primary,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
-    marginHorizontal: 0,
   },
   continueButtonText: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },

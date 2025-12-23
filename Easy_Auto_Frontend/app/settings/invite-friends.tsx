@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React from "react";
@@ -9,7 +10,6 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { typography } from "../../components/theme";
 
 export default function InviteFriendsScreen() {
     const router = useRouter();
@@ -28,19 +28,11 @@ export default function InviteFriendsScreen() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header />
-            <View style={localStyles.headerWrap}>
-                <View style={localStyles.header}>
-                    <View style={localStyles.headerLeft}>
-                        <Ionicons name="people-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-                        <Text style={localStyles.headerTitle}>Invite Friends</Text>
-                    </View>
-                </View>
-            </View>
+            <Header showBack={true} title="Invite Friends" />
 
             <View style={styles.content}>
-                <View style={styles.iconContainer}>
-                    <Ionicons name="gift-outline" size={80} color="#235CF8" />
+                <View style={[styles.iconContainer, { backgroundColor: COLORS.primaryLight }]}>
+                    <Ionicons name="gift-outline" size={80} color={COLORS.primary} />
                 </View>
 
                 <Text style={styles.title}>Invite Friends & Earn Rewards</Text>
@@ -52,7 +44,7 @@ export default function InviteFriendsScreen() {
                     <Text style={styles.codeLabel}>Your Referral Code</Text>
                     <TouchableOpacity style={styles.codeBox} activeOpacity={0.8}>
                         <Text style={styles.code}>DILMIN2024</Text>
-                        <Ionicons name="copy-outline" size={20} color="#235CF8" />
+                        <Ionicons name="copy-outline" size={20} color={COLORS.primary} />
                     </TouchableOpacity>
                 </View>
 
@@ -62,7 +54,7 @@ export default function InviteFriendsScreen() {
                     activeOpacity={0.8}
                 >
                     <Text style={styles.shareText}>Invite Friends</Text>
-                    <Ionicons name="share-outline" size={20} color="#fff" />
+                    <Ionicons name="share-outline" size={20} color={COLORS.white} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -72,7 +64,7 @@ export default function InviteFriendsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F9FAFB",
+        backgroundColor: COLORS.background,
     },
     content: {
         flex: 1,
@@ -85,19 +77,22 @@ const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderRadius: 60,
-        backgroundColor: "#EFF6FF",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 24,
     },
     title: {
-        ...typography.heading,
+        fontSize: 22,
+        fontWeight: "800",
+        color: COLORS.text.primary,
         textAlign: "center",
         marginBottom: 12,
     },
     subtitle: {
-        ...typography.body,
+        fontSize: 15,
+        color: COLORS.text.secondary,
         textAlign: "center",
+        lineHeight: 22,
         marginBottom: 40,
     },
     codeContainer: {
@@ -105,50 +100,50 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     codeLabel: {
-        ...typography.subheading,
         fontSize: 14,
-        marginBottom: 8,
+        fontWeight: "600",
+        marginBottom: 10,
         textAlign: "center",
-        color: "#4B5563",
+        color: COLORS.text.muted,
+        textTransform: "uppercase",
+        letterSpacing: 1,
     },
     codeBox: {
         flexDirection: "row",
-        backgroundColor: "#fff",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        borderRadius: 12,
-        padding: 16,
+        backgroundColor: COLORS.white,
+        borderWidth: 1.5,
+        borderColor: COLORS.divider,
+        borderRadius: 16,
+        padding: 18,
         alignItems: "center",
         justifyContent: "space-between",
         borderStyle: "dashed",
     },
     code: {
-        fontSize: 18,
-        fontWeight: "700",
-        color: "#235CF8",
-        letterSpacing: 1,
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.primary,
+        letterSpacing: 2,
     },
     shareButton: {
-        backgroundColor: "#235CF8",
+        backgroundColor: COLORS.primary,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        paddingVertical: 16,
+        paddingVertical: 18,
         paddingHorizontal: 32,
         borderRadius: 16,
         width: "100%",
-        gap: 8,
+        gap: 10,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
     },
     shareText: {
         fontSize: 16,
         fontWeight: "700",
-        color: "#fff",
+        color: COLORS.white,
     },
-});
-
-const localStyles = StyleSheet.create({
-    headerWrap: { backgroundColor: '#F9FAFB' },
-    header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
-    headerLeft: { flexDirection: 'row', alignItems: 'center' },
-    headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

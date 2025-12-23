@@ -1,39 +1,36 @@
+import Header from "@/components/Header";
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React from "react";
 import {
-         SafeAreaView,
-         ScrollView,
-         StyleSheet,
-         Text,
-         TouchableOpacity,
-         View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function PreviewPayment() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} />
 
-      {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Preview Payment</Text>
-
-        {/* Empty space for layout balance */}
-        <View style={{ width: 40 }} />
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="receipt-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Preview Payment</Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-
         {/* 👉 CLOSE BUTTON (NOW BELOW HEADER) */}
-        <TouchableOpacity style={styles.closeBtn}>
-          <Ionicons name="close" size={16} color="#fff" />
+        <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
+          <Ionicons name="close" size={16} color={COLORS.white} />
           <Text style={styles.closeText}>Close</Text>
         </TouchableOpacity>
 
@@ -55,9 +52,8 @@ export default function PreviewPayment() {
         {/* BILLING INFORMATION */}
         <Text style={styles.sectionTitle}>BILLING INFORMATION</Text>
         <View style={styles.infoCard}>
-
           <View style={styles.infoRow}>
-            <Ionicons name="person-outline" size={20} color="#2563EB" />
+            <Ionicons name="person-outline" size={20} color={COLORS.primary} />
             <View style={styles.infoTextWrap}>
               <Text style={styles.label}>Name</Text>
               <Text style={styles.infoText}>John Anderson</Text>
@@ -65,7 +61,7 @@ export default function PreviewPayment() {
           </View>
 
           <View style={styles.infoRow}>
-            <Ionicons name="mail-outline" size={20} color="#2563EB" />
+            <Ionicons name="mail-outline" size={20} color={COLORS.primary} />
             <View style={styles.infoTextWrap}>
               <Text style={styles.label}>Email</Text>
               <Text style={styles.infoText}>
@@ -75,7 +71,7 @@ export default function PreviewPayment() {
           </View>
 
           <View style={styles.infoRow}>
-            <Ionicons name="call-outline" size={20} color="#2563EB" />
+            <Ionicons name="call-outline" size={20} color={COLORS.primary} />
             <View style={styles.infoTextWrap}>
               <Text style={styles.label}>Phone</Text>
               <Text style={styles.infoText}>+94 77 123 4567</Text>
@@ -83,7 +79,7 @@ export default function PreviewPayment() {
           </View>
 
           <View style={styles.infoRow}>
-            <Ionicons name="location-outline" size={20} color="#2563EB" />
+            <Ionicons name="location-outline" size={20} color={COLORS.primary} />
             <View style={styles.infoTextWrap}>
               <Text style={styles.label}>Address</Text>
               <Text style={styles.infoText}>
@@ -96,7 +92,6 @@ export default function PreviewPayment() {
         {/* PLAN DETAILS */}
         <Text style={styles.sectionTitle}>PLAN DETAILS</Text>
         <View style={styles.planCard}>
-
           <View style={styles.planRow}>
             <Text style={styles.label}>Plan</Text>
             <Text style={styles.infoText}>Premium Plan</Text>
@@ -117,172 +112,148 @@ export default function PreviewPayment() {
 
         {/* DOWNLOAD BUTTON */}
         <TouchableOpacity style={styles.downloadBtn}>
-          <Ionicons name="download-outline" size={18} color="#fff" />
+          <Ionicons name="download-outline" size={18} color={COLORS.white} />
           <Text style={styles.downloadText}>Download PDF</Text>
         </TouchableOpacity>
-
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
-
-/* ================== STYLES ================== */
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F6FA",
+    backgroundColor: COLORS.background,
   },
-
-  header: {
-    height: 110,
-    backgroundColor: "#2563EB",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  subHeaderWrap: {
+    backgroundColor: COLORS.background
   },
-
-  headerTitle: {
-    color: "#fff",
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  subHeaderTitle: {
+    color: COLORS.primary,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '600'
   },
-
   closeBtn: {
     flexDirection: "row",
     alignSelf: "flex-end",
     alignItems: "center",
-    backgroundColor: "#EF4444",
+    backgroundColor: COLORS.status.danger,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
     marginBottom: 10,
   },
-
   closeText: {
-    color: "#fff",
+    color: COLORS.white,
     fontSize: 12,
     marginLeft: 4,
     fontWeight: "600",
   },
-
   content: {
     padding: 20,
   },
-
   invoiceCard: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-
   paidBadge: {
     backgroundColor: "#DCFCE7",
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
   },
-
   paidText: {
-    color: "#16A34A",
+    color: COLORS.status.success,
     fontWeight: "700",
     fontSize: 12,
   },
-
   label: {
     fontSize: 12,
-    color: "#6B7280",
+    color: COLORS.text.muted,
   },
-
   invoiceNumber: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.text.primary,
   },
-
   amount: {
-    color: "#2563EB",
+    color: COLORS.primary,
     fontSize: 26,
     fontWeight: "800",
     marginBottom: 15,
   },
-
   sectionTitle: {
     fontSize: 12,
-    color: "#6B7280",
+    color: COLORS.text.muted,
     marginBottom: 8,
     marginTop: 15,
     fontWeight: "700",
   },
-
   infoCard: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     gap: 16,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
-
   infoRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 10,
   },
-
   infoTextWrap: {
     flex: 1,
   },
-
   infoText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#111827",
+    color: COLORS.text.primary,
     marginTop: 2,
   },
-
   planCard: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
-
   planRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 12,
   },
-
   divider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: COLORS.divider,
     marginVertical: 10,
   },
-
   totalLabel: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.text.primary,
   },
-
   totalAmount: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#2563EB",
+    color: COLORS.primary,
   },
-
   downloadBtn: {
     marginTop: 25,
-    backgroundColor: "#2563EB",
+    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 25,
     flexDirection: "row",
@@ -290,9 +261,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
   },
-
   downloadText: {
-    color: "#fff",
+    color: COLORS.white,
     fontWeight: "700",
     fontSize: 15,
   },

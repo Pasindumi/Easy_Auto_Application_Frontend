@@ -1,10 +1,10 @@
-// app/edit-car.tsx
+import Header from "@/components/Header";
+import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,112 +15,97 @@ import {
 
 export default function EditCar() {
   const router = useRouter();
-  const { id } = useLocalSearchParams(); // Get car ID from URL params
+  const { id } = useLocalSearchParams();
 
-  // Sample data (You can replace with backend data)
   const [title, setTitle] = useState("BMW 3 Series 2021");
   const [location, setLocation] = useState("Malabe, Sri Lanka");
   const [price, setPrice] = useState("$45,000");
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
-        <ScrollView contentContainerStyle={styles.container}>
-          
-          {/* ---------- HEADER ---------- */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-            </TouchableOpacity>
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="create-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Edit Car</Text>
+        </View>
+      </View>
 
-            <Text style={styles.headerTitle}>EDIT CAR</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* ---------- CAR IMAGE ---------- */}
+        <Image
+          source={require('@/assets/images/car.jpg')}
+          style={styles.carImage}
+        />
 
-            <View style={{ width: 22 }} />
-          </View>
-
-          {/* ---------- CAR IMAGE ---------- */}
-          <Image
-            source={require('@/assets/images/car.jpg')}
-            style={styles.carImage}
+        {/* ---------- FORM ---------- */}
+        <View style={styles.formCard}>
+          <Text style={styles.inputLabel}>Car Title</Text>
+          <TextInput
+            style={styles.input}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Enter car title"
           />
 
-          {/* ---------- FORM ---------- */}
-          <View style={styles.formCard}>
-            
-            <Text style={styles.inputLabel}>Car Title</Text>
-            <TextInput
-              style={styles.input}
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Enter car title"
-            />
+          <Text style={styles.inputLabel}>Location</Text>
+          <TextInput
+            style={styles.input}
+            value={location}
+            onChangeText={setLocation}
+            placeholder="City, Country"
+          />
 
-            <Text style={styles.inputLabel}>Location</Text>
-            <TextInput
-              style={styles.input}
-              value={location}
-              onChangeText={setLocation}
-              placeholder="City, Country"
-            />
+          <Text style={styles.inputLabel}>Price</Text>
+          <TextInput
+            style={styles.input}
+            value={price}
+            onChangeText={setPrice}
+            placeholder="Price"
+          />
 
-            <Text style={styles.inputLabel}>Price</Text>
-            <TextInput
-              style={styles.input}
-              value={price}
-              onChangeText={setPrice}
-              placeholder="Price"
-            />
-
-            {/* Save Button */}
-            <TouchableOpacity
-              style={styles.saveBtn}
-              onPress={() => {
-                alert("Car details updated!");
-                router.back();
-              }}
-            >
-              <Ionicons name="save-outline" size={18} color="#fff" />
-              <Text style={styles.saveText}>Save Changes</Text>
-            </TouchableOpacity>
-
-          </View>
-
-        </ScrollView>
-      </SafeAreaView>
-    </>
+          {/* Save Button */}
+          <TouchableOpacity
+            style={styles.saveBtn}
+            onPress={() => {
+              alert("Car details updated!");
+              router.back();
+            }}
+          >
+            <Ionicons name="save-outline" size={18} color={COLORS.white} />
+            <Text style={styles.saveText}>Save Changes</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F2F2F2",
+    backgroundColor: COLORS.background,
   },
-
+  subHeaderWrap: {
+    backgroundColor: COLORS.background
+  },
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  subHeaderTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '600'
+  },
   container: {
     paddingBottom: 50,
   },
-
-  /* HEADER */
-  header: {
-    backgroundColor: "#235CF8",
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
-  /* CAR IMAGE */
   carImage: {
     width: "92%",
     height: 180,
@@ -128,35 +113,32 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 16,
   },
-
-  /* FORM CARD */
   formCard: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     margin: 16,
     padding: 16,
     borderRadius: 12,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
-
   inputLabel: {
     fontWeight: "700",
     fontSize: 13,
     marginTop: 10,
-    color: "#333",
+    color: COLORS.text.primary,
   },
-
   input: {
     borderWidth: 1,
-    borderColor: "#D0D0D0",
+    borderColor: COLORS.border,
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginTop: 6,
     fontSize: 14,
+    backgroundColor: '#FAFAFA',
   },
-
   saveBtn: {
-    backgroundColor: "#235CF8",
+    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 28,
     justifyContent: "center",
@@ -164,10 +146,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 20,
   },
-
   saveText: {
     marginLeft: 6,
-    color: "#fff",
+    color: COLORS.white,
     fontWeight: "700",
     fontSize: 14,
   },
