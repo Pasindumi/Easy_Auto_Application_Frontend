@@ -1,3 +1,4 @@
+
 import { STATUS_FILTERS } from '@/constants/ads';
 import { Ad } from '@/types/ad.types';
 import { Ionicons } from '@expo/vector-icons';

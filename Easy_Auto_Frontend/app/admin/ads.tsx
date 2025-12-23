@@ -1,3 +1,4 @@
+
 import ProfileHeader from '@/components/ProfileHeader';
 import AdCard from '@/components/admin/AdCard';
 import SkeletonAdCard from '@/components/admin/SkeletonAdCard';
@@ -9,18 +10,24 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Dimensions,
-    FlatList,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+         Alert,
+         Dimensions,
+         FlatList,
+         Modal,
+         RefreshControl,
+         ScrollView,
+         StyleSheet,
+         Text,
+         TextInput,
+         TouchableOpacity,
+         View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+
+
+
+
 
 const { width } = Dimensions.get('window');
 
@@ -159,11 +166,6 @@ const ADMIN_ADS_DATA: Ad[] = [
     image: require('../../assets/images/car.jpg'),
   },
 ];
-
-
-
-
-import { Alert } from 'react-native';
 
 export default function AdminAdsScreen() {
   const router = useRouter();
