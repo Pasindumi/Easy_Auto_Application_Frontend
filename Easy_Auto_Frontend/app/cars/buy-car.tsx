@@ -1,5 +1,5 @@
 // app/buy-car.tsx
-import ProfileHeader from '@/components/ProfileHeader';
+import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
@@ -15,10 +15,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SUV_CARS, CAR_CARS } from '../dummydata/buy-a-car';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
-const CARD_WIDTH = (SCREEN_WIDTH - 32 - CARD_GAP) / 2;
+const CARD_WIDTH = (SCREEN_WIDTH - 25 - CARD_GAP) / 2;
 
 const CATEGORIES = [
   { key: 'car', label: 'Car', icon: 'car-sport' },
@@ -27,64 +28,6 @@ const CATEGORIES = [
   { key: 'suv', label: 'SUV', icon: 'car-sport' },
   { key: 'lorry', label: 'Lorry', icon: 'car' },
   { key: 'bus', label: 'Bus', icon: 'bus' },
-];
-
-// SUV Cars list
-const SUV_CARS = [
-  {
-    id: '1',
-    title: 'Toyota RAV4',
-    year: '2020',
-    km: '45,000 Km',
-    location: 'Balangoda, Sri Lanka',
-    price: 'Rs. 5.6Mn',
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '2',
-    title: 'Nissan Patrol',
-    year: '2018',
-    km: '56,000 Km',
-    location: 'Kurunegala, Sri Lanka',
-    price: 'Rs. 6.4Mn',
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '3',
-    title: 'Honda CRV',
-    year: '2019',
-    km: '38,000 Km',
-    location: 'Galle, Sri Lanka',
-    price: 'Rs. 5.0Mn',
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '4',
-    title: 'Ford Everest',
-    year: '2021',
-    km: '22,000 Km',
-    location: 'Colombo, Sri Lanka',
-    price: 'Rs. 7.2Mn',
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '5',
-    title: 'Nissan Patrol',
-    year: '2018',
-    km: '56,000 Km',
-    location: 'Kurunegala, Sri Lanka',
-    price: 'Rs. 6.4Mn',
-    image: require('@/assets/images/car.jpg'),
-  },
-  {
-    id: '6',
-    title: 'Honda CRV',
-    year: '2019',
-    km: '38,000 Km',
-    location: 'Galle, Sri Lanka',
-    price: 'Rs. 5.0Mn',
-    image: require('@/assets/images/car.jpg'),
-  },
 ];
 
 const FILTER_OPTIONS = [
@@ -101,6 +44,7 @@ export default function BuyCarScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>('suv');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const toggleFavorite = (carId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -128,7 +72,7 @@ export default function BuyCarScreen() {
         <View style={[styles.categoryIconContainer, isActive && styles.categoryIconContainerActive]}>
           <Ionicons
             name={item.icon as any}
-            size={24}
+            size={15} 
             color={isActive ? '#235CF8' : '#9CA3AF'}
           />
         </View>
@@ -170,7 +114,7 @@ export default function BuyCarScreen() {
           >
             <Ionicons
               name={isFavorite ? 'heart' : 'heart-outline'}
-              size={20}
+              size={15}
               color={isFavorite ? '#EF4444' : '#FFFFFF'}
             />
           </TouchableOpacity>
@@ -178,11 +122,11 @@ export default function BuyCarScreen() {
         <View style={styles.carCardBody}>
           <Text style={styles.carTitle} numberOfLines={1}>{item.title}</Text>
           <View style={styles.carMetaRow}>
-            <View style={styles.carMetaItem}>
+            <View style={[styles.carMetaItem, { marginBottom: 4 }]}> {/* km row with more gap below */}
               <Ionicons name="speedometer-outline" size={14} color="#6B7280" />
               <Text style={styles.carMetaText}>{item.km}</Text>
             </View>
-            <View style={styles.carMetaItem}>
+            <View style={[styles.carMetaItem, { marginBottom: 0 }]}> {/* location row, no extra gap below */}
               <Ionicons name="location-outline" size={14} color="#6B7280" />
               <Text style={styles.carMetaText} numberOfLines={1}>{item.location.split(',')[0]}</Text>
             </View>
@@ -193,10 +137,31 @@ export default function BuyCarScreen() {
     );
   };
 
+  // Filter cars by selected category
+  const getFilteredCars = () => {
+    if (!selectedCategory || selectedCategory === 'all') return SUV_CARS;
+    if (selectedCategory === 'suv') {
+      // Only show SUVs
+      return SUV_CARS;
+    }
+    if (selectedCategory === 'car') {
+      // Only show Cars
+      return CAR_CARS;
+    }
+    // For demo: return empty for other categories
+    return [];
+  };
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Buy a Car" showProfileCard={false} />
+      <Header showBack={true} />
+      <View style={[styles.topicWrap, { justifyContent: 'center' }]}> 
+        <View style={styles.topicLeft}>
+          <Ionicons name="car-sport" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+          <Text style={styles.topicTitle}>Buy a Car</Text>
+        </View>
+      </View>
       <SafeAreaView style={styles.safe} edges={['bottom']}>
         <ScrollView
           style={styles.scrollView}
@@ -208,17 +173,15 @@ export default function BuyCarScreen() {
             <View style={styles.searchContainer}>
               <Ionicons name="search-outline" size={20} color="#9CA3AF" />
               <TextInput
-                placeholder="Search cars, brands, models..."
+                placeholder="Find your dream car, brand or model"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 style={styles.searchInput}
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#B6B8C9" // lighter, modern
               />
               <TouchableOpacity
                 style={styles.filterButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                }}
+                onPress={() => setShowFilters((prev) => !prev)}
                 activeOpacity={0.7}
               >
                 <Ionicons name="options-outline" size={20} color="#235CF8" />
@@ -227,37 +190,40 @@ export default function BuyCarScreen() {
           </View>
 
           {/* Filter Chips */}
-          <View style={styles.filtersSection}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filtersContainer}
-            >
-              {FILTER_OPTIONS.map((filter) => (
-                <TouchableOpacity
-                  key={filter.key}
-                  style={[
-                    styles.filterChip,
-                    selectedFilter === filter.key && styles.filterChipActive,
-                  ]}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setSelectedFilter(filter.key);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Text
+          {showFilters && (
+            <View style={styles.filtersSection}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filtersContainer}
+              >
+                {FILTER_OPTIONS.map((filter) => (
+                  <TouchableOpacity
+                    key={filter.key}
                     style={[
-                      styles.filterChipText,
-                      selectedFilter === filter.key && styles.filterChipTextActive,
+                      styles.filterChip,
+                      selectedFilter === filter.key && styles.filterChipActive,
                     ]}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setSelectedFilter(filter.key);
+                      // Do NOT hide filter section after select
+                    }}
+                    activeOpacity={0.7}
                   >
-                    {filter.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        selectedFilter === filter.key && styles.filterChipTextActive,
+                      ]}
+                    >
+                      {filter.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Section Header: Browse by Category */}
           <View style={styles.sectionHeader}>
@@ -276,15 +242,15 @@ export default function BuyCarScreen() {
             <Text style={styles.sectionTitle}>
               Available {selectedCategory ? CATEGORIES.find(c => c.key === selectedCategory)?.label : 'Cars'}
             </Text>
-            <Text style={styles.sectionSubtitle}>{SUV_CARS.length} listings</Text>
+            <Text style={styles.sectionSubtitle}>{getFilteredCars().length} listings</Text>
           </View>
 
           {/* Car Grid */}
           <View style={styles.carsSection}>
             <View style={styles.carsGrid}>
-              {SUV_CARS.map((item, index) => {
+              {getFilteredCars().map((item, index) => {
                 if (index % 2 === 0) {
-                  const nextItem = SUV_CARS[index + 1];
+                  const nextItem = getFilteredCars()[index + 1];
                   return (
                     <View key={`row-${index}`} style={styles.carsRow}>
                       <View key={item.id}>
@@ -325,8 +291,10 @@ const styles = StyleSheet.create({
   // Modern Search Section
   searchSection: {
     paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingTop: 0,
+    paddingBottom: 15, // reduced from 16
+    marginTop: -32,
+    zIndex: 2,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -334,19 +302,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 4, // reduced from 8
     gap: 12,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+    marginTop: -32,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 11, // reduced from 13
     color: '#111827',
     padding: 0,
+    fontWeight: '500',
+    letterSpacing: 0.1,
   },
   filterButton: {
     width: 40,
@@ -365,24 +336,41 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F6F8FC',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    marginRight: 8,
+    marginBottom: 4,
+    shadowColor: '#235CF8',
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   filterChipActive: {
-    backgroundColor: '#235CF8',
+    backgroundColor: '#235CF8', // solid blue
     borderColor: '#235CF8',
+    shadowColor: '#235CF8',
+    shadowOpacity: 0.15,
+    elevation: 4,
   },
   filterChipText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
-    color: '#6B7280',
+    color: '#235CF8',
+    letterSpacing: 0.1,
+    textAlign: 'center',
   },
   filterChipTextActive: {
-    color: '#FFFFFF',
+    color: '#fff', // white text for active
+    textShadowColor: 'rgba(35,92,248,0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   // Section Headers
   sectionHeader: {
@@ -418,18 +406,18 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: (SCREEN_WIDTH - 32 - 24) / 3, // Account for padding and gaps
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
+    borderRadius: 12, // reduced from 16
+    paddingVertical: 12, // reduced from 16
+    paddingHorizontal: 12, // reduced from 12
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#E5E7EB',
     shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    shadowOpacity: 0.01, // reduced
+    shadowRadius: 2, // reduced
+    shadowOffset: { width: 0, height: 1 }, // reduced
+    elevation: 1, // reduced
   },
   categoryCardActive: {
     borderColor: '#235CF8',
@@ -439,19 +427,19 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   categoryIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 16, // reduced from 22
+    height: 16, // reduced from 22
+    borderRadius: 4, // reduced from 6
     backgroundColor: '#F9FAFB',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 2, // reduced from 3
   },
   categoryIconContainerActive: {
     backgroundColor: '#E3F2FD',
   },
   categoryLabel: {
-    fontSize: 13,
+    fontSize: 10, // reduced from 13
     fontWeight: '600',
     color: '#6B7280',
     letterSpacing: -0.2,
@@ -504,20 +492,20 @@ const styles = StyleSheet.create({
   },
   yearBadgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 10, // reduced from 12
+    fontWeight: '600', // slightly lighter for clarity
+    letterSpacing: 0.2, // subtle modern touch
   },
   favoriteButton: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    top: 6, // moved up from 12
+    right: 6, // moved closer to right edge from 12
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
-    backdropFilter: 'blur(10px)',
   },
   carCardBody: {
     padding: 14,
@@ -530,26 +518,49 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   carMetaRow: {
-    flexDirection: 'row',
-    gap: 12,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    gap: 0,
     marginBottom: 10,
+    marginTop: 2,
   },
   carMetaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    flex: 1,
+    minWidth: 0,
   },
   carMetaText: {
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: 11, // smaller for modern look
+    color: '#7B7F8A', // lighter
     fontWeight: '500',
-    flex: 1,
+    flexShrink: 1,
+    marginLeft: 2,
   },
   price: {
     fontSize: 18,
     fontWeight: '700',
     color: '#235CF8',
     letterSpacing: -0.3,
+  },
+  // Topic Section
+  topicWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  topicLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  topicTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1E60FF',
+    letterSpacing: -0.5,
   },
 });
