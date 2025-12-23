@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -26,9 +27,17 @@ export default function Payment() {
   };
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title="Payment Summary" />
+      <Header showBack={true} />
+
+      {/* Inline Sub-Header Section */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="receipt-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Payment Summary</Text>
+        </View>
+      </View>
 
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.card}>
@@ -52,14 +61,54 @@ export default function Payment() {
 
         </View>
       </ScrollView>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
-  contentContainer: { paddingBottom: 32 },
-  card: { margin: 16, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 },
-  continueBtn: { marginTop: 16, backgroundColor: '#2563eb', borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
-  continueText: { color: '#fff', fontWeight: '700' },
+  safe: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+  },
+  subHeaderWrap: {
+    backgroundColor: '#f3f4f6'
+  },
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  subHeaderTitle: {
+    color: '#235CF8',
+    fontSize: 18,
+    fontWeight: '600'
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f6'
+  },
+  contentContainer: {
+    paddingBottom: 32
+  },
+  card: {
+    margin: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8
+  },
+  continueBtn: {
+    marginTop: 16,
+    backgroundColor: '#2563eb',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center'
+  },
+  continueText: {
+    color: '#fff',
+    fontWeight: '700'
+  },
 });

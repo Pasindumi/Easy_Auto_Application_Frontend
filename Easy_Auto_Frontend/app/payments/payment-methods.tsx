@@ -1,4 +1,3 @@
-// app/payment-methods.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -10,7 +9,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
 import CreditCardItem from '../../components/payments/methods/CreditCardItem';
 import OtherMethodItem from '../../components/payments/methods/OtherMethodItem';
@@ -69,76 +67,79 @@ export default function PaymentMethods() {
       Alert.alert('Select a method', 'Please choose a payment method to continue.');
       return;
     }
-    // Navigate to payment summary/details page
     router.push('/payments/payment');
   };
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
-        {/* ---------- HEADER ---------- */}
-        <Header showBack={true} title="Payment Methods" />
-        <ScrollView contentContainerStyle={styles.container}>
+      {/* Inline Sub-Header Section */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="card-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Payment Methods</Text>
+        </View>
+      </View>
 
-          {/* ---------- CREDIT CARD SECTION ---------- */}
-          <View style={styles.cardContainer}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Credit Card</Text>
-              <Text style={styles.countText}>{cards.length} Card Added</Text>
-            </View>
-
-            {cards.map((card) => (
-              <CreditCardItem
-                key={card.id}
-                card={card}
-                isSelected={selectedMethod === card.id}
-                onPress={setSelectedMethod}
-              />
-            ))}
-
-            {/* Add New Card */}
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={() => router.push('./add-card')}
-            >
-              <Ionicons name="add" size={18} color="#235CF8" />
-              <Text style={styles.addText}>Add New Card</Text>
-            </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* ---------- CREDIT CARD SECTION ---------- */}
+        <View style={styles.cardContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Credit Card</Text>
+            <Text style={styles.countText}>{cards.length} Card Added</Text>
           </View>
 
-          {/* ---------- OTHER PAYMENT METHODS ---------- */}
-          <View style={styles.otherContainer}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Others</Text>
-              <Text style={styles.countText}>{otherMethods.length} Methods Added</Text>
-            </View>
+          {cards.map((card) => (
+            <CreditCardItem
+              key={card.id}
+              card={card}
+              isSelected={selectedMethod === card.id}
+              onPress={setSelectedMethod}
+            />
+          ))}
 
-            {otherMethods.map((method) => (
-              <OtherMethodItem
-                key={method.id}
-                method={method}
-                isSelected={selectedMethod === method.id}
-                onPress={setSelectedMethod}
-              />
-            ))}
-          </View>
-
-          {/* Pay Now CTA */}
-          <TouchableOpacity style={styles.payNowBtn} onPress={handlePayNow}>
-            <Text style={styles.payNowText}>Pay Now</Text>
-          </TouchableOpacity>
-
+          {/* Add New Card */}
           <TouchableOpacity
-            style={[styles.payNowBtn, { backgroundColor: '#fff', borderWidth: 1, borderColor: '#235CF8', marginTop: 12 }]}
-            onPress={() => router.push('./payment' as any)}
+            style={styles.addBtn}
+            onPress={() => router.push('./add-card')}
           >
-            <Text style={[styles.payNowText, { color: '#235CF8' }]}>View Summary</Text>
+            <Ionicons name="add" size={18} color="#235CF8" />
+            <Text style={styles.addText}>Add New Card</Text>
           </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        </View>
+
+        {/* ---------- OTHER PAYMENT METHODS ---------- */}
+        <View style={styles.otherContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Others</Text>
+            <Text style={styles.countText}>{otherMethods.length} Methods Added</Text>
+          </View>
+
+          {otherMethods.map((method) => (
+            <OtherMethodItem
+              key={method.id}
+              method={method}
+              isSelected={selectedMethod === method.id}
+              onPress={setSelectedMethod}
+            />
+          ))}
+        </View>
+
+        {/* Pay Now CTA */}
+        <TouchableOpacity style={styles.payNowBtn} onPress={handlePayNow}>
+          <Text style={styles.payNowText}>Pay Now</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.payNowBtn, { backgroundColor: '#fff', borderWidth: 1, borderColor: '#235CF8', marginTop: 12 }]}
+          onPress={() => router.push('./payment' as any)}
+        >
+          <Text style={[styles.payNowText, { color: '#235CF8' }]}>View Summary</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -146,6 +147,20 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#F9FAFB',
+  },
+  subHeaderWrap: {
+    backgroundColor: '#F9FAFB'
+  },
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  subHeaderTitle: {
+    color: '#235CF8',
+    fontSize: 18,
+    fontWeight: '600'
   },
   container: {
     paddingBottom: 40,
