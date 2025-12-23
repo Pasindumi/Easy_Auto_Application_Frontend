@@ -41,12 +41,8 @@ export default function SelectLanguage() {
   ];
 
   const handleSave = () => {
-    // Navigate based on selection
-    if (selected === 'en') {
-      router.push('/auth/login');
-    } else {
-      router.push('/(tabs)');
-    }
+    // Navigate to home page after selection
+    router.push('/(tabs)');
   };
 
   return (
