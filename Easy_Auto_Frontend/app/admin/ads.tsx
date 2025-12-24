@@ -1,746 +1,445 @@
-import ProfileHeader from '@/components/ProfileHeader';
-import AdCard from '@/components/admin/AdCard';
-import SkeletonAdCard from '@/components/admin/SkeletonAdCard';
-import { STATUS_FILTERS } from '@/constants/ads';
-import { Ad, AdStatus, NavTab } from '@/types/ad.types';
-import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import ProfileHeader from "@/components/ProfileHeader";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { Stack } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
-    Dimensions,
+    Alert,
     FlatList,
-    Modal,
+    Image,
     RefreshControl,
-    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+    View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AdminBottomNav from "./components/AdminBottomNav";
+import { Ad, ADMIN_ADS_DATA, AdStatus } from "./data/adminAds";
 
-const { width } = Dimensions.get('window');
-
-// Sample Ads Data for Admin
-const ADMIN_ADS_DATA: Ad[] = [
-  {
-    id: '1',
-    title: 'BMW 3 Series 2021',
-    price: '$45,000',
-    priceNum: 45000,
-    location: 'Malabe, Sri Lanka',
-    userName: 'John Doe',
-    userEmail: 'john@example.com',
-    userPhone: '+94 77 123 4567',
-    views: 1200,
-    likes: 50,
-    messages: 15,
-    status: 'pending',
-    postedDate: '2024-12-05',
-    expiryDate: '2025-01-05',
-    description: 'Well-maintained BMW 3 Series with full service history. Single owner, accident-free.',
-    mileage: '45,000 km',
-    year: 2021,
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    image: require('../../assets/images/car.jpg'),
-  },
-  {
-    id: '2',
-    title: 'Mercedes-Benz C-Class',
-    price: '$52,000',
-    priceNum: 52000,
-    location: 'Colombo, Sri Lanka',
-    userName: 'Jane Smith',
-    userEmail: 'jane@example.com',
-    userPhone: '+94 77 234 5678',
-    views: 850,
-    likes: 32,
-    messages: 8,
-    status: 'active',
-    postedDate: '2024-12-04',
-    expiryDate: '2025-01-04',
-    description: 'Luxury sedan in pristine condition. Premium features and excellent performance.',
-    mileage: '32,000 km',
-    year: 2022,
-    fuelType: 'Diesel',
-    transmission: 'Automatic',
-    image: require('../../assets/images/car.jpg'),
-  },
-  {
-    id: '3',
-    title: 'Nissan GTR R35',
-    price: '$56,000',
-    priceNum: 56000,
-    location: 'Galle, Sri Lanka',
-    userName: 'Mike Johnson',
-    userEmail: 'mike@example.com',
-    userPhone: '+94 77 345 6789',
-    views: 2100,
-    likes: 150,
-    messages: 60,
-    status: 'rejected',
-    postedDate: '2024-12-03',
-    expiryDate: '2025-01-03',
-    description: 'High-performance sports car. Modified with aftermarket parts.',
-    mileage: '28,000 km',
-    year: 2020,
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    image: require('../../assets/images/car.jpg'),
-  },
-  {
-    id: '4',
-    title: 'Toyota Supra 2020',
-    price: '$50,000',
-    priceNum: 50000,
-    location: 'Kandy, Sri Lanka',
-    userName: 'Sarah Williams',
-    userEmail: 'sarah@example.com',
-    userPhone: '+94 77 456 7890',
-    views: 900,
-    likes: 25,
-    messages: 10,
-    status: 'active',
-    postedDate: '2024-12-02',
-    expiryDate: '2025-01-02',
-    description: 'Iconic sports car in excellent condition. Low mileage, well maintained.',
-    mileage: '15,000 km',
-    year: 2020,
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    image: require('../../assets/images/car.jpg'),
-  },
-  {
-    id: '5',
-    title: 'Honda Civic Type R',
-    price: '$38,000',
-    priceNum: 38000,
-    location: 'Negombo, Sri Lanka',
-    userName: 'David Brown',
-    userEmail: 'david@example.com',
-    userPhone: '+94 77 567 8901',
-    views: 680,
-    likes: 20,
-    messages: 7,
-    status: 'pending',
-    postedDate: '2024-12-01',
-    expiryDate: '2025-01-01',
-    description: 'Hot hatch with aggressive styling. Perfect for enthusiasts.',
-    mileage: '22,000 km',
-    year: 2021,
-    fuelType: 'Petrol',
-    transmission: 'Manual',
-    image: require('../../assets/images/car.jpg'),
-  },
-  {
-    id: '6',
-    title: 'Audi A4 2022',
-    price: '$48,000',
-    priceNum: 48000,
-    location: 'Gampaha, Sri Lanka',
-    userName: 'Emily Davis',
-    userEmail: 'emily@example.com',
-    userPhone: '+94 77 678 9012',
-    views: 1500,
-    likes: 75,
-    messages: 22,
-    status: 'expired',
-    postedDate: '2024-11-28',
-    expiryDate: '2024-12-28',
-    description: 'Premium sedan with advanced technology. Comfortable and efficient.',
-    mileage: '18,000 km',
-    year: 2022,
-    fuelType: 'Diesel',
-    transmission: 'Automatic',
-    image: require('../../assets/images/car.jpg'),
-  },
-];
-
-
-
-
-import { Alert } from 'react-native';
+type SortOption = "date" | "views" | "price";
 
 export default function AdminAdsScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  // State
   const [ads, setAds] = useState<Ad[]>(ADMIN_ADS_DATA);
-  const [selectedStatus, setSelectedStatus] = useState<AdStatus>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedAds, setSelectedAds] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortOption>("date");
+  const [selectedStatus, setSelectedStatus] = useState<AdStatus>("all");
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-  const [sortBy, setSortBy] = useState<'date' | 'views' | 'price'>('date');
-  const [showSortModal, setShowSortModal] = useState(false);
-  const [activeNavTab, setActiveNavTab] = useState<NavTab>('Ads');
-
-  const filteredAds = React.useMemo(() => {
-    return ads.filter(ad => {
-      const statusMatch = selectedStatus === 'all' || ad.status === selectedStatus;
-      const searchMatch = !searchQuery || 
-        ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ad.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ad.location.toLowerCase().includes(searchQuery.toLowerCase());
-      return statusMatch && searchMatch;
-    }).sort((a, b) => {
-      if (sortBy === 'date') return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
-      if (sortBy === 'views') return b.views - a.views;
-      if (sortBy === 'price') return b.priceNum - a.priceNum;
-      return 0;
-    });
-  }, [selectedStatus, searchQuery, sortBy]);
-
-  const getStatusCount = (status: AdStatus) => {
-    if (status === 'all') return ads.length;
-    return ads.filter(ad => ad.status === status).length;
+  // Stats
+  const stats = {
+    total: ads.length,
+    active: ads.filter((ad) => ad.status === "active").length,
+    pending: ads.filter((ad) => ad.status === "pending").length,
+    rejected: ads.filter((ad) => ad.status === "rejected").length,
   };
 
+  // Filtered ads
+  const filteredAds = React.useMemo(() => {
+    return ads
+      .filter((ad) => {
+        const statusMatch = selectedStatus === "all" || ad.status === selectedStatus;
+        const searchMatch =
+          !searchQuery ||
+          ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ad.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ad.location.toLowerCase().includes(searchQuery.toLowerCase());
+        return statusMatch && searchMatch;
+      })
+      .sort((a, b) => {
+        if (sortBy === "date")
+          return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
+        if (sortBy === "views") return b.views - a.views;
+        if (sortBy === "price") return b.priceNum - a.priceNum;
+        return 0;
+      });
+  }, [ads, selectedStatus, searchQuery, sortBy]);
+
+  // Handlers
   const toggleSelectAd = useCallback((id: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedAds(prev => 
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    setSelectedAds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-  }, []);
-
-  const handleApprove = useCallback((id: string) => {
-    Alert.alert(
-      "Approve Ad",
-      "Are you sure you want to approve this ad?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Approve", 
-          onPress: () => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            setAds(prev => prev.map(ad => ad.id === id ? { ...ad, status: 'active' } : ad));
-          }
-        }
-      ]
-    );
-  }, []);
-
-  const handleReject = useCallback((id: string) => {
-    Alert.alert(
-      "Reject Ad",
-      "Are you sure you want to reject this ad?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Reject", 
-          style: "destructive",
-          onPress: () => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            setAds(prev => prev.map(ad => ad.id === id ? { ...ad, status: 'rejected' } : ad));
-          }
-        }
-      ]
-    );
-  }, []);
-
-  const handleDelete = useCallback((id: string) => {
-    Alert.alert(
-      "Delete Ad",
-      "Are you sure you want to permanently delete this ad?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive",
-          onPress: () => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-            setAds(prev => prev.filter(ad => ad.id !== id));
-            setSelectedAds(prev => prev.filter(selectedId => selectedId !== id));
-          }
-        }
-      ]
-    );
-  }, []);
-
-  const handleView = useCallback((id: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log('View:', id);
-    // TODO: Navigate to detail
   }, []);
 
   const handleSelectAll = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (selectedAds.length === filteredAds.length && filteredAds.length > 0) {
       setSelectedAds([]);
     } else {
-      setSelectedAds(filteredAds.map(ad => ad.id));
+      setSelectedAds(filteredAds.map((ad) => ad.id));
     }
   };
 
-  const handleBulkApprove = useCallback(() => {
-    Alert.alert(
-      "Bulk Approve",
-      `Approve ${selectedAds.length} ads?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Approve All", 
-          onPress: () => {
-             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-             setAds(prev => prev.map(ad => selectedAds.includes(ad.id) ? { ...ad, status: 'active' } : ad));
-             setSelectedAds([]);
-          }
-        }
-      ]
-    );
-  }, [selectedAds]);
+  const handleApprove = useCallback((id: string) => {
+    Alert.alert("Approve Ad", "Approve this ad?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Approve",
+        onPress: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          setAds((prev) =>
+            prev.map((ad) => (ad.id === id ? { ...ad, status: "active" } : ad))
+          );
+        },
+      },
+    ]);
+  }, []);
 
-  const handleBulkReject = useCallback(() => {
-    Alert.alert(
-      "Bulk Reject",
-      `Reject ${selectedAds.length} ads?`,
-      [
+  const handleReject = useCallback((id: string) => {
+    Alert.alert("Reject Ad", "Reject this ad?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Reject",
+        style: "destructive",
+        onPress: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          setAds((prev) =>
+            prev.map((ad) => (ad.id === id ? { ...ad, status: "rejected" } : ad))
+          );
+        },
+      },
+    ]);
+  }, []);
+
+  const handleDelete = useCallback((id: string) => {
+    Alert.alert("Delete Ad", "Permanently delete this ad?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          setAds((prev) => prev.filter((ad) => ad.id !== id));
+          setSelectedAds((prev) => prev.filter((sid) => sid !== id));
+        },
+      },
+    ]);
+  }, []);
+
+  const handleBulkAction = (action: "approve" | "reject" | "delete") => {
+    const count = selectedAds.length;
+    if (count === 0) return;
+
+    if (action === "delete") {
+      Alert.alert("Bulk Delete", `Delete ${count} ad${count > 1 ? "s" : ""}?`, [
         { text: "Cancel", style: "cancel" },
-        { 
-          text: "Reject All", 
+        {
+          text: "Delete",
           style: "destructive",
           onPress: () => {
-             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-             setAds(prev => prev.map(ad => selectedAds.includes(ad.id) ? { ...ad, status: 'rejected' } : ad));
-             setSelectedAds([]);
-          }
-        }
-      ]
-    );
-  }, [selectedAds]);
-
-  const handleBulkDelete = useCallback(() => {
-    Alert.alert(
-      "Bulk Delete",
-      `Delete ${selectedAds.length} ads?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete All", 
-          style: "destructive",
-          onPress: () => {
-             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-             setAds(prev => prev.filter(ad => !selectedAds.includes(ad.id)));
-             setSelectedAds([]);
-          }
-        }
-      ]
-    );
-  }, [selectedAds]);
+            setAds((prev) => prev.filter((ad) => !selectedAds.includes(ad.id)));
+            setSelectedAds([]);
+          },
+        },
+      ]);
+    } else if (action === "approve") {
+      setAds((prev) =>
+        prev.map((ad) =>
+          selectedAds.includes(ad.id) ? { ...ad, status: "active" } : ad
+        )
+      );
+      setSelectedAds([]);
+    } else {
+      setAds((prev) =>
+        prev.map((ad) =>
+          selectedAds.includes(ad.id) ? { ...ad, status: "rejected" } : ad
+        )
+      );
+      setSelectedAds([]);
+    }
+  };
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1500);
   }, []);
 
-  const renderStatCard = (filter: typeof STATUS_FILTERS[0]) => {
-    const count = getStatusCount(filter.key as AdStatus);
-    const isActive = selectedStatus === filter.key;
-
-    return (
-      <TouchableOpacity
-        key={filter.key}
-        style={[styles.statCard, isActive && styles.statCardActive]}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          setSelectedStatus(filter.key as AdStatus);
-        }}
-        activeOpacity={0.7}
-      >
-        {isActive && (
-          <LinearGradient
-            colors={[filter.gradient[0], filter.gradient[1]]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.statCardGradient}
-          />
-        )}
-        <View style={styles.statCardContent}>
-          <View style={[styles.statIconContainer, { backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : `${filter.color}15` }]}>
-            <Ionicons name={filter.icon as any} size={20} color={isActive ? '#fff' : filter.color} />
-          </View>
-          <Text style={[styles.statCount, isActive && styles.statCountActive]}>{count}</Text>
-          <Text style={[styles.statLabel, isActive && styles.statLabelActive]}>{filter.label}</Text>
-        </View>
-      </TouchableOpacity>
-    );
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "#10B981";
+      case "pending":
+        return "#F59E0B";
+      case "rejected":
+        return "#EF4444";
+      case "expired":
+        return "#94A3B8";
+      default:
+        return "#64748B";
+    }
   };
 
-  const renderAdCard = useCallback(({ item, index }: { item: Ad; index: number }) => {
-    return (
-      <AdCard
-        item={item}
+  const getSortIcon = () => {
+    switch (sortBy) {
+      case "views":
+        return "eye";
+      case "price":
+        return "cash";
+      default:
+        return "calendar";
+    }
+  };
 
-        isSelected={selectedAds.includes(item.id)}
-        isLast={index === filteredAds.length - 1}
-        onToggleSelect={toggleSelectAd}
-        onView={handleView}
-        onApprove={handleApprove}
-        onReject={handleReject}
-        onDelete={handleDelete}
-      />
-    );
-  }, [selectedAds, filteredAds.length, toggleSelectAd, handleView, handleApprove, handleReject, handleDelete]);
+  const renderAdCard = ({ item }: { item: Ad }) => (
+    <View style={styles.adCard}>
+      <TouchableOpacity
+        style={styles.checkbox}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          toggleSelectAd(item.id);
+        }}
+      >
+        <Ionicons
+          name={selectedAds.includes(item.id) ? "checkbox" : "square-outline"}
+          size={24}
+          color={selectedAds.includes(item.id) ? "#3B82F6" : "#CBD5E1"}
+        />
+      </TouchableOpacity>
+
+      <View style={styles.adContent}>
+        <Image source={item.image} style={styles.adImage} />
+        <View style={styles.adInfo}>
+          <Text style={styles.adTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={styles.adPrice}>{item.price}</Text>
+          <View style={styles.adMeta}>
+            <View style={styles.metaItem}>
+              <Ionicons name="person" size={12} color="#94A3B8" />
+              <Text style={styles.metaText}>{item.userName}</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <Ionicons name="location" size={12} color="#94A3B8" />
+              <Text style={styles.metaText}>{item.location}</Text>
+            </View>
+          </View>
+          <View style={styles.adStats}>
+            <View style={styles.statBadge}>
+              <Ionicons name="eye" size={14} color="#64748B" />
+              <Text style={styles.statText}>{item.views}</Text>
+            </View>
+            <View style={styles.statBadge}>
+              <Ionicons name="heart" size={14} color="#64748B" />
+              <Text style={styles.statText}>{item.likes}</Text>
+            </View>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: `${getStatusColor(item.status)}20` },
+              ]}
+            >
+              <Text
+                style={[styles.statusText, { color: getStatusColor(item.status) }]}
+              >
+                {item.status.toUpperCase()}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.adActions}>
+        {item.status === "pending" && (
+          <>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.approveBtn]}
+              onPress={() => handleApprove(item.id)}
+            >
+              <Ionicons name="checkmark-circle" size={16} color="#059669" />
+              <Text style={styles.approveText}>Approve</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.rejectBtn]}
+              onPress={() => handleReject(item.id)}
+            >
+              <Ionicons name="close-circle" size={16} color="#DC2626" />
+              <Text style={styles.rejectText}>Reject</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        {item.status !== "pending" && (
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.deleteBtn]}
+            onPress={() => handleDelete(item.id)}
+          >
+            <Ionicons name="trash" size={16} color="#DC2626" />
+            <Text style={styles.deleteText}>Delete</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      
-      {/* ProfileHeader */}
       <ProfileHeader title="Ads Management" showProfileCard={false} />
 
-      {/* Search Bar - Enhanced */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputWrapper}>
-          <Ionicons name="search-outline" size={22} color="#6B7280" />
+      {/* Stats */}
+      <View style={styles.statsRow}>
+        <View style={styles.statCard}>
+          <View style={[styles.statIcon, { backgroundColor: "#DBEAFE" }]}>
+            <Ionicons name="car" size={20} color="#3B82F6" />
+          </View>
+          <View style={styles.statInfo}>
+            <Text style={styles.statValue}>{stats.total}</Text>
+            <Text style={styles.statLabel}>Total</Text>
+          </View>
+        </View>
+        <View style={styles.statCard}>
+          <View style={[styles.statIcon, { backgroundColor: "#D1FAE5" }]}>
+            <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+          </View>
+          <View style={styles.statInfo}>
+            <Text style={styles.statValue}>{stats.active}</Text>
+            <Text style={styles.statLabel}>Active</Text>
+          </View>
+        </View>
+        <View style={styles.statCard}>
+          <View style={[styles.statIcon, { backgroundColor: "#FEF3C7" }]}>
+            <Ionicons name="time" size={20} color="#F59E0B" />
+          </View>
+          <View style={styles.statInfo}>
+            <Text style={styles.statValue}>{stats.pending}</Text>
+            <Text style={styles.statLabel}>Pending</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Search & Sort */}
+      <View style={styles.searchSection}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={20} color="#94A3B8" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search ads, users, locations..."
-            placeholderTextColor="#9CA3AF"
+            placeholder="Search ads..."
+            placeholderTextColor="#94A3B8"
             value={searchQuery}
-            onChangeText={(text) => setSearchQuery(text.slice(0, 50))}
+            onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity 
-              onPress={() => setSearchQuery('')}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="close-circle" size={22} color="#6B7280" />
+            <TouchableOpacity onPress={() => setSearchQuery("")}>
+              <Ionicons name="close-circle" size={20} color="#94A3B8" />
             </TouchableOpacity>
           )}
         </View>
         <TouchableOpacity
-          onPress={() => setShowSortModal(true)}
-          style={styles.sortButton}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={styles.sortBtn}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setSortBy((prev) =>
+              prev === "date" ? "views" : prev === "views" ? "price" : "date"
+            );
+          }}
         >
-          <Ionicons name="funnel-outline" size={22} color="#235CF8" />
+          <Ionicons name={getSortIcon()} size={18} color="#3B82F6" />
         </TouchableOpacity>
       </View>
 
-      {/* Stats Cards */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.statsScrollContent}
-        style={styles.statsScroll}
-      >
-        {STATUS_FILTERS.map(renderStatCard)}
-      </ScrollView>
+      {/* Status Filters */}
+      <View style={styles.filterSection}>
+        <View style={styles.filterTabs}>
+          {(["all", "active", "pending", "rejected", "expired"] as const).map((status) => (
+            <TouchableOpacity
+              key={status}
+              style={[
+                styles.filterTab,
+                selectedStatus === status && styles.filterTabActive,
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setSelectedStatus(status);
+              }}
+            >
+              <Text
+                style={[
+                  styles.filterTabText,
+                  selectedStatus === status && styles.filterTabTextActive,
+                ]}
+              >
+                {status === "all" ? "All" : status.charAt(0).toUpperCase() + status.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions */}
       {selectedAds.length > 0 && (
-        <View style={styles.bulkActionsBar}>
-          <View style={styles.bulkActionsLeft}>
-            <TouchableOpacity onPress={handleSelectAll} style={styles.selectAllButton}>
-              <Ionicons 
-                name={selectedAds.length === filteredAds.length ? "checkbox" : "square-outline"} 
-                size={20} 
-                color="#235CF8" 
-              />
-              <Text style={styles.bulkActionsText}>{selectedAds.length} selected</Text>
+        <View style={styles.bulkBar}>
+          <TouchableOpacity onPress={handleSelectAll} style={styles.bulkSelectAll}>
+            <Ionicons
+              name={
+                selectedAds.length === filteredAds.length
+                  ? "checkbox"
+                  : "square-outline"
+              }
+              size={20}
+              color="#3B82F6"
+            />
+            <Text style={styles.bulkText}>{selectedAds.length} selected</Text>
+          </TouchableOpacity>
+          <View style={styles.bulkActions}>
+            <TouchableOpacity
+              onPress={() => handleBulkAction("approve")}
+              style={styles.bulkActionBtn}
+            >
+              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
             </TouchableOpacity>
-          </View>
-          <View style={styles.bulkActionsRight}>
-            <TouchableOpacity style={styles.bulkActionButton} onPress={handleBulkApprove}>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#10B981" />
+            <TouchableOpacity
+              onPress={() => handleBulkAction("reject")}
+              style={styles.bulkActionBtn}
+            >
+              <Ionicons name="close-circle" size={18} color="#F59E0B" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.bulkActionButton} onPress={handleBulkReject}>
-              <Ionicons name="close-circle-outline" size={20} color="#F59E0B" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bulkActionButton} onPress={handleBulkDelete}>
-              <Ionicons name="trash-outline" size={20} color="#EF4444" />
+            <TouchableOpacity
+              onPress={() => handleBulkAction("delete")}
+              style={styles.bulkActionBtn}
+            >
+              <Ionicons name="trash" size={18} color="#EF4444" />
             </TouchableOpacity>
           </View>
         </View>
       )}
 
+      {/* Results */}
+      <View style={styles.resultsInfo}>
+        <Text style={styles.resultsText}>
+          {filteredAds.length} {filteredAds.length === 1 ? "ad" : "ads"} found
+        </Text>
+      </View>
+
       {/* Ads List */}
-      {loading ? (
-        <ScrollView 
-          contentContainerStyle={[styles.listContent, { paddingBottom: 100 + insets.bottom }]}
-          showsVerticalScrollIndicator={false}
-        >
-          {[1, 2, 3, 4, 5].map((key) => (
-            <SkeletonAdCard key={key} />
-          ))}
-        </ScrollView>
-      ) : (
-        <FlatList
+      <FlatList
         data={filteredAds}
         renderItem={renderAdCard}
-        keyExtractor={item => item.id}
-        contentContainerStyle={[styles.listContent, { paddingBottom: 100 + insets.bottom }]}
-        // Performance optimizations
-        initialNumToRender={5}
-        maxToRenderPerBatch={5}
-        windowSize={5}
-        removeClippedSubviews={true}
-        updateCellsBatchingPeriod={50}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: 100 + insets.bottom },
+        ]}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Ionicons name="car-outline" size={64} color="#CBD5E1" />
+            <Text style={styles.emptyTitle}>No ads found</Text>
+            <Text style={styles.emptySubtitle}>Try adjusting your filters</Text>
+          </View>
+        }
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#235CF8"
-            colors={['#235CF8']}
+            tintColor="#3B82F6"
           />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="car-outline" size={64} color="#D1D5DB" />
-            <Text style={styles.emptyTitle}>No ads found</Text>
-            <Text style={styles.emptySubtitle}>Try adjusting your filters or search query</Text>
-          </View>
         }
       />
-      )}
 
-      {/* Bottom Navigation */}
-      <View style={[styles.bottomNav, { paddingBottom: insets.bottom }]}>
-        <LinearGradient
-          colors={["#FFFFFF", "#FAFBFC"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={styles.bottomNavGradient}
-        />
-        <TouchableOpacity
-          style={[styles.bottomNavItem, activeNavTab === "Dashboard" && styles.bottomNavItemActive]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setActiveNavTab("Dashboard");
-            router.push("/admin");
-          }}
-          activeOpacity={0.7}
-        >
-          {activeNavTab === "Dashboard" && (
-            <>
-              <LinearGradient
-                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
-              />
-              <LinearGradient
-                colors={["#235CF8", "#1E40AF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.bottomNavActiveIndicator}
-              />
-            </>
-          )}
-          <Ionicons
-            name={activeNavTab === "Dashboard" ? "grid" : "grid-outline"}
-            size={24}
-            color={activeNavTab === "Dashboard" ? "#235CF8" : "#9CA3AF"}
-          />
-          <Text
-            style={[
-              styles.bottomNavLabel,
-              activeNavTab === "Dashboard" && styles.bottomNavLabelActive,
-            ]}
-          >
-            Dashboard
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.bottomNavItem, activeNavTab === "Ads" && styles.bottomNavItemActive]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setActiveNavTab("Ads");
-          }}
-          activeOpacity={0.7}
-        >
-          {activeNavTab === "Ads" && (
-            <>
-              <LinearGradient
-                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
-              />
-              <LinearGradient
-                colors={["#235CF8", "#1E40AF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.bottomNavActiveIndicator}
-              />
-            </>
-          )}
-          <Ionicons
-            name={activeNavTab === "Ads" ? "car" : "car-outline"}
-            size={24}
-            color={activeNavTab === "Ads" ? "#235CF8" : "#9CA3AF"}
-          />
-          <Text
-            style={[styles.bottomNavLabel, activeNavTab === "Ads" && styles.bottomNavLabelActive]}
-          >
-            Ads
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.bottomNavItem, activeNavTab === "Users" && styles.bottomNavItemActive]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setActiveNavTab("Users");
-            console.log("Users clicked");
-          }}
-          activeOpacity={0.7}
-        >
-          {activeNavTab === "Users" && (
-            <>
-              <LinearGradient
-                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
-              />
-              <LinearGradient
-                colors={["#235CF8", "#1E40AF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.bottomNavActiveIndicator}
-              />
-            </>
-          )}
-          <Ionicons
-            name={activeNavTab === "Users" ? "people" : "people-outline"}
-            size={24}
-            color={activeNavTab === "Users" ? "#235CF8" : "#9CA3AF"}
-          />
-          <Text
-            style={[styles.bottomNavLabel, activeNavTab === "Users" && styles.bottomNavLabelActive]}
-          >
-            Users
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.bottomNavItem, activeNavTab === "Analytics" && styles.bottomNavItemActive]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setActiveNavTab("Analytics");
-            console.log("Analytics clicked");
-          }}
-          activeOpacity={0.7}
-        >
-          {activeNavTab === "Analytics" && (
-            <>
-              <LinearGradient
-                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
-              />
-              <LinearGradient
-                colors={["#235CF8", "#1E40AF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.bottomNavActiveIndicator}
-              />
-            </>
-          )}
-          <Ionicons
-            name={activeNavTab === "Analytics" ? "bar-chart" : "bar-chart-outline"}
-            size={24}
-            color={activeNavTab === "Analytics" ? "#235CF8" : "#9CA3AF"}
-          />
-          <Text
-            style={[
-              styles.bottomNavLabel,
-              activeNavTab === "Analytics" && styles.bottomNavLabelActive,
-            ]}
-          >
-            Analytics
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.bottomNavItem, activeNavTab === "Settings" && styles.bottomNavItemActive]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setActiveNavTab("Settings");
-            console.log("Settings clicked");
-          }}
-          activeOpacity={0.7}
-        >
-          {activeNavTab === "Settings" && (
-            <>
-              <LinearGradient
-                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
-              />
-              <LinearGradient
-                colors={["#235CF8", "#1E40AF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.bottomNavActiveIndicator}
-              />
-            </>
-          )}
-          <Ionicons
-            name={activeNavTab === "Settings" ? "settings" : "settings-outline"}
-            size={24}
-            color={activeNavTab === "Settings" ? "#235CF8" : "#9CA3AF"}
-          />
-          <Text
-            style={[
-              styles.bottomNavLabel,
-              activeNavTab === "Settings" && styles.bottomNavLabelActive,
-            ]}
-          >
-            Settings
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Sort Modal */}
-      <Modal
-        visible={showSortModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowSortModal(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowSortModal(false)}
-        >
-          <View style={styles.sortModal}>
-            <Text style={styles.sortModalTitle}>Sort By</Text>
-            {[
-              { key: 'date', label: 'Date Posted', icon: 'calendar-outline' },
-              { key: 'views', label: 'Most Viewed', icon: 'eye-outline' },
-              { key: 'price', label: 'Price (High to Low)', icon: 'cash-outline' },
-            ].map(option => (
-              <TouchableOpacity
-                key={option.key}
-                style={[styles.sortOption, sortBy === option.key && styles.sortOptionActive]}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setSortBy(option.key as any);
-                  setShowSortModal(false);
-                }}
-              >
-                <Ionicons name={option.icon as any} size={20} color={sortBy === option.key ? '#235CF8' : '#6B7280'} />
-                <Text style={[styles.sortOptionText, sortBy === option.key && styles.sortOptionTextActive]}>
-                  {option.label}
-                </Text>
-                {sortBy === option.key && <Ionicons name="checkmark" size={20} color="#235CF8" />}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <AdminBottomNav insetBottom={insets.bottom} />
     </View>
   );
 }
@@ -748,285 +447,290 @@ export default function AdminAdsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F8FAFC",
   },
-  searchContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    backgroundColor: '#fff',
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+  statsRow: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+    backgroundColor: "#fff",
   },
-  searchInputWrapper: {
+  statCard: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 12,
+    gap: 10,
+  },
+  statIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  statInfo: {
+    flex: 1,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#0F172A",
+    marginBottom: 2,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+  searchSection: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+  searchBar: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    color: '#111827',
-    marginLeft: 12,
-    fontWeight: '500',
-    letterSpacing: -0.2,
+    fontSize: 14,
+    color: "#0F172A",
+    fontWeight: "500",
   },
-  sortButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: '#EEF2FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#235CF8',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statsScroll: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  statsScrollContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 14,
-  },
-  statCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    overflow: 'hidden',
-    minWidth: 115,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statCardActive: {
-    borderColor: 'transparent',
-    transform: [{ scale: 1.05 }],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  statCardGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  statCardContent: {
-    padding: 18,
-    alignItems: 'center',
-    minHeight: 120,
-    justifyContent: 'center',
-  },
-  statIconContainer: {
+  sortBtn: {
     width: 48,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: "#EFF6FF",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  statCount: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 4,
-    letterSpacing: -0.5,
+  filterSection: {
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
-  statCountActive: {
-    color: '#fff',
-  },
-  statLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  statLabelActive: {
-    color: 'rgba(255,255,255,0.9)',
-  },
-  bulkActionsBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#EEF2FF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#DBEAFE',
-  },
-  bulkActionsLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  selectAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  filterTabs: {
+    flexDirection: "row",
     gap: 8,
   },
-  bulkActionsText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#235CF8',
-  },
-  bulkActionsRight: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  bulkActionButton: {
-    width: 40,
-    height: 40,
+  filterTab: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#F8FAFC",
+  },
+  filterTabActive: {
+    backgroundColor: "#3B82F6",
+  },
+  filterTabText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#64748B",
+  },
+  filterTabTextActive: {
+    color: "#fff",
+  },
+  bulkBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#EFF6FF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#DBEAFE",
+  },
+  bulkSelectAll: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  bulkText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#3B82F6",
+  },
+  bulkActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  bulkActionBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  resultsInfo: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  resultsText: {
+    fontSize: 13,
+    color: "#64748B",
+    fontWeight: "500",
   },
   listContent: {
-    padding: 20,
-    paddingBottom: 20,
+    paddingHorizontal: 16,
   },
-
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  adCard: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    overflow: "hidden",
+  },
+  checkbox: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+    padding: 4,
+  },
+  adContent: {
+    flexDirection: "row",
+    padding: 14,
+    paddingRight: 48,
+    gap: 12,
+  },
+  adImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    backgroundColor: "#F1F5F9",
+  },
+  adInfo: {
+    flex: 1,
+  },
+  adTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginBottom: 4,
+  },
+  adPrice: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#3B82F6",
+    marginBottom: 6,
+  },
+  adMeta: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 6,
+  },
+  metaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  metaText: {
+    fontSize: 11,
+    color: "#94A3B8",
+  },
+  adStats: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  statBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  statText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748B",
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  statusText: {
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.3,
+  },
+  adActions: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingBottom: 12,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#F1F5F9",
+  },
+  actionBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 9,
+    borderRadius: 10,
+    gap: 5,
+  },
+  approveBtn: {
+    backgroundColor: "#F0FDF4",
+    borderWidth: 1,
+    borderColor: "#DCFCE7",
+  },
+  rejectBtn: {
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FEE2E2",
+  },
+  deleteBtn: {
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FEE2E2",
+  },
+  approveText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#059669",
+  },
+  rejectText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#DC2626",
+  },
+  deleteText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#DC2626",
+  },
+  emptyState: {
     paddingVertical: 60,
+    alignItems: "center",
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#6B7280',
+    fontWeight: "700",
+    color: "#475569",
     marginTop: 16,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
-    fontWeight: '500',
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 12,
-    paddingTop: 10,
-    zIndex: 100,
-    overflow: 'hidden',
-  },
-  bottomNavGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  bottomNavItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 6,
-    minHeight: 56,
-  },
-  bottomNavItemActive: {
-    backgroundColor: 'transparent',
-    borderRadius: 16,
-    marginHorizontal: 4,
-  },
-  bottomNavActiveIndicator: {
-    position: 'absolute',
-    top: 0,
-    left: '50%',
-    marginLeft: -20,
-    width: 40,
-    height: 3,
-    borderRadius: 2,
-  },
-  bottomNavLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#9CA3AF',
-    marginTop: 4,
-  },
-  bottomNavLabelActive: {
-    color: '#235CF8',
-    fontWeight: '600',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  sortModal: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 24,
-    width: '100%',
-    maxWidth: 400,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  sortModalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 20,
-    letterSpacing: -0.3,
-  },
-  sortOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    gap: 12,
-    marginBottom: 8,
-  },
-  sortOptionActive: {
-    backgroundColor: '#EEF2FF',
-  },
-  sortOptionText: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  sortOptionTextActive: {
-    color: '#235CF8',
+    color: "#94A3B8",
   },
 });

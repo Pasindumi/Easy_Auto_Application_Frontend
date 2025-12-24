@@ -8,9 +8,12 @@ export default function AdminLayout() {
         header: () => null,
         presentation: "card",
         animation: "slide_from_right",
-        animationDuration: 350,
+        animationDuration: 250,
+        animationTypeForReplace: "push",
         gestureEnabled: true,
         gestureDirection: "horizontal",
+        customAnimationOnGesture: true,
+        fullScreenGestureEnabled: true,
       }}
     >
       <Stack.Screen
@@ -30,7 +33,15 @@ export default function AdminLayout() {
           animation: "slide_from_right",
         }}
       />
+      <Stack.Screen
+        name="users"
+        options={{
+          headerShown: false,
+          header: () => null,
+          title: "User Management",
+          animation: "slide_from_right",
+        }}
+      />
     </Stack>
   );
 }
-
