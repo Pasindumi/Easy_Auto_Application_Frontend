@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import Header from "../../components/Header";
+import { headerSectionStylesWhite } from '../../styles/headerSectionStyles';
 
 // Modular Components
 import CurrentPlanCard from '../../components/packages/subscription/CurrentPlanCard';
@@ -50,10 +51,10 @@ export default function SubscriptionsScreen() {
       <Header />
 
       {/* Inline Sub-Header Section */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
+      <View style={headerSectionStylesWhite.headerWrap}>
+        <View style={headerSectionStylesWhite.header}>
           <Ionicons name="people-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>My Subscribers</Text>
+          <Text style={headerSectionStylesWhite.headerTitle}>My Subscribers</Text>
         </View>
       </View>
 
@@ -77,20 +78,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  subHeaderWrap: {
-    backgroundColor: '#fff'
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: '#235CF8',
-    fontSize: 18,
-    fontWeight: '600'
   },
   scrollContent: {
     padding: 16,

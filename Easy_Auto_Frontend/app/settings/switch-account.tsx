@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import Header from "../../components/Header";
 import { typography } from "../../components/theme";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function SwitchAccountScreen() {
   const router = useRouter();
@@ -66,11 +67,11 @@ export default function SwitchAccountScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
 
-      <View style={localStyles.headerWrap}>
-        <View style={localStyles.header}>
-          <View style={localStyles.headerLeft}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
+          <View style={headerSectionStyles.headerLeft}>
             <Ionicons name="repeat-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-            <Text style={localStyles.headerTitle}>Switch Accounts</Text>
+            <Text style={headerSectionStyles.headerTitle}>Switch Accounts</Text>
           </View>
         </View>
       </View>
@@ -304,12 +305,4 @@ const styles = StyleSheet.create({
     color: '#235CF8',
     letterSpacing: -0.2,
   },
-  loader: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F5F5F5' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#D1D5DB' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

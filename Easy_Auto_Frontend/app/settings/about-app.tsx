@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function AboutApp() {
   const router = useRouter();
@@ -28,11 +29,11 @@ export default function AboutApp() {
           {/* ---------- HEADER ---------- */}
           {/* ---------- HEADER ---------- */}
           <Header />
-          <View style={localStyles.headerWrap}>
-            <View style={localStyles.header}>
-              <View style={localStyles.headerLeft}>
+          <View style={headerSectionStyles.headerWrap}>
+            <View style={headerSectionStyles.header}>
+              <View style={headerSectionStyles.headerLeft}>
                 <Ionicons name="information-circle-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-                <Text style={localStyles.headerTitle}>About App</Text>
+                <Text style={headerSectionStyles.headerTitle}>About App</Text>
               </View>
             </View>
           </View>
@@ -360,11 +361,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F9FAFB' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E0E0E0' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

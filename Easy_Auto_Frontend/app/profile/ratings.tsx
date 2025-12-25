@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 // ---- Review Data ----
 const REVIEWS = [
@@ -89,11 +90,11 @@ export default function RatingsScreen() {
       <SafeAreaView style={styles.safe}>
         {/* Header */}
         <Header />
-        <View style={localStyles.headerWrap}>
-          <View style={localStyles.header}>
-            <View style={localStyles.headerLeft}>
+        <View style={headerSectionStyles.headerWrap}>
+          <View style={headerSectionStyles.header}>
+            <View style={headerSectionStyles.headerLeft}>
               <Ionicons name="star-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-              <Text style={localStyles.headerTitle}>Ratings</Text>
+              <Text style={headerSectionStyles.headerTitle}>Ratings</Text>
             </View>
           </View>
         </View>
@@ -273,11 +274,4 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#111',
   },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F9FAFB' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E5E5' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

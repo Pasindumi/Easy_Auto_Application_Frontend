@@ -12,6 +12,7 @@ import {
 import Header from '../../components/Header';
 import BoostInfoCard from '../../components/packages/packages/BoostInfoCard';
 import PackagePlanCard from '../../components/packages/packages/PackagePlanCard';
+import { headerSectionStylesWhite } from '../../styles/headerSectionStyles';
 
 export default function PackagesScreen() {
   return (
@@ -20,12 +21,12 @@ export default function PackagesScreen() {
       <Header />
 
       {/* Inline Sub-Header Section */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
-          <Ionicons name="gift-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Packages</Text>
-        </View>
-      </View>
+           <View style={headerSectionStylesWhite.headerWrap}>
+             <View style={headerSectionStylesWhite.header}>
+               <Ionicons name="people-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+               <Text style={headerSectionStylesWhite.headerTitle}>Packages</Text>
+             </View>
+           </View>
 
       <ScrollView
         contentContainerStyle={styles.container}
@@ -90,20 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F9FAFB',
   },
-  subHeaderWrap: {
-    backgroundColor: '#F9FAFB'
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: '#235CF8',
-    fontSize: 18,
-    fontWeight: '600'
-  },
+  
   container: {
     padding: 16,
   },

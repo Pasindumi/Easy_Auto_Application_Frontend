@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -67,11 +68,11 @@ export default function SettingsScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
 
-      <View style={localStyles.headerWrap}>
-        <View style={localStyles.header}>
-          <View style={localStyles.headerLeft}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
+          <View style={headerSectionStyles.headerLeft}>
             <Ionicons name="settings-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-            <Text style={localStyles.headerTitle}>Settings</Text>
+            <Text style={headerSectionStyles.headerTitle}>Settings</Text>
           </View>
         </View>
       </View>
@@ -329,11 +330,4 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontWeight: '600',
   },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F9FAFB' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

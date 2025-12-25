@@ -15,6 +15,7 @@ import BuyCarCard from "../../components/cars/buy/BuyCarCard";
 import CategoryCard from "../../components/cars/buy/CategoryCard";
 import SearchFilterBar from "../../components/cars/buy/SearchFilterBar";
 import { CATEGORIES, FILTER_OPTIONS, SUV_CARS } from "../../constants/dummydata/buy-car";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { BuyCarItem } from '../../types/buy-car.types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -74,10 +75,10 @@ export default function BuyCarScreen() {
       <Header showBack={true} />
 
       {/* Unified Sub-Header */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
           <Ionicons name="car-sport-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Buy a Car</Text>
+          <Text style={headerSectionStyles.headerTitle}>Buy a Car</Text>
         </View>
       </View>
 
@@ -164,20 +165,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  subHeaderWrap: {
-    backgroundColor: COLORS.background
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: '600'
   },
   scrollView: { flex: 1 },
   scrollContent: { paddingBottom: 100 },

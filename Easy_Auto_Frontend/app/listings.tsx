@@ -17,6 +17,7 @@ import ListingCard from "../components/cards/ListingCard";
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
 import StatusCards from "../components/status/StatusCards";
+import { headerSectionStyles } from "../styles/headerSectionStyles";
 
 export default function MyListingsScreen() {
   const router = useRouter();
@@ -145,10 +146,10 @@ export default function MyListingsScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header />
 
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
           <Ionicons name="layers-outline" size={22} color={COLORS.primary} style={{ marginRight: 6 }} />
-          <Text style={styles.subHeaderTitle}>My Listings</Text>
+          <Text style={headerSectionStyles.headerTitle}>My Listings</Text>
         </View>
       </View>
 
@@ -175,20 +176,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  subHeaderWrap: {
-    backgroundColor: COLORS.background
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: '600'
   },
 
   boostCard: {
