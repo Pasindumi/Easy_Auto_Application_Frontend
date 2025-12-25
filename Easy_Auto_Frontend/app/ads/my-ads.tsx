@@ -16,6 +16,7 @@ import AdCard from "../../components/cards/AdCard";
 import Header from "../../components/Header";
 import SearchBar from "../../components/SearchBar";
 import StatusCards from "../../components/status/StatusCards";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function MyAdsScreen() {
   const router = useRouter();
@@ -86,11 +87,11 @@ export default function MyAdsScreen() {
       <View style={{ flex: 1 }}>
         <Header />
 
-        <View style={localStyles.headerWrap}>
-          <View style={localStyles.header}>
-            <View style={localStyles.headerLeft}>
+        <View style={headerSectionStyles.headerWrap}>
+          <View style={headerSectionStyles.header}>
+            <View style={headerSectionStyles.headerLeft}>
               <Ionicons name="layers-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-              <Text style={localStyles.headerTitle}>My Ads</Text>
+              <Text style={headerSectionStyles.headerTitle}>My Ads</Text>
             </View>
 
             <TouchableOpacity onPress={handleSelectAll} style={localStyles.headerRight}>
@@ -160,10 +161,6 @@ const styles = StyleSheet.create({
 });
 
 const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: COLORS.background },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: COLORS.primary, fontSize: 18, fontWeight: '600' },
   headerRight: { paddingHorizontal: 8, paddingVertical: 4 },
   selectAllText: { fontSize: 13, color: COLORS.text.muted },
 });

@@ -13,6 +13,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function ContactUsScreen() {
     const router = useRouter();
@@ -32,10 +33,10 @@ export default function ContactUsScreen() {
             <Header showBack={true} />
 
             {/* Unified Sub-Header */}
-            <View style={styles.subHeaderWrap}>
-                <View style={styles.subHeader}>
+            <View style={headerSectionStyles.headerWrap}>
+                <View style={headerSectionStyles.header}>
                     <Ionicons name="chatbox-ellipses-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-                    <Text style={styles.subHeaderTitle}>Contact Us</Text>
+                    <Text style={headerSectionStyles.headerTitle}>Contact Us</Text>
                 </View>
             </View>
 
@@ -114,20 +115,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.background,
-    },
-    subHeaderWrap: {
-        backgroundColor: COLORS.background
-    },
-    subHeader: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    subHeaderTitle: {
-        color: COLORS.primary,
-        fontSize: 18,
-        fontWeight: '600'
     },
     scrollContent: {
         padding: 20,

@@ -101,4 +101,10 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
   },
+
+
+   headerWrap: { backgroundColor: '#F9FAFB' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

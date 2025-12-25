@@ -16,6 +16,7 @@ import CarDetailsSection from '../../components/cars/sell/CarDetailsSection';
 import ContactDetailsSection from '../../components/cars/sell/ContactDetailsSection';
 import PhotoUploadSection from '../../components/cars/sell/PhotoUploadSection';
 import SubmitSection from '../../components/cars/sell/SubmitSection';
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { CarFormState } from '../../types/sell-car.types';
 
 export default function SellCarScreen() {
@@ -69,10 +70,10 @@ export default function SellCarScreen() {
       <Header showBack={true} />
 
       {/* Unified Sub-Header */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
           <Ionicons name="pricetag-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Sell Your Car</Text>
+          <Text style={headerSectionStyles.headerTitle}>Sell Your Car</Text>
         </View>
       </View>
 
@@ -136,20 +137,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  subHeaderWrap: {
-    backgroundColor: COLORS.background
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: '600'
   },
   scrollView: {
     flex: 1,

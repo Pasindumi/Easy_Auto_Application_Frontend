@@ -13,6 +13,7 @@ import Header from "../../components/Header";
 import PaymentCard from '../../components/payments/history/PaymentCard';
 import PaymentSearch from '../../components/payments/history/PaymentSearch';
 import PaymentSummary from '../../components/payments/history/PaymentSummary';
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { Payment, PaymentSummaryData } from '../../types/payment.types';
 
 export default function PaymentHistoryScreen() {
@@ -113,11 +114,11 @@ export default function PaymentHistoryScreen() {
       <SafeAreaView style={styles.safe}>
         {/* HEADER */}
         <Header />
-        <View style={localStyles.headerWrap}>
-          <View style={localStyles.header}>
-            <View style={localStyles.headerLeft}>
+        <View style={headerSectionStyles.headerWrap}>
+          <View style={headerSectionStyles.header}>
+            <View style={headerSectionStyles.headerLeft}>
               <Ionicons name="time-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-              <Text style={localStyles.headerTitle}>Payment History</Text>
+              <Text style={headerSectionStyles.headerTitle}>Payment History</Text>
             </View>
           </View>
         </View>
@@ -141,11 +142,4 @@ export default function PaymentHistoryScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F9FAFB' },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F9FAFB' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#D0D5DD' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

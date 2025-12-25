@@ -4,6 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { paymentData } from "../../constants/dummydata/payment";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 // Section Components
 import ImportantNoteSection from '../../components/payments/payment/ImportantNoteSection';
@@ -32,10 +33,10 @@ export default function Payment() {
       <Header showBack={true} />
 
       {/* Inline Sub-Header Section */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
           <Ionicons name="receipt-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Payment Summary</Text>
+          <Text style={headerSectionStyles.headerTitle}>Payment Summary</Text>
         </View>
       </View>
 
@@ -69,20 +70,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#f3f4f6',
-  },
-  subHeaderWrap: {
-    backgroundColor: '#f3f4f6'
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: '#235CF8',
-    fontSize: 18,
-    fontWeight: '600'
   },
   container: {
     flex: 1,

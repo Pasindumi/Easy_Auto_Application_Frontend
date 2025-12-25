@@ -9,6 +9,7 @@ import {
   View
 } from 'react-native';
 import Header from "../../components/Header";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function HelpSupport() {
   const router = useRouter();
@@ -19,10 +20,10 @@ export default function HelpSupport() {
       <Header showBack={true} />
 
       {/* Unified Sub-Header */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
           <Ionicons name="help-circle-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Help and Support</Text>
+          <Text style={headerSectionStyles.headerTitle}>Help and Support</Text>
         </View>
       </View>
 
@@ -124,20 +125,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  subHeaderWrap: {
-    backgroundColor: COLORS.background
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: '600'
   },
   container: {
     paddingBottom: 40,

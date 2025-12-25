@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function SelectLanguage() {
   const [selected, setSelected] = useState("en");
@@ -55,13 +56,13 @@ export default function SelectLanguage() {
 
       {/* Header */}
       <Header />
-      <View style={localStyles.headerWrap}>
-        <View style={localStyles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={localStyles.headerLeft}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={headerSectionStyles.headerLeft}>
             {/* Added back functionality to header */}
             <Ionicons name="arrow-back" size={24} color="#235CF8" style={{ marginRight: 10 }} />
             <Ionicons name="language-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-            <Text style={localStyles.headerTitle}>Select Language</Text>
+            <Text style={headerSectionStyles.headerTitle}>Select Language</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -197,11 +198,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 16,
   },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F9FAFB' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

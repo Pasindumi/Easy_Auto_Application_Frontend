@@ -3,6 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Header from "../../components/Header";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function SuccessfulPayment() {
   const router = useRouter();
@@ -13,10 +14,10 @@ export default function SuccessfulPayment() {
       <Header showBack={true} />
 
       {/* Inline Sub-Header Section */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
           <Ionicons name="checkmark-circle-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Payment Successful</Text>
+          <Text style={headerSectionStyles.headerTitle}>Payment Successful</Text>
         </View>
       </View>
 
@@ -47,20 +48,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#F2F3F5',
-  },
-  subHeaderWrap: {
-    backgroundColor: '#F2F3F5'
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: '#235CF8',
-    fontSize: 18,
-    fontWeight: '600'
   },
   container: {
     flex: 1,
