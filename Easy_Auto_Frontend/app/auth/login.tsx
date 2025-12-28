@@ -86,7 +86,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Login Button */}
-            <Button title="Login" onPress={() => router.push("/cars/buy-car")} />
+            <Button title="Login" onPress={() => router.push("/cars/sell-car")} />
 
             {/* OR separator */}
             <View style={styles.orRow}>
