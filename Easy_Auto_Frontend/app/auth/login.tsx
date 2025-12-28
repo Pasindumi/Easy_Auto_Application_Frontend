@@ -47,7 +47,7 @@ export default function LoginScreen() {
               <Text style={[styles.toggleText, styles.blueText]}>Signup</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.toggleBtn, styles.toggleActive]}>
+            <TouchableOpacity style={[styles.toggleBtn, styles.toggleActive]} >
               <Text style={[styles.toggleText, styles.whiteText]}>Login</Text>
             </TouchableOpacity>
           </View>
@@ -86,7 +86,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Login Button */}
-            <Button title="Login" onPress={() => router.push("/(tabs)")} />
+            <Button title="Login" onPress={() => router.push("/cars/buy-car")} />
 
             {/* OR separator */}
             <View style={styles.orRow}>
