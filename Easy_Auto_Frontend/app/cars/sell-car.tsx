@@ -20,18 +20,11 @@ import PhotoUploadSection from '../../components/cars/sell/PhotoUploadSection';
 import SubmitSection from '../../components/cars/sell/SubmitSection';
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { CarFormState } from '../../types/sell-car.types';
-
-// Mock function to simulate getting logged in user
-const getLoggedInUser = async () => {
-  // In real app, fetching from AsyncStorage or AuthContext
-  return {
-    email: "pasin@example.com",
-    phone: "0771234567"
-  };
-};
+import { useAuth } from '../../context/AuthContext';
 
 export default function SellCarScreen() {
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
 
   // Form state
   const [carDetails, setCarDetails] = useState<CarFormState>({
@@ -58,21 +51,23 @@ export default function SellCarScreen() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Auto-fill user details on mount
-    const loadUser = async () => {
-      try {
-        const user = await getLoggedInUser();
-        setCarDetails(prev => ({
-          ...prev,
-          email: user.email,
-          contactNumber: user.phone
-        }));
-      } catch (e) {
-        console.log("Failed to load user");
-      }
-    };
-    loadUser();
-  }, []);
+    if (!isAuthenticated) {
+      // If not authenticated, redirect to login
+      Alert.alert("Authentication Required", "Please login to sell your car.", [
+        { text: "OK", onPress: () => router.replace('/auth/login') }
+      ]);
+      return;
+    }
+
+    // Auto-fill user details if authenticated
+    if (user) {
+      setCarDetails(prev => ({
+        ...prev,
+        email: user.email,
+        contactNumber: user.phone || ''
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setCarDetails(prev => ({
@@ -116,8 +111,9 @@ export default function SellCarScreen() {
       const payload = {
         ...carDetails,
         images: selectedImages,
-        // seller_id: "..." // user ID should be handled by backend from token or passed here if we had it
-        seller_id: "00000000-0000-0000-0000-000000000000" // Placeholder UUID
+        // seller_id from auth context
+        seller_id: user?.id,
+        status: 'DRAFT'
       };
 
       // API Call
@@ -136,9 +132,8 @@ export default function SellCarScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Success", "Your ad has been published!", [
-          { text: "OK", onPress: () => router.push('/listings') }
-        ]);
+        // Navigate to review page with the new ad ID
+        router.push(`/cars/review?id=${data.data.id}`);
       } else {
         Alert.alert("Error", data.message || "Something went wrong.");
       }
@@ -194,6 +189,7 @@ export default function SellCarScreen() {
 
           {/* Contact Details Section */}
           <ContactDetailsSection
+            userName={user?.name}
             email={carDetails.email}
             contactNumber={carDetails.contactNumber}
             hidePhoneNumber={hidePhoneNumber}
@@ -204,7 +200,6 @@ export default function SellCarScreen() {
 
           {/* Submit Section */}
           <SubmitSection
-            onReview={() => Alert.alert("Coming Soon", "Review feature is in development.")}
             onSubmit={handleSubmit}
           />
         </ScrollView>
