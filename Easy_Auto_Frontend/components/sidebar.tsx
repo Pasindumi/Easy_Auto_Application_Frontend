@@ -18,12 +18,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
+import { useAuth } from "@/context/AuthContext";
+
 interface SidebarProps {
   visible: boolean;
   onClose: () => void;
 }
 
 export default function Sidebar({ visible, onClose }: SidebarProps) {
+  const { user, isAuthenticated, logout } = useAuth();
   const drawerWidth = width * 0.7;
   const slideAnim = React.useRef(new Animated.Value(-drawerWidth)).current;
   const backdropOpacity = React.useRef(new Animated.Value(0)).current;
@@ -63,7 +66,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
-  const menuItems = [
+  const userMenuItems = [
     {
       icon: "workspace-premium",
       label: "My Subscriptions",
@@ -77,6 +80,12 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     },
     { icon: "help-outline", label: "My Ads", route: "/ads/my-ads" },
     { icon: "star-outline", label: "Ratings", route: "/profile/ratings" },
+    { icon: "phone", label: "Contact Us", route: "/support/contact-us" },
+  ];
+
+  const guestMenuItems = [
+    { icon: "home", label: "Home", route: "/(tabs)" },
+    { icon: "search", label: "Search Cars", route: "/(tabs)/search" },
     { icon: "phone", label: "Contact Us", route: "/support/contact-us" },
   ];
 
@@ -97,8 +106,9 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         text: "Logout",
         style: "destructive",
         onPress: () => {
-          onClose();
-          // Add your logout logic here
+          onClose(); // Close sidebar first
+          logout();  // Update auth state
+          router.replace("/(tabs)"); // Redirect to home
           console.log("User logged out");
         },
       },
@@ -128,108 +138,194 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
             >
-              {/* User Profile Card */}
-              <View style={styles.profileCard}>
-                <TouchableOpacity
-                  style={styles.avatarContainer}
-                  onPress={() => handleNavigation("/(tabs)/profile")}
-                  activeOpacity={0.8}
-                >
-                  <Image
-                    source={{
-                      uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
-                    }}
-                    style={styles.avatarImage}
-                    contentFit="cover"
-                    transition={200}
-                  />
-                  <View style={styles.avatarBadge}>
-                    <MaterialIcons name="check" size={14} color="#FFFFFF" />
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.userName}>Dilmin Ekanayaka</Text>
-                  <Text style={styles.userEmail}>dilmin@example.com</Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.premiumButton}
-                  activeOpacity={0.8}
-                  onPress={() => handleNavigation("/packages/subscriptions")}
-                >
-                  <MaterialIcons
-                    name="workspace-premium"
-                    size={16}
-                    color="#FFD700"
-                  />
-                  <Text style={styles.premiumButtonText}>Premium Member</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Main Navigation Menu Card */}
-              <View style={styles.menuCard}>
-                <Text style={styles.sectionLabel}>Menu</Text>
-                {menuItems.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.menuItem}
-                    onPress={() => handleNavigation(item.route)}
-                    activeOpacity={0.6}
-                  >  
-                    <View style={styles.menuIconContainer}>
+              {isAuthenticated ? (
+                // =============== LOGGED IN STATE ===============
+                <>
+                  {/* User Profile Card */}
+                  <View style={styles.profileCard}>
+                    <TouchableOpacity
+                      style={styles.avatarContainer}
+                      onPress={() => handleNavigation("/(tabs)/profile")}
+                      activeOpacity={0.8}
+                    >
+                      <Image
+                        source={{
+                          uri:
+                            user?.avatar ||
+                            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format",
+                        }}
+                        style={styles.avatarImage}
+                        contentFit="cover"
+                        transition={200}
+                      />
+                      <View style={styles.avatarBadge}>
+                        <MaterialIcons name="check" size={14} color="#FFFFFF" />
+                      </View>
+                    </TouchableOpacity>
+                    <View style={styles.profileInfo}>
+                      <Text style={styles.userName}>
+                        {user?.name || "Dilmin Ekanayaka"}
+                      </Text>
+                      <Text style={styles.userEmail}>
+                        {user?.email || "dilmin@example.com"}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.premiumButton}
+                      activeOpacity={0.8}
+                      onPress={() => handleNavigation("/packages/subscriptions")}
+                    >
                       <MaterialIcons
-                        name={item.icon as any}
-                        size={20}
-                        color="#235CF8"
+                        name="workspace-premium"
+                        size={16}
+                        color="#FFD700"
+                      />
+                      <Text style={styles.premiumButtonText}>
+                        Premium Member
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Main Navigation Menu Card */}
+                  <View style={styles.menuCard}>
+                    <Text style={styles.sectionLabel}>Menu</Text>
+                    {userMenuItems.map((item, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={styles.menuItem}
+                        onPress={() => handleNavigation(item.route)}
+                        activeOpacity={0.6}
+                      >
+                        <View style={styles.menuIconContainer}>
+                          <MaterialIcons
+                            name={item.icon as any}
+                            size={20}
+                            color="#235CF8"
+                          />
+                        </View>
+                        <Text style={styles.menuItemText}>{item.label}</Text>
+                        <MaterialIcons
+                          name="chevron-right"
+                          size={18}
+                          color="#D1D5DB"
+                          style={styles.chevron}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* Settings and Logout Card */}
+                  <View style={styles.settingsCard}>
+                    <Text style={styles.sectionLabel}>Account</Text>
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => handleNavigation("/settings/settings")}
+                      activeOpacity={0.6}
+                    >
+                      <View style={styles.menuIconContainer}>
+                        <MaterialIcons
+                          name="settings"
+                          size={20}
+                          color="#235CF8"
+                        />
+                      </View>
+                      <Text style={styles.menuItemText}>Settings</Text>
+                      <MaterialIcons
+                        name="chevron-right"
+                        size={18}
+                        color="#D1D5DB"
+                        style={styles.chevron}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.menuItem, styles.logoutItem]}
+                      onPress={handleLogout}
+                      activeOpacity={0.6}
+                    >
+                      <View
+                        style={[
+                          styles.menuIconContainer,
+                          styles.logoutIconContainer,
+                        ]}
+                      >
+                        <MaterialIcons
+                          name="logout"
+                          size={20}
+                          color="#EF4444"
+                        />
+                      </View>
+                      <Text
+                        style={[styles.menuItemText, styles.logoutText]}
+                      >
+                        Logout
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                // =============== GUEST STATE ===============
+                <>
+                  <View style={[styles.profileCard, styles.guestCard]}>
+                    <View style={styles.guestIconContainer}>
+                      <MaterialIcons
+                        name="account-circle"
+                        size={64}
+                        color="#FFFFFF"
+                        style={{ opacity: 0.9 }}
                       />
                     </View>
-                    <Text style={styles.menuItemText}>{item.label}</Text>
-                    <MaterialIcons
-                      name="chevron-right"
-                      size={18}
-                      color="#D1D5DB"
-                      style={styles.chevron}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
+                    <Text style={styles.guestTitle}>Welcome Guest!</Text>
+                    <Text style={styles.guestSubtitle}>
+                      Log in to manage ads, save listings, and more.
+                    </Text>
 
-              {/* Settings and Logout Card */}
-              <View style={styles.settingsCard}>
-                <Text style={styles.sectionLabel}>Account</Text>
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={() => handleNavigation("/settings/settings")}
-                  activeOpacity={0.6}
-                >
-                  <View style={styles.menuIconContainer}>
-                    <MaterialIcons name="settings" size={20} color="#235CF8" />
+                    <View style={styles.guestButtonsRow}>
+                      <TouchableOpacity
+                        style={styles.guestLoginBtn}
+                        onPress={() => handleNavigation("/auth/login")}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.guestLoginText}>Login</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.guestSignupBtn}
+                        onPress={() => handleNavigation("/auth/signup")}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.guestSignupText}>Signup</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                  <Text style={styles.menuItemText}>Settings</Text>
-                  <MaterialIcons
-                    name="chevron-right"
-                    size={18}
-                    color="#D1D5DB"
-                    style={styles.chevron}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.menuItem, styles.logoutItem]}
-                  onPress={handleLogout}
-                  activeOpacity={0.6}
-                >
-                  <View
-                    style={[
-                      styles.menuIconContainer,
-                      styles.logoutIconContainer,
-                    ]}
-                  >
-                    <MaterialIcons name="logout" size={20} color="#EF4444" />
+
+                  {/* Guest Menu */}
+                  <View style={styles.menuCard}>
+                    <Text style={styles.sectionLabel}>Explore</Text>
+                    {guestMenuItems.map((item, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={styles.menuItem}
+                        onPress={() => handleNavigation(item.route)}
+                        activeOpacity={0.6}
+                      >
+                        <View style={styles.menuIconContainer}>
+                          <MaterialIcons
+                            name={item.icon as any}
+                            size={20}
+                            color="#235CF8"
+                          />
+                        </View>
+                        <Text style={styles.menuItemText}>{item.label}</Text>
+                        <MaterialIcons
+                          name="chevron-right"
+                          size={18}
+                          color="#D1D5DB"
+                          style={styles.chevron}
+                        />
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                  <Text style={[styles.menuItemText, styles.logoutText]}>
-                    Logout
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                </>
+              )}
 
               {/* Footer */}
               <View style={styles.footer}>
@@ -436,5 +532,54 @@ const styles = StyleSheet.create({
     color: "#9BA1A6",
     fontWeight: "400",
     letterSpacing: 0.3,
+  },
+  guestCard: {
+    paddingVertical: 32,
+  },
+  guestIconContainer: {
+    marginBottom: 12,
+  },
+  guestTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    marginBottom: 6,
+  },
+  guestSubtitle: {
+    fontSize: 13,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    lineHeight: 18,
+  },
+  guestButtonsRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  guestLoginBtn: {
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+  },
+  guestLoginText: {
+    color: "#235CF8",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  guestSignupBtn: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+  },
+  guestSignupText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
   },
 });

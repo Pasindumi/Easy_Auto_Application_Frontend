@@ -5,6 +5,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 interface Props {
     selectedImages: string[];
     removeImage: (index: number) => void;
+    addImage?: () => void; // Callback to trigger image picker
     title?: string;
     subtitle?: string;
     pricePill?: string;
@@ -13,10 +14,19 @@ interface Props {
 const PhotoUploadSection: React.FC<Props> = ({
     selectedImages,
     removeImage,
+    addImage,
     title = "Car Photos",
     subtitle = "Upload up to 5 photos. First photo will be the cover image",
     pricePill
 }) => {
+
+    // Split images for display rows
+    const firstRow = selectedImages.slice(0, 3);
+    const secondRow = selectedImages.slice(3, 5); // Max 5
+
+    // Check if we need to show the upsell
+    const showUpsell = selectedImages.length >= 5;
+
     return (
         <View style={styles.section}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
@@ -43,9 +53,13 @@ const PhotoUploadSection: React.FC<Props> = ({
                                 </TouchableOpacity>
                             </View>
                         ) : (
-                            <View key={i} style={styles.photoPlaceholderUniform}>
-                                <Ionicons name="car-outline" size={32} color="#C1C9D2" />
-                            </View>
+                            // Only show placeholder if we haven't reached limit, or just empty boxes
+                            // Design choice: show empty box if < limit
+                            i < 5 ? (
+                                <View key={i} style={styles.photoPlaceholderUniform}>
+                                    <Ionicons name="car-outline" size={32} color="#C1C9D2" />
+                                </View>
+                            ) : null
                         )
                     ))}
                 </View>
@@ -68,14 +82,28 @@ const PhotoUploadSection: React.FC<Props> = ({
                             </View>
                         )
                     ))}
-                    {selectedImages.length < 5 && (
-                        <TouchableOpacity style={styles.addPhotoButtonUniform}>
+
+                    {/* Add Photo Button - Only if < 5 */}
+                    {selectedImages.length < 5 && addImage && (
+                        <TouchableOpacity style={styles.addPhotoButtonUniform} onPress={addImage}>
                             <Text style={styles.addPhotoTextUniform}>Add Photo</Text>
                             <Ionicons name="add" size={32} color="#235CF8" style={{ marginTop: 2 }} />
                         </TouchableOpacity>
                     )}
                 </View>
             </View>
+
+            {/* Upsell Message */}
+            {showUpsell && (
+                <View style={styles.upsellContainer}>
+                    <Text style={styles.upsellText}>
+                        Got more images to upload? Start faster by adding 10 more images for a fee of <Text style={{ fontWeight: 'bold' }}>LKR 750</Text> or add package.
+                    </Text>
+                    <TouchableOpacity style={styles.upsellButton}>
+                        <Text style={styles.upsellButtonText}>Add Package</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
 };
@@ -93,6 +121,10 @@ const styles = StyleSheet.create({
     addPhotoTextUniform: { fontSize: 11, color: '#235CF8', fontWeight: '600', marginBottom: 2 },
     pricePill: { backgroundColor: '#E0F2FE', borderRadius: 16, paddingVertical: 4, paddingHorizontal: 12, marginLeft: 8 },
     pricePillText: { fontSize: 12, color: '#0A4D92', fontWeight: '500' },
+    upsellContainer: { marginTop: 12, padding: 12, backgroundColor: '#FFF7ED', borderRadius: 8, borderWidth: 1, borderColor: '#FFEDD5' },
+    upsellText: { fontSize: 14, color: '#9A3412', marginBottom: 8 },
+    upsellButton: { backgroundColor: '#EA580C', paddingVertical: 8, borderRadius: 6, alignItems: 'center' },
+    upsellButtonText: { color: 'white', fontWeight: '600', fontSize: 14 },
 });
 
 export default PhotoUploadSection;

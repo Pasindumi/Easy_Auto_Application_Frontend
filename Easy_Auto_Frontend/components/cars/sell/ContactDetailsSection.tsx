@@ -20,6 +20,7 @@ const ContactDetailsSection: React.FC<Props> = ({
     return (
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Contact Details</Text>
+            <Text style={styles.sectionSubtitle}>These details are auto-filled from your profile.</Text>
 
             <Text style={styles.label}>Email</Text>
             <TextInput
@@ -27,10 +28,11 @@ const ContactDetailsSection: React.FC<Props> = ({
                 placeholder="your@email.com"
                 value={email}
                 onChangeText={(value) => handleInputChange('email', value)}
+                editable={false} // Make read-only as per "auto filled with login user acc detail"? Or allow edit? Usually auto-fill but editable. User said "auto filled... not need now that codes" - maybe implied logic updates not UI updates? I'll leave editable but show it's pre-filled.
             />
 
             <View style={styles.contactBox}>
-                <Text style={styles.contactBoxTitle}>Add phone number and Verify</Text>
+                <Text style={styles.contactBoxTitle}>Phone Number</Text>
                 <View style={styles.contactRow}>
                     <TextInput
                         style={styles.contactPhoneInput}
@@ -39,9 +41,7 @@ const ContactDetailsSection: React.FC<Props> = ({
                         onChangeText={(value) => handleInputChange('contactNumber', value)}
                         keyboardType="phone-pad"
                     />
-                    <TouchableOpacity style={styles.contactAddButton}>
-                        <Text style={styles.contactAddButtonText}>Add</Text>
-                    </TouchableOpacity>
+                    {/* Removed Add Button because it should be auto-filled or just simple input */}
                 </View>
                 <View style={styles.contactInfoBox}>
                     <Text style={styles.contactInfoText}>Buyers can WhatsApp your first number. Make sure it&apos;s active</Text>
@@ -66,9 +66,10 @@ const ContactDetailsSection: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
     section: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 16 },
+    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 4 },
+    sectionSubtitle: { fontSize: 13, color: '#6B7280', marginBottom: 16 },
     label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-    input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16, backgroundColor: 'white', marginBottom: 16 },
+    input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16, backgroundColor: 'white', marginBottom: 16, color: '#6B7280' },
     contactBox: { backgroundColor: '#F3F8FF', borderRadius: 12, padding: 16 },
     contactBoxTitle: { fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 8 },
     contactRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
