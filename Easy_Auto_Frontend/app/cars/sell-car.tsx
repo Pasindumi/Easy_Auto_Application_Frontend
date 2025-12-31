@@ -1,9 +1,11 @@
 import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -19,6 +21,15 @@ import SubmitSection from '../../components/cars/sell/SubmitSection';
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { CarFormState } from '../../types/sell-car.types';
 
+// Mock function to simulate getting logged in user
+const getLoggedInUser = async () => {
+  // In real app, fetching from AsyncStorage or AuthContext
+  return {
+    email: "pasin@example.com",
+    phone: "0771234567"
+  };
+};
+
 export default function SellCarScreen() {
   const router = useRouter();
 
@@ -33,6 +44,7 @@ export default function SellCarScreen() {
     fuelType: '',
     transmission: '',
     engineCapacity: '',
+    bodyType: '',
     price: '',
     description: '',
     contactNumber: '',
@@ -42,8 +54,25 @@ export default function SellCarScreen() {
   });
 
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   const [hidePhoneNumber, setHidePhoneNumber] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Auto-fill user details on mount
+    const loadUser = async () => {
+      try {
+        const user = await getLoggedInUser();
+        setCarDetails(prev => ({
+          ...prev,
+          email: user.email,
+          contactNumber: user.phone
+        }));
+      } catch (e) {
+        console.log("Failed to load user");
+      }
+    };
+    loadUser();
+  }, []);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setCarDetails(prev => ({
@@ -52,16 +81,74 @@ export default function SellCarScreen() {
     }));
   };
 
+  const pickImage = async () => {
+    if (selectedImages.length >= 5) {
+      Alert.alert("Limit Reached", "You can only upload up to 5 images.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setSelectedImages([...selectedImages, result.assets[0].uri]);
+    }
+  };
+
   const handleRemovePhoto = (index: number) => {
     setSelectedImages(prev => prev.filter((_, idx) => idx !== index));
   };
 
-  const handleRemoveAdditionalPhoto = (index: number) => {
-    setAdditionalImages(prev => prev.filter((_, idx) => idx !== index));
-  };
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      // Validate Inputs
+      if (!carDetails.title || !carDetails.price || !carDetails.brand) {
+        Alert.alert("Missing Fields", "Please fill in all required fields.");
+        setLoading(false);
+        return;
+      }
 
-  const handleSubmit = () => {
-    router.push('/payments/payment');
+      const payload = {
+        ...carDetails,
+        images: selectedImages,
+        // seller_id: "..." // user ID should be handled by backend from token or passed here if we had it
+        seller_id: "00000000-0000-0000-0000-000000000000" // Placeholder UUID
+      };
+
+      // API Call
+      // Replace with your actual local IP for Android/Emulator
+      // Local IP: 192.168.1.2
+      const API_URL = 'http://192.168.1.29:5000/api/cars';
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Success", "Your ad has been published!", [
+          { text: "OK", onPress: () => router.push('/listings') }
+        ]);
+      } else {
+        Alert.alert("Error", data.message || "Something went wrong.");
+      }
+
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Failed to connect to server.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -102,15 +189,7 @@ export default function SellCarScreen() {
           <PhotoUploadSection
             selectedImages={selectedImages}
             removeImage={handleRemovePhoto}
-          />
-
-          {/* Additional Images Section */}
-          <PhotoUploadSection
-            selectedImages={additionalImages}
-            removeImage={handleRemoveAdditionalPhoto}
-            title="Additional Images"
-            subtitle="Add more images for more sales and engagements."
-            pricePill="$2.00/image"
+            addImage={pickImage}
           />
 
           {/* Contact Details Section */}
@@ -120,11 +199,12 @@ export default function SellCarScreen() {
             hidePhoneNumber={hidePhoneNumber}
             handleInputChange={handleInputChange}
             setHidePhoneNumber={setHidePhoneNumber}
+          // Auto-filled nature is handled by prop values
           />
 
           {/* Submit Section */}
           <SubmitSection
-            onReview={() => router.push('/ads/review add')}
+            onReview={() => Alert.alert("Coming Soon", "Review feature is in development.")}
             onSubmit={handleSubmit}
           />
         </ScrollView>

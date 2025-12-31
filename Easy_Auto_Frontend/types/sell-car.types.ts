@@ -14,4 +14,5 @@ export interface CarFormState {
     email: string;
     location: string;
     negotiable: boolean;
+    bodyType?: string;
 }

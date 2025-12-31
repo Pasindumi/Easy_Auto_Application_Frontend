@@ -1,3 +1,4 @@
+import SelectField from '@/components/ui/SelectField';
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { CarFormState } from '../../../types/sell-car.types';
@@ -8,33 +9,47 @@ interface Props {
 }
 
 const CarDetailsSection: React.FC<Props> = ({ carDetails, handleInputChange }) => {
+
+    // Mock Data for Dropdowns - In a real app, these could come from an API
+    const conditions = ['Brand New', 'Used', 'Reconditioned', 'Import'].map(c => ({ label: c, value: c }));
+    const brands = ['Audi', 'BMW', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Mahindra', 'Mercedes', 'Nissan', 'Toyota', 'Suzuki'].map(b => ({ label: b, value: b }));
+    const models = ['XUV', 'XUV500', 'Yaris', 'Corolla', 'Civic', 'Mustang'].map(m => ({ label: m, value: m })); // Simplified
+    const fuelTypes = ['Petrol', 'Diesel', 'Hybrid', 'Electric'].map(f => ({ label: f, value: f }));
+    const transmissions = ['Automatic', 'Manual', 'Tiptronic'].map(t => ({ label: t, value: t }));
+    const bodyTypes = ['Saloon', 'Hatchback', 'SUV', 'Convertible', 'Coupe', 'Van', 'Wagon'].map(b => ({ label: b, value: b }));
+
     return (
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Car Details</Text>
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <Text style={styles.label}>Brand</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Toyota"
-                        value={carDetails.brand}
-                        onChangeText={(value) => handleInputChange('brand', value)}
+                    <SelectField
+                        label="Condition"
+                        value={carDetails.condition}
+                        options={conditions}
+                        onSelect={(val) => handleInputChange('condition', val)}
                     />
                 </View>
-
                 <View style={styles.formHalf}>
-                    <Text style={styles.label}>Model</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Yaris Cross"
-                        value={carDetails.model}
-                        onChangeText={(value) => handleInputChange('model', value)}
+                    <SelectField
+                        label="Brand"
+                        value={carDetails.brand}
+                        options={brands}
+                        onSelect={(val) => handleInputChange('brand', val)}
                     />
                 </View>
             </View>
 
             <View style={styles.formRow}>
+                <View style={styles.formHalf}>
+                    <SelectField
+                        label="Model"
+                        value={carDetails.model}
+                        options={models}
+                        onSelect={(val) => handleInputChange('model', val)}
+                    />
+                </View>
                 <View style={styles.formHalf}>
                     <Text style={styles.label}>Year</Text>
                     <TextInput
@@ -45,33 +60,52 @@ const CarDetailsSection: React.FC<Props> = ({ carDetails, handleInputChange }) =
                         keyboardType="numeric"
                     />
                 </View>
+            </View>
 
+            <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <Text style={styles.label}>Mileage</Text>
+                    <Text style={styles.label}>Mileage (km)</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="75,000Km"
+                        placeholder="75,000"
                         value={carDetails.mileage}
                         onChangeText={(value) => handleInputChange('mileage', value)}
+                        keyboardType="numeric"
+                    />
+                </View>
+                <View style={styles.formHalf}>
+                    <Text style={styles.label}>Engine (cc)</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="1500"
+                        value={carDetails.engineCapacity || ''} // Handle potentially undefined if type not updated yet
+                        onChangeText={(value) => handleInputChange('engineCapacity', value)}
+                        keyboardType="numeric"
                     />
                 </View>
             </View>
 
-            <Text style={styles.label}>Transmission :</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Automatic"
+            <SelectField
+                label="Transmission"
                 value={carDetails.transmission}
-                onChangeText={(value) => handleInputChange('transmission', value)}
+                options={transmissions}
+                onSelect={(val) => handleInputChange('transmission', val)}
             />
 
-            <Text style={styles.label}>Fuel Type:</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Petrol/Hybrid"
+            <SelectField
+                label="Fuel Type"
                 value={carDetails.fuelType}
-                onChangeText={(value) => handleInputChange('fuelType', value)}
+                options={fuelTypes}
+                onSelect={(val) => handleInputChange('fuelType', val)}
             />
+
+            <SelectField
+                label="Body Type"
+                value={carDetails.bodyType || ''}
+                options={bodyTypes}
+                onSelect={(val) => handleInputChange('bodyType', val)}
+            />
+
         </View>
     );
 };

@@ -2,6 +2,7 @@ import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -19,6 +20,7 @@ import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function SignupScreen() {
   const router = useRouter();
+  const { register } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -26,7 +28,7 @@ export default function SignupScreen() {
   const [confirm, setConfirm] = useState("");
   const [agree, setAgree] = useState(false);
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!fullName.trim() || !email.trim() || !phone.trim() || !password) {
       Alert.alert("Validation", "Please fill in all fields.");
       return;
@@ -34,7 +36,14 @@ export default function SignupScreen() {
     if (password !== confirm) return Alert.alert("Validation", "Passwords do not match");
     if (!agree) return Alert.alert("Validation", "Please agree to Terms & Conditions");
 
-    router.push("/(tabs)");
+    const result = await register(fullName, email, phone, password);
+    if (result.success) {
+      Alert.alert("Success", "Account created successfully", [
+        { text: "OK", onPress: () => router.push("/(tabs)") }
+      ]);
+    } else {
+      Alert.alert("Registration Failed", result.error);
+    }
   };
 
   return (

@@ -2,8 +2,10 @@ import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import {
   Alert,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -20,6 +22,7 @@ import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
@@ -86,7 +89,22 @@ export default function LoginScreen() {
             </View>
 
             {/* Login Button */}
-            <Button title="Login" onPress={() => router.push("/cars/sell-car")} />
+            <Button
+              title={isLoading ? "Logging in..." : "Login"}
+              onPress={async () => {
+                if (!email || !password) {
+                  Alert.alert("Error", "Please enter both email and password");
+                  return;
+                }
+
+                const result = await login(email, password);
+                if (result.success) {
+                  router.replace("/(tabs)");
+                } else {
+                  Alert.alert("Login Failed", result.error);
+                }
+              }}
+            />
 
             {/* OR separator */}
             <View style={styles.orRow}>
