@@ -2,19 +2,15 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
-    onReview: () => void;
     onSubmit: () => void;
 }
 
-const SubmitSection: React.FC<Props> = ({ onReview, onSubmit }) => {
+const SubmitSection: React.FC<Props> = ({ onSubmit }) => {
     return (
         <View style={styles.container}>
             <View style={styles.submitSection}>
-                <TouchableOpacity style={styles.reviewButton} onPress={onReview}>
-                    <Text style={styles.reviewButtonText}>Review</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.postAdButton} onPress={onSubmit}>
-                    <Text style={styles.postAdButtonText}>Post Ad</Text>
+                    <Text style={styles.postAdButtonText}>Review and Post Ad</Text>
                 </TouchableOpacity>
             </View>
             <Text style={styles.disclaimer}>
@@ -31,35 +27,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'center',
-        gap: 12,
-    },
-    reviewButton: {
-        backgroundColor: 'white',
-        borderColor: '#D1D5DB',
-        borderWidth: 1,
-        borderRadius: 12,
-        paddingVertical: 16,
-        paddingHorizontal: 32,
-        minWidth: 120,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    reviewButtonText: {
-        color: '#1F2937',
-        fontSize: 16,
-        fontWeight: 'bold',
     },
     postAdButton: {
-        backgroundColor: '#8EE87C',
+        backgroundColor: '#235CF8', // Use primary color for main action
         borderRadius: 12,
         paddingVertical: 16,
         paddingHorizontal: 32,
-        minWidth: 120,
+        width: '100%', // Full width
         alignItems: 'center',
         justifyContent: 'center',
     },
     postAdButtonText: {
-        color: 'black',
+        color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
     },

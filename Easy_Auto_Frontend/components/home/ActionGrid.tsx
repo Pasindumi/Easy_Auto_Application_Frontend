@@ -139,7 +139,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                     delay={150}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/auth/login");
+                        router.push("/cars/sell-car");
                     }}
                 >
                     <View style={styles.scrollableActionCard}>

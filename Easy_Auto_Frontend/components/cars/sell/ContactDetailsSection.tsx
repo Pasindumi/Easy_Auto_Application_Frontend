@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface Props {
+    userName?: string;
     email: string;
     contactNumber: string;
     hidePhoneNumber: boolean;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const ContactDetailsSection: React.FC<Props> = ({
+    userName,
     email,
     contactNumber,
     hidePhoneNumber,
@@ -21,6 +23,14 @@ const ContactDetailsSection: React.FC<Props> = ({
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Contact Details</Text>
             <Text style={styles.sectionSubtitle}>These details are auto-filled from your profile.</Text>
+
+            <Text style={styles.label}>Name</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Owner Name"
+                value={userName}
+                editable={false}
+            />
 
             <Text style={styles.label}>Email</Text>
             <TextInput
