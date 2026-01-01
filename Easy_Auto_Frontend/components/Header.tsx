@@ -1,4 +1,5 @@
 // components/Header.tsx
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -26,7 +27,7 @@ export default function Header({ showBack = true, title }: Props) {
   return (
     <View style={styles.container}>
       {Platform.OS === "android" && (
-        <RNStatusBar backgroundColor="#1E60FF" barStyle="light-content" />
+        <RNStatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
       )}
 
       <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -66,11 +67,9 @@ export default function Header({ showBack = true, title }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#1E60FF",
+    backgroundColor: COLORS.primary,
     width: "100%",
     height: HEADER_HEIGHT,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
     overflow: "hidden",
   },
   safeArea: {
@@ -102,4 +101,10 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
   },
+
+
+   headerWrap: { backgroundColor: '#F9FAFB' },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

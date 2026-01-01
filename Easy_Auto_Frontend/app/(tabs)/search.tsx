@@ -1,22 +1,27 @@
+import Header from '@/components/Header';
+import COLORS from "@/constants/Colors";
+import { Stack } from 'expo-router';
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function SearchScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={false} title="Search" />
+
       <View style={styles.content}>
         <Text style={styles.title}>Search</Text>
-        <Text style={styles.subtitle}>Search functionality coming soon...</Text>
+        <Text style={styles.subtitle}>Discover your next car...</Text>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
   },
   content: {
     flex: 1,
@@ -27,11 +32,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#11181C',
+    color: COLORS.text.primary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#9BA1A6',
+    color: COLORS.text.muted,
   },
 });

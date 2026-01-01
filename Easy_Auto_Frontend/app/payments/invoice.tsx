@@ -9,36 +9,30 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Header from "../../components/Header";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function Invoice() {
   const router = useRouter();
 
   const handleDownloadPdf = () => {
     Alert.alert('Download', 'Invoice PDF is being prepared...');
-    // TODO: Integrate expo-print and expo-sharing to generate and save/share a real PDF
-    // Example:
-    // const { uri } = await Print.printToFileAsync({ html: '<html>...</html>' });
-    // await Sharing.shareAsync(uri);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>INVOICE</Text>
-
-        <View style={{ width: 24 }} />
+      {/* Inline Sub-Header Section */}
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
+          <Ionicons name="document-text-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
+          <Text style={headerSectionStyles.headerTitle}>Invoice</Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
         {/* Invoice Details */}
         <View style={styles.card}>
           <Text style={styles.text}>Date: 2025-11-04 T14:22:00+05:30</Text>
@@ -119,8 +113,6 @@ export default function Invoice() {
           </Text>
         </View>
 
-
-
         {/* Download PDF */}
         <TouchableOpacity style={styles.downloadBtn} onPress={handleDownloadPdf}>
           <Ionicons name="download-outline" size={18} color="#fff" />
@@ -131,53 +123,20 @@ export default function Invoice() {
         <TouchableOpacity style={styles.goPostedBtn} onPress={() => router.push('/ads/posted-ad' as any)}>
           <Text style={styles.goPostedText}>Go to Posted Ad</Text>
         </TouchableOpacity>
-
-
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
     backgroundColor: "#F9FAFB",
   },
-
-  header: {
-    height: 110,
-    backgroundColor: "#2563EB",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "800",
-  },
-
   content: {
     padding: 20,
     paddingBottom: 40,
   },
-
-  previewRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
-  previewText: {
-    color: "#2563EB",
-    marginLeft: 5,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-
   card: {
     backgroundColor: "#fff",
     borderRadius: 18,
@@ -189,103 +148,38 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
-
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
     color: "#111827",
     marginBottom: 10,
   },
-
   text: {
     fontSize: 14,
     color: "#4B5563",
     marginBottom: 4,
   },
-
   textBold: {
     fontSize: 14,
     fontWeight: "700",
     color: "#111827",
   },
-
   totalText: {
     fontSize: 16,
     fontWeight: "800",
     color: "#111827",
   },
-
   rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginVertical: 3,
   },
-
   divider: {
     height: 1,
     backgroundColor: "#E5E7EB",
     marginVertical: 10,
   },
-
-  promoContainer: {
-    flexDirection: "row",
-    marginBottom: 15,
-    gap: 10,
-  },
-
-  input: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    height: 45,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-
-  applyBtn: {
-    backgroundColor: "#2563EB",
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  applyText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-
-  methodBtn: {
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-
-  payBtn: {
-    backgroundColor: "#2563EB",
-    paddingVertical: 14,
-    borderRadius: 16,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
-  addBtn: {
-    backgroundColor: "#2563EB",
-    paddingVertical: 14,
-    borderRadius: 16,
-    alignItems: "center",
-  },
-
-  payText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 15,
-  },
-
   downloadBtn: {
     marginTop: 16,
     backgroundColor: '#2563EB',
@@ -296,12 +190,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-
   downloadText: {
     color: '#fff',
     fontWeight: '700',
   },
-
   goPostedBtn: {
     marginTop: 10,
     backgroundColor: '#10B981',
@@ -309,7 +201,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
-
   goPostedText: {
     color: '#fff',
     fontWeight: '700',

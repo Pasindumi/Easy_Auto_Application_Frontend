@@ -1,3 +1,4 @@
+import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React from "react";
@@ -9,7 +10,7 @@ import {
   View,
 } from "react-native";
 import Header from "../../components/Header";
-import { typography } from "../../components/theme";
+import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function NotificationsScreen() {
   const notifications = [
@@ -46,15 +47,16 @@ export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header />
-      <View style={localStyles.headerWrap}>
-        <View style={localStyles.header}>
-          <View style={localStyles.headerLeft}>
-            <Ionicons name="notifications-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-            <Text style={localStyles.headerTitle}>Notifications</Text>
-          </View>
+      <Header showBack={true} />
+
+      {/* Unified Sub-Header */}
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
+          <Ionicons name="notifications-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={headerSectionStyles.headerTitle}>Notifications</Text>
         </View>
       </View>
+
       <ScrollView style={styles.content}>
         {notifications.length > 0 ? (
           notifications.map((notification) => (
@@ -70,7 +72,7 @@ export default function NotificationsScreen() {
                 <MaterialIcons
                   name="notifications"
                   size={24}
-                  color={notification.read ? "#9BA1A6" : "#0066FF"}
+                  color={notification.read ? COLORS.text.muted : COLORS.primary}
                 />
               </View>
               <View style={styles.notificationContent}>
@@ -95,7 +97,7 @@ export default function NotificationsScreen() {
             <MaterialIcons
               name="notifications-none"
               size={64}
-              color="#9BA1A6"
+              color={COLORS.text.muted}
             />
             <Text style={styles.emptyText}>No notifications</Text>
             <Text style={styles.emptySubtext}>
@@ -111,7 +113,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.background,
   },
   content: {
     flex: 1,
@@ -119,20 +121,15 @@ const styles = StyleSheet.create({
   },
   notificationCard: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
     borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderColor: COLORS.divider,
   },
   unreadCard: {
-    borderColor: "#0066FF",
+    borderColor: COLORS.primary,
     borderWidth: 1.5,
     backgroundColor: "#F8F9FF",
   },
@@ -140,7 +137,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#F8F8F8",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -149,25 +146,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationTitle: {
-    ...typography.subheading,
     fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text.primary,
     marginBottom: 4,
   },
   unreadTitle: {
-    color: "#0066FF",
+    color: COLORS.primary,
   },
   notificationMessage: {
-    ...typography.body,
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    lineHeight: 20,
     marginBottom: 6,
   },
   notificationTime: {
-    ...typography.caption,
+    fontSize: 12,
+    color: COLORS.text.muted,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#0066FF",
+    backgroundColor: COLORS.primary,
     alignSelf: "flex-start",
     marginTop: 8,
   },
@@ -178,21 +179,16 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyText: {
-    ...typography.heading,
     fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.text.primary,
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtext: {
-    ...typography.body,
+    fontSize: 14,
+    color: COLORS.text.secondary,
     textAlign: "center",
     paddingHorizontal: 40,
   },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#FFFFFF' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#F0F0F0' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

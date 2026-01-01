@@ -1,5 +1,5 @@
-// app/find-dealers.tsx
-import ProfileHeader from '@/components/ProfileHeader';
+import Header from '@/components/Header';
+import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -83,7 +82,7 @@ export default function FindDealersScreen() {
             </View>
           </View>
           <View style={styles.distanceBadge}>
-            <Ionicons name="location-outline" size={14} color="#235CF8" />
+            <Ionicons name="location-outline" size={14} color={COLORS.primary} />
             <Text style={styles.distanceText}>{item.distance}</Text>
           </View>
         </View>
@@ -108,113 +107,134 @@ export default function FindDealersScreen() {
   );
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Find Dealers" showProfileCard={false} />
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Search Bar */}
-          <View style={styles.searchSection}>
-            <View style={styles.searchContainer}>
-              <Ionicons name="search-outline" size={20} color="#9CA3AF" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search dealers..."
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                placeholderTextColor="#9CA3AF"
-              />
-              <TouchableOpacity>
-                <Ionicons name="options-outline" size={20} color="#235CF8" />
-              </TouchableOpacity>
-            </View>
-          </View>
+      <Header />
 
-          {/* Filters */}
-          <View style={styles.filtersSection}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filtersContainer}
-            >
-              {['All', 'Nearby', 'Top Rated', 'Most Listings'].map(
-                (filter) => (
-                  <TouchableOpacity
-                    key={filter}
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons name="map-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.subHeaderTitle}>Find Dealers</Text>
+        </View>
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Search Bar */}
+        <View style={styles.searchSection}>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search-outline" size={20} color={COLORS.text.muted} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search dealers..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor={COLORS.text.muted}
+            />
+            <TouchableOpacity>
+              <Ionicons name="options-outline" size={20} color={COLORS.primary} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Filters */}
+        <View style={styles.filtersSection}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filtersContainer}
+          >
+            {['All', 'Nearby', 'Top Rated', 'Most Listings'].map(
+              (filter) => (
+                <TouchableOpacity
+                  key={filter}
+                  style={[
+                    styles.filterChip,
+                    selectedFilter === filter.toLowerCase().replace(' ', '-') &&
+                    styles.filterChipActive,
+                  ]}
+                  onPress={() =>
+                    setSelectedFilter(
+                      filter.toLowerCase().replace(' ', '-')
+                    )
+                  }
+                >
+                  <Text
                     style={[
-                      styles.filterChip,
+                      styles.filterText,
                       selectedFilter === filter.toLowerCase().replace(' ', '-') &&
-                      styles.filterChipActive,
+                      styles.filterTextActive,
                     ]}
-                    onPress={() =>
-                      setSelectedFilter(
-                        filter.toLowerCase().replace(' ', '-')
-                      )
-                    }
                   >
-                    <Text
-                      style={[
-                        styles.filterText,
-                        selectedFilter === filter.toLowerCase().replace(' ', '-') &&
-                        styles.filterTextActive,
-                      ]}
-                    >
-                      {filter}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              )}
-            </ScrollView>
-          </View>
+                    {filter}
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
+          </ScrollView>
+        </View>
 
-          {/* Dealers List */}
-          <View style={styles.dealersSection}>
-            <Text style={styles.sectionTitle}>
-              {DEALERS.length} Dealers Found
-            </Text>
-            {DEALERS.map((item) => renderDealerCard({ item }))}
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        {/* Dealers List */}
+        <View style={styles.dealersSection}>
+          <Text style={styles.sectionTitle}>
+            {DEALERS.length} Dealers Found
+          </Text>
+          {DEALERS.map((item) => renderDealerCard({ item }))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background,
+  },
+  subHeaderWrap: {
+    backgroundColor: COLORS.background
+  },
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  subHeaderTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '600'
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 80, // Account for header
-    paddingBottom: 100, // Account for tab bar (68px) + safe area + extra spacing
+    paddingBottom: 40,
   },
   searchSection: {
     paddingHorizontal: 16,
     marginBottom: 16,
+    marginTop: 10,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.divider,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#111827',
+    color: COLORS.text.primary,
   },
   filtersSection: {
     marginBottom: 20,
@@ -227,21 +247,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.divider,
   },
   filterChipActive: {
-    backgroundColor: '#235CF8',
-    borderColor: '#235CF8',
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   filterText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6B7280',
+    color: COLORS.text.muted,
   },
   filterTextActive: {
-    color: '#FFFFFF',
+    color: COLORS.white,
   },
   dealersSection: {
     paddingHorizontal: 16,
@@ -249,18 +269,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: COLORS.text.primary,
     marginBottom: 16,
   },
   dealerCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   dealerImage: {
     width: '100%',
@@ -281,7 +299,7 @@ const styles = StyleSheet.create({
   dealerName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: COLORS.text.primary,
     marginBottom: 4,
   },
   ratingContainer: {
@@ -291,18 +309,18 @@ const styles = StyleSheet.create({
   rating: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#111827',
+    color: COLORS.text.primary,
     marginLeft: 4,
   },
   reviews: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.text.muted,
     marginLeft: 4,
   },
   distanceBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F4FF',
+    backgroundColor: COLORS.primaryLight,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -311,11 +329,11 @@ const styles = StyleSheet.create({
   distanceText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#235CF8',
+    color: COLORS.primary,
   },
   dealerAddress: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.text.secondary,
     marginBottom: 12,
   },
   specialtiesContainer: {
@@ -325,7 +343,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   specialtyTag: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.background,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -333,7 +351,7 @@ const styles = StyleSheet.create({
   specialtyText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#6B7280',
+    color: COLORS.text.muted,
   },
   dealerFooter: {
     flexDirection: 'row',
@@ -341,23 +359,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: COLORS.divider,
   },
   listingsCount: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#235CF8',
+    color: COLORS.primary,
   },
   viewButton: {
-    backgroundColor: '#235CF8',
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 10,
   },
   viewButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 14,
     fontWeight: '700',
   },
 });
-

@@ -1,23 +1,20 @@
-// app/reset-password.tsx
+import COLORS from "@/constants/Colors";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import Footer, { FOOTER_HEIGHT } from "../../components/Footer";
+import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import InputField from "../../components/InputField";
-import { colors } from "../../components/theme";
 import Button from "../../components/ui/button/Button";
-
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
@@ -34,114 +31,95 @@ export default function ResetPasswordScreen() {
   };
 
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.safe}>
-        <Header />
+      <Header showBack={true} title="Reset Password" />
 
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* Scrollable form */}
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Toggle inline */}
-            <View style={styles.toggleRow}>
-              <TouchableOpacity
-                style={[styles.toggleBtn, styles.toggleInactive]}
-                onPress={() => router.push("/auth/login")}
-              >
-                <Text style={[styles.toggleText, styles.blueText]}>Login</Text>
-              </TouchableOpacity>
+          {/* Toggle */}
+          <View style={styles.toggleRow}>
+            <TouchableOpacity
+              style={[styles.toggleBtn, styles.toggleInactive]}
+              onPress={() => router.push("/auth/login")}
+            >
+              <Text style={[styles.toggleText, styles.blueText]}>Login</Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.toggleBtn, styles.toggleActive]}>
-                <Text style={[styles.toggleText, styles.whiteText]}>
-                  Reset Password
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={[styles.toggleBtn, styles.toggleActive]}>
+              <Text style={[styles.toggleText, styles.whiteText]}>
+                Reset Password
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-            {/* Form */}
-            <View style={styles.centeredFormWrapper}>
-              <View style={styles.form}>
+          {/* Form */}
+          <View style={styles.centeredFormWrapper}>
+            <View style={styles.form}>
+              <InputField
+                icon="mail-outline"
+                placeholder="Enter your email or phone"
+                value={contact}
+                onChange={setContact}
+                keyboardType="email-address"
+              />
 
+              <Button title="Continue" onPress={handleContinue} />
 
-                <InputField
-                  icon="mail-outline"
-                  placeholder="Enter your email or phone"
-                  value={contact}
-                  onChange={setContact}
-                  keyboardType="email-address"
-                />
-
-                <Button title="Continue" onPress={() => router.push("/auth/login")}  // <-- navigation
-                />
-
-                <View style={styles.loginRow}>
-                  <Text style={styles.smallText}>Remember your password?</Text>
-                  <TouchableOpacity onPress={() => router.push("/auth/login")}>
-                    <Text style={styles.loginLink}> Sign In</Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={styles.loginRow}>
+                <Text style={styles.smallText}>Remember your password?</Text>
+                <TouchableOpacity onPress={() => router.push("/auth/login")}>
+                  <Text style={styles.loginLink}> Sign In</Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </ScrollView>
-
-          {/* Footer fixed at bottom */}
-          <View style={styles.footerWrapper}>
-            <Footer fixed />
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </>
+        </ScrollView>
+
+        <Footer fixed />
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.white },
-
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background
+  },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: FOOTER_HEIGHT + 24,
-    backgroundColor: "#F5F5F5",
+    paddingBottom: 40,
   },
 
-  // Toggle
   toggleRow: {
     flexDirection: "row",
     alignSelf: "center",
     marginTop: 12,
     borderRadius: 28,
     overflow: "hidden",
+    width: '60%',
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
-  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center" },
-  toggleActive: { backgroundColor: colors.primary },
-  toggleInactive: { backgroundColor: colors.bgLight },
-  toggleText: { fontWeight: "700", fontSize: 14 },
-  whiteText: { color: colors.white },
-  blueText: { color: colors.primary },
+  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center", backgroundColor: COLORS.white },
+  toggleActive: { backgroundColor: COLORS.primary },
+  toggleInactive: { backgroundColor: COLORS.white },
+  toggleText: { fontWeight: "700", fontSize: 13 },
+  whiteText: { color: COLORS.white },
+  blueText: { color: COLORS.primary },
 
-  centeredFormWrapper: { flex: 1, justifyContent: "center", alignItems: "center", marginTop: 24 },
+  centeredFormWrapper: { flex: 1, justifyContent: "center", alignItems: "center", marginTop: 32 },
   form: { width: "100%", maxWidth: 400 },
 
-  label: { fontSize: 12, color: colors.textGray, marginBottom: 6 },
-
-  continueBtn: { borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 10 },
-  continueText: { color: colors.white, fontWeight: "700", fontSize: 16 },
-
-  loginRow: { flexDirection: "row", justifyContent: "center", marginTop: 16 },
-  smallText: { color: colors.textGray },
-  loginLink: { color: colors.primary, fontWeight: "700" },
-
-  // Footer wrapper fixed at bottom
-  footerWrapper: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: FOOTER_HEIGHT,
-  },
+  loginRow: { flexDirection: "row", justifyContent: "center", marginTop: 24, marginBottom: 40 },
+  smallText: { color: COLORS.text.muted },
+  loginLink: { color: COLORS.primary, fontWeight: "700" },
 });

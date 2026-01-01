@@ -1,7 +1,8 @@
-// app/my-listings.tsx
+import COLORS from "@/constants/Colors";
+import { LISTINGS } from "@/constants/dummydata/listings";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -12,14 +13,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
-import { LISTINGS } from "@/constants/dummydata/listings"; // <- imported dummy data
 import ListingCard from "../components/cards/ListingCard";
 import Header from "../components/Header";
-import styles from "../components/listingStyles";
 import SearchBar from "../components/SearchBar";
 import StatusCards from "../components/status/StatusCards";
+import { headerSectionStyles } from "../styles/headerSectionStyles";
 
 export default function MyListingsScreen() {
   const router = useRouter();
@@ -69,7 +67,7 @@ export default function MyListingsScreen() {
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyIconWrapper}>
-        <Text style={{ fontSize: 28 }}>🚗</Text>
+        <Ionicons name="car-outline" size={48} color={COLORS.divider} />
       </View>
       <Text style={styles.emptyTitle}>{searchQuery ? "No listings found" : "No listings yet"}</Text>
       {!searchQuery && !filterStatus && (
@@ -80,13 +78,11 @@ export default function MyListingsScreen() {
     </View>
   );
 
-  // Scrollable content after fixed header
   const renderScrollableContent = () => (
     <>
-      {/* Boost Card */}
       <TouchableOpacity style={styles.boostCard} activeOpacity={0.9} onPress={() => router.push("/packages/packages")}>
         <View style={styles.boostIconWrapper}>
-          <Text style={{ fontSize: 18, color: "#235CF8" }}>🚀</Text>
+          <Ionicons name="rocket-outline" size={18} color={COLORS.primary} />
         </View>
         <View style={styles.boostContent}>
           <Text style={styles.boostTitle}>Boost Visibility</Text>
@@ -100,7 +96,6 @@ export default function MyListingsScreen() {
         </View>
       </TouchableOpacity>
 
-      {/* Bulk actions */}
       {selected.length > 0 && (
         <View style={styles.bulkActionsBar}>
           <View style={styles.bulkActionsLeft}>
@@ -112,21 +107,19 @@ export default function MyListingsScreen() {
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={() => setSelected([])}>
-            <Text style={{ fontSize: 16, color: "#6B7280" }}>✕</Text>
+            <Ionicons name="close" size={16} color={COLORS.text.muted} />
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Select All Row */}
       <TouchableOpacity style={styles.selectAllRow} onPress={handleSelectAll}>
         <View style={[styles.checkbox, selected.length === filteredListings.length && selected.length > 0 && styles.checkboxActive]}>
-          {selected.length === filteredListings.length && selected.length > 0 && <Text style={{ color: "#fff" }}>✓</Text>}
+          {selected.length === filteredListings.length && selected.length > 0 && <Ionicons name="checkmark" size={12} color={COLORS.white} />}
         </View>
         <Text style={styles.selectAllText}>Select all</Text>
         {selected.length > 0 && <Text style={styles.selectedCount}>{selected.length} selected</Text>}
       </TouchableOpacity>
 
-      {/* Listings */}
       <FlatList
         data={filteredListings}
         renderItem={({ item, index }) => (
@@ -142,7 +135,7 @@ export default function MyListingsScreen() {
         )}
         keyExtractor={(i) => i.id}
         ListEmptyComponent={renderEmpty}
-        scrollEnabled={false} // Prevent nested scroll
+        scrollEnabled={false}
         showsVerticalScrollIndicator={false}
       />
     </>
@@ -150,40 +143,172 @@ export default function MyListingsScreen() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
-        {/* Fixed Top */}
-        <Header />
-        <View style={{ backgroundColor: "#fff" }}>
-          <View style={localStyles.header}>
-            <View style={localStyles.headerLeft}>
-              <Ionicons name="layers-outline" size={22} color="#235CF8" style={{ marginRight: 6 }} />
-              <Text style={localStyles.headerTitle}>My Listings</Text>
-            </View>
-          </View>
-          <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search listings..." />
-          <StatusCards
-            counts={counts}
-            selectedFilter={filterStatus === null ? "all" : (filterStatus as any)}
-            onSelect={(k) => setFilterStatus(k === "all" ? null : (k as any))}
-          />
-        </View>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header />
 
-        {/* Scrollable content */}
-        <FlatList
-          data={[{ key: "scrollable" }]} // dummy single item
-          renderItem={renderScrollableContent}
-          keyExtractor={(item) => item.key}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#235CF8" />}
-          showsVerticalScrollIndicator={true}
-          contentContainerStyle={{ paddingBottom: 32 }}
-        />
-      </SafeAreaView>
+      <View style={headerSectionStyles.headerWrap}>
+        <View style={headerSectionStyles.header}>
+          <Ionicons name="layers-outline" size={22} color={COLORS.primary} style={{ marginRight: 6 }} />
+          <Text style={headerSectionStyles.headerTitle}>My Listings</Text>
+        </View>
+      </View>
+
+      <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search listings..." />
+      <StatusCards
+        counts={counts}
+        selectedFilter={filterStatus === null ? "all" : (filterStatus as any)}
+        onSelect={(k) => setFilterStatus(k === "all" ? null : (k as any))}
+      />
+
+      <FlatList
+        data={[{ key: "scrollable" }]}
+        renderItem={renderScrollableContent}
+        keyExtractor={(item) => item.key}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
+        showsVerticalScrollIndicator={true}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      />
     </View>
   );
 }
 
-const localStyles = StyleSheet.create({
-  header: { backgroundColor: "#fff", paddingHorizontal: 16, paddingVertical: 10, flexDirection: "row", alignItems: "center" },
-  headerLeft: { flexDirection: "row", alignItems: "center" },
-  headerTitle: { color: "#235CF8", fontSize: 18, fontWeight: "600" },
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+
+  boostCard: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+  },
+  boostIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  boostContent: {
+    flex: 1,
+  },
+  boostTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.text.primary,
+  },
+  boostDescription: {
+    fontSize: 12,
+    color: COLORS.text.muted,
+    marginTop: 2,
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 2,
+    marginTop: 8,
+    width: "80%",
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: COLORS.primary,
+    borderRadius: 2,
+  },
+  boostMeta: {
+    alignItems: "flex-end",
+  },
+  boostPercent: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: COLORS.primary,
+  },
+
+  bulkActionsBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: COLORS.primaryLight,
+  },
+  bulkActionsLeft: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  bulkActionButton: {
+    paddingVertical: 4,
+  },
+  bulkActionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.primary,
+  },
+  bulkActionButtonDanger: {},
+  bulkActionTextDanger: {
+    color: COLORS.status.danger,
+  },
+
+  selectAllRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: COLORS.divider,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  checkboxActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  selectAllText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.text.primary,
+  },
+  selectedCount: {
+    fontSize: 12,
+    color: COLORS.text.muted,
+    marginLeft: 8,
+  },
+
+  emptyContainer: {
+    padding: 60,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyIconWrapper: {
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    color: COLORS.text.muted,
+    fontWeight: "600",
+  },
+  emptyButton: {
+    marginTop: 20,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  emptyButtonText: {
+    color: COLORS.white,
+    fontWeight: "700",
+  },
 });

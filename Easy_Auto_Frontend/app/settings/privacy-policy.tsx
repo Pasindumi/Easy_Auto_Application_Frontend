@@ -1,6 +1,4 @@
-// app/privacy-policy.tsx
-import Header from "../../components/Header";
-
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React from "react";
@@ -11,33 +9,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Header from "../../components/Header";
 
 export default function PrivacyPolicy() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} title="Privacy Policy" />
 
-      {/* Header */}
-      {/* Header */}
-      <Header />
-      <View style={localStyles.headerWrap}>
-        <View style={localStyles.header}>
-          <View style={localStyles.headerLeft}>
-            <Ionicons name="lock-closed-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-            <Text style={localStyles.headerTitle}>Privacy Policy</Text>
-          </View>
-        </View>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.content}>
-
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Main Card */}
         <View style={styles.card}>
           <View style={styles.iconCircle}>
-            <Ionicons name="shield-checkmark" size={32} color="#2563EB" />
+            <Ionicons name="shield-checkmark" size={32} color={COLORS.primary} />
           </View>
 
           <Text style={styles.title}>Your Privacy Matters</Text>
@@ -84,52 +70,33 @@ export default function PrivacyPolicy() {
 
           <View style={styles.divider} />
 
-          <TouchableOpacity style={styles.button}>
-            <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
+          <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+            <Ionicons name="checkmark-circle-outline" size={20} color={COLORS.white} />
             <Text style={styles.buttonText}>I Agree & Continue</Text>
           </TouchableOpacity>
         </View>
-
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  header: {
-    height: 110,
-    backgroundColor: "#2563EB",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-
-  },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "700",
+    backgroundColor: COLORS.background,
   },
   content: {
     padding: 20,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     borderRadius: 20,
     padding: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   iconCircle: {
-    backgroundColor: "#EFF6FF",
+    backgroundColor: COLORS.primaryLight,
     width: 60,
     height: 60,
     borderRadius: 30,
@@ -143,27 +110,27 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     textAlign: "center",
     marginBottom: 15,
-    color: "#111827",
+    color: COLORS.text.primary,
   },
   subTitle: {
     fontSize: 16,
     fontWeight: "700",
     marginTop: 15,
     marginBottom: 6,
-    color: "#1F2937",
+    color: COLORS.text.primary,
   },
   text: {
     fontSize: 14,
-    color: "#4B5563",
+    color: COLORS.text.secondary,
     lineHeight: 22,
   },
   divider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: COLORS.divider,
     marginVertical: 15,
   },
   button: {
-    backgroundColor: "#2563EB",
+    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
@@ -173,15 +140,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonText: {
-    color: "#fff",
+    color: COLORS.white,
     fontWeight: "700",
     fontSize: 15,
   },
-});
-
-const localStyles = StyleSheet.create({
-  headerWrap: { backgroundColor: '#F9FAFB' },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#E5E7EB' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });

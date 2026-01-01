@@ -1,3 +1,4 @@
+import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
@@ -10,8 +11,6 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-
-// const { width } = Dimensions.get("window");
 
 interface HomeHeaderProps {
     initialHeaderOpacity: Animated.Value;
@@ -53,7 +52,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     showSearchSuggestions,
     setShowSearchSuggestions,
 }) => {
-    // ... (rest of the component logic remains the same, but using imported arrays)
     useEffect(() => {
         if (showNotificationPreview || showWishlistPreview) {
             const timer = setTimeout(() => {
@@ -90,7 +88,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     activeOpacity={0.7}
                     hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
                 >
-                    <Ionicons name="menu-outline" size={28} color="#FFFFFF" />
+                    <Ionicons name="menu-outline" size={28} color={COLORS.white} />
                 </TouchableOpacity>
 
                 {/* Center: Logo */}
@@ -117,9 +115,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                         }}
                         activeOpacity={0.7}
                     >
-                        <Ionicons name="notifications-outline" size={26} color="#FFFFFF" />
+                        <Ionicons name="notifications-outline" size={26} color={COLORS.white} />
                         {notificationCount > 0 && (
-                            <View style={styles.badge}>
+                            <View style={[styles.badge, { borderColor: COLORS.primary }]}>
                                 <Text style={styles.badgeText}>
                                     {notificationCount > 9 ? "9+" : notificationCount}
                                 </Text>
@@ -140,9 +138,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                         }}
                         activeOpacity={0.7}
                     >
-                        <Ionicons name="heart-outline" size={26} color="#FFFFFF" />
+                        <Ionicons name="heart-outline" size={26} color={COLORS.white} />
                         {wishlistCount > 0 && (
-                            <View style={styles.badge}>
+                            <View style={[styles.badge, { borderColor: COLORS.primary }]}>
                                 <Text style={styles.badgeText}>
                                     {wishlistCount > 9 ? "9+" : wishlistCount}
                                 </Text>
@@ -164,13 +162,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                         <MaterialIcons
                             name="search"
                             size={22}
-                            color={searchFocused ? "#235CF8" : "#9CA3AF"}
+                            color={searchFocused ? COLORS.primary : COLORS.text.placeholder}
                             style={styles.searchIcon}
                         />
                         <TextInput
                             style={styles.searchInput}
                             placeholder="Search cars, brands or models..."
-                            placeholderTextColor="#9CA3AF"
+                            placeholderTextColor={COLORS.text.placeholder}
                             onFocus={() => {
                                 setSearchFocused(true);
                                 setShowSearchSuggestions(true);
@@ -187,7 +185,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                             <MaterialIcons
                                 name="tune"
                                 size={20}
-                                color={searchFocused ? "#235CF8" : "#9CA3AF"}
+                                color={searchFocused ? COLORS.primary : COLORS.text.placeholder}
                             />
                         </TouchableOpacity>
                     </View>
@@ -204,7 +202,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                                     style={styles.suggestionItem}
                                     activeOpacity={0.7}
                                 >
-                                    <MaterialIcons name="history" size={16} color="#9BA1A6" />
+                                    <MaterialIcons name="history" size={16} color={COLORS.text.muted} />
                                     <Text style={styles.suggestionText}>{suggestion}</Text>
                                 </TouchableOpacity>
                             )
@@ -216,7 +214,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                                 style={styles.suggestionItem}
                                 activeOpacity={0.7}
                             >
-                                <MaterialIcons name="trending-up" size={16} color="#235CF8" />
+                                <MaterialIcons name="trending-up" size={16} color={COLORS.primary} />
                                 <Text style={[styles.suggestionText, styles.popularText]}>
                                     {suggestion}
                                 </Text>
@@ -231,13 +229,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
 const styles = StyleSheet.create({
     header: {
-        backgroundColor: "#235CF8",
+        backgroundColor: COLORS.primary,
         paddingBottom: 20,
         paddingHorizontal: 20,
         borderBottomLeftRadius: 30,
         borderBottomRightRadius: 30,
         marginBottom: 0,
-        // overflow: "hidden", // Removed to prevent clipping touches
     },
     headerContent: {
         flexDirection: "row",
@@ -246,14 +243,14 @@ const styles = StyleSheet.create({
         minHeight: 50,
         marginBottom: 14,
         zIndex: 50,
-        position: 'relative', // Context for absolute logo
+        position: 'relative',
     },
     menuButton: {
         width: 44,
         height: 44,
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 100, // Ensure it sits on top
+        zIndex: 100,
         marginBottom: 80,
     },
     rightIconsContainer: {
@@ -261,7 +258,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 12,
         marginBottom: 80,
-        zIndex: 100, // Ensure actionable
+        zIndex: 100,
     },
     centeredLogoContainer: {
         position: 'absolute',
@@ -271,52 +268,11 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 1, // Sit below icons
-    },
-    topRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 20,
-        paddingTop: 6,
-        paddingBottom: 10,
-    },
-    rightIcons: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-        width: 100,
-        justifyContent: "flex-end",
-    },
-    headerButton: {
-        width: 40,
-        height: 40,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    logoWrapper: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 16,
+        zIndex: 1,
     },
     logoImage: {
         width: 350,
         height: 155,
-    },
-    logoText: {
-        color: "#FFFFFF",
-        fontSize: 18,
-        fontWeight: "700",
-        letterSpacing: -0.3,
-    },
-    headerActions: {
-        flexDirection: "row",
-        gap: 12, // Increased from 8
-        alignItems: "center",
-    },
-    iconButtonWrapper: {
-        position: "relative",
     },
     iconButton: {
         width: 40,
@@ -329,7 +285,7 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 4,
         right: 4,
-        backgroundColor: "#EF4444",
+        backgroundColor: COLORS.status.danger,
         borderRadius: 10,
         minWidth: 18,
         height: 18,
@@ -337,140 +293,13 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         paddingHorizontal: 4,
         borderWidth: 2,
-        borderColor: "#235CF8",
     },
     badgeText: {
-        color: "#FFFFFF",
+        color: COLORS.white,
         fontSize: 10,
         fontWeight: "700",
         letterSpacing: -0.2,
     },
-    notificationPreview: {
-        position: "absolute",
-        top: 50,
-        right: 0,
-        width: 320,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 24,
-        elevation: 12,
-        zIndex: 1000,
-        maxHeight: 400,
-    },
-    wishlistPreview: {
-        position: "absolute",
-        top: 50,
-        right: 0,
-        width: 320,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 24,
-        elevation: 12,
-        zIndex: 1000,
-        maxHeight: 400,
-    },
-    previewHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: "#E5E7EB",
-    },
-    previewTitle: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: "#111827",
-    },
-    previewSeeAll: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#235CF8",
-    },
-    previewContent: {
-        maxHeight: 280,
-    },
-    previewItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: "#F3F4F6",
-        gap: 12,
-    },
-    previewItemUnread: {
-        backgroundColor: "#F0F9FF",
-    },
-    previewIcon: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    previewIconMatch: {
-        backgroundColor: "#235CF8",
-    },
-    previewIconPrice: {
-        backgroundColor: "#10B981",
-    },
-    previewIconDeal: {
-        backgroundColor: "#F59E0B",
-    },
-    previewText: {
-        flex: 1,
-        gap: 2,
-    },
-    previewItemTitle: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#111827",
-    },
-    previewItemMessage: {
-        fontSize: 12,
-        color: "#6B7280",
-        marginTop: 2,
-    },
-    previewItemTime: {
-        fontSize: 11,
-        color: "#9CA3AF",
-        marginTop: 4,
-    },
-    previewItemImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 8,
-    },
-    previewUnreadDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: "#235CF8",
-    },
-    previewMarkAll: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 12,
-        borderTopWidth: 1,
-        borderTopColor: "#E5E7EB",
-        gap: 6,
-    },
-    previewMarkAllText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#235CF8",
-    },
-    previewRemoveButton: {
-        padding: 4,
-    },
-    // Search Bar Styles
     searchSection: {
         marginTop: -55,
         zIndex: 10,
@@ -481,23 +310,23 @@ const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: COLORS.white,
         borderRadius: 14,
         paddingHorizontal: 16,
         paddingVertical: 6,
         gap: 12,
         borderWidth: 1.5,
         borderColor: "rgba(255, 255, 255, 0.3)",
-        shadowColor: "#000",
+        shadowColor: COLORS.shadow,
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.08,
         shadowRadius: 12,
         elevation: 4,
     },
     searchContainerFocused: {
-        borderColor: "#FFFFFF",
+        borderColor: COLORS.white,
         borderWidth: 2,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: COLORS.white,
         shadowOpacity: 0.12,
         shadowRadius: 14,
     },
@@ -507,7 +336,7 @@ const styles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontSize: 16,
-        color: "#111827",
+        color: COLORS.text.primary,
         fontWeight: "400",
         paddingVertical: 0,
         letterSpacing: -0.2,
@@ -517,11 +346,11 @@ const styles = StyleSheet.create({
         top: 60,
         left: 0,
         right: 0,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: COLORS.white,
         borderRadius: 16,
         marginTop: 8,
         padding: 12,
-        shadowColor: "#000",
+        shadowColor: COLORS.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 12,
@@ -532,7 +361,7 @@ const styles = StyleSheet.create({
     suggestionsTitle: {
         fontSize: 12,
         fontWeight: "600",
-        color: "#9BA1A6",
+        color: COLORS.text.muted,
         marginTop: 8,
         marginBottom: 8,
         textTransform: "uppercase",
@@ -548,11 +377,11 @@ const styles = StyleSheet.create({
     },
     suggestionText: {
         fontSize: 14,
-        color: "#1A1A1A",
+        color: COLORS.text.primary,
         fontWeight: "500",
     },
     popularText: {
-        color: "#235CF8",
+        color: COLORS.primary,
         fontWeight: "600",
     },
 });
