@@ -6,21 +6,58 @@ import { CarFormState } from '../../../types/sell-car.types';
 interface Props {
     carDetails: CarFormState;
     handleInputChange: (field: string, value: string | boolean) => void;
+    vehicleType?: string;
 }
 
-const CarDetailsSection: React.FC<Props> = ({ carDetails, handleInputChange }) => {
+const CarDetailsSection: React.FC<Props> = ({ carDetails, handleInputChange, vehicleType = 'Car' }) => {
 
-    // Mock Data for Dropdowns - In a real app, these could come from an API
+    // Data for Dropdowns based on Vehicle Type
+    const getBrands = (type: string) => {
+        switch (type) {
+            case 'Motorbike':
+                return ['Honda', 'Yamaha', 'Suzuki', 'Bajaj', 'TVs', 'Hero', 'Kawasaki', 'KTM', 'Royal Enfield'].map(b => ({ label: b, value: b }));
+            case 'Three Wheeler':
+                return ['Bajaj', 'Piaggio', 'TVS', 'Mahindra', 'Atul'].map(b => ({ label: b, value: b }));
+            case 'Bicycle':
+                return ['Lumala', 'Tomahawk', 'Kenstar', 'Hero', 'Giant', 'Trek'].map(b => ({ label: b, value: b }));
+            case 'Van':
+                return ['Toyota', 'Nissan', 'Mitsubishi', 'Mazda', 'Ford'].map(b => ({ label: b, value: b }));
+            case 'Bus':
+                return ['Ashok Leyland', 'Tata', 'Mitsubishi', 'Toyota', 'Isuzu'].map(b => ({ label: b, value: b }));
+            case 'Lorry':
+                return ['Isuzu', 'Tata', 'Mitsubishi', 'Ashok Leyland', 'Hino'].map(b => ({ label: b, value: b }));
+            case 'Car':
+            default:
+                return ['Audi', 'BMW', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Mahindra', 'Mercedes', 'Nissan', 'Toyota', 'Suzuki'].map(b => ({ label: b, value: b }));
+        }
+    };
+
+    const getModels = (type: string, brand: string) => {
+        // In a real app, this would filter by brand. For now, we return generic models or specific ones if simple.
+        switch (type) {
+            case 'Motorbike':
+                return ['Dio', 'Hornet', 'FZ', 'Gixxer', 'Pulsar', 'Apache', 'CT100'].map(m => ({ label: m, value: m }));
+            case 'Three Wheeler':
+                return ['RE 205', '4 Stroke', '2 Stroke', 'Ape'].map(m => ({ label: m, value: m }));
+            case 'Bicycle':
+                return ['Mountain', 'Road', 'Hybrid', 'BMX'].map(m => ({ label: m, value: m }));
+            default:
+                return ['XUV', 'XUV500', 'Yaris', 'Corolla', 'Civic', 'Mustang', 'Alto', 'WagonR'].map(m => ({ label: m, value: m }));
+        }
+    };
+
+    // Common lists
     const conditions = ['Brand New', 'Used', 'Reconditioned', 'Import'].map(c => ({ label: c, value: c }));
-    const brands = ['Audi', 'BMW', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Mahindra', 'Mercedes', 'Nissan', 'Toyota', 'Suzuki'].map(b => ({ label: b, value: b }));
-    const models = ['XUV', 'XUV500', 'Yaris', 'Corolla', 'Civic', 'Mustang'].map(m => ({ label: m, value: m })); // Simplified
     const fuelTypes = ['Petrol', 'Diesel', 'Hybrid', 'Electric'].map(f => ({ label: f, value: f }));
     const transmissions = ['Automatic', 'Manual', 'Tiptronic'].map(t => ({ label: t, value: t }));
     const bodyTypes = ['Saloon', 'Hatchback', 'SUV', 'Convertible', 'Coupe', 'Van', 'Wagon'].map(b => ({ label: b, value: b }));
 
+    const brands = getBrands(vehicleType);
+    const models = getModels(vehicleType, carDetails.brand);
+
     return (
         <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Car Details</Text>
+            <Text style={styles.sectionTitle}>{vehicleType} Details</Text>
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
@@ -78,7 +115,7 @@ const CarDetailsSection: React.FC<Props> = ({ carDetails, handleInputChange }) =
                     <TextInput
                         style={styles.input}
                         placeholder="1500"
-                        value={carDetails.engineCapacity || ''} // Handle potentially undefined if type not updated yet
+                        value={carDetails.engineCapacity || ''}
                         onChangeText={(value) => handleInputChange('engineCapacity', value)}
                         keyboardType="numeric"
                     />
