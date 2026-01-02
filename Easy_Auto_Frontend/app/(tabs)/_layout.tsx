@@ -346,6 +346,7 @@ export default function TabLayout() {
             height: "auto",
           },
           tabBarIcon: ({ focused }) => (
+
             <ModernTabIcon
               focused={focused}
               iconName="person-circle"
@@ -365,12 +366,7 @@ export default function TabLayout() {
       />
 
       {/* Hidden signup route */}
-      <Tabs.Screen
-        name="signup"
-        options={{
-          href: null,
-        }}
-      />
+
     </Tabs>
   );
 }

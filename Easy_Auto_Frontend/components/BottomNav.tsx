@@ -11,7 +11,7 @@ export default function BottomNav() {
   // Determine active tab based on current route
   const getActiveKey = (): "home" | "buy" | "compare" | "chat" | "profile" => {
     if (pathname === "/") return "home";
-    if (pathname === "/buy-car") return "buy";
+    if (pathname === "/cars/buy-car") return "buy";
     if (pathname === "/compare") return "compare";
     if (pathname === "/chat") return "chat";
     if (pathname === "/profile") return "profile";
@@ -23,7 +23,7 @@ export default function BottomNav() {
   const handleNavPress = (key: "home" | "buy" | "compare" | "chat" | "profile") => {
     switch (key) {
       case "home": router.push("/"); break;
-      case "buy": router.push("/buy-car"); break;
+      case "buy": router.push("/cars/buy-car"); break;
       case "compare": router.push("/compare"); break;
       case "chat": router.push("/chat"); break;
       case "profile": router.push("/profile"); break;

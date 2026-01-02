@@ -1,24 +1,74 @@
-import ProfileHeader from "@/components/ProfileHeader";
+import Header from "@/components/Header";
+import COLORS from "@/constants/Colors";
+import { Ad, AdStatus } from "@/types/ad.types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { Stack } from "expo-router";
-import React, { useCallback, useState } from "react";
+import { Stack, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AdminBottomNav from "./components/AdminBottomNav";
-import { Ad, ADMIN_ADS_DATA, AdStatus } from "./data/adminAds";
+import AdCard from "../../components/admin/AdCard";
+import SkeletonAdCard from "../../components/admin/SkeletonAdCard";
+import { STATUS_FILTERS } from "../../constants/ads";
 
-type SortOption = "date" | "views" | "price";
+const ADMIN_ADS_DATA: Ad[] = [
+  {
+    id: "1",
+    title: "BMW 3 Series 2021",
+    price: "$45,000",
+    priceNum: 45000,
+    location: "Malabe, Sri Lanka",
+    userName: "John Doe",
+    userEmail: "john@example.com",
+    userPhone: "+94 77 123 4567",
+    views: 1200,
+    likes: 50,
+    messages: 15,
+    status: "pending",
+    postedDate: "2024-12-05",
+    expiryDate: "2025-01-05",
+    description:
+      "Well-maintained BMW 3 Series with full service history. Single owner, accident-free.",
+    mileage: "45,000 km",
+    year: 2021,
+    fuelType: "Petrol",
+    transmission: "Automatic",
+    image: require("../../assets/images/car.jpg"),
+  },
+  {
+    id: "2",
+    title: "Mercedes-Benz C-Class",
+    price: "$52,000",
+    priceNum: 52000,
+    location: "Colombo, Sri Lanka",
+    userName: "Jane Smith",
+    userEmail: "jane@example.com",
+    userPhone: "+94 77 234 5678",
+    views: 850,
+    likes: 32,
+    messages: 8,
+    status: "active",
+    postedDate: "2024-12-04",
+    expiryDate: "2025-01-04",
+    description:
+      "Luxury sedan in pristine condition. Premium features and excellent performance.",
+    mileage: "32,000 km",
+    year: 2022,
+    fuelType: "Diesel",
+    transmission: "Automatic",
+    image: require("../../assets/images/car.jpg"),
+  },
+];
 
 export default function AdminAdsScreen() {
   const insets = useSafeAreaInsets();
@@ -31,19 +81,32 @@ export default function AdminAdsScreen() {
   const [sortBy, setSortBy] = useState<SortOption>("date");
   const [selectedStatus, setSelectedStatus] = useState<AdStatus>("all");
 
-  // Stats
-  const stats = {
-    total: ads.length,
-    active: ads.filter((ad) => ad.status === "active").length,
-    pending: ads.filter((ad) => ad.status === "pending").length,
-    rejected: ads.filter((ad) => ad.status === "rejected").length,
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const filteredAds = React.useMemo(() => {
+    return ads.filter((ad) => {
+      const statusMatch =
+        selectedStatus === "all" || ad.status === selectedStatus;
+      const searchMatch =
+        !searchQuery ||
+        ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ad.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ad.location.toLowerCase().includes(searchQuery.toLowerCase());
+      return statusMatch && searchMatch;
+    });
+  }, [selectedStatus, searchQuery, ads]);
 
   // Filtered ads
   const filteredAds = React.useMemo(() => {
     return ads
       .filter((ad) => {
-        const statusMatch = selectedStatus === "all" || ad.status === selectedStatus;
+        const statusMatch =
+          selectedStatus === "all" || ad.status === selectedStatus;
         const searchMatch =
           !searchQuery ||
           ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -53,7 +116,9 @@ export default function AdminAdsScreen() {
       })
       .sort((a, b) => {
         if (sortBy === "date")
-          return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
+          return (
+            new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime()
+          );
         if (sortBy === "views") return b.views - a.views;
         if (sortBy === "price") return b.priceNum - a.priceNum;
         return 0;
@@ -62,384 +127,172 @@ export default function AdminAdsScreen() {
 
   // Handlers
   const toggleSelectAd = useCallback((id: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedAds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   }, []);
 
-  const handleSelectAll = () => {
-    if (selectedAds.length === filteredAds.length && filteredAds.length > 0) {
-      setSelectedAds([]);
-    } else {
-      setSelectedAds(filteredAds.map((ad) => ad.id));
-    }
-  };
-
-  const handleApprove = useCallback((id: string) => {
-    Alert.alert("Approve Ad", "Approve this ad?", [
-      { text: "Cancel", style: "cancel" },
+  const handleApprove = (id: string) => {
+    Alert.alert("Approve Ad", "Approve this listing?", [
+      { text: "Cancel" },
       {
         text: "Approve",
-        onPress: () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        onPress: () =>
           setAds((prev) =>
-            prev.map((ad) => (ad.id === id ? { ...ad, status: "active" } : ad))
-          );
-        },
+            prev.map((a) => (a.id === id ? { ...a, status: "active" } : a))
+          ),
       },
     ]);
-  }, []);
+  };
 
-  const handleReject = useCallback((id: string) => {
-    Alert.alert("Reject Ad", "Reject this ad?", [
-      { text: "Cancel", style: "cancel" },
+  const handleReject = (id: string) => {
+    Alert.alert("Reject Ad", "Reject this listing?", [
+      { text: "Cancel" },
       {
         text: "Reject",
         style: "destructive",
-        onPress: () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        onPress: () =>
           setAds((prev) =>
-            prev.map((ad) => (ad.id === id ? { ...ad, status: "rejected" } : ad))
-          );
-        },
+            prev.map((a) => (a.id === id ? { ...a, status: "rejected" } : a))
+          ),
       },
     ]);
-  }, []);
+  };
 
-  const handleDelete = useCallback((id: string) => {
-    Alert.alert("Delete Ad", "Permanently delete this ad?", [
-      { text: "Cancel", style: "cancel" },
+  const handleDelete = (id: string) => {
+    Alert.alert("Delete Ad", "Delete this listing permanently?", [
+      { text: "Cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-          setAds((prev) => prev.filter((ad) => ad.id !== id));
-          setSelectedAds((prev) => prev.filter((sid) => sid !== id));
-        },
+        onPress: () => setAds((prev) => prev.filter((a) => a.id !== id)),
       },
     ]);
-  }, []);
-
-  const handleBulkAction = (action: "approve" | "reject" | "delete") => {
-    const count = selectedAds.length;
-    if (count === 0) return;
-
-    if (action === "delete") {
-      Alert.alert("Bulk Delete", `Delete ${count} ad${count > 1 ? "s" : ""}?`, [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setAds((prev) => prev.filter((ad) => !selectedAds.includes(ad.id)));
-            setSelectedAds([]);
-          },
-        },
-      ]);
-    } else if (action === "approve") {
-      setAds((prev) =>
-        prev.map((ad) =>
-          selectedAds.includes(ad.id) ? { ...ad, status: "active" } : ad
-        )
-      );
-      setSelectedAds([]);
-    } else {
-      setAds((prev) =>
-        prev.map((ad) =>
-          selectedAds.includes(ad.id) ? { ...ad, status: "rejected" } : ad
-        )
-      );
-      setSelectedAds([]);
-    }
   };
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1500);
-  }, []);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "#10B981";
-      case "pending":
-        return "#F59E0B";
-      case "rejected":
-        return "#EF4444";
-      case "expired":
-        return "#94A3B8";
-      default:
-        return "#64748B";
-    }
-  };
-
-  const getSortIcon = () => {
-    switch (sortBy) {
-      case "views":
-        return "eye";
-      case "price":
-        return "cash";
-      default:
-        return "calendar";
-    }
-  };
-
-  const renderAdCard = ({ item }: { item: Ad }) => (
-    <View style={styles.adCard}>
-      <TouchableOpacity
-        style={styles.checkbox}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          toggleSelectAd(item.id);
-        }}
-      >
-        <Ionicons
-          name={selectedAds.includes(item.id) ? "checkbox" : "square-outline"}
-          size={24}
-          color={selectedAds.includes(item.id) ? "#3B82F6" : "#CBD5E1"}
-        />
-      </TouchableOpacity>
-
-      <View style={styles.adContent}>
-        <Image source={item.image} style={styles.adImage} />
-        <View style={styles.adInfo}>
-          <Text style={styles.adTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text style={styles.adPrice}>{item.price}</Text>
-          <View style={styles.adMeta}>
-            <View style={styles.metaItem}>
-              <Ionicons name="person" size={12} color="#94A3B8" />
-              <Text style={styles.metaText}>{item.userName}</Text>
-            </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="location" size={12} color="#94A3B8" />
-              <Text style={styles.metaText}>{item.location}</Text>
-            </View>
-          </View>
-          <View style={styles.adStats}>
-            <View style={styles.statBadge}>
-              <Ionicons name="eye" size={14} color="#64748B" />
-              <Text style={styles.statText}>{item.views}</Text>
-            </View>
-            <View style={styles.statBadge}>
-              <Ionicons name="heart" size={14} color="#64748B" />
-              <Text style={styles.statText}>{item.likes}</Text>
-            </View>
-            <View
-              style={[
-                styles.statusBadge,
-                { backgroundColor: `${getStatusColor(item.status)}20` },
-              ]}
-            >
-              <Text
-                style={[styles.statusText, { color: getStatusColor(item.status) }]}
-              >
-                {item.status.toUpperCase()}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.adActions}>
-        {item.status === "pending" && (
-          <>
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.approveBtn]}
-              onPress={() => handleApprove(item.id)}
-            >
-              <Ionicons name="checkmark-circle" size={16} color="#059669" />
-              <Text style={styles.approveText}>Approve</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.rejectBtn]}
-              onPress={() => handleReject(item.id)}
-            >
-              <Ionicons name="close-circle" size={16} color="#DC2626" />
-              <Text style={styles.rejectText}>Reject</Text>
-            </TouchableOpacity>
-          </>
-        )}
-        {item.status !== "pending" && (
-          <TouchableOpacity
-            style={[styles.actionBtn, styles.deleteBtn]}
-            onPress={() => handleDelete(item.id)}
-          >
-            <Ionicons name="trash" size={16} color="#DC2626" />
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  );
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Ads Management" showProfileCard={false} />
+      <Header />
 
-      {/* Stats */}
-      <View style={styles.statsRow}>
-        <View style={styles.statCard}>
-          <View style={[styles.statIcon, { backgroundColor: "#DBEAFE" }]}>
-            <Ionicons name="car" size={20} color="#3B82F6" />
-          </View>
-          <View style={styles.statInfo}>
-            <Text style={styles.statValue}>{stats.total}</Text>
-            <Text style={styles.statLabel}>Total</Text>
-          </View>
-        </View>
-        <View style={styles.statCard}>
-          <View style={[styles.statIcon, { backgroundColor: "#D1FAE5" }]}>
-            <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-          </View>
-          <View style={styles.statInfo}>
-            <Text style={styles.statValue}>{stats.active}</Text>
-            <Text style={styles.statLabel}>Active</Text>
-          </View>
-        </View>
-        <View style={styles.statCard}>
-          <View style={[styles.statIcon, { backgroundColor: "#FEF3C7" }]}>
-            <Ionicons name="time" size={20} color="#F59E0B" />
-          </View>
-          <View style={styles.statInfo}>
-            <Text style={styles.statValue}>{stats.pending}</Text>
-            <Text style={styles.statLabel}>Pending</Text>
-          </View>
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons
+            name="car-sport-outline"
+            size={22}
+            color={COLORS.primary}
+            style={{ marginRight: 8 }}
+          />
+          <Text style={styles.subHeaderTitle}>Ads Management</Text>
         </View>
       </View>
 
-      {/* Search & Sort */}
-      <View style={styles.searchSection}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#94A3B8" />
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputWrapper}>
+          <Ionicons name="search-outline" size={20} color={COLORS.text.muted} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search ads..."
-            placeholderTextColor="#94A3B8"
             value={searchQuery}
             onChangeText={setSearchQuery}
+            placeholderTextColor={COLORS.text.muted}
           />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={20} color="#94A3B8" />
-            </TouchableOpacity>
-          )}
         </View>
-        <TouchableOpacity
-          style={styles.sortBtn}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setSortBy((prev) =>
-              prev === "date" ? "views" : prev === "views" ? "price" : "date"
-            );
-          }}
-        >
-          <Ionicons name={getSortIcon()} size={18} color="#3B82F6" />
-        </TouchableOpacity>
       </View>
 
-      {/* Status Filters */}
-      <View style={styles.filterSection}>
-        <View style={styles.filterTabs}>
-          {(["all", "active", "pending", "rejected", "expired"] as const).map((status) => (
-            <TouchableOpacity
-              key={status}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filtersScroll}
+        contentContainerStyle={styles.filtersContent}
+      >
+        {STATUS_FILTERS.map((f) => (
+          <TouchableOpacity
+            key={f.key}
+            style={[
+              styles.filterChip,
+              selectedStatus === f.key && { backgroundColor: COLORS.primary },
+            ]}
+            onPress={() => setSelectedStatus(f.key as AdStatus)}
+          >
+            <Text
               style={[
-                styles.filterTab,
-                selectedStatus === status && styles.filterTabActive,
+                styles.filterText,
+                selectedStatus === f.key && { color: COLORS.white },
               ]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setSelectedStatus(status);
-              }}
             >
-              <Text
-                style={[
-                  styles.filterTabText,
-                  selectedStatus === status && styles.filterTabTextActive,
-                ]}
-              >
-                {status === "all" ? "All" : status.charAt(0).toUpperCase() + status.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      {/* Bulk Actions */}
-      {selectedAds.length > 0 && (
-        <View style={styles.bulkBar}>
-          <TouchableOpacity onPress={handleSelectAll} style={styles.bulkSelectAll}>
-            <Ionicons
-              name={
-                selectedAds.length === filteredAds.length
-                  ? "checkbox"
-                  : "square-outline"
-              }
-              size={20}
-              color="#3B82F6"
-            />
-            <Text style={styles.bulkText}>{selectedAds.length} selected</Text>
+              {f.label}
+            </Text>
           </TouchableOpacity>
-          <View style={styles.bulkActions}>
-            <TouchableOpacity
-              onPress={() => handleBulkAction("approve")}
-              style={styles.bulkActionBtn}
-            >
-              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleBulkAction("reject")}
-              style={styles.bulkActionBtn}
-            >
-              <Ionicons name="close-circle" size={18} color="#F59E0B" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleBulkAction("delete")}
-              style={styles.bulkActionBtn}
-            >
-              <Ionicons name="trash" size={18} color="#EF4444" />
-            </TouchableOpacity>
-          </View>
+        ))}
+      </ScrollView>
+
+      {loading ? (
+        <View style={styles.listContent}>
+          <SkeletonAdCard />
+          <SkeletonAdCard />
         </View>
+      ) : (
+        <FlatList
+          data={filteredAds}
+          renderItem={({ item, index }) => (
+            <AdCard
+              item={item}
+              isSelected={selectedAds.includes(item.id)}
+              isLast={index === filteredAds.length - 1}
+              onToggleSelect={toggleSelectAd}
+              onView={() => {}}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onDelete={handleDelete}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 100 }]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => setRefreshing(false)}
+              tintColor={COLORS.primary}
+            />
+          }
+        />
       )}
 
-      {/* Results */}
-      <View style={styles.resultsInfo}>
-        <Text style={styles.resultsText}>
-          {filteredAds.length} {filteredAds.length === 1 ? "ad" : "ads"} found
-        </Text>
-      </View>
-
-      {/* Ads List */}
-      <FlatList
-        data={filteredAds}
-        renderItem={renderAdCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: 100 + insets.bottom },
-        ]}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="car-outline" size={64} color="#CBD5E1" />
-            <Text style={styles.emptyTitle}>No ads found</Text>
-            <Text style={styles.emptySubtitle}>Try adjusting your filters</Text>
-          </View>
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#3B82F6"
+      {/* Admin Bottom Nav */}
+      <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 10 }]}>
+        <TouchableOpacity
+          style={styles.bottomNavItem}
+          onPress={() => router.push("/admin")}
+        >
+          <Ionicons name="grid-outline" size={24} color={COLORS.text.muted} />
+          <Text style={styles.bottomNavLabel}>Dashboard</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
+          <Ionicons name="car" size={24} color={COLORS.primary} />
+          <Text
+            style={[
+              styles.bottomNavLabel,
+              { color: COLORS.primary, fontWeight: "700" },
+            ]}
+          >
+            Ads
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
+          <Ionicons name="people-outline" size={24} color={COLORS.text.muted} />
+          <Text style={styles.bottomNavLabel}>Users</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
+          <Ionicons
+            name="settings-outline"
+            size={24}
+            color={COLORS.text.muted}
           />
-        }
-      />
-
-      <AdminBottomNav insetBottom={insets.bottom} />
+          <Text style={styles.bottomNavLabel}>Settings</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -447,290 +300,86 @@ export default function AdminAdsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.background,
   },
-  statsRow: {
-    flexDirection: "row",
+  subHeaderWrap: {
+    backgroundColor: COLORS.background,
+  },
+  subHeader: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 10,
-    backgroundColor: "#fff",
-  },
-  statCard: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
-    backgroundColor: "#F8FAFC",
-    borderRadius: 12,
-    gap: 10,
   },
-  statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  statInfo: {
-    flex: 1,
-  },
-  statValue: {
+  subHeaderTitle: {
+    color: COLORS.primary,
     fontSize: 18,
-    fontWeight: "800",
-    color: "#0F172A",
-    marginBottom: 2,
+    fontWeight: "600",
   },
-  statLabel: {
-    fontSize: 11,
-    color: "#64748B",
-    fontWeight: "500",
-  },
-  searchSection: {
-    flexDirection: "row",
+  searchContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 10,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
+    paddingVertical: 10,
   },
-  searchBar: {
-    flex: 1,
+  searchInputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.white,
     borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    gap: 10,
+    paddingHorizontal: 12,
+    height: 48,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: "#0F172A",
-    fontWeight: "500",
+    marginLeft: 8,
+    fontSize: 15,
+    color: COLORS.text.primary,
   },
-  sortBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: "#EFF6FF",
-    justifyContent: "center",
-    alignItems: "center",
+  filtersScroll: {
+    maxHeight: 50,
+    marginBottom: 10,
   },
-  filterSection: {
-    backgroundColor: "#fff",
+  filtersContent: {
     paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
-  filterTabs: {
-    flexDirection: "row",
     gap: 8,
   },
-  filterTab: {
+  filterChip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#F8FAFC",
-  },
-  filterTabActive: {
-    backgroundColor: "#3B82F6",
-  },
-  filterTabText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#64748B",
-  },
-  filterTabTextActive: {
-    color: "#fff",
-  },
-  bulkBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#EFF6FF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#DBEAFE",
-  },
-  bulkSelectAll: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  bulkText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#3B82F6",
-  },
-  bulkActions: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  bulkActionBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
     justifyContent: "center",
-    alignItems: "center",
   },
-  resultsInfo: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  resultsText: {
+  filterText: {
     fontSize: 13,
-    color: "#64748B",
-    fontWeight: "500",
+    fontWeight: "600",
+    color: COLORS.text.muted,
   },
   listContent: {
     paddingHorizontal: 16,
   },
-  adCard: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    overflow: "hidden",
-  },
-  checkbox: {
+  bottomNav: {
     position: "absolute",
-    top: 12,
-    right: 12,
-    zIndex: 10,
-    padding: 4,
-  },
-  adContent: {
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: "row",
-    padding: 14,
-    paddingRight: 48,
-    gap: 12,
-  },
-  adImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    backgroundColor: "#F1F5F9",
-  },
-  adInfo: {
-    flex: 1,
-  },
-  adTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#0F172A",
-    marginBottom: 4,
-  },
-  adPrice: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#3B82F6",
-    marginBottom: 6,
-  },
-  adMeta: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 6,
-  },
-  metaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  metaText: {
-    fontSize: 11,
-    color: "#94A3B8",
-  },
-  adStats: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
-  },
-  statBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  statText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#64748B",
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  statusText: {
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 0.3,
-  },
-  adActions: {
-    flexDirection: "row",
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingBottom: 12,
-    paddingTop: 8,
+    backgroundColor: COLORS.white,
     borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    borderColor: COLORS.divider,
+    paddingTop: 10,
   },
-  actionBtn: {
+  bottomNavItem: {
     flex: 1,
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 9,
-    borderRadius: 10,
-    gap: 5,
   },
-  approveBtn: {
-    backgroundColor: "#F0FDF4",
-    borderWidth: 1,
-    borderColor: "#DCFCE7",
-  },
-  rejectBtn: {
-    backgroundColor: "#FEF2F2",
-    borderWidth: 1,
-    borderColor: "#FEE2E2",
-  },
-  deleteBtn: {
-    backgroundColor: "#FEF2F2",
-    borderWidth: 1,
-    borderColor: "#FEE2E2",
-  },
-  approveText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#059669",
-  },
-  rejectText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#DC2626",
-  },
-  deleteText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#DC2626",
-  },
-  emptyState: {
-    paddingVertical: 60,
-    alignItems: "center",
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#475569",
-    marginTop: 16,
-    marginBottom: 6,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#94A3B8",
+  bottomNavLabel: {
+    fontSize: 10,
+    color: COLORS.text.muted,
+    marginTop: 4,
   },
 });

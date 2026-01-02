@@ -1,18 +1,12 @@
-import ProfileHeader from "@/components/ProfileHeader";
-import { Z_INDEX } from "@/constants/zIndex";
+import Header from "@/components/Header";
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as React from "react";
 import {
-  Animated,
   Dimensions,
-  Easing,
-  Image,
   RefreshControl,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -37,7 +31,6 @@ import {
 
 const { width } = Dimensions.get("window");
 
-// Calculate responsive spacing values
 const spacing = {
   horizontal: width < 375 ? 16 : 20,
   vertical: width < 375 ? 12 : 16,
@@ -46,472 +39,523 @@ const spacing = {
   card: width < 375 ? 12 : 16,
 };
 
-/**
- * Animated Header Button Component
- */
-const AnimatedHeaderButton = ({
-  children,
-  onPress,
-  accessibilityLabel,
-  accessibilityHint,
-}: {
-  children: React.ReactNode;
-  onPress: () => void;
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
-}) => {
-  const scaleAnim = React.useRef(new Animated.Value(1)).current;
-
-  const handlePressIn = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Animated.spring(scaleAnim, {
-      toValue: 0.9,
-      useNativeDriver: true,
-      tension: 300,
-      friction: 10,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-      tension: 300,
-      friction: 10,
-    }).start();
-  };
-
-  return (
-    <TouchableOpacity
-      style={styles.headerActionButton}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      activeOpacity={0.8}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint={accessibilityHint}
-      accessibilityRole="button"
-    >
-      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-        {children}
-      </Animated.View>
-    </TouchableOpacity>
-  );
-};
-
-/**
- * Pulsing Badge Component
- */
-const PulsingBadge = ({ count }: { count: number }) => {
-  const pulseAnim = React.useRef(new Animated.Value(1)).current;
-
-  React.useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.15,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, [pulseAnim]);
-
-  return (
-    <Animated.View
-      style={[styles.notificationBadge, { transform: [{ scale: pulseAnim }] }]}
-    >
-      <Text style={styles.notificationBadgeText}>{count}</Text>
-    </Animated.View>
-  );
-};
-
-/**
- * Main Admin Dashboard Component
- */
-export default function AdminDashboardScreen() {
+export default function AdminDashboard() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
-
-  // State Management
-  const [activeTimeFilter, setActiveTimeFilter] = React.useState("Today");
   const [refreshing, setRefreshing] = React.useState(false);
-  const [showProfileMenu, setShowProfileMenu] = React.useState(false);
-  const [showNotifications, setShowNotifications] = React.useState(false);
-  const [isImageLoading, setIsImageLoading] = React.useState(true);
-  const [profileImageError, setProfileImageError] = React.useState(false);
-  const [headerHeight, setHeaderHeight] = React.useState(0);
-  const [profileHeaderHeight, setProfileHeaderHeight] = React.useState(0);
+  const [selectedTimeFilter, setSelectedTimeFilter] =
+    React.useState("Last 7 Days");
 
-  const headerRef = React.useRef<View>(null);
-  const profileHeaderRef = React.useRef<View>(null);
-
-  // Handlers
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1500);
   }, []);
 
-  const handleQuickActionPress = (action: string) => {
-    console.log("Quick action:", action);
-    if (action === "/admin/ads") {
-      router.push("/admin/ads");
-    }
-    // Add other navigation logic here
-  };
-
-  const handleNotificationPress = (id: string) => {
-    console.log("Notification pressed:", id);
-    setShowNotifications(false);
-  };
-
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={["#F8F9FA", "#E8EAED"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.backgroundGradient}
-      />
-      <StatusBar
-        barStyle="light-content"
-        translucent
-        backgroundColor="transparent"
-      />
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header />
 
-      {/* Header */}
-      <View
-        ref={headerRef}
-        onLayout={(event) => {
-          const { height } = event.nativeEvent.layout;
-          const totalHeight = height + insets.top;
-          setHeaderHeight(totalHeight);
-        }}
-      >
-        <View style={styles.headerContainer}>
-          <View
-            ref={profileHeaderRef}
-            onLayout={(event) => {
-              const { height } = event.nativeEvent.layout;
-              setProfileHeaderHeight(height);
-            }}
-          >
-            <ProfileHeader title="Admin Dashboard" showProfileCard={false} />
-          </View>
-
-          {/* Header Actions Row */}
-          <View
-            style={[
-              styles.headerActionsRow,
-              { top: Math.max(insets.top, 20) },
-            ]}
-          >
-            <View style={{ position: "relative" }}>
-              <AnimatedHeaderButton
-                onPress={() => {
-                  setShowNotifications(!showNotifications);
-                  setShowProfileMenu(false);
-                }}
-                accessibilityLabel="Notifications"
-                accessibilityHint="Opens notification drawer"
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={22}
-                  color="#FFFFFF"
-                />
-              </AnimatedHeaderButton>
-              <PulsingBadge count={NOTIFICATIONS.filter((n) => n.unread).length} />
-            </View>
-            <AnimatedHeaderButton
-              onPress={() => {
-                setShowProfileMenu(!showProfileMenu);
-                setShowNotifications(false);
-              }}
-              accessibilityLabel="User Profile"
-              accessibilityHint="Opens profile menu"
-            >
-              {isImageLoading && !profileImageError && (
-                <View
-                  style={[styles.headerProfileImage, styles.imagePlaceholder]}
-                >
-                  <Ionicons
-                    name="person"
-                    size={20}
-                    color="rgba(255, 255, 255, 0.6)"
-                  />
-                </View>
-              )}
-              {profileImageError ? (
-                <View
-                  style={[styles.headerProfileImage, styles.imagePlaceholder]}
-                >
-                  <Ionicons
-                    name="person-circle"
-                    size={36}
-                    color="rgba(255, 255, 255, 0.8)"
-                  />
-                </View>
-              ) : (
-                <Image
-                  source={{ uri: ADMIN_PROFILE.imageUrl }}
-                  style={[
-                    styles.headerProfileImage,
-                    isImageLoading && { opacity: 0 },
-                  ]}
-                  onLoad={() => setIsImageLoading(false)}
-                  onError={() => {
-                    setProfileImageError(true);
-                    setIsImageLoading(false);
-                  }}
-                />
-              )}
-            </AnimatedHeaderButton>
-          </View>
+      {/* Unified Sub-Header */}
+      <View style={styles.subHeaderWrap}>
+        <View style={styles.subHeader}>
+          <Ionicons
+            name="grid-outline"
+            size={22}
+            color={COLORS.primary}
+            style={{ marginRight: 8 }}
+          />
+          <Text style={styles.subHeaderTitle}>Admin Dashboard</Text>
         </View>
       </View>
 
-      {/* Main Content */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: 100 + insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#235CF8"
+            tintColor={COLORS.primary}
           />
         }
       >
-        {/* Time Filters */}
-        <View style={styles.timeFiltersContainer}>
-          {TIME_FILTERS.map((filter) => (
-            <TimeFilterButton
-              key={filter}
-              label={filter}
-              isActive={activeTimeFilter === filter}
-              onPress={() => setActiveTimeFilter(filter)}
-            />
-          ))}
-        </View>
-
-        {/* Stats Section */}
+        {/* Stats Summary */}
         <View style={styles.statsContainer}>
           <View style={styles.statsRow}>
             <StatCard
-              delay={100}
-              title="Total Ads"
-              value={DASHBOARD_STATS.totalAds.value}
-              label={DASHBOARD_STATS.totalAds.label}
-              iconName="car"
-              iconColor="#10B981"
-              trend={DASHBOARD_STATS.totalAds.trend}
-              trendValue={DASHBOARD_STATS.totalAds.trendValue}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/admin/ads");
-              }}
+              title="Total Revenue"
+              value="$128,450"
+              label="Vs last month"
+              trend="+12.5%"
+              trendUp={true}
+              icon="cash-outline"
+              color={COLORS.primary}
             />
             <StatCard
-              delay={150}
-              title="Total Income"
-              value={DASHBOARD_STATS.totalIncome.value}
-              label={DASHBOARD_STATS.totalIncome.label}
-              iconName="bar-chart"
-              iconColor="#EF4444"
-              trend={DASHBOARD_STATS.totalIncome.trend}
-              trendValue={DASHBOARD_STATS.totalIncome.trendValue}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                console.log("Total Income pressed");
-              }}
+              title="Total Ads"
+              value="1,248"
+              label="Vs last week"
+              trend="+5.2%"
+              trendUp={true}
+              icon="car-outline"
+              color="#10B981"
             />
           </View>
           <View style={styles.statsRow}>
             <StatCard
-              delay={200}
-              title="Total Users"
-              value={DASHBOARD_STATS.totalUsers.value}
-              label={DASHBOARD_STATS.totalUsers.label}
-              iconName="people"
-              iconColor="#3B82F6"
-              trend={DASHBOARD_STATS.totalUsers.trend}
-              trendValue={DASHBOARD_STATS.totalUsers.trendValue}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/admin/users");
-              }}
+              title="Active Users"
+              value="8,420"
+              label="Vs last month"
+              trend="+8.1%"
+              trendUp={true}
+              icon="people-outline"
+              color="#8B5CF6"
             />
             <StatCard
-              delay={250}
-              title="Reports"
-              value={DASHBOARD_STATS.reports.value}
-              label={DASHBOARD_STATS.reports.label}
-              iconName="document-text"
-              iconColor="#F59E0B"
-              trend={DASHBOARD_STATS.reports.trend}
-              trendValue={DASHBOARD_STATS.reports.trendValue}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                console.log("Reports pressed");
-              }}
+              title="Pending Ads"
+              value="42"
+              label="Needs attention"
+              trend="-12%"
+              trendUp={false}
+              icon="time-outline"
+              color="#F59E0B"
             />
           </View>
         </View>
 
         {/* Quick Actions */}
-        <QuickActions
-          actions={QUICK_ACTIONS}
-          onActionPress={handleQuickActionPress}
-        />
+        <View style={styles.quickActionsContainer}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <QuickActionItem
+            title="Approve Recent Ads"
+            description="Review and approve 12 pending vehicle listings"
+            icon="checkmark-done-circle-outline"
+            color="#10B981"
+            badge={12}
+            onPress={() => router.push("/admin/ads")}
+          />
+          <QuickActionItem
+            title="User Management"
+            description="View reports and manage user permissions"
+            icon="people-circle-outline"
+            color="#235CF8"
+            onPress={() => {}}
+          />
+          <QuickActionItem
+            title="System Reports"
+            description="Export detailed analytics and performance PDF"
+            icon="bar-chart-outline"
+            color="#8B5CF6"
+            onPress={() => {}}
+          />
+        </View>
 
         {/* Recent Activity */}
-        <RecentActivity
-          activities={RECENT_ACTIVITIES}
-          onViewAll={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            console.log("View all activity");
-          }}
-        />
+        <View style={styles.recentActivityContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Activity</Text>
+            <TouchableOpacity>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ActivityItem
+            title="New User Registered"
+            description="John Doe created a new dealer account"
+            time="2 minutes ago"
+            type="user"
+          />
+          <ActivityItem
+            title="Ad Published"
+            description="BMW 3 Series 2021 was approved and published"
+            time="15 minutes ago"
+            type="ad"
+          />
+          <ActivityItem
+            title="Payment Received"
+            description="Premium Plan subscription for Jane Smith"
+            time="1 hour ago"
+            type="payment"
+          />
+        </View>
       </ScrollView>
 
-      {/* Profile Menu Dropdown */}
-      <ProfileMenu
-        isVisible={showProfileMenu}
-        onClose={() => setShowProfileMenu(false)}
-        topPosition={headerHeight > 0 ? headerHeight + 8 : 180}
-        profileInfo={ADMIN_PROFILE}
-        onProfilePress={() => console.log("Profile clicked")}
-        onSettingsPress={() => console.log("Settings clicked")}
-        onLogoutPress={() => router.back()}
-      />
-
-      {/* Notification Drawer */}
-      <NotificationsDrawer
-        isVisible={showNotifications}
-        onClose={() => setShowNotifications(false)}
-        topPosition={headerHeight > 0 ? headerHeight + 8 : 180}
-        notifications={NOTIFICATIONS}
-        onNotificationPress={handleNotificationPress}
-      />
-
-      {/* Bottom navigation */}
-      <AdminBottomNav insetBottom={insets.bottom} />
+      {/* Admin Bottom Nav */}
+      <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 10 }]}>
+        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
+          <Ionicons name="grid" size={24} color={COLORS.primary} />
+          <Text
+            style={[
+              styles.bottomNavLabel,
+              { color: COLORS.primary, fontWeight: "700" },
+            ]}
+          >
+            Dashboard
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.bottomNavItem}
+          onPress={() => router.push("/admin/ads")}
+        >
+          <Ionicons name="car-outline" size={24} color={COLORS.text.muted} />
+          <Text style={styles.bottomNavLabel}>Ads</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
+          <Ionicons name="people-outline" size={24} color={COLORS.text.muted} />
+          <Text style={styles.bottomNavLabel}>Users</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
+          <Ionicons
+            name="settings-outline"
+            size={24}
+            color={COLORS.text.muted}
+          />
+          <Text style={styles.bottomNavLabel}>Settings</Text>
+        </TouchableOpacity>
+      </View>
     </View>
+  );
+}
+
+/* Sub-components for AdminDashboard */
+
+function StatCard({ title, value, label, trend, trendUp, icon, color }: any) {
+  return (
+    <TouchableOpacity style={styles.statCard}>
+      <View style={styles.statCardContent}>
+        <View style={styles.statCardHeader}>
+          <Text style={styles.statCardTitle} numberOfLines={1}>
+            {title}
+          </Text>
+          <View
+            style={[
+              styles.statIconContainer,
+              { backgroundColor: `${color}15` },
+            ]}
+          >
+            <Ionicons name={icon} size={20} color={color} />
+          </View>
+        </View>
+        <Text style={styles.statCardValue}>{value}</Text>
+        <View style={styles.statCardFooter}>
+          <Text style={styles.statCardLabel} numberOfLines={1}>
+            {label}
+          </Text>
+          <View style={styles.trendContainer}>
+            <Ionicons
+              name={trendUp ? "arrow-up" : "arrow-down"}
+              size={12}
+              color={trendUp ? "#10B981" : "#EF4444"}
+            />
+            <Text
+              style={[
+                styles.trendText,
+                trendUp ? styles.trendTextUp : styles.trendTextDown,
+              ]}
+            >
+              {trend}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function QuickActionItem({
+  title,
+  description,
+  icon,
+  color,
+  badge,
+  onPress,
+}: any) {
+  return (
+    <TouchableOpacity style={styles.quickActionItem} onPress={onPress}>
+      <View
+        style={[
+          styles.quickActionIconWrapper,
+          { backgroundColor: `${color}15` },
+        ]}
+      >
+        <Ionicons name={icon} size={26} color={color} />
+      </View>
+      <View style={styles.quickActionContent}>
+        <Text style={styles.quickActionText}>{title}</Text>
+        <Text style={styles.quickActionDescription} numberOfLines={1}>
+          {description}
+        </Text>
+      </View>
+      <View style={styles.quickActionRight}>
+        {badge && (
+          <View style={styles.quickActionBadge}>
+            <Text style={styles.quickActionBadgeText}>{badge}</Text>
+          </View>
+        )}
+        <Ionicons name="chevron-forward" size={20} color={COLORS.divider} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function ActivityItem({ title, description, time, type }: any) {
+  const getIcon = () => {
+    if (type === "user")
+      return { name: "person-circle-outline", color: "#235CF8" };
+    if (type === "ad") return { name: "car-sport-outline", color: "#10B981" };
+    return { name: "cash-outline", color: "#8B5CF6" };
+  };
+  const icon = getIcon();
+
+  return (
+    <TouchableOpacity style={styles.activityItem}>
+      <View
+        style={[
+          styles.activityIconContainer,
+          { backgroundColor: `${icon.color}15` },
+        ]}
+      >
+        <Ionicons name={icon.name as any} size={24} color={icon.color} />
+      </View>
+      <View style={styles.activityContent}>
+        <Text style={styles.activityTitle}>{title}</Text>
+        <Text style={styles.activityDescription}>{description}</Text>
+        <Text style={styles.activityTime}>{time}</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: COLORS.background,
   },
-  backgroundGradient: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+  subHeaderWrap: {
+    backgroundColor: COLORS.background,
   },
-  headerActionButton: {
-    position: "relative",
-    width: 44,
-    height: 44,
-    minWidth: 44,
-    minHeight: 44,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-  },
-  headerProfileImage: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-  },
-  imagePlaceholder: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    justifyContent: "center",
+  subHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: "row",
     alignItems: "center",
   },
-  notificationBadge: {
-    position: "absolute",
-    top: -2,
-    right: -2,
-    backgroundColor: "#EF4444",
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 5,
-    borderWidth: 2,
-    borderColor: "#235CF8",
-    zIndex: Z_INDEX.HEADER_ACTIONS + 1,
-    elevation: Z_INDEX.HEADER_ACTIONS + 1,
-    shadowColor: "#EF4444",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-  },
-  notificationBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "700",
+  subHeaderTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: "600",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100,
-    paddingTop: 20,
-  },
-  headerContainer: {
-    position: "relative",
-  },
-  headerActionsRow: {
-    position: "absolute",
-    top: 0,
-    right: width < 375 ? 16 : 20,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: width < 375 ? 8 : 12,
-    paddingTop: 0,
-    zIndex: Z_INDEX.HEADER_ACTIONS,
-    elevation: Z_INDEX.HEADER_ACTIONS,
-    minHeight: 44,
-    justifyContent: "center",
+    paddingTop: 10,
   },
   statsContainer: {
     paddingHorizontal: spacing.horizontal,
-    marginTop: 8,
-    marginBottom: spacing.section + 4,
+    marginBottom: 20,
   },
   statsRow: {
     flexDirection: "row",
     marginBottom: 12,
     gap: 12,
   },
-  timeFiltersContainer: {
+  statCard: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+    overflow: "hidden",
+  },
+  statCardContent: {
+    padding: 16,
+  },
+  statCardHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
+  statCardTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.text.muted,
+    flex: 1,
+  },
+  statIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  statCardValue: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.text.primary,
+    marginBottom: 4,
+  },
+  statCardFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  statCardLabel: {
+    fontSize: 11,
+    color: COLORS.text.muted,
+    flex: 1,
+  },
+  trendContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  trendText: {
+    fontSize: 11,
+    fontWeight: "600",
+    marginLeft: 2,
+  },
+  trendTextUp: { color: "#10B981" },
+  trendTextDown: { color: "#EF4444" },
+
+  quickActionsContainer: {
     paddingHorizontal: spacing.horizontal,
-    marginTop: 16,
     marginBottom: 24,
-    gap: spacing.gap + 2,
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: COLORS.text.primary,
+    marginBottom: 16,
+  },
+  quickActionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+  },
+  quickActionIconWrapper: {
+    width: 48,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    marginRight: 12,
+  },
+  quickActionContent: {
+    flex: 1,
+  },
+  quickActionText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: COLORS.text.primary,
+    marginBottom: 2,
+  },
+  quickActionDescription: {
+    fontSize: 12,
+    color: COLORS.text.muted,
+  },
+  quickActionRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  quickActionBadge: {
+    backgroundColor: COLORS.status.danger,
+    borderRadius: 12,
+    minWidth: 22,
+    height: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+    marginRight: 8,
+  },
+  quickActionBadgeText: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: "700",
+  },
+
+  recentActivityContainer: {
+    paddingHorizontal: spacing.horizontal,
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.primary,
+  },
+  activityItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+  },
+  activityIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: COLORS.text.primary,
+    marginBottom: 2,
+  },
+  activityDescription: {
+    fontSize: 13,
+    color: COLORS.text.secondary,
+    marginBottom: 4,
+  },
+  activityTime: {
+    fontSize: 11,
+    color: COLORS.text.muted,
+  },
+
+  bottomNav: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderColor: COLORS.divider,
+    paddingTop: 10,
+  },
+  bottomNavItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bottomNavLabel: {
+    fontSize: 10,
+    color: COLORS.text.muted,
+    marginTop: 4,
   },
 });
