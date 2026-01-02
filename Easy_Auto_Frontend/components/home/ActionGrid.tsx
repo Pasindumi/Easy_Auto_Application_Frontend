@@ -139,7 +139,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                     delay={150}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/cars/sell-car");
+                        router.push("/cars/select-type");
                     }}
                 >
                     <View style={styles.scrollableActionCard}>
@@ -151,7 +151,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                         >
                             <MaterialIcons name="sell" size={32} color="#F57C00" />
                         </View>
-                        <Text style={styles.scrollableActionLabel}>Sell a Car</Text>
+                        <Text style={styles.scrollableActionLabel}>Sell Vehicle</Text>
                         <Text style={styles.scrollableActionDescription}>
                             Get instant quotes
                         </Text>
