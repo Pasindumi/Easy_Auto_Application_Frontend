@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SUV_CARS, CAR_CARS } from '../../constants/dummydata/buy-a-car';
+import { SUV_CARS, CAR_CARS } from '../../constants/dummydata/buy-car';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
@@ -72,7 +72,7 @@ export default function BuyCarScreen() {
         <View style={[styles.categoryIconContainer, isActive && styles.categoryIconContainerActive]}>
           <Ionicons
             name={item.icon as any}
-            size={15} 
+            size={15}
             color={isActive ? '#235CF8' : '#9CA3AF'}
           />
         </View>
@@ -156,7 +156,7 @@ export default function BuyCarScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <Header showBack={true} />
-      <View style={[styles.topicWrap, { justifyContent: 'center' }]}> 
+      <View style={[styles.topicWrap, { justifyContent: 'center' }]}>
         <View style={styles.topicLeft}>
           <Ionicons name="car-sport" size={22} color="#235CF8" style={{ marginRight: 8 }} />
           <Text style={styles.topicTitle}>Buy a Car</Text>

@@ -66,6 +66,27 @@ export const SUV_CARS: BuyCarItem[] = [
     },
 ];
 
+export const CAR_CARS: BuyCarItem[] = [
+    {
+        id: '1',
+        title: 'Toyota Prius',
+        year: '2019',
+        km: '40,000 Km',
+        location: 'Colombo, Sri Lanka',
+        price: 'Rs. 6.5Mn',
+        image: require('@/assets/images/car.jpg'),
+    },
+    {
+        id: '2',
+        title: 'Honda Civic',
+        year: '2018',
+        km: '50,000 Km',
+        location: 'Kandy, Sri Lanka',
+        price: 'Rs. 7.0Mn',
+        image: require('@/assets/images/car.jpg'),
+    },
+];
+
 export const FILTER_OPTIONS = [
     { key: 'all', label: 'All' },
     { key: 'price-low', label: 'Price: Low to High' },
