@@ -12,7 +12,6 @@ export default function AdminLayout() {
         animationTypeForReplace: "push",
         gestureEnabled: true,
         gestureDirection: "horizontal",
-        customAnimationOnGesture: true,
         fullScreenGestureEnabled: true,
       }}
     >
@@ -39,6 +38,15 @@ export default function AdminLayout() {
           headerShown: false,
           header: () => null,
           title: "User Management",
+          animation: "slide_from_right",
+        }}
+      />
+      <Stack.Screen
+        name="analytics"
+        options={{
+          headerShown: false,
+          header: () => null,
+          title: "Analytics",
           animation: "slide_from_right",
         }}
       />

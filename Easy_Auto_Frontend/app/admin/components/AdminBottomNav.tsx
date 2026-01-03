@@ -9,10 +9,10 @@ type NavTab = "Dashboard" | "Ads" | "Users" | "Analytics" | "Settings";
 
 // Route mapping - centralized navigation configuration
 const ROUTE_MAP: Record<NavTab, string | null> = {
-  Dashboard: "/admin",
-  Ads: "/admin/ads",
-  Users: "/admin/users",     // Now functional!
-  Analytics: null, // Coming soon
+  Dashboard: "./",
+  Ads: "./ads",
+  Users: "./users",
+  Analytics: "./analytics",
   Settings: null, // Coming soon
 };
 
@@ -30,7 +30,8 @@ export default function AdminBottomNav({
   const getActiveTab = (): NavTab => {
     if (pathname?.includes("/admin/users")) return "Users";
     if (pathname?.includes("/admin/ads")) return "Ads";
-    if (pathname?.includes("/admin")) return "Dashboard";
+    if (pathname?.includes("/admin/analytics")) return "Analytics";
+    if (pathname === "/admin" || pathname === "/admin/") return "Dashboard";
     return "Dashboard";
   };
 
@@ -87,8 +88,8 @@ export default function AdminBottomNav({
     }
 
     // Navigate to the route
-    if (pathname !== route) {
-      router.push(route);
+    if (pathname !== route && route) {
+      router.push(route as any);
     }
   };
 
@@ -132,7 +133,7 @@ export default function AdminBottomNav({
               />
             )}
             <Ionicons
-              name={active ? item.icon : item.outline}
+              name={(active ? item.icon : item.outline) as any}
               size={22}
               color={
                 isDisabled ? "#D1D5DB" : active ? "#235CF8" : "#9CA3AF"

@@ -17,9 +17,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AdCard from "../../components/admin/AdCard";
-import SkeletonAdCard from "../../components/admin/SkeletonAdCard";
-import { STATUS_FILTERS } from "../../constants/ads";
+import AdminBottomNav from "./components/AdminBottomNav";
+import AdCard from "./components/AdCard";
+import SkeletonAdCard from "./components/SkeletonAdCard";
+import { STATUS_FILTERS } from "@/constants/ads";
+
+type SortOption = "date" | "views" | "price";
 
 const ADMIN_ADS_DATA: Ad[] = [
   {
@@ -80,6 +83,8 @@ export default function AdminAdsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("date");
   const [selectedStatus, setSelectedStatus] = useState<AdStatus>("all");
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -88,20 +93,7 @@ export default function AdminAdsScreen() {
     return () => clearTimeout(timer);
   }, []);
 
-  const filteredAds = React.useMemo(() => {
-    return ads.filter((ad) => {
-      const statusMatch =
-        selectedStatus === "all" || ad.status === selectedStatus;
-      const searchMatch =
-        !searchQuery ||
-        ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ad.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ad.location.toLowerCase().includes(searchQuery.toLowerCase());
-      return statusMatch && searchMatch;
-    });
-  }, [selectedStatus, searchQuery, ads]);
-
-  // Filtered ads
+  // Filtered and sorted ads
   const filteredAds = React.useMemo(() => {
     return ads
       .filter((ad) => {
@@ -261,38 +253,7 @@ export default function AdminAdsScreen() {
       )}
 
       {/* Admin Bottom Nav */}
-      <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 10 }]}>
-        <TouchableOpacity
-          style={styles.bottomNavItem}
-          onPress={() => router.push("/admin")}
-        >
-          <Ionicons name="grid-outline" size={24} color={COLORS.text.muted} />
-          <Text style={styles.bottomNavLabel}>Dashboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
-          <Ionicons name="car" size={24} color={COLORS.primary} />
-          <Text
-            style={[
-              styles.bottomNavLabel,
-              { color: COLORS.primary, fontWeight: "700" },
-            ]}
-          >
-            Ads
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
-          <Ionicons name="people-outline" size={24} color={COLORS.text.muted} />
-          <Text style={styles.bottomNavLabel}>Users</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
-          <Ionicons
-            name="settings-outline"
-            size={24}
-            color={COLORS.text.muted}
-          />
-          <Text style={styles.bottomNavLabel}>Settings</Text>
-        </TouchableOpacity>
-      </View>
+      <AdminBottomNav insetBottom={insets.bottom} />
     </View>
   );
 }
@@ -360,26 +321,5 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-  },
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderColor: COLORS.divider,
-    paddingTop: 10,
-  },
-  bottomNavItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottomNavLabel: {
-    fontSize: 10,
-    color: COLORS.text.muted,
-    marginTop: 4,
   },
 });

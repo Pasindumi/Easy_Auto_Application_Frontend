@@ -14,20 +14,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AdminBottomNav from "./components/AdminBottomNav";
-import NotificationsDrawer from "./components/NotificationsDrawer";
-import ProfileMenu from "./components/ProfileMenu";
-import QuickActions from "./components/QuickActions";
-import RecentActivity from "./components/RecentActivity";
-import StatCard from "./components/StatCard";
-import TimeFilterButton from "./components/TimeFilterButton";
-import {
-  ADMIN_PROFILE,
-  DASHBOARD_STATS,
-  NOTIFICATIONS,
-  QUICK_ACTIONS,
-  RECENT_ACTIVITIES,
-  TIME_FILTERS,
-} from "./data/adminDashboard";
 
 const { width } = Dimensions.get("window");
 
@@ -137,14 +123,14 @@ export default function AdminDashboard() {
             icon="checkmark-done-circle-outline"
             color="#10B981"
             badge={12}
-            onPress={() => router.push("/admin/ads")}
+            onPress={() => router.push("./ads")}
           />
           <QuickActionItem
             title="User Management"
             description="View reports and manage user permissions"
             icon="people-circle-outline"
             color="#235CF8"
-            onPress={() => {}}
+            onPress={() => router.push("./users")}
           />
           <QuickActionItem
             title="System Reports"
@@ -186,38 +172,7 @@ export default function AdminDashboard() {
       </ScrollView>
 
       {/* Admin Bottom Nav */}
-      <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 10 }]}>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
-          <Ionicons name="grid" size={24} color={COLORS.primary} />
-          <Text
-            style={[
-              styles.bottomNavLabel,
-              { color: COLORS.primary, fontWeight: "700" },
-            ]}
-          >
-            Dashboard
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.bottomNavItem}
-          onPress={() => router.push("/admin/ads")}
-        >
-          <Ionicons name="car-outline" size={24} color={COLORS.text.muted} />
-          <Text style={styles.bottomNavLabel}>Ads</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
-          <Ionicons name="people-outline" size={24} color={COLORS.text.muted} />
-          <Text style={styles.bottomNavLabel}>Users</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => {}}>
-          <Ionicons
-            name="settings-outline"
-            size={24}
-            color={COLORS.text.muted}
-          />
-          <Text style={styles.bottomNavLabel}>Settings</Text>
-        </TouchableOpacity>
-      </View>
+      <AdminBottomNav insetBottom={insets.bottom} />
     </View>
   );
 }
@@ -535,27 +490,5 @@ const styles = StyleSheet.create({
   activityTime: {
     fontSize: 11,
     color: COLORS.text.muted,
-  },
-
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderColor: COLORS.divider,
-    paddingTop: 10,
-  },
-  bottomNavItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottomNavLabel: {
-    fontSize: 10,
-    color: COLORS.text.muted,
-    marginTop: 4,
   },
 });
