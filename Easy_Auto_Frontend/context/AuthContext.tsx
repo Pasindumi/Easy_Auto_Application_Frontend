@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import * as SecureStore from 'expo-secure-store';
+import { ENDPOINTS } from "../constants/API";
 
 interface User {
     id: string;
@@ -11,15 +13,17 @@ interface User {
 
 interface AuthContextType {
     user: User | null;
+    token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-    register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    login: (email: string, password: string) => Promise<{ success: boolean; message?: string; error?: string }>;
+    register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; message?: string; error?: string }>;
     logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
+    token: null,
     isAuthenticated: false,
     isLoading: false,
     login: async () => ({ success: false, error: "Not implemented" }),
@@ -31,13 +35,29 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const API_URL = "http://192.168.1.29:5000/api/auth"; // Update with your local IP or localhost
+
+    useEffect(() => {
+        const loadStoredAuth = async () => {
+            try {
+                const storedUser = await SecureStore.getItemAsync('user');
+                const storedToken = await SecureStore.getItemAsync('token');
+                if (storedUser && storedToken) {
+                    setUser(JSON.parse(storedUser));
+                    setToken(storedToken);
+                }
+            } catch (e) {
+                console.error('Error loading stored auth:', e);
+            }
+        };
+        loadStoredAuth();
+    }, []);
 
     const login = async (email: string, password: string) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_URL}/login`, {
+            const response = await fetch(`${ENDPOINTS.AUTH}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -52,9 +72,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             setUser(data.user);
-            // Store token if needed: await SecureStore.setItemAsync('token', data.token);
-            return { success: true };
-        } catch (error) {
+            setToken(data.token);
+            await SecureStore.setItemAsync('token', data.token);
+            await SecureStore.setItemAsync('user', JSON.stringify(data.user));
+            return { success: true, message: data.message };
+        } catch (error: any) {
             console.error(error);
             return { success: false, error: error.message };
         } finally {
@@ -65,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const register = async (name: string, email: string, phone: string, password: string) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_URL}/signup`, {
+            const response = await fetch(`${ENDPOINTS.AUTH}/signup`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -80,9 +102,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             setUser(data.user);
-            // Store token if needed: await SecureStore.setItemAsync('token', data.token);
-            return { success: true };
-        } catch (error) {
+            setToken(data.token);
+            await SecureStore.setItemAsync('token', data.token);
+            await SecureStore.setItemAsync('user', JSON.stringify(data.user));
+            return { success: true, message: data.message };
+        } catch (error: any) {
             console.error(error);
             return { success: false, error: error.message };
         } finally {
@@ -90,15 +114,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
         setUser(null);
-        // await SecureStore.deleteItemAsync('token');
+        setToken(null);
+        await SecureStore.deleteItemAsync('token');
+        await SecureStore.deleteItemAsync('user');
     };
 
     return (
         <AuthContext.Provider
             value={{
                 user,
+                token,
                 isAuthenticated: !!user,
                 isLoading,
                 login,

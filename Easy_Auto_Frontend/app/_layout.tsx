@@ -6,6 +6,7 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import { AuthProvider } from "../context/AuthContext";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
@@ -18,21 +19,23 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="home/landingpage" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="home/welcome" options={{ headerShown: false }} />
-        <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
-        <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
-        <Stack.Screen name="listings" options={{ headerShown: false }} />
-        <Stack.Screen name="admin" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="modals/modal"
-          options={{ presentation: "modal", title: "Modal" }}
-        />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="home/landingpage" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="home/welcome" options={{ headerShown: false }} />
+          <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
+          <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
+          <Stack.Screen name="listings" options={{ headerShown: false }} />
+          <Stack.Screen name="admin" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="modals/modal"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

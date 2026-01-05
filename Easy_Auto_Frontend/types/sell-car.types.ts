@@ -15,5 +15,7 @@ export interface CarFormState {
     location: string;
     negotiable: boolean;
     vehicle_type?: string;
+    vehicle_type_id?: string; // New field
     bodyType?: string;
+    dynamicAttributes?: { attribute_id: string; value: any }[]; // New field
 }
