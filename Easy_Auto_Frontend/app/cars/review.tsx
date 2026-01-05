@@ -13,11 +13,13 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { useAuth } from '../../context/AuthContext';
 
 const API_URL = 'http://192.168.1.29:5000/api/cars'; // Replace with env var in real app
 
 export default function ReviewAdScreen() {
     const router = useRouter();
+    const { isAuthenticated } = useAuth();
     const { id } = useLocalSearchParams();
     const [ad, setAd] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -77,6 +79,41 @@ export default function ReviewAdScreen() {
             setPublishing(false);
         }
     };
+
+    if (!isAuthenticated) {
+        return (
+            <View style={styles.safe}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <Header showBack={true} />
+                <View style={styles.authGuardContainer}>
+                    <View style={styles.iconCircle}>
+                        <Ionicons name="lock-closed-outline" size={40} color={COLORS.primary} />
+                    </View>
+                    <Text style={styles.authGuardTitle}>Login Required</Text>
+                    <Text style={styles.authGuardMessage}>Please login or create an account to view and post your ads.</Text>
+
+                    <View style={styles.authButtonGroup}>
+                        <View style={{ flex: 1, marginRight: 10 }}>
+                            <TouchableOpacity
+                                style={[styles.authButton, { backgroundColor: COLORS.primary }]}
+                                onPress={() => router.push('/auth/login')}
+                            >
+                                <Text style={[styles.authButtonText, { color: COLORS.white }]}>Login</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <TouchableOpacity
+                                style={[styles.authButton, { backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.primary }]}
+                                onPress={() => router.push('/auth/signup')}
+                            >
+                                <Text style={[styles.authButtonText, { color: COLORS.primary }]}>Sign Up</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        );
+    }
 
     if (loading) {
         return (
@@ -380,5 +417,53 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '700',
         fontSize: 16,
+    },
+    authGuardContainer: {
+        flex: 1,
+        padding: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLORS.background,
+    },
+    iconCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: COLORS.primary + '10', // Light primary background
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    authGuardTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: COLORS.text.primary,
+        marginBottom: 12,
+    },
+    authGuardMessage: {
+        fontSize: 16,
+        color: COLORS.text.muted,
+        textAlign: 'center',
+        lineHeight: 24,
+        marginBottom: 32,
+    },
+    authButtonGroup: {
+        flexDirection: 'row',
+        width: '100%',
+    },
+    authButton: {
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    authButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });

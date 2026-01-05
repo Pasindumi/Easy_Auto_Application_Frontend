@@ -38,7 +38,7 @@ export default function SignupScreen() {
 
     const result = await register(fullName, email, phone, password);
     if (result.success) {
-      Alert.alert("Success", "Account created successfully", [
+      Alert.alert("Success", result.message || "Account created successfully", [
         { text: "OK", onPress: () => router.push("/(tabs)") }
       ]);
     } else {

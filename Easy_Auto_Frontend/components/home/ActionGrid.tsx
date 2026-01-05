@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useAuth } from "../../context/AuthContext";
 
 interface ActionGridProps {
     fadeAnim: Animated.Value;
@@ -95,6 +96,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
     newListingsCount,
 }) => {
     const router = useRouter();
+    const { isAuthenticated } = useAuth();
 
     return (
         <Animated.View
@@ -139,7 +141,11 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                     delay={150}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/cars/select-type");
+                        if (isAuthenticated) {
+                            router.push("/cars/select-type");
+                        } else {
+                            router.push("/cars/select-type"); // Guard in the page will handle it
+                        }
                     }}
                 >
                     <View style={styles.scrollableActionCard}>

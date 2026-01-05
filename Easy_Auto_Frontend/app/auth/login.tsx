@@ -105,7 +105,9 @@ export default function LoginScreen() {
 
                 const result = await login(email, password);
                 if (result.success) {
-                  router.replace("/(tabs)");
+                  Alert.alert("Success", result.message || "Login successful", [
+                    { text: "OK", onPress: () => router.replace("/(tabs)") }
+                  ]);
                 } else {
                   Alert.alert("Login Failed", result.error);
                 }
