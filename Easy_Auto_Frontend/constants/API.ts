@@ -3,8 +3,16 @@ import { Platform } from 'react-native';
 // Use the ngrok URL for consistent access across real devices and emulators
 export const API_URL = 'https://garfield-couped-leslie.ngrok-free.dev';
 
+const API_BASE_URL = `${API_URL}/api`;
+
 export const ENDPOINTS = {
-    VEHICLE_CONFIG: `${API_URL}/api/vehicle-config`,
-    CARS: `${API_URL}/api/cars`,
-    AUTH: `${API_URL}/api/auth`,
+    VEHICLE_CONFIG: {
+        TYPES: `${API_BASE_URL}/vehicle-config/types`,
+        ATTRIBUTES: `${API_BASE_URL}/vehicle-config/attributes`,
+        BRANDS: `${API_BASE_URL}/vehicle-config/brands`,
+        MODELS: `${API_BASE_URL}/vehicle-config/models`,
+        CONDITIONS: `${API_BASE_URL}/vehicle-config/conditions`,
+    },
+    CARS: `${API_BASE_URL}/cars`,
+    AUTH: `${API_BASE_URL}/auth`,
 };

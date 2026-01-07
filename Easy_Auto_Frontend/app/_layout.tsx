@@ -12,7 +12,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export const unstable_settings = {
   // Start with the landing page first
-  initialRouteName: "home/landingpage",
+  initialRouteName: "(tabs)",
 };
 
 export default function RootLayout() {
@@ -22,9 +22,7 @@ export default function RootLayout() {
     <AuthProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
-          <Stack.Screen name="home/landingpage" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="home/welcome" options={{ headerShown: false }} />
           <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
           <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
           <Stack.Screen name="listings" options={{ headerShown: false }} />

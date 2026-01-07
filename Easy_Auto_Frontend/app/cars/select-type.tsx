@@ -28,7 +28,7 @@ export default function SelectVehicleTypeScreen() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${ENDPOINTS.VEHICLE_CONFIG}/types`);
+            const response = await fetch(ENDPOINTS.VEHICLE_CONFIG.TYPES);
             if (!response.ok) throw new Error(`Server returned ${response.status}`);
             const data = await response.json();
             if (Array.isArray(data)) {

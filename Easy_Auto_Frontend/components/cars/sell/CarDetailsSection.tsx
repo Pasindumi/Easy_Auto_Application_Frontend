@@ -9,6 +9,7 @@ interface Props {
     vehicleType?: string;
     brands?: any[]; // Dynamic Brands
     models?: any[]; // Dynamic Models
+    conditions?: any[]; // Dynamic Conditions
     attributes?: any[]; // Dynamic Attributes
     handleDynamicAttributeChange?: (attrId: string, value: any) => void;
 }
@@ -19,6 +20,7 @@ const CarDetailsSection: React.FC<Props> = ({
     vehicleType = 'Car',
     brands = [],
     models = [],
+    conditions = [],
     attributes = [],
     handleDynamicAttributeChange
 }) => {
@@ -28,17 +30,18 @@ const CarDetailsSection: React.FC<Props> = ({
         if (brands && brands.length > 0) {
             return brands.map(b => ({ label: b.brand_name, value: b.brand_name }));
         }
-        // Fallback hardcoded (Legacy support)
-        return ['Other'].map(b => ({ label: b, value: b }));
+        return [];
     };
 
-    // Common lists (Static)
-    const conditions = ['Brand New', 'Used', 'Reconditioned', 'Import'].map(c => ({ label: c, value: c }));
-    const fuelTypes = ['Petrol', 'Diesel', 'Hybrid', 'Electric'].map(f => ({ label: f, value: f }));
-    const transmissions = ['Automatic', 'Manual', 'Tiptronic'].map(t => ({ label: t, value: t }));
-    const bodyTypes = ['Saloon', 'Hatchback', 'SUV', 'Convertible', 'Coupe', 'Van', 'Wagon'].map(b => ({ label: b, value: b }));
+    const getConditionOptions = () => {
+        if (conditions && conditions.length > 0) {
+            return conditions.map(c => ({ label: c.condition_name, value: c.condition_name }));
+        }
+        return [];
+    };
 
     const brandOptions = getBrandOptions();
+    const conditionOptions = getConditionOptions();
 
     // Filter models based on selected brand
     const getModelOptions = () => {
@@ -59,54 +62,44 @@ const CarDetailsSection: React.FC<Props> = ({
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>{vehicleType} Details</Text>
 
-            {/* CORE FIELDS (Always present as per schema, but maybe populated safely) */}
+            {/* SECTION 1: Core Details */}
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
                     <SelectField
                         label="Condition"
                         value={carDetails.condition}
-                        options={conditions}
+                        options={conditionOptions}
                         onSelect={(val) => handleInputChange('condition', val)}
                     />
                 </View>
                 <View style={styles.formHalf}>
-                    {/* Brand Select */}
                     <SelectField
                         label="Brand"
                         value={carDetails.brand}
                         options={brandOptions}
-                        onSelect={(val) => handleInputChange('brand', val)}
+                        onSelect={(val) => {
+                            handleInputChange('brand', val);
+                            handleInputChange('model', ''); // Reset model when brand changes
+                        }}
                     />
                 </View>
             </View>
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    {/* Model - Select or Input fallback */}
-                    {modelOptions.length > 0 ? (
-                        <SelectField
-                            label="Model"
-                            value={carDetails.model}
-                            options={modelOptions}
-                            onSelect={(val) => handleInputChange('model', val)}
-                        />
-                    ) : (
-                        <>
-                            <Text style={styles.label}>Model</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="e.g. Corolla"
-                                value={carDetails.model}
-                                onChangeText={(value) => handleInputChange('model', value)}
-                            />
-                        </>
-                    )}
+                    <SelectField
+                        label="Model"
+                        value={carDetails.model}
+                        options={modelOptions}
+                        onSelect={(val) => handleInputChange('model', val)}
+                        disabled={!carDetails.brand || modelOptions.length === 0}
+                    />
                 </View>
                 <View style={styles.formHalf}>
                     <Text style={styles.label}>Year</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="2025"
+                        placeholder="e.g. 2024"
                         value={carDetails.year}
                         onChangeText={(value) => handleInputChange('year', value)}
                         keyboardType="numeric"
@@ -114,39 +107,11 @@ const CarDetailsSection: React.FC<Props> = ({
                 </View>
             </View>
 
-            {/* Standard optional fields */}
-            <View style={styles.formRow}>
-                <View style={styles.formHalf}>
-                    <Text style={styles.label}>Mileage (km)</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="75,000"
-                        value={carDetails.mileage}
-                        onChangeText={(value) => handleInputChange('mileage', value)}
-                        keyboardType="numeric"
-                    />
-                </View>
-                <View style={styles.formHalf}>
-                    <Text style={styles.label}>Engine</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="1500"
-                        value={carDetails.engineCapacity}
-                        onChangeText={(value) => handleInputChange('engineCapacity', value)}
-                        keyboardType="numeric"
-                    />
-                </View>
-            </View>
-            <SelectField label="Transmission" value={carDetails.transmission} options={transmissions} onSelect={(val) => handleInputChange('transmission', val)} />
-            <SelectField label="Fuel Type" value={carDetails.fuelType} options={fuelTypes} onSelect={(val) => handleInputChange('fuelType', val)} />
-            <SelectField label="Body Type" value={carDetails.bodyType || ''} options={bodyTypes} onSelect={(val) => handleInputChange('bodyType', val)} />
-
-
-            {/* DYNAMIC ATTRIBUTES SECTION */}
+            {/* SECTION 2: Dynamic Attributes */}
             {attributes && attributes.length > 0 && (
                 <View style={styles.dynamicSection}>
                     <View style={styles.divider} />
-                    <Text style={styles.subTitle}>Additional Specifications</Text>
+                    <Text style={styles.subTitle}>Other Specifications</Text>
 
                     {attributes.map((attr) => {
                         const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
