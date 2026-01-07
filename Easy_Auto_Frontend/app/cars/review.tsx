@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -12,10 +12,13 @@ import {
     Text,
     TouchableOpacity,
     View,
+    Dimensions,
+    StatusBar
 } from 'react-native';
+import { ENDPOINTS } from '../../constants/API';
 import { useAuth } from '../../context/AuthContext';
 
-const API_URL = 'http://192.168.1.29:5000/api/cars'; // Replace with env var in real app
+const { width } = Dimensions.get('window');
 
 export default function ReviewAdScreen() {
     const router = useRouter();
@@ -33,11 +36,10 @@ export default function ReviewAdScreen() {
 
     const fetchAdDetails = async () => {
         try {
-            const response = await fetch(`${API_URL}/${id}`);
+            const response = await fetch(`${ENDPOINTS.CARS}/${id}`);
             const data = await response.json();
             if (data.success) {
                 setAd(data.data);
-                // Set initial main image
                 if (data.data.AdImage && data.data.AdImage.length > 0) {
                     setMainImage(data.data.AdImage[0].image_url);
                 }
@@ -55,7 +57,7 @@ export default function ReviewAdScreen() {
     const handlePublish = async () => {
         setPublishing(true);
         try {
-            const response = await fetch(`${API_URL}/${id}`, {
+            const response = await fetch(`${ENDPOINTS.CARS}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,40 +82,7 @@ export default function ReviewAdScreen() {
         }
     };
 
-    if (!isAuthenticated) {
-        return (
-            <View style={styles.safe}>
-                <Stack.Screen options={{ headerShown: false }} />
-                <Header showBack={true} />
-                <View style={styles.authGuardContainer}>
-                    <View style={styles.iconCircle}>
-                        <Ionicons name="lock-closed-outline" size={40} color={COLORS.primary} />
-                    </View>
-                    <Text style={styles.authGuardTitle}>Login Required</Text>
-                    <Text style={styles.authGuardMessage}>Please login or create an account to view and post your ads.</Text>
-
-                    <View style={styles.authButtonGroup}>
-                        <View style={{ flex: 1, marginRight: 10 }}>
-                            <TouchableOpacity
-                                style={[styles.authButton, { backgroundColor: COLORS.primary }]}
-                                onPress={() => router.push('/auth/login')}
-                            >
-                                <Text style={[styles.authButtonText, { color: COLORS.white }]}>Login</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <TouchableOpacity
-                                style={[styles.authButton, { backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.primary }]}
-                                onPress={() => router.push('/auth/signup')}
-                            >
-                                <Text style={[styles.authButtonText, { color: COLORS.primary }]}>Sign Up</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </View>
-        );
-    }
+    if (!isAuthenticated) return null; // Auth guard should be handled by layout or similar
 
     if (loading) {
         return (
@@ -123,127 +92,159 @@ export default function ReviewAdScreen() {
         );
     }
 
-    if (!ad) {
-        return (
-            <View style={styles.loadingContainer}>
-                <Text>Ad not found.</Text>
-            </View>
-        );
-    }
+    if (!ad) return null;
 
     const images = ad.AdImage || [];
     const details = Array.isArray(ad.CarDetails) ? ad.CarDetails[0] : (ad.CarDetails || {});
-    // Mock user name if not in ad data directly (since we didn't add it to CarAd table yet, usually fetched via seller_id join or just passed)
-    // For now we might not have it unless we join users table. 
-    // Assuming backend might not return user name yet unless we adjusted getAdById to join users.
-    // We'll leave it simple or just show "Owner".
+    const formattedPrice = new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price);
 
     return (
         <View style={styles.safe}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header showBack={true} title="Review Your Ad" />
+            <Header showBack={true} title="Preview Ad" />
 
-            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-                {/* Banner */}
-                <View style={styles.banner}>
-                    <Text style={styles.bannerText}>This is a preview. Your ad is not visible to others yet.</Text>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                {/* PREVIEW BANNER */}
+                <View style={styles.previewBadge}>
+                    <Ionicons name="eye-outline" size={16} color={COLORS.white} />
+                    <Text style={styles.previewBadgeText}>AD PREVIEW MODE</Text>
                 </View>
 
-                {/* IMAGE GALLERY */}
-                <View style={styles.imageSection}>
+                {/* HERO IMAGE SECTION */}
+                <View style={styles.heroSection}>
                     <Image
                         source={mainImage ? { uri: mainImage } : require('@/assets/images/car.jpg')}
-                        style={styles.mainImage}
+                        style={styles.heroImage}
                     />
-                    {images.length > 0 && (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbnailList}>
+                    <View style={styles.imageOverlay}>
+                        <View style={styles.imageCountBadge}>
+                            <Ionicons name="camera" size={14} color="white" />
+                            <Text style={styles.imageCountText}>{images.length} Photos</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* THUMBNAILS SCROLL */}
+                {images.length > 1 && (
+                    <View style={styles.thumbnailWrapper}>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.thumbnailList}>
                             {images.map((img: any, index: number) => (
                                 <TouchableOpacity
                                     key={index}
                                     onPress={() => setMainImage(img.image_url)}
-                                    activeOpacity={0.7}
+                                    style={[
+                                        styles.thumbnailContainer,
+                                        mainImage === img.image_url && styles.activeThumbnail
+                                    ]}
                                 >
-                                    <Image
-                                        source={{ uri: img.image_url }}
-                                        style={[
-                                            styles.thumbnail,
-                                            mainImage === img.image_url && styles.activeThumbnail
-                                        ]}
-                                    />
+                                    <Image source={{ uri: img.image_url }} style={styles.thumbnailImage} />
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
-                    )}
+                    </View>
+                )}
+
+                {/* MAIN INFO CARD */}
+                <View style={styles.mainInfoContainer}>
+                    <Text style={styles.adTitle}>{ad.title}</Text>
+                    <View style={styles.priceRow}>
+                        <Text style={styles.priceText}>{formattedPrice}</Text>
+                        {ad.negotiable && (
+                            <View style={styles.negotiableBadge}>
+                                <Text style={styles.negotiableText}>Negotiable</Text>
+                            </View>
+                        )}
+                    </View>
+                    <View style={styles.locationContainer}>
+                        <Ionicons name="location-sharp" size={16} color={COLORS.text.muted} />
+                        <Text style={styles.locationText}>{ad.location}</Text>
+                        <View style={styles.dotSeparator} />
+                        <Text style={styles.timeText}>Just now</Text>
+                    </View>
                 </View>
 
-                {/* BASIC INFORMATION */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Basic Information</Text>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Title:</Text>
-                        <Text style={styles.value}>{ad.title}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Price:</Text>
-                        <Text style={styles.priceValue}>{ad.price} {ad.negotiable ? '(Negotiable)' : ''}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Location:</Text>
-                        <Text style={styles.value}>{ad.location}</Text>
-                    </View>
+                {/* KEY SPECS GRID */}
+                <View style={styles.specsGrid}>
+                    <SpecCard
+                        icon={<MaterialCommunityIcons name="calendar-range" size={24} color={COLORS.primary} />}
+                        label="Year"
+                        value={details.year}
+                    />
+                    <SpecCard
+                        icon={<MaterialCommunityIcons name="speedometer" size={24} color={COLORS.primary} />}
+                        label="Mileage"
+                        value={details.mileage ? `${details.mileage} km` : '-'}
+                    />
+                    <SpecCard
+                        icon={<Ionicons name="car-sport-outline" size={24} color={COLORS.primary} />}
+                        label="Brand"
+                        value={details.brand}
+                    />
+                    <SpecCard
+                        icon={<MaterialCommunityIcons name="tag-outline" size={24} color={COLORS.primary} />}
+                        label="Condition"
+                        value={details.condition}
+                    />
                 </View>
 
-                {/* CAR DETAILS */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Car Details</Text>
-                    <View style={styles.detailsGrid}>
-                        <DetailItem label="Condition" value={details.condition} />
-                        <DetailItem label="Brand" value={details.brand} />
-                        <DetailItem label="Model" value={details.model} />
-                        <DetailItem label="Year" value={details.year} />
-                        <DetailItem label="Mileage" value={details.mileage} />
-                        <DetailItem label="Body Type" value={details.body_type} />
-                        <DetailItem label="Fuel Type" value={details.fuel_type} />
-                        <DetailItem label="Transmission" value={details.transmission} />
-                        <DetailItem label="Engine (cc)" value={details.engine_capacity} />
+                {/* DYNAMIC SPECS SECTION */}
+                {ad.attributes && ad.attributes.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionHeader}>Detailed Specifications</Text>
+                        <View style={styles.attributesList}>
+                            {ad.attributes.map((attr: any, index: number) => (
+                                <View key={index} style={styles.attributeItem}>
+                                    <Text style={styles.attributeLabel}>{attr.attribute?.attribute_name}</Text>
+                                    <Text style={styles.attributeValue}>
+                                        {attr.value === 'true' ? 'Included' : attr.value === 'false' ? 'Not Available' : `${attr.value}${attr.attribute?.unit ? ' ' + attr.attribute.unit : ''}`}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
-                </View>
+                )}
 
                 {/* DESCRIPTION */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Description</Text>
-                    <Text style={styles.descriptionText}>{ad.description || "No description provided."}</Text>
+                    <Text style={styles.sectionHeader}>Description</Text>
+                    <Text style={styles.descriptionText}>{ad.description || "No description provided for this vehicle."}</Text>
                 </View>
 
-                {/* CONTACT DETAILS */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Contact Details</Text>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Name:</Text>
-                        <Text style={styles.value}>{ad.users?.name || "Owner"}</Text>
+                {/* SELLER CARD */}
+                <View style={styles.sellerCard}>
+                    <View style={styles.sellerHeader}>
+                        <View style={styles.sellerAvatar}>
+                            <Text style={styles.avatarText}>{ad.users?.name?.charAt(0) || 'O'}</Text>
+                        </View>
+                        <View style={styles.sellerInfo}>
+                            <Text style={styles.sellerName}>{ad.users?.name || "Private Seller"}</Text>
+                            <Text style={styles.sellerRole}>Individual Member</Text>
+                        </View>
                     </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Phone:</Text>
-                        <Text style={styles.value}>{ad.users?.phone || "N/A"}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Email:</Text>
-                        <Text style={styles.value}>{ad.users?.email || "N/A"}</Text>
+                    <View style={styles.contactDetails}>
+                        <View style={styles.contactItem}>
+                            <Ionicons name="call-outline" size={18} color={COLORS.primary} />
+                            <Text style={styles.contactText}>{ad.users?.phone || "Phone hidden"}</Text>
+                        </View>
+                        <View style={styles.contactItem}>
+                            <Ionicons name="mail-outline" size={18} color={COLORS.primary} />
+                            <Text style={styles.contactText}>{ad.users?.email || "Email hidden"}</Text>
+                        </View>
                     </View>
                 </View>
 
-                {/* ACTIONS */}
-                <View style={styles.actionsRow}>
+                {/* ACTION BUTTONS */}
+                <View style={styles.stickyFooter}>
                     <TouchableOpacity
-                        style={styles.editBtn}
+                        style={styles.editButton}
                         onPress={() => router.back()}
                     >
                         <Ionicons name="create-outline" size={20} color={COLORS.primary} />
-                        <Text style={styles.editBtnText}>Edit</Text>
+                        <Text style={styles.editButtonText}>Edit Ad</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={styles.publishBtn}
+                        style={[styles.publishButton, publishing && styles.disabledButton]}
                         onPress={handlePublish}
                         disabled={publishing}
                     >
@@ -251,219 +252,172 @@ export default function ReviewAdScreen() {
                             <ActivityIndicator color="white" />
                         ) : (
                             <>
-                                <Ionicons name="checkmark-circle-outline" size={20} color="white" />
-                                <Text style={styles.publishBtnText}>Post Ad Now</Text>
+                                <Ionicons name="flash" size={20} color="white" />
+                                <Text style={styles.publishButtonText}>Confirm & Post Ad</Text>
                             </>
                         )}
                     </TouchableOpacity>
                 </View>
-
             </ScrollView>
         </View>
     );
 }
 
-const DetailItem = ({ label, value }: { label: string, value: string }) => (
-    <View style={styles.detailItem}>
-        <Text style={styles.detailLabel}>{label}</Text>
-        <Text style={styles.detailValue}>{value || '-'}</Text>
+const SpecCard = ({ icon, label, value }: { icon: any, label: string, value: string }) => (
+    <View style={styles.specCard}>
+        {icon}
+        <Text style={styles.specLabel}>{label}</Text>
+        <Text style={styles.specValue} numberOfLines={1}>{value || '-'}</Text>
     </View>
 );
 
 const styles = StyleSheet.create({
-    safe: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    loadingContainer: {
-        flex: 1,
+    safe: { flex: 1, backgroundColor: COLORS.background },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    scrollContent: { paddingBottom: 100 },
+    previewBadge: {
+        backgroundColor: COLORS.accent,
+        paddingVertical: 8,
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        gap: 6
     },
-    container: {
-        paddingBottom: 40,
-    },
-    banner: {
-        backgroundColor: '#FFF9C4',
-        padding: 12,
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    bannerText: {
-        color: '#856404',
-        fontWeight: '600',
-    },
-    imageSection: {
-        marginBottom: 16,
-        backgroundColor: 'white',
-        paddingVertical: 16,
-    },
-    mainImage: {
-        width: '100%',
-        height: 250,
-        resizeMode: 'cover',
-    },
-    thumbnailList: {
-        marginTop: 10,
-        paddingHorizontal: 16,
-    },
-    thumbnail: {
-        width: 70,
-        height: 50,
-        borderRadius: 6,
-        marginRight: 10,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
-    activeThumbnail: {
-        borderColor: COLORS.primary,
-        borderWidth: 2,
-    },
-    section: {
-        backgroundColor: 'white',
-        padding: 16,
-        marginBottom: 12,
-        marginHorizontal: 16,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: COLORS.divider,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#1F2937',
-        marginBottom: 12,
-    },
-    row: {
+    previewBadgeText: { color: COLORS.white, fontWeight: 'bold', fontSize: 12, letterSpacing: 1 },
+    heroSection: { height: 280, width: '100%', position: 'relative' },
+    heroImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+    imageOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.1)' },
+    imageCountBadge: {
+        position: 'absolute',
+        bottom: 16,
+        right: 16,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
         flexDirection: 'row',
-        marginBottom: 8,
-        // alignItems: 'center', 
+        alignItems: 'center',
+        gap: 6
     },
-    label: {
-        width: 100,
-        fontSize: 14,
-        color: '#6B7280',
-        fontWeight: '500',
+    imageCountText: { color: 'white', fontSize: 12, fontWeight: '600' },
+    thumbnailWrapper: { backgroundColor: 'white', paddingVertical: 12 },
+    thumbnailList: { paddingHorizontal: 16, gap: 10 },
+    thumbnailContainer: {
+        width: 80,
+        height: 60,
+        borderRadius: 8,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: 'transparent'
     },
-    value: {
-        flex: 1,
-        fontSize: 14,
-        color: '#1F2937',
-        fontWeight: '600',
-    },
-    priceValue: {
-        flex: 1,
-        fontSize: 16,
-        color: COLORS.primary,
-        fontWeight: '700',
-    },
-    detailsGrid: {
+    activeThumbnail: { borderColor: COLORS.primary },
+    thumbnailImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+    mainInfoContainer: { padding: 20, backgroundColor: 'white', marginBottom: 12 },
+    adTitle: { fontSize: 24, fontWeight: '800', color: COLORS.text.primary, marginBottom: 8 },
+    priceRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
+    priceText: { fontSize: 22, fontWeight: 'bold', color: COLORS.primary },
+    negotiableBadge: { backgroundColor: COLORS.primaryLight, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
+    negotiableText: { color: COLORS.primary, fontSize: 12, fontWeight: '600' },
+    locationContainer: { flexDirection: 'row', alignItems: 'center' },
+    locationText: { color: COLORS.text.muted, fontSize: 14, marginLeft: 4 },
+    dotSeparator: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#CBD5E1', marginHorizontal: 8 },
+    timeText: { color: COLORS.text.muted, fontSize: 14 },
+    specsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        padding: 10,
+        gap: 10,
+        marginBottom: 12
     },
-    detailItem: {
-        width: '50%',
-        marginBottom: 12,
+    specCard: {
+        backgroundColor: 'white',
+        width: (width - 30) / 2,
+        padding: 16,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8
     },
-    detailLabel: {
-        fontSize: 12,
-        color: '#6B7280',
-    },
-    detailValue: {
-        fontSize: 14,
-        color: '#1F2937',
-        fontWeight: '600',
-        marginTop: 2,
-    },
-    descriptionText: {
-        fontSize: 14,
-        color: '#4B5563',
-        lineHeight: 22,
-    },
-    actionsRow: {
+    specLabel: { fontSize: 12, color: COLORS.text.muted, marginTop: 8 },
+    specValue: { fontSize: 15, fontWeight: 'bold', color: COLORS.text.primary, marginTop: 2 },
+    section: { backgroundColor: 'white', padding: 20, marginBottom: 12 },
+    sectionHeader: { fontSize: 18, fontWeight: 'bold', color: COLORS.text.primary, marginBottom: 16 },
+    attributesList: { gap: 12 },
+    attributeItem: {
         flexDirection: 'row',
-        marginTop: 20,
-        marginHorizontal: 16,
-        gap: 12,
+        justifyContent: 'space-between',
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.divider
     },
-    editBtn: {
+    attributeLabel: { fontSize: 14, color: COLORS.text.secondary },
+    attributeValue: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary },
+    descriptionText: { fontSize: 15, color: COLORS.text.secondary, lineHeight: 24 },
+    sellerCard: {
+        backgroundColor: 'white',
+        margin: 16,
+        borderRadius: 20,
+        padding: 20,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12
+    },
+    sellerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+    sellerAvatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: COLORS.primary,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    avatarText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
+    sellerInfo: { marginLeft: 15 },
+    sellerName: { fontSize: 18, fontWeight: 'bold', color: COLORS.text.primary },
+    sellerRole: { fontSize: 13, color: COLORS.text.muted, marginTop: 2 },
+    contactDetails: { gap: 12 },
+    contactItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    contactText: { fontSize: 15, color: COLORS.text.primary, fontWeight: '500' },
+    stickyFooter: {
+        flexDirection: 'row',
+        padding: 16,
+        backgroundColor: 'white',
+        borderTopWidth: 1,
+        borderTopColor: COLORS.divider,
+        gap: 12
+    },
+    editButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 16,
-        borderRadius: 12,
-        backgroundColor: 'white',
-        borderWidth: 1,
+        borderRadius: 14,
+        borderWidth: 1.5,
         borderColor: COLORS.primary,
+        backgroundColor: 'white'
     },
-    editBtnText: {
-        marginLeft: 8,
-        color: COLORS.primary,
-        fontWeight: '700',
-        fontSize: 16,
-    },
-    publishBtn: {
+    editButtonText: { color: COLORS.primary, fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+    publishButton: {
         flex: 2,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 16,
-        borderRadius: 12,
+        borderRadius: 14,
         backgroundColor: COLORS.primary,
-    },
-    publishBtnText: {
-        marginLeft: 8,
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 16,
-    },
-    authGuardContainer: {
-        flex: 1,
-        padding: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.background,
-    },
-    iconCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: COLORS.primary + '10', // Light primary background
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    authGuardTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: COLORS.text.primary,
-        marginBottom: 12,
-    },
-    authGuardMessage: {
-        fontSize: 16,
-        color: COLORS.text.muted,
-        textAlign: 'center',
-        lineHeight: 24,
-        marginBottom: 32,
-    },
-    authButtonGroup: {
-        flexDirection: 'row',
-        width: '100%',
-    },
-    authButton: {
-        paddingVertical: 14,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
+        elevation: 4,
         shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
+        shadowOpacity: 0.3,
+        shadowRadius: 8
     },
-    authButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
+    publishButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+    disabledButton: { opacity: 0.6 }
 });

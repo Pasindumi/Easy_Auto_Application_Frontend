@@ -13,9 +13,10 @@ interface Props {
     placeholder?: string;
     options: Option[];
     onSelect: (value: string) => void;
+    disabled?: boolean;
 }
 
-const SelectField: React.FC<Props> = ({ label, value, placeholder = "Select...", options, onSelect }) => {
+const SelectField: React.FC<Props> = ({ label, value, placeholder = "Select...", options, onSelect, disabled }) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const handleSelect = (val: string) => {
@@ -28,11 +29,15 @@ const SelectField: React.FC<Props> = ({ label, value, placeholder = "Select...",
     return (
         <View style={styles.container}>
             <Text style={styles.label}>{label}</Text>
-            <TouchableOpacity style={styles.input} onPress={() => setModalVisible(true)}>
-                <Text style={[styles.inputText, !value && styles.placeholderText]}>
+            <TouchableOpacity
+                style={[styles.input, disabled && styles.disabledInput]}
+                onPress={() => !disabled && setModalVisible(true)}
+                disabled={disabled}
+            >
+                <Text style={[styles.inputText, !value && styles.placeholderText, disabled && styles.disabledText]}>
                     {selectedOption ? selectedOption.label : placeholder}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
+                <Ionicons name="chevron-down" size={20} color={disabled ? "#E5E7EB" : "#9CA3AF"} />
             </TouchableOpacity>
 
             <Modal visible={modalVisible} transparent animationType="fade">
@@ -74,6 +79,8 @@ const styles = StyleSheet.create({
     },
     inputText: { fontSize: 16, color: '#1F2937' },
     placeholderText: { color: '#9CA3AF' },
+    disabledInput: { backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' },
+    disabledText: { color: '#9CA3AF' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
     modalContent: { backgroundColor: 'white', borderRadius: 12, padding: 20, maxHeight: 400 },
     modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' },

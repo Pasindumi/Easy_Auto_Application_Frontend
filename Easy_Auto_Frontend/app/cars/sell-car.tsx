@@ -34,6 +34,7 @@ export default function SellCarScreen() {
   // Fetched Config
   const [brands, setBrands] = useState<any[]>([]);
   const [models, setModels] = useState<any[]>([]);
+  const [conditions, setConditions] = useState<any[]>([]);
   const [attributes, setAttributes] = useState<any[]>([]);
 
   // Form state
@@ -69,23 +70,26 @@ export default function SellCarScreen() {
     const fetchData = async () => {
       if (!vehicleTypeId) return;
       try {
-        const [brandsRes, attrsRes, modelsRes] = await Promise.all([
-          fetch(`${ENDPOINTS.VEHICLE_CONFIG}/brands/${vehicleTypeId}`),
-          fetch(`${ENDPOINTS.VEHICLE_CONFIG}/attributes/${vehicleTypeId}`),
-          fetch(`${ENDPOINTS.VEHICLE_CONFIG}/models/${vehicleTypeId}`)
+        const [brandsRes, attrsRes, modelsRes, conditionsRes] = await Promise.all([
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.BRANDS}/${vehicleTypeId}`),
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.ATTRIBUTES}/${vehicleTypeId}`),
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.MODELS}/${vehicleTypeId}`),
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.CONDITIONS}/${vehicleTypeId}`)
         ]);
 
-        if (!brandsRes.ok || !attrsRes.ok || !modelsRes.ok) {
+        if (!brandsRes.ok || !attrsRes.ok || !modelsRes.ok || !conditionsRes.ok) {
           throw new Error("One or more requests failed");
         }
 
         const brandsData = await brandsRes.json();
         const attrsData = await attrsRes.json();
         const modelsData = await modelsRes.json();
+        const conditionsData = await conditionsRes.json();
 
         if (Array.isArray(brandsData)) setBrands(brandsData);
         if (Array.isArray(attrsData)) setAttributes(attrsData);
         if (Array.isArray(modelsData)) setModels(modelsData);
+        if (Array.isArray(conditionsData)) setConditions(conditionsData);
 
       } catch (error) {
         console.error("Error fetching vehicle config:", error);
@@ -185,7 +189,11 @@ export default function SellCarScreen() {
 
       if (response.ok) {
         Alert.alert("Success", "Your ad has been submitted for review!");
-        router.replace('/');
+        const adId = data.data.id;
+        router.replace({
+          pathname: '/cars/review',
+          params: { id: adId }
+        });
       } else {
         Alert.alert("Error", data.message || "Failed to submit ad");
       }
@@ -265,6 +273,7 @@ export default function SellCarScreen() {
             vehicleType={vehicleType}
             brands={brands}
             models={models}
+            conditions={conditions}
             attributes={attributes}
             handleDynamicAttributeChange={handleDynamicAttributeChange}
           />
