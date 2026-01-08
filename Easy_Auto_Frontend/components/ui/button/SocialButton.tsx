@@ -9,16 +9,22 @@ export default function SocialButton({
   text,
   onPress,
   iconColor,
+  disabled,
 }: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
   text: string;
   onPress?: () => void;
   iconColor?: string;
+  disabled?: boolean;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.btn}>
+    <TouchableOpacity 
+      onPress={onPress} 
+      style={[styles.btn, disabled && styles.btnDisabled]}
+      disabled={disabled}
+    >
       <Ionicons name={icon} size={18} color={iconColor ?? undefined} style={styles.icon} />
-      <Text style={styles.text}>{text}</Text>
+      <Text style={[styles.text, disabled && styles.textDisabled]}>{text}</Text>
     </TouchableOpacity>
   );
 }
@@ -35,6 +41,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.divider,
   },
+  btnDisabled: {
+    opacity: 0.5,
+    backgroundColor: "#f5f5f5",
+  },
   icon: { marginRight: 10 },
   text: { fontWeight: "700" },
+  textDisabled: {
+    color: "#999",
+  },
 });

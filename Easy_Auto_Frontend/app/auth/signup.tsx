@@ -2,7 +2,8 @@ import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useClerkOAuth } from "@/hooks/useClerkOAuth";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -20,30 +21,59 @@ import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function SignupScreen() {
   const router = useRouter();
-  const { register } = useAuth();
+  // TODO: Implement email/password registration or use OTP signup
+  // const { register } = useAuth();
+  const { signInWithGoogle, signInWithApple, signInWithFacebook } = useClerkOAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [agree, setAgree] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [lastClickTime, setLastClickTime] = useState(0);
 
-  const handleSignup = async () => {
-    if (!fullName.trim() || !email.trim() || !phone.trim() || !password) {
-      Alert.alert("Validation", "Please fill in all fields.");
+  const handleSocialSignIn = async (provider: 'google' | 'apple' | 'facebook') => {
+    // Prevent rapid clicks (debounce)
+    const now = Date.now();
+    if (now - lastClickTime < 2000) {
+      Alert.alert('Please Wait', 'Please wait a moment before trying again');
       return;
     }
-    if (password !== confirm) return Alert.alert("Validation", "Passwords do not match");
-    if (!agree) return Alert.alert("Validation", "Please agree to Terms & Conditions");
-
-    const result = await register(fullName, email, phone, password);
-    if (result.success) {
-      Alert.alert("Success", result.message || "Account created successfully", [
-        { text: "OK", onPress: () => router.push("/(tabs)") }
-      ]);
-    } else {
-      Alert.alert("Registration Failed", result.error);
+    setLastClickTime(now);
+    
+    setSocialLoading(provider);
+    try {
+      let result;
+      if (provider === 'google') {
+        result = await signInWithGoogle();
+      } else if (provider === 'apple') {
+        result = await signInWithApple();
+      } else {
+        result = await signInWithFacebook();
+      }
+      
+      if (!result.success && result.error) {
+        Alert.alert('Sign In Failed', result.error);
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || `Failed to sign in with ${provider}`);
+    } finally {
+      setSocialLoading(null);
     }
+  };
+
+  const handleSignup = async () => {
+    // TODO: Implement email/password registration via backend
+    // For now, redirect to OTP signup
+    Alert.alert(
+      "Sign Up", 
+      "Please use Phone OTP or Social login for now",
+      [
+        { text: "OTP Login", onPress: () => router.push("/auth/otp-login" as any) },
+        { text: "Cancel", style: "cancel" }
+      ]
+    );
   };
 
   return (
@@ -92,8 +122,26 @@ export default function SignupScreen() {
               <View style={styles.line} />
             </View>
 
-            <SocialButton icon="logo-apple" text="Sign in With Apple" onPress={() => Alert.alert("Apple Sign in")} />
-            <SocialButton icon="logo-google" text="Sign in With Google" iconColor="#DB4437" onPress={() => Alert.alert("Google Sign in")} />
+            <SocialButton 
+              icon="logo-apple" 
+              text={socialLoading === 'apple' ? "Signing in..." : "Sign in With Apple"}
+              onPress={() => handleSocialSignIn('apple')}
+              disabled={socialLoading !== null}
+            />
+            <SocialButton 
+              icon="logo-google" 
+              text={socialLoading === 'google' ? "Signing in..." : "Sign in With Google"}
+              iconColor="#DB4437" 
+              onPress={() => handleSocialSignIn('google')}
+              disabled={socialLoading !== null}
+            />
+            <SocialButton 
+              icon="logo-facebook" 
+              text={socialLoading === 'facebook' ? "Signing in..." : "Sign in With Facebook"}
+              iconColor="#1877F2" 
+              onPress={() => handleSocialSignIn('facebook')}
+              disabled={socialLoading !== null}
+            />
 
             <View style={styles.bottomRow}>
               <Text style={styles.small}>Already have an account?</Text>

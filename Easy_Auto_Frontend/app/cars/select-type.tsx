@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { ENDPOINTS } from '../../constants/API';
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function SelectVehicleTypeScreen() {
     const router = useRouter();

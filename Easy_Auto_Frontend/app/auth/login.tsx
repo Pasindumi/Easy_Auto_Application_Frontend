@@ -2,7 +2,8 @@ import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useClerkOAuth } from "@/hooks/useClerkOAuth";
 import {
   Alert,
   ActivityIndicator,
@@ -22,16 +23,47 @@ import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, isLoading, isAuthenticated } = useAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { signInWithGoogle, signInWithApple, signInWithFacebook } = useClerkOAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
       router.replace('/(tabs)');
     }
   }, [isAuthenticated]);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
+
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [lastClickTime, setLastClickTime] = useState(0);
+
+  const handleSocialSignIn = async (provider: 'google' | 'apple' | 'facebook') => {
+    // Prevent rapid clicks (debounce)
+    const now = Date.now();
+    if (now - lastClickTime < 2000) {
+      Alert.alert('Please Wait', 'Please wait a moment before trying again');
+      return;
+    }
+    setLastClickTime(now);
+    
+    setSocialLoading(provider);
+    try {
+      let result;
+      if (provider === 'google') {
+        result = await signInWithGoogle();
+      } else if (provider === 'apple') {
+        result = await signInWithApple();
+      } else {
+        result = await signInWithFacebook();
+      }
+      
+      if (!result.success && result.error) {
+        Alert.alert('Sign In Failed', result.error);
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || `Failed to sign in with ${provider}`);
+    } finally {
+      setSocialLoading(null);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -63,55 +95,15 @@ export default function LoginScreen() {
 
           {/* Form */}
           <View style={styles.form}>
-            <InputField
-              icon="mail-outline"
-              placeholder="Email"
-              value={email}
-              onChange={setEmail}
-              keyboardType="email-address"
-            />
-            <InputField
-              icon="lock-closed-outline"
-              placeholder="Password"
-              value={password}
-              onChange={setPassword}
-              secure
-            />
+            <Text style={styles.welcome}>Welcome Back!</Text>
+            <Text style={styles.subtitle}>
+              Choose your preferred login method
+            </Text>
 
-            <View style={styles.rowBetween}>
-              <TouchableOpacity
-                style={styles.rememberRow}
-                onPress={() => setRemember((s) => !s)}
-              >
-                <View style={[styles.checkbox, remember && styles.checkboxChecked]}>
-                  {remember && <Ionicons name="checkmark" size={12} color={COLORS.primary} />}
-                </View>
-                <Text style={styles.smallText}>Remember Me</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => router.push("/auth/reset-password")}>
-                <Text style={styles.forgot}>Forgot Password?</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Login Button */}
+            {/* OTP Login Button */}
             <Button
-              title={isLoading ? "Logging in..." : "Login"}
-              onPress={async () => {
-                if (!email || !password) {
-                  Alert.alert("Error", "Please enter both email and password");
-                  return;
-                }
-
-                const result = await login(email, password);
-                if (result.success) {
-                  Alert.alert("Success", result.message || "Login successful", [
-                    { text: "OK", onPress: () => router.replace("/(tabs)") }
-                  ]);
-                } else {
-                  Alert.alert("Login Failed", result.error);
-                }
-              }}
+              title="Login with Phone (OTP)"
+              onPress={() => router.push("/auth/otp-login" as any)}
             />
 
             {/* OR separator */}
@@ -124,14 +116,23 @@ export default function LoginScreen() {
             {/* Social login */}
             <SocialButton
               icon="logo-apple"
-              text="Sign in With Apple"
-              onPress={() => Alert.alert("Apple Sign in")}
+              text={socialLoading === 'apple' ? "Signing in..." : "Sign in With Apple"}
+              onPress={() => handleSocialSignIn('apple')}
+              disabled={socialLoading !== null}
             />
             <SocialButton
               icon="logo-google"
-              text="Sign in With Google"
+              text={socialLoading === 'google' ? "Signing in..." : "Sign in With Google"}
               iconColor="#DB4437"
-              onPress={() => Alert.alert("Google Sign in")}
+              onPress={() => handleSocialSignIn('google')}
+              disabled={socialLoading !== null}
+            />
+            <SocialButton
+              icon="logo-facebook"
+              text={socialLoading === 'facebook' ? "Signing in..." : "Sign in With Facebook"}
+              iconColor="#1877F2"
+              onPress={() => handleSocialSignIn('facebook')}
+              disabled={socialLoading !== null}
             />
 
             {/* Signup link */}
@@ -139,6 +140,13 @@ export default function LoginScreen() {
               <Text style={styles.smallText}>Don’t have an account?</Text>
               <TouchableOpacity onPress={() => router.push("/auth/signup")}>
                 <Text style={styles.loginLink}> Sign Up</Text>
+              </TouchableOpacity>
+            </View>
+            {/* OTP Login link */}
+            <View style={styles.bottomRow}>
+              <Text style={styles.smallText}>Or</Text>
+              <TouchableOpacity onPress={() => router.push("/auth/otp-login" as any)}>
+                <Text style={styles.loginLink}> Login with OTP</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -175,6 +183,20 @@ const styles = StyleSheet.create({
   blueText: { color: COLORS.primary },
 
   form: { marginTop: 18 },
+
+  welcome: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: COLORS.text.primary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: COLORS.text.muted,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
 
   rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
   rememberRow: { flexDirection: "row", alignItems: "center" },

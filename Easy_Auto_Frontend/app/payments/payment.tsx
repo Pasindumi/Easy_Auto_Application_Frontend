@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import { paymentData } from "../../constants/dummydata/payment";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
@@ -15,6 +16,9 @@ import PromoCodeSection from '../../components/payments/payment/PromoCodeSection
 import SellerInfoSection from '../../components/payments/payment/SellerInfoSection';
 
 export default function Payment() {
+  // Protect this route - require authentication
+  useProtectedRoute();
+  
   const router = useRouter();
   const { summary, seller, orderItems, note } = paymentData;
   const total = orderItems.reduce((acc, i) => acc + i.price, 0);
