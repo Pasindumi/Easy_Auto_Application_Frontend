@@ -25,7 +25,7 @@ interface AuthContextType {
   verifyOTP: (phone: string, otp: string) => Promise<{ success: boolean; message?: string; error?: string }>;
 
   // Clerk Social Auth Methods
-  handleClerkAuth: () => Promise<{ success: boolean; error?: string }>;
+  handleClerkAuth: (token?: string) => Promise<{ success: boolean; error?: string }>;
 
   // Token Management
   refreshAccessToken: () => Promise<{ success: boolean; accessToken?: string; error?: string }>;
@@ -47,7 +47,7 @@ const AuthContext = createContext<AuthContextType>({
   handleClerkAuth: async () => ({ success: false, error: 'Not implemented' }),
   refreshAccessToken: async () => ({ success: false, error: 'Not implemented' }),
   getValidToken: async () => null,
-  logout: async () => {},
+  logout: async () => { },
   requireAuth: () => false,
 });
 
@@ -228,7 +228,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Save backend JWT tokens and user data
       const access = data.accessToken || data.token;
       const refresh = data.refreshToken || data.refresh_token;
-      
+
       if (!access || !refresh) {
         throw new Error('Invalid token response from server');
       }
@@ -243,40 +243,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Clerk: Exchange Clerk token for backend JWT
-  const handleClerkAuth = async () => {
+  const handleClerkAuth = async (passedToken?: string) => {
     try {
       console.log('[Auth] handleClerkAuth: Starting backend sync...');
       console.log('[Auth] isSignedIn:', isSignedIn);
       console.log('[Auth] clerkUser:', clerkUser ? { id: clerkUser.id, email: clerkUser.primaryEmailAddress?.emailAddress } : 'null');
+      console.log('[Auth] passedToken provided:', !!passedToken);
 
-      if (!isSignedIn || !clerkUser) {
+      // Relax checks if passedToken is provided
+      if (!passedToken && (!isSignedIn || !clerkUser)) {
         throw new Error('Not signed in with Clerk');
       }
 
-      // Get Clerk session token with mobile template
-      console.log('[Auth] Fetching Clerk session token with mobile template...');
-      
-      let clerkToken;
-      try {
-        // Use mobile template for better compatibility
-        clerkToken = await getClerkToken({ template: 'mobile' });
-        console.log('[Auth] Token obtained with mobile template');
-      } catch (err) {
-        console.log('[Auth] Mobile template not available, trying default...');
+      let clerkToken = passedToken;
+
+      if (!clerkToken) {
+        console.log('[Auth] Fetching Clerk session token with mobile template...');
+
         try {
-          clerkToken = await getClerkToken({ template: 'default' });
-          console.log('[Auth] Token obtained with default template');
-        } catch (err2) {
-          console.log('[Auth] Template methods failed, trying without template...');
-          clerkToken = await getClerkToken();
-          console.log('[Auth] Token obtained without template');
+          // Use mobile template for better compatibility
+          clerkToken = await getClerkToken({ template: 'mobile' }) || undefined;
+          console.log('[Auth] Token obtained with mobile template');
+        } catch (err) {
+          console.log('[Auth] Mobile template not available, trying default...');
+          try {
+            clerkToken = await getClerkToken({ template: 'default' }) || undefined;
+            console.log('[Auth] Token obtained with default template');
+          } catch (err2) {
+            console.log('[Auth] Template methods failed, trying without template...');
+            clerkToken = await getClerkToken() || undefined;
+            console.log('[Auth] Token obtained without template');
+          }
         }
+      } else {
+        console.log('[Auth] Using passed token for backend sync');
       }
-      
+
       if (!clerkToken) {
         throw new Error('Failed to get Clerk token');
       }
-      
+
       console.log('[Auth] Clerk token obtained (length:', clerkToken.length, ')');
       console.log('[Auth] Clerk token (first 50 chars):', clerkToken.substring(0, 50) + '...');
       console.log('[Auth] Sending request to:', `${ENDPOINTS.AUTH}/clerk`);
@@ -298,17 +304,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
         console.error('[Auth] Invalid response type. Content-Type:', contentType);
-        console.error('[Auth] Response body:', text.substring(0, 200));
-        throw new Error('Server returned an invalid response. Expected JSON.');
+        console.error('[Auth] Response body:', text.substring(0, 500));
+        throw new Error(`Auth Sync Error (${response.status}): Endpoint might be unreachable or returning an error page. Expected JSON but got HTML/Text. View console for details.`);
       }
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         console.error('[Auth] Backend returned error status:', response.status);
         console.error('[Auth] Backend error message:', data.error || data.message);
         console.error('[Auth] Full error response:', JSON.stringify(data));
-        
+
         // Provide specific error messages
         if (response.status === 401) {
           throw new Error('Authentication failed. The backend could not verify your Clerk session. Please contact support.');
@@ -320,8 +326,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           throw new Error(data.error || data.message || 'Authentication failed. Please try again.');
         }
       }
-      
-      console.log('[Auth] Backend response data:', { 
+
+      console.log('[Auth] Backend response data:', {
         hasAccessToken: !!(data.accessToken || data.token),
         hasRefreshToken: !!(data.refreshToken || data.refresh_token),
         hasUser: !!data.user,
@@ -331,10 +337,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Save backend JWT tokens and user data
       const access = data.accessToken || data.token;
       const refresh = data.refreshToken || data.refresh_token;
-      
+
       if (!access || !refresh) {
-        console.error('[Auth] Missing tokens in response:', { 
-          hasAccess: !!access, 
+        console.error('[Auth] Missing tokens in response:', {
+          hasAccess: !!access,
           hasRefresh: !!refresh,
           responseKeys: Object.keys(data)
         });
@@ -353,11 +359,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         stack: error.stack,
         response: error.response,
       });
-      
+
       // Return user-friendly error message
-      return { 
-        success: false, 
-        error: error.message || 'Authentication failed. Please try again.' 
+      return {
+        success: false,
+        error: error.message || 'Authentication failed. Please try again.'
       };
     }
   };
@@ -366,7 +372,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshAccessToken = async (): Promise<{ success: boolean; accessToken?: string; error?: string }> => {
     try {
       const currentRefreshToken = refreshToken || await secureStorage.getItem(REFRESH_TOKEN_KEY);
-      
+
       if (!currentRefreshToken) {
         throw new Error('No refresh token available');
       }
