@@ -20,16 +20,11 @@ interface AuthContextType {
   refreshToken: string | null;
   isLoading: boolean;
 
-  // OTP Auth Methods
-  sendOTP: (phone: string) => Promise<{ success: boolean; message?: string; error?: string }>;
-  verifyOTP: (phone: string, otp: string) => Promise<{ success: boolean; message?: string; error?: string }>;
-
   // Clerk Social Auth Methods
-<<<<<<< HEAD
-  handleClerkAuth: (sessionResult?: any) => Promise<{ success: boolean; error?: string }>;
-=======
-  handleClerkAuth: (token?: string) => Promise<{ success: boolean; error?: string }>;
->>>>>>> 1cc38b04054771f0b6a871b495280afed465ba48
+  handleClerkAuth: (getTokenFunc?: any) => Promise<{ success: boolean; error?: string }>;
+
+  // Backend Auth Methods
+  loginWithBackend: (access: string, refresh: string, user: User) => Promise<void>;
 
   // Token Management
   refreshAccessToken: () => Promise<{ success: boolean; accessToken?: string; error?: string }>;
@@ -46,9 +41,8 @@ const AuthContext = createContext<AuthContextType>({
   accessToken: null,
   refreshToken: null,
   isLoading: true,
-  sendOTP: async () => ({ success: false, error: 'Not implemented' }),
-  verifyOTP: async () => ({ success: false, error: 'Not implemented' }),
   handleClerkAuth: async () => ({ success: false, error: 'Not implemented' }),
+  loginWithBackend: async () => { },
   refreshAccessToken: async () => ({ success: false, error: 'Not implemented' }),
   getValidToken: async () => null,
   logout: async () => { },
@@ -109,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { getToken: getClerkToken, isSignedIn } = useClerkAuth();
+  const { getToken: getClerkToken, isSignedIn, signOut } = useClerkAuth();
   const { user: clerkUser } = useUser();
 
   // Load stored auth on mount
@@ -176,78 +170,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // OTP: Send OTP to phone number
-  const sendOTP = async (phone: string) => {
-    try {
-      const response = await fetch(`${ENDPOINTS.AUTH}/send-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
-        },
-        body: JSON.stringify({ phone }),
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned an invalid response');
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send OTP');
-      }
-
-      return { success: true, message: data.message };
-    } catch (error: any) {
-      console.error('Send OTP error:', error);
-      return { success: false, error: error.message || 'Network error' };
-    }
-  };
-
-  // OTP: Verify OTP and get backend JWT
-  const verifyOTP = async (phone: string, otp: string) => {
-    try {
-      const response = await fetch(`${ENDPOINTS.AUTH}/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
-        },
-        body: JSON.stringify({ phone, otp }),
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned an invalid response');
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Invalid OTP');
-      }
-
-      // Save backend JWT tokens and user data
-      const access = data.accessToken || data.token;
-      const refresh = data.refreshToken || data.refresh_token;
-
-      if (!access || !refresh) {
-        throw new Error('Invalid token response from server');
-      }
-
-      await saveAuth(access, refresh, data.user);
-
-      return { success: true, message: data.message };
-    } catch (error: any) {
-      console.error('Verify OTP error:', error);
-      return { success: false, error: error.message || 'Verification failed' };
-    }
+  // Login with backend tokens (for normal email/password login)
+  const loginWithBackend = async (access: string, refresh: string, userData: User) => {
+    await saveAuth(access, refresh, userData);
   };
 
   // Clerk: Exchange Clerk token for backend JWT
-<<<<<<< HEAD
   const handleClerkAuth = async (getTokenFunc?: any) => {
     try {
       console.log('[Auth] handleClerkAuth: Starting backend sync...');
@@ -282,50 +210,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           // Use mobile template for better compatibility
           clerkToken = await getClerkToken({ template: 'mobile' });
-=======
-  const handleClerkAuth = async (passedToken?: string) => {
-    try {
-      console.log('[Auth] handleClerkAuth: Starting backend sync...');
-      console.log('[Auth] isSignedIn:', isSignedIn);
-      console.log('[Auth] clerkUser:', clerkUser ? { id: clerkUser.id, email: clerkUser.primaryEmailAddress?.emailAddress } : 'null');
-      console.log('[Auth] passedToken provided:', !!passedToken);
-
-      // Relax checks if passedToken is provided
-      if (!passedToken && (!isSignedIn || !clerkUser)) {
-        throw new Error('Not signed in with Clerk');
-      }
-
-      let clerkToken = passedToken;
-
-      if (!clerkToken) {
-        console.log('[Auth] Fetching Clerk session token with mobile template...');
-
-        try {
-          // Use mobile template for better compatibility
-          clerkToken = await getClerkToken({ template: 'mobile' }) || undefined;
->>>>>>> 1cc38b04054771f0b6a871b495280afed465ba48
           console.log('[Auth] Token obtained with mobile template');
         } catch (err) {
           console.log('[Auth] Mobile template not available, trying default...');
           try {
-<<<<<<< HEAD
             clerkToken = await getClerkToken({ template: 'default' });
             console.log('[Auth] Token obtained with default template');
           } catch (err2) {
             console.log('[Auth] Template methods failed, trying without template...');
             clerkToken = await getClerkToken();
-=======
-            clerkToken = await getClerkToken({ template: 'default' }) || undefined;
-            console.log('[Auth] Token obtained with default template');
-          } catch (err2) {
-            console.log('[Auth] Template methods failed, trying without template...');
-            clerkToken = await getClerkToken() || undefined;
->>>>>>> 1cc38b04054771f0b6a871b495280afed465ba48
             console.log('[Auth] Token obtained without template');
           }
         }
-      } else {
-        console.log('[Auth] Using passed token for backend sync');
       }
 
       if (!clerkToken) {
@@ -397,7 +293,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('[Auth] Saving tokens to secure store...');
-      await saveAuth(access, refresh, data.user);
+      await loginWithBackend(access, refresh, data.user);
       console.log('[Auth] Backend sync completed successfully');
 
       return { success: true };
@@ -479,6 +375,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Logout
   const logout = async () => {
+    try {
+      console.log('[Auth] Logging out - clearing Clerk session...');
+      await signOut();
+      console.log('[Auth] Clerk session cleared');
+    } catch (error) {
+      console.error('[Auth] Error signing out from Clerk:', error);
+      // Continue with backend logout even if Clerk fails
+    }
     await clearAuth();
   };
 
@@ -493,9 +397,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     accessToken,
     refreshToken,
     isLoading,
-    sendOTP,
-    verifyOTP,
     handleClerkAuth,
+    loginWithBackend,
     refreshAccessToken,
     getValidToken,
     logout,

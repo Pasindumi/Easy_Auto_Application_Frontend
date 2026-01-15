@@ -4,6 +4,7 @@ import { Stack, useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClerkOAuth } from "@/hooks/useClerkOAuth";
+import { ENDPOINTS } from "@/constants/API";
 import {
   Alert,
   ActivityIndicator,
@@ -23,7 +24,7 @@ import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, loginWithBackend } = useAuth();
   const { signInWithGoogle, signInWithApple, signInWithFacebook } = useClerkOAuth();
 
   useEffect(() => {
@@ -32,8 +33,54 @@ export default function LoginScreen() {
     }
   }, [isAuthenticated]);
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [lastClickTime, setLastClickTime] = useState(0);
+
+  const handleEmailLogin = async () => {
+    if (!email.trim() || !email.includes('@')) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+    if (!password || password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${ENDPOINTS.AUTH}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Update AuthContext state and store tokens
+      await loginWithBackend(data.accessToken, data.refreshToken, data.user);
+
+      // Navigate to home
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      Alert.alert('Login Failed', error.message || 'Failed to login');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSocialSignIn = async (provider: 'google' | 'apple' | 'facebook') => {
     // Prevent rapid clicks (debounce)
@@ -97,21 +144,8 @@ export default function LoginScreen() {
           <View style={styles.form}>
             <Text style={styles.welcome}>Welcome Back!</Text>
             <Text style={styles.subtitle}>
-              Choose your preferred login method
+              Sign in to your account
             </Text>
-
-            {/* OTP Login Button */}
-            <Button
-              title="Login with Phone (OTP)"
-              onPress={() => router.push("/auth/otp-login" as any)}
-            />
-
-            {/* OR separator */}
-            <View style={styles.orRow}>
-              <View style={styles.orLine} />
-              <Text style={styles.orText}>OR</Text>
-              <View style={styles.orLine} />
-            </View>
 
             {/* Social login */}
             <SocialButton
@@ -135,6 +169,44 @@ export default function LoginScreen() {
               disabled={socialLoading !== null}
             />
 
+            {/* OR separator */}
+            <View style={styles.orRow}>
+              <View style={styles.orLine} />
+              <Text style={styles.orText}>or</Text>
+              <View style={styles.orLine} />
+            </View>
+
+            {/* Email/Password login */}
+            <InputField
+              icon="mail-outline"
+              placeholder="Email"
+              value={email}
+              onChange={setEmail}
+              keyboardType="email-address"
+            />
+            <InputField
+              icon="lock-closed-outline"
+              placeholder="Password"
+              value={password}
+              onChange={setPassword}
+              secure
+            />
+
+            {/* Forgot password link */}
+            <TouchableOpacity 
+              onPress={() => router.push("/auth/reset-password")}
+              style={styles.forgotPasswordContainer}
+            >
+              <Text style={styles.forgot}>Forgot password?</Text>
+            </TouchableOpacity>
+
+            {/* Login button */}
+            <Button
+              title={loading ? "Logging in..." : "Login"}
+              onPress={handleEmailLogin}
+              disabled={loading || socialLoading !== null}
+            />
+
             {/* Signup link */}
             <View style={styles.bottomRow}>
               <Text style={styles.smallText}>Don’t have an account?</Text>
@@ -142,13 +214,7 @@ export default function LoginScreen() {
                 <Text style={styles.loginLink}> Sign Up</Text>
               </TouchableOpacity>
             </View>
-            {/* OTP Login link */}
-            <View style={styles.bottomRow}>
-              <Text style={styles.smallText}>Or</Text>
-              <TouchableOpacity onPress={() => router.push("/auth/otp-login" as any)}>
-                <Text style={styles.loginLink}> Login with OTP</Text>
-              </TouchableOpacity>
-            </View>
+
           </View>
         </ScrollView>
 
@@ -205,6 +271,10 @@ const styles = StyleSheet.create({
 
   smallText: { color: COLORS.text.muted },
   forgot: { color: COLORS.primary, fontWeight: "700" },
+  forgotPasswordContainer: { 
+    alignSelf: 'flex-end', 
+    marginBottom: 16 
+  },
 
   orRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
   orLine: { flex: 1, height: 1, backgroundColor: COLORS.divider },

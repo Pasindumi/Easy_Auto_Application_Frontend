@@ -4,6 +4,7 @@ import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClerkOAuth } from "@/hooks/useClerkOAuth";
+import { ENDPOINTS } from "@/constants/API";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -21,8 +22,7 @@ import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function SignupScreen() {
   const router = useRouter();
-  // TODO: Implement email/password registration or use OTP signup
-  // const { register } = useAuth();
+  const { loginWithBackend } = useAuth();
   const { signInWithGoogle, signInWithApple, signInWithFacebook } = useClerkOAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,6 +30,7 @@ export default function SignupScreen() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [agree, setAgree] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [lastClickTime, setLastClickTime] = useState(0);
 
@@ -64,16 +65,73 @@ export default function SignupScreen() {
   };
 
   const handleSignup = async () => {
-    // TODO: Implement email/password registration via backend
-    // For now, redirect to OTP signup
-    Alert.alert(
-      "Sign Up", 
-      "Please use Phone OTP or Social login for now",
-      [
-        { text: "OTP Login", onPress: () => router.push("/auth/otp-login" as any) },
-        { text: "Cancel", style: "cancel" }
-      ]
-    );
+    // Validate inputs
+    if (!fullName.trim()) {
+      Alert.alert('Error', 'Please enter your full name');
+      return;
+    }
+    if (!email.trim() || !email.includes('@')) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+    if (!phone.trim() || phone.length < 10) {
+      Alert.alert('Error', 'Please enter a valid phone number');
+      return;
+    }
+    if (!password || password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+    if (password !== confirm) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+    if (!agree) {
+      Alert.alert('Error', 'Please agree to the Terms & Conditions');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${ENDPOINTS.AUTH}/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({
+          name: fullName,
+          email,
+          phone,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+      // Update AuthContext state and store tokens
+      await loginWithBackend(data.accessToken, data.refreshToken, data.user);
+
+      Alert.alert(
+        'Success',
+        'Account created successfully!',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(tabs)'),
+          },
+        ]
+      );
+    } catch (error: any) {
+      console.error('Signup Error:', error);
+      Alert.alert('Signup Failed', error.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -112,8 +170,13 @@ export default function SignupScreen() {
               <Text style={styles.termText}>I agree to the Terms & Conditions</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionBtn} onPress={handleSignup} activeOpacity={0.9}>
-              <Text style={styles.actionText}>Sign Up</Text>
+            <TouchableOpacity 
+              style={styles.actionBtn} 
+              onPress={handleSignup} 
+              activeOpacity={0.9}
+              disabled={loading || socialLoading !== null}
+            >
+              <Text style={styles.actionText}>{loading ? "Creating Account..." : "Sign Up"}</Text>
             </TouchableOpacity>
 
             <View style={styles.orRow}>
