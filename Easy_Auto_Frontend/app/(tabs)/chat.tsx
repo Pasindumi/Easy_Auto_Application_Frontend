@@ -4,8 +4,12 @@ import { DUMMY_CHAT } from '../../constants/dummydata/chat-dummy';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/Colors';
 import { Stack } from 'expo-router';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 
 const Chat = () => {
+  // Protect this route - require authentication
+  useProtectedRoute();
+  
   // Get the heading from the first chat message sender, fallback to default
   const heading = DUMMY_CHAT[0]?.sender || 'Chat';
   return (
