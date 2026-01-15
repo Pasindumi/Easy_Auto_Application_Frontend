@@ -25,7 +25,7 @@ interface AuthContextType {
   verifyOTP: (phone: string, otp: string) => Promise<{ success: boolean; message?: string; error?: string }>;
 
   // Clerk Social Auth Methods
-  handleClerkAuth: () => Promise<{ success: boolean; error?: string }>;
+  handleClerkAuth: (sessionResult?: any) => Promise<{ success: boolean; error?: string }>;
 
   // Token Management
   refreshAccessToken: () => Promise<{ success: boolean; accessToken?: string; error?: string }>;
@@ -243,33 +243,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Clerk: Exchange Clerk token for backend JWT
-  const handleClerkAuth = async () => {
+  const handleClerkAuth = async (getTokenFunc?: any) => {
     try {
       console.log('[Auth] handleClerkAuth: Starting backend sync...');
-      console.log('[Auth] isSignedIn:', isSignedIn);
-      console.log('[Auth] clerkUser:', clerkUser ? { id: clerkUser.id, email: clerkUser.primaryEmailAddress?.emailAddress } : 'null');
+      console.log('[Auth] getTokenFunc provided:', typeof getTokenFunc);
 
-      if (!isSignedIn || !clerkUser) {
-        throw new Error('Not signed in with Clerk');
+      let clerkToken;
+
+      // If we have a getToken function passed from OAuth flow, use it
+      if (typeof getTokenFunc === 'function') {
+        console.log('[Auth] Attempting to get token from provided function...');
+        try {
+          clerkToken = await getTokenFunc();
+          console.log('[Auth] ✅ Token obtained from provided function (length:', clerkToken?.length, ')');
+        } catch (err: any) {
+          console.error('[Auth] ❌ Failed to get token from function:', err.message);
+        }
       }
 
-      // Get Clerk session token with mobile template
-      console.log('[Auth] Fetching Clerk session token with mobile template...');
-      
-      let clerkToken;
-      try {
-        // Use mobile template for better compatibility
-        clerkToken = await getClerkToken({ template: 'mobile' });
-        console.log('[Auth] Token obtained with mobile template');
-      } catch (err) {
-        console.log('[Auth] Mobile template not available, trying default...');
+      // Fallback to context hooks if function didn't work
+      if (!clerkToken) {
+        console.log('[Auth] Falling back to context getClerkToken...');
+        console.log('[Auth] isSignedIn:', isSignedIn);
+        console.log('[Auth] clerkUser:', clerkUser ? { id: clerkUser.id, email: clerkUser.primaryEmailAddress?.emailAddress } : 'null');
+
+        if (!isSignedIn || !clerkUser) {
+          throw new Error('Not signed in with Clerk');
+        }
+
+        // Get Clerk session token with mobile template
+        console.log('[Auth] Fetching Clerk session token with mobile template...');
+        
         try {
-          clerkToken = await getClerkToken({ template: 'default' });
-          console.log('[Auth] Token obtained with default template');
-        } catch (err2) {
-          console.log('[Auth] Template methods failed, trying without template...');
-          clerkToken = await getClerkToken();
-          console.log('[Auth] Token obtained without template');
+          // Use mobile template for better compatibility
+          clerkToken = await getClerkToken({ template: 'mobile' });
+          console.log('[Auth] Token obtained with mobile template');
+        } catch (err) {
+          console.log('[Auth] Mobile template not available, trying default...');
+          try {
+            clerkToken = await getClerkToken({ template: 'default' });
+            console.log('[Auth] Token obtained with default template');
+          } catch (err2) {
+            console.log('[Auth] Template methods failed, trying without template...');
+            clerkToken = await getClerkToken();
+            console.log('[Auth] Token obtained without template');
+          }
         }
       }
       
