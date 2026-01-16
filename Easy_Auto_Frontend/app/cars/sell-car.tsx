@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -22,14 +23,17 @@ import SubmitSection from '../../components/cars/sell/SubmitSection';
 import { ENDPOINTS } from '../../constants/API';
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { CarFormState } from '../../types/sell-car.types';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function SellCarScreen() {
+  // Protect this route - require authentication
+  useProtectedRoute();
+
   const router = useRouter();
   const params = useLocalSearchParams();
   const vehicleType = params.vehicleType as string || 'Car';
   const vehicleTypeId = params.vehicleTypeId as string || '';
-  const { user, token, isAuthenticated } = useAuth();
+  const { user, accessToken, isAuthenticated } = useAuth();
 
   // Fetched Config
   const [brands, setBrands] = useState<any[]>([]);
@@ -279,8 +283,7 @@ export default function SellCarScreen() {
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Authorization': `Bearer ${token}`
-          // Note: Do NOT set Content-Type for FormData, browser/RN will set it with boundary
+          'Authorization': `Bearer ${accessToken}`
         },
         body: formData,
       });
