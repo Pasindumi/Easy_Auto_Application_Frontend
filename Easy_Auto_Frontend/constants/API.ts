@@ -15,4 +15,5 @@ export const ENDPOINTS = {
     },
     CARS: `${API_BASE_URL}/cars`,
     AUTH: `${API_BASE_URL}/auth`,
+    PRICING: `${API_BASE_URL}/pricing`,
 };

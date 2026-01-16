@@ -62,7 +62,8 @@ export default function SellCarScreen() {
     negotiable: false,
     vehicle_type: vehicleType,
     vehicle_type_id: vehicleTypeId,
-    dynamicAttributes: []
+    dynamicAttributes: [],
+    status: 'DRAFT'
   });
 
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -102,6 +103,62 @@ export default function SellCarScreen() {
     };
     fetchData();
   }, [vehicleTypeId]);
+
+  // Fetch Existing Ad for Edit Mode
+  useEffect(() => {
+    const fetchExistingAd = async () => {
+      const adId = params.id as string;
+      if (!adId || !params.edit) return;
+
+      try {
+        setLoading(true);
+        const response = await fetch(`${ENDPOINTS.CARS}/${adId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const ad = data.data;
+          const details = ad.CarDetails?.[0] || ad.CarDetails || {};
+
+          setCarDetails({
+            title: ad.title || '',
+            brand: details.brand || '',
+            model: details.model || '',
+            year: details.year || '',
+            condition: details.condition || '',
+            mileage: details.mileage || '',
+            fuelType: details.fuel_type || '', // Mapping backend fuel_type to fuelType
+            transmission: details.transmission || '',
+            engineCapacity: details.engine_capacity || '', // Mapping backend engine_capacity to engineCapacity
+            bodyType: details.body_type || '',
+            price: ad.price?.toString() || '',
+            description: ad.description || '',
+            contactNumber: ad.users?.phone || '',
+            email: ad.users?.email || '',
+            location: ad.location || '',
+            negotiable: ad.negotiable || false,
+            vehicle_type: ad.vehicle_type?.type_name || vehicleType,
+            vehicle_type_id: ad.vehicle_type_id || vehicleTypeId,
+            dynamicAttributes: ad.attributes?.map((attr: any) => ({
+              attribute_id: attr.attribute?.id,
+              value: attr.value
+            })) || [],
+            status: ad.status
+          });
+
+          if (ad.AdImage) {
+            setSelectedImages(ad.AdImage.map((img: any) => img.image_url));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching ad for edit:", error);
+        Alert.alert("Error", "Failed to load existing ad details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExistingAd();
+  }, [params.id, params.edit]);
 
   const handleInputChange = (field: string, value: any) => {
     setCarDetails(prev => ({
@@ -171,29 +228,72 @@ export default function SellCarScreen() {
         return;
       }
 
-      const payload = {
-        ...carDetails,
-        vehicle_type: vehicleType,
-        vehicle_type_id: vehicleTypeId,
-        images: selectedImages,
-        seller_id: user?.id || 'guest', // Fallback or handle auth check
-        status: 'DRAFT'
-      };
+      const isEdit = !!(params.id && params.edit);
+      const formData = new FormData();
 
-      const response = await fetch(ENDPOINTS.CARS, {
-        method: 'POST',
+      // Append standard fields
+      formData.append('title', carDetails.title);
+      formData.append('price', String(carDetails.price));
+      formData.append('location', carDetails.location);
+      formData.append('description', carDetails.description || '');
+      formData.append('seller_id', user?.id || 'guest');
+      formData.append('vehicle_type_id', vehicleTypeId);
+      formData.append('status', isEdit ? carDetails.status : 'DRAFT');
+
+      // Static Details
+      formData.append('condition', carDetails.condition);
+      formData.append('brand', carDetails.brand);
+      formData.append('model', carDetails.model);
+      formData.append('year', carDetails.year);
+      formData.append('mileage', carDetails.mileage);
+      formData.append('engineCapacity', carDetails.engineCapacity);
+      formData.append('fuelType', carDetails.fuelType);
+      formData.append('transmission', carDetails.transmission);
+      formData.append('bodyType', carDetails.bodyType);
+      formData.append('negotiable', String(carDetails.negotiable));
+
+      // Dynamic Attributes (Stringified for backend parsing)
+      if (carDetails.dynamicAttributes) {
+        formData.append('dynamicAttributes', JSON.stringify(carDetails.dynamicAttributes));
+      }
+
+      // Images
+      selectedImages.forEach((uri, index) => {
+        if (uri.startsWith('http')) {
+          // Existing image URL - append as string
+          formData.append('images', uri);
+        } else {
+          // New local file
+          const filename = uri.split('/').pop() || `image_${index}.jpg`;
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+          // @ts-ignore - FormData handles {uri, name, type} in RN
+          formData.append('images', {
+            uri,
+            name: filename,
+            type: type,
+          });
+        }
+      });
+
+      const url = isEdit ? `${ENDPOINTS.CARS}/${params.id}` : ENDPOINTS.CARS;
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Success", "Your ad has been submitted for review!");
-        const adId = data.data.id;
+        Alert.alert("Success", isEdit ? "Your ad has been updated!" : "Your ad has been saved as a draft!");
+        const adId = isEdit ? params.id : data.data.id;
         router.replace({
           pathname: '/cars/review',
           params: { id: adId }

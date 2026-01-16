@@ -164,45 +164,62 @@ export default function ReviewAdScreen() {
                 </View>
 
                 {/* KEY SPECS GRID */}
-                <View style={styles.specsGrid}>
-                    <SpecCard
-                        icon={<MaterialCommunityIcons name="calendar-range" size={24} color={COLORS.primary} />}
-                        label="Year"
-                        value={details.year}
-                    />
-                    <SpecCard
-                        icon={<MaterialCommunityIcons name="speedometer" size={24} color={COLORS.primary} />}
-                        label="Mileage"
-                        value={details.mileage ? `${details.mileage} km` : '-'}
-                    />
-                    <SpecCard
-                        icon={<Ionicons name="car-sport-outline" size={24} color={COLORS.primary} />}
-                        label="Brand"
-                        value={details.brand}
-                    />
-                    <SpecCard
-                        icon={<MaterialCommunityIcons name="tag-outline" size={24} color={COLORS.primary} />}
-                        label="Condition"
-                        value={details.condition}
-                    />
-                </View>
+                {(() => {
+                    const specs = [
+                        { label: "Year", value: details.year, icon: <MaterialCommunityIcons name="calendar-range" size={24} color={COLORS.primary} /> },
+                        { label: "Mileage", value: (details.mileage !== null && details.mileage !== undefined && details.mileage !== '') ? `${details.mileage} km` : null, icon: <MaterialCommunityIcons name="speedometer" size={24} color={COLORS.primary} /> },
+                        { label: "Brand", value: details.brand, icon: <Ionicons name="car-sport-outline" size={24} color={COLORS.primary} /> },
+                        { label: "Model", value: details.model, icon: <MaterialCommunityIcons name="truck-outline" size={24} color={COLORS.primary} /> },
+                        { label: "Condition", value: details.condition, icon: <MaterialCommunityIcons name="tag-outline" size={24} color={COLORS.primary} /> },
+                        { label: "Fuel Type", value: details.fuel_type, icon: <MaterialCommunityIcons name="gas-station" size={24} color={COLORS.primary} /> },
+                        { label: "Transmission", value: details.transmission, icon: <MaterialCommunityIcons name="cog-outline" size={24} color={COLORS.primary} /> },
+                        { label: "Engine", value: details.engine_capacity, icon: <MaterialCommunityIcons name="engine-outline" size={24} color={COLORS.primary} /> },
+                        { label: "Body", value: details.body_type, icon: <MaterialCommunityIcons name="car-back" size={24} color={COLORS.primary} /> },
+                    ].filter(s => {
+                        const val = s.value;
+                        return val !== null && val !== undefined && val !== '' && val !== '-' && val !== 'undefined' && val !== 'null';
+                    });
 
-                {/* DYNAMIC SPECS SECTION */}
-                {ad.attributes && ad.attributes.length > 0 && (
-                    <View style={styles.section}>
-                        <Text style={styles.sectionHeader}>Detailed Specifications</Text>
-                        <View style={styles.attributesList}>
-                            {ad.attributes.map((attr: any, index: number) => (
-                                <View key={index} style={styles.attributeItem}>
-                                    <Text style={styles.attributeLabel}>{attr.attribute?.attribute_name}</Text>
-                                    <Text style={styles.attributeValue}>
-                                        {attr.value === 'true' ? 'Included' : attr.value === 'false' ? 'Not Available' : `${attr.value}${attr.attribute?.unit ? ' ' + attr.attribute.unit : ''}`}
-                                    </Text>
-                                </View>
+                    if (specs.length === 0) return null;
+
+                    return (
+                        <View style={styles.specsGrid}>
+                            {specs.map((spec, index) => (
+                                <SpecCard
+                                    key={index}
+                                    icon={spec.icon}
+                                    label={spec.label}
+                                    value={spec.value}
+                                />
                             ))}
                         </View>
-                    </View>
-                )}
+                    );
+                })()}
+
+                {/* DYNAMIC SPECS SECTION */}
+                {(() => {
+                    const activeAttrs = (ad.attributes || []).filter((attr: any) =>
+                        attr.value && attr.value !== 'undefined' && attr.value !== 'null' && attr.value !== ''
+                    );
+
+                    if (activeAttrs.length === 0) return null;
+
+                    return (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionHeader}>Other Features</Text>
+                            <View style={styles.attributesList}>
+                                {activeAttrs.map((attr: any, index: number) => (
+                                    <View key={index} style={styles.attributeItem}>
+                                        <Text style={styles.attributeLabel}>{attr.attribute?.attribute_name}</Text>
+                                        <Text style={styles.attributeValue}>
+                                            {attr.value === 'true' ? 'Included' : attr.value === 'false' ? 'Not Available' : `${attr.value}${attr.attribute?.unit && attr.attribute.unit !== 'none' ? ' ' + attr.attribute.unit : ''}`}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                    );
+                })()}
 
                 {/* DESCRIPTION */}
                 <View style={styles.section}>
@@ -237,7 +254,10 @@ export default function ReviewAdScreen() {
                 <View style={styles.stickyFooter}>
                     <TouchableOpacity
                         style={styles.editButton}
-                        onPress={() => router.back()}
+                        onPress={() => router.push({
+                            pathname: '/cars/sell-car',
+                            params: { id: id, edit: 'true' }
+                        })}
                     >
                         <Ionicons name="create-outline" size={20} color={COLORS.primary} />
                         <Text style={styles.editButtonText}>Edit Ad</Text>
@@ -252,8 +272,8 @@ export default function ReviewAdScreen() {
                             <ActivityIndicator color="white" />
                         ) : (
                             <>
-                                <Ionicons name="flash" size={20} color="white" />
-                                <Text style={styles.publishButtonText}>Confirm & Post Ad</Text>
+                                <Ionicons name="card-outline" size={22} color="white" />
+                                <Text style={styles.publishButtonText}>Proceed & Payment</Text>
                             </>
                         )}
                     </TouchableOpacity>
