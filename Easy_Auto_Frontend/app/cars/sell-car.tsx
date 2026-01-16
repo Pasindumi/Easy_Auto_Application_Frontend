@@ -238,7 +238,7 @@ export default function SellCarScreen() {
       formData.append('description', carDetails.description || '');
       formData.append('seller_id', user?.id || 'guest');
       formData.append('vehicle_type_id', vehicleTypeId);
-      formData.append('status', isEdit ? carDetails.status : 'DRAFT');
+      formData.append('status', (isEdit ? carDetails.status : 'DRAFT') || 'DRAFT');
 
       // Static Details
       formData.append('condition', carDetails.condition);
@@ -249,7 +249,7 @@ export default function SellCarScreen() {
       formData.append('engineCapacity', carDetails.engineCapacity);
       formData.append('fuelType', carDetails.fuelType);
       formData.append('transmission', carDetails.transmission);
-      formData.append('bodyType', carDetails.bodyType);
+      formData.append('bodyType', carDetails.bodyType || '');
       formData.append('negotiable', String(carDetails.negotiable));
 
       // Dynamic Attributes (Stringified for backend parsing)
