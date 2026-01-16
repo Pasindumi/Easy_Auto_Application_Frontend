@@ -22,7 +22,7 @@ const { width } = Dimensions.get('window');
 
 export default function ReviewAdScreen() {
     const router = useRouter();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, accessToken } = useAuth();
     const { id } = useLocalSearchParams();
     const [ad, setAd] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -61,6 +61,7 @@ export default function ReviewAdScreen() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({ status: 'ACTIVE' }),
             });
