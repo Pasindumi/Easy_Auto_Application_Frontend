@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
   FlatList,
   RefreshControl,
@@ -19,6 +20,9 @@ import StatusCards from "../../components/status/StatusCards";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function MyAdsScreen() {
+  // Protect this route - require authentication
+  useProtectedRoute();
+  
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);

@@ -16,7 +16,7 @@ import {
     StatusBar
 } from 'react-native';
 import { ENDPOINTS } from '../../constants/API';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 

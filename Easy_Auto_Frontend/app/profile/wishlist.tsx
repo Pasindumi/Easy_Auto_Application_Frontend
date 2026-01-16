@@ -2,6 +2,7 @@ import COLORS from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
   Dimensions,
   ScrollView,
@@ -15,6 +16,9 @@ import Header from "../../components/Header";
 const { width } = Dimensions.get("window");
 
 export default function WishlistScreen() {
+  // Protect this route - require authentication
+  useProtectedRoute();
+  
   const router = useRouter();
   const [wishlistItems, setWishlistItems] = useState([
     {
