@@ -24,6 +24,7 @@ import { ENDPOINTS } from '../../constants/API';
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { CarFormState } from '../../types/sell-car.types';
 import { useAuth } from '../../contexts/AuthContext';
+import { api } from '@/utils/api';
 
 export default function SellCarScreen() {
   // Protect this route - require authentication
@@ -31,9 +32,13 @@ export default function SellCarScreen() {
 
   const router = useRouter();
   const params = useLocalSearchParams();
-  const vehicleType = params.vehicleType as string || 'Car';
-  const vehicleTypeId = params.vehicleTypeId as string || '';
+  const initialVehicleType = params.vehicleType as string || 'Car';
+  const initialVehicleTypeId = params.vehicleTypeId as string || '';
   const { user, accessToken, isAuthenticated } = useAuth();
+
+  // State to track active vehicle type ID (can change on edit load)
+  const [activeVehicleTypeId, setActiveVehicleTypeId] = useState(initialVehicleTypeId);
+  const [vehicleType, setVehicleType] = useState(initialVehicleType);
 
   // Fetched Config
   const [brands, setBrands] = useState<any[]>([]);
@@ -60,8 +65,8 @@ export default function SellCarScreen() {
     email: '',
     location: '',
     negotiable: false,
-    vehicle_type: vehicleType,
-    vehicle_type_id: vehicleTypeId,
+    vehicle_type: initialVehicleType,
+    vehicle_type_id: initialVehicleTypeId,
     dynamicAttributes: [],
     status: 'DRAFT'
   });
@@ -70,16 +75,22 @@ export default function SellCarScreen() {
   const [hidePhoneNumber, setHidePhoneNumber] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // State for pricing logic
+  const [freeImageCount, setFreeImageCount] = useState(5); // Default to 5
+
   // Fetch Logic
   useEffect(() => {
     const fetchData = async () => {
-      if (!vehicleTypeId) return;
+      if (!activeVehicleTypeId) return;
       try {
-        const [brandsRes, attrsRes, modelsRes, conditionsRes] = await Promise.all([
-          fetch(`${ENDPOINTS.VEHICLE_CONFIG.BRANDS}/${vehicleTypeId}`),
-          fetch(`${ENDPOINTS.VEHICLE_CONFIG.ATTRIBUTES}/${vehicleTypeId}`),
-          fetch(`${ENDPOINTS.VEHICLE_CONFIG.MODELS}/${vehicleTypeId}`),
-          fetch(`${ENDPOINTS.VEHICLE_CONFIG.CONDITIONS}/${vehicleTypeId}`)
+        const [brandsRes, attrsRes, modelsRes, conditionsRes, rulesRes] = await Promise.all([
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.BRANDS}/${activeVehicleTypeId}`),
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.ATTRIBUTES}/${activeVehicleTypeId}`),
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.MODELS}/${activeVehicleTypeId}`),
+          fetch(`${ENDPOINTS.VEHICLE_CONFIG.CONDITIONS}/${activeVehicleTypeId}`),
+          // Fetch all rules and filter locally (assuming lightweight)
+          // Adjust endpoint if you have a specific backend URL for public rules
+          fetch(`${ENDPOINTS.PRICING}/rules`)
         ]);
 
         if (!brandsRes.ok || !attrsRes.ok || !modelsRes.ok || !conditionsRes.ok) {
@@ -91,6 +102,21 @@ export default function SellCarScreen() {
         const modelsData = await modelsRes.json();
         const conditionsData = await conditionsRes.json();
 
+        // Handle Rules
+        if (rulesRes.ok) {
+          const rulesData = await rulesRes.json();
+          if (Array.isArray(rulesData)) {
+            // Find rule for this vehicle type (PER_AD)
+            const typeRule = rulesData.find((r: any) => r.vehicle_type_id === activeVehicleTypeId && r.unit === 'PER_AD');
+            const defaultRule = rulesData.find((r: any) => !r.vehicle_type_id && r.unit === 'PER_AD');
+
+            const activeRule = typeRule || defaultRule;
+            if (activeRule && activeRule.free_image_count !== undefined) {
+              setFreeImageCount(activeRule.free_image_count);
+            }
+          }
+        }
+
         if (Array.isArray(brandsData)) setBrands(brandsData);
         if (Array.isArray(attrsData)) setAttributes(attrsData);
         if (Array.isArray(modelsData)) setModels(modelsData);
@@ -98,11 +124,10 @@ export default function SellCarScreen() {
 
       } catch (error) {
         console.error("Error fetching vehicle config:", error);
-        Alert.alert("Error", "Failed to fetch vehicle configuration. Please check your connection.");
       }
     };
     fetchData();
-  }, [vehicleTypeId]);
+  }, [activeVehicleTypeId]);
 
   // Fetch Existing Ad for Edit Mode
   useEffect(() => {
@@ -110,25 +135,63 @@ export default function SellCarScreen() {
       const adId = params.id as string;
       if (!adId || !params.edit) return;
 
+      // Wait for config to be loaded before populating form
+      // We need brands, models etc to be available to strict match values
+      if (brands.length === 0 && activeVehicleTypeId) {
+        // If config isn't loaded yet but we have an ID, we might need to wait or rely on the next render
+        // However, since fetching config depends on ID, let's proceed and try to match if possible
+      }
+
       try {
         setLoading(true);
-        const response = await fetch(`${ENDPOINTS.CARS}/${adId}`);
+        const response = await fetch(`${ENDPOINTS.CARS}/${adId}`); // Using fetch directly here for GET is fine, or switch to api.get
         const data = await response.json();
 
         if (data.success) {
           const ad = data.data;
           const details = ad.CarDetails?.[0] || ad.CarDetails || {};
 
+          // Update active type ID to trigger config fetch
+          if (ad.vehicle_type_id && ad.vehicle_type_id !== activeVehicleTypeId) {
+            setActiveVehicleTypeId(ad.vehicle_type_id);
+          }
+          if (ad.vehicle_type?.type_name) setVehicleType(ad.vehicle_type.type_name);
+
+          // NORMALIZE VALUES TO MATCH DROPDOWN OPTIONS EXACTLY
+
+          // 1. Normalize Brand
+          let normalizedBrand = details.brand || '';
+          if (normalizedBrand && brands.length > 0) {
+            const matchedBrand = brands.find(b => String(b.brand_name).toLowerCase().trim() === String(normalizedBrand).toLowerCase().trim());
+            if (matchedBrand) normalizedBrand = matchedBrand.brand_name;
+          }
+
+          // 2. Normalize Model
+          let normalizedModel = details.model || '';
+          // Note: models array might not be filtered by brand yet in state, but it contains all models for the type?
+          // Actually models fetching depends on vehicleTypeId, so it should have all models for that type.
+          if (normalizedModel && models.length > 0) {
+            const matchedModel = models.find(m => String(m.model_name).toLowerCase().trim() === String(normalizedModel).toLowerCase().trim());
+            if (matchedModel) normalizedModel = matchedModel.model_name;
+          }
+
+          // 3. Normalize Condition
+          let normalizedCondition = details.condition || '';
+          if (normalizedCondition && conditions.length > 0) {
+            const matchedCondition = conditions.find(c => String(c.condition_name).toLowerCase().trim() === String(normalizedCondition).toLowerCase().trim());
+            if (matchedCondition) normalizedCondition = matchedCondition.condition_name;
+          }
+
           setCarDetails({
             title: ad.title || '',
-            brand: details.brand || '',
-            model: details.model || '',
-            year: details.year || '',
-            condition: details.condition || '',
-            mileage: details.mileage || '',
-            fuelType: details.fuel_type || '', // Mapping backend fuel_type to fuelType
+            brand: normalizedBrand,
+            model: normalizedModel,
+            year: String(details.year || ''), // Ensure string
+            condition: normalizedCondition,
+            mileage: String(details.mileage || ''), // Ensure string
+            fuelType: details.fuel_type || '',
             transmission: details.transmission || '',
-            engineCapacity: details.engine_capacity || '', // Mapping backend engine_capacity to engineCapacity
+            engineCapacity: String(details.engine_capacity || ''), // Ensure string
             bodyType: details.body_type || '',
             price: ad.price?.toString() || '',
             description: ad.description || '',
@@ -136,11 +199,11 @@ export default function SellCarScreen() {
             email: ad.users?.email || '',
             location: ad.location || '',
             negotiable: ad.negotiable || false,
-            vehicle_type: ad.vehicle_type?.type_name || vehicleType,
-            vehicle_type_id: ad.vehicle_type_id || vehicleTypeId,
+            vehicle_type: ad.vehicle_type?.type_name || initialVehicleType,
+            vehicle_type_id: ad.vehicle_type_id || initialVehicleTypeId,
             dynamicAttributes: ad.attributes?.map((attr: any) => ({
               attribute_id: attr.attribute?.id,
-              value: attr.value
+              value: String(attr.value) // Ensure value is string
             })) || [],
             status: ad.status
           });
@@ -158,7 +221,7 @@ export default function SellCarScreen() {
     };
 
     fetchExistingAd();
-  }, [params.id, params.edit]);
+  }, [params.id, params.edit, brands.length, models.length, conditions.length]); // Add dependencies to re-run when config loads!
 
   const handleInputChange = (field: string, value: any) => {
     setCarDetails(prev => ({
@@ -185,10 +248,8 @@ export default function SellCarScreen() {
   };
 
   const pickImage = async () => {
-    if (selectedImages.length >= 5) {
-      Alert.alert("Limit Reached", "You can only upload up to 5 images.");
-      return;
-    }
+    // Removed strict limit check to allow extra images
+    // if (selectedImages.length >= freeImageCount) { ... }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -204,6 +265,10 @@ export default function SellCarScreen() {
 
   const handleRemovePhoto = (index: number) => {
     setSelectedImages(prev => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleViewPackages = () => {
+    router.push('/packages/packages');
   };
 
   const handleSubmit = async () => {
@@ -231,22 +296,22 @@ export default function SellCarScreen() {
       const isEdit = !!(params.id && params.edit);
       const formData = new FormData();
 
-      // Append standard fields
+      // Append standard fields - ENSURE EVERYTHING IS A STRING
       formData.append('title', carDetails.title);
       formData.append('price', String(carDetails.price));
       formData.append('location', carDetails.location);
       formData.append('description', carDetails.description || '');
       formData.append('seller_id', user?.id || 'guest');
-      formData.append('vehicle_type_id', vehicleTypeId);
+      formData.append('vehicle_type_id', activeVehicleTypeId);
       formData.append('status', (isEdit ? carDetails.status : 'DRAFT') || 'DRAFT');
 
-      // Static Details
+      // Static Details - ENSURE STRINGS
       formData.append('condition', carDetails.condition);
       formData.append('brand', carDetails.brand);
       formData.append('model', carDetails.model);
-      formData.append('year', carDetails.year);
-      formData.append('mileage', carDetails.mileage);
-      formData.append('engineCapacity', carDetails.engineCapacity);
+      formData.append('year', String(carDetails.year));
+      formData.append('mileage', String(carDetails.mileage));
+      formData.append('engineCapacity', String(carDetails.engineCapacity));
       formData.append('fuelType', carDetails.fuelType);
       formData.append('transmission', carDetails.transmission);
       formData.append('bodyType', carDetails.bodyType || '');
@@ -277,33 +342,29 @@ export default function SellCarScreen() {
         }
       });
 
-      const url = isEdit ? `${ENDPOINTS.CARS}/${params.id}` : ENDPOINTS.CARS;
-      const method = isEdit ? 'PUT' : 'POST';
+      const endpoint = isEdit ? `/api/cars/${params.id}` : '/api/cars';
+      let response;
 
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: formData,
-      });
+      if (isEdit) {
+        response = await api.put<{ success: boolean; data: any; message?: string }>(endpoint, formData);
+      } else {
+        response = await api.post<{ success: boolean; data: any; message?: string }>(endpoint, formData);
+      }
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.success) {
         Alert.alert("Success", isEdit ? "Your ad has been updated!" : "Your ad has been saved as a draft!");
-        const adId = isEdit ? params.id : data.data.id;
+        const adId = isEdit ? params.id : response.data.id;
         router.replace({
           pathname: '/cars/review',
           params: { id: adId }
         });
       } else {
-        Alert.alert("Error", data.message || "Failed to submit ad");
+        Alert.alert("Error", response.message || "Failed to submit ad");
       }
 
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Network error occurred.");
+      Alert.alert("Error", "Failed to submit ad. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -385,6 +446,8 @@ export default function SellCarScreen() {
             selectedImages={selectedImages}
             removeImage={handleRemovePhoto}
             addImage={pickImage}
+            freeImageCount={freeImageCount}
+            onViewPackages={handleViewPackages}
           />
 
           <ContactDetailsSection

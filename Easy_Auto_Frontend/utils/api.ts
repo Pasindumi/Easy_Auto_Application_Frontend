@@ -93,7 +93,7 @@ class ApiClient {
   private async refreshAccessToken(): Promise<string | null> {
     try {
       const refreshToken = await this.getRefreshToken();
-      
+
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
@@ -143,7 +143,7 @@ class ApiClient {
         secureStorage.deleteItem(REFRESH_TOKEN_KEY),
         secureStorage.deleteItem(USER_KEY),
       ]);
-      
+
       // Redirect to login
       router.replace('/auth/login' as any);
     } catch (error) {
@@ -155,22 +155,32 @@ class ApiClient {
     endpoint: string,
     options: RequestOptions = {}
   ): Promise<T> {
-    const { skipAuth = false, skipRetry = false, headers = {}, ...restOptions } = options;
+    const { skipAuth = false, skipRetry = false, headers = {}, body, ...restOptions } = options;
 
     const url = `${this.baseURL}${endpoint}`;
 
+    // Robust check for FormData (instanceof can fail in some debugging environments)
+    const isFormData = body instanceof FormData || (body && typeof body === 'object' && typeof (body as any).append === 'function');
+
     // Prepare headers
-    const requestHeaders: HeadersInit = {
-      'Content-Type': 'application/json',
+    const requestHeaders: any = {
       'ngrok-skip-browser-warning': 'true',
       ...headers,
     };
+
+    // If FormData, let the browser/native fetch set the Content-Type (with boundary)
+    // We explicitly remove it if it was inadvertently added
+    if (isFormData) {
+      delete requestHeaders['Content-Type'];
+    } else if (!requestHeaders['Content-Type']) {
+      requestHeaders['Content-Type'] = 'application/json';
+    }
 
     // Attach JWT if not skipping auth
     if (!skipAuth) {
       const token = await this.getToken();
       if (token) {
-        (requestHeaders as any)['Authorization'] = `Bearer ${token}`;
+        requestHeaders['Authorization'] = `Bearer ${token}`;
       }
     }
 
@@ -178,6 +188,7 @@ class ApiClient {
       const response = await fetch(url, {
         ...restOptions,
         headers: requestHeaders,
+        body: body as BodyInit,
       });
 
       // Handle 401 Unauthorized - Token expired or invalid
@@ -190,17 +201,17 @@ class ApiClient {
             this.addRefreshSubscriber(async (newToken: string) => {
               try {
                 // Retry original request with new token
-                (requestHeaders as any)['Authorization'] = `Bearer ${newToken}`;
+                requestHeaders['Authorization'] = `Bearer ${newToken}`;
                 const retryResponse = await fetch(url, {
                   ...restOptions,
                   headers: requestHeaders,
+                  body: body as BodyInit,
                 });
 
                 const retryContentType = retryResponse.headers.get('content-type');
                 if (!retryContentType || !retryContentType.includes('application/json')) {
-                  const text = await retryResponse.text();
-                  console.error('Non-JSON response:', text.substring(0, 200));
-                  throw new Error('Server returned an invalid response');
+                  // Only try to modify retry logic if not FormData, but usually raw response is fine
+                  // just pass strictly
                 }
 
                 const retryData = await retryResponse.json();
@@ -230,13 +241,16 @@ class ApiClient {
         this.onRefreshed(newToken);
 
         // Retry original request with new token
-        return this.request<T>(endpoint, { ...options, skipRetry: true });
+        return this.request<T>(endpoint, { ...options, body, skipRetry: true });
       }
 
       // Check content type
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
+        // If it's empty, and success, maybe okay?
+        if (!text && response.ok) return {} as T;
+
         console.error('Non-JSON response:', text.substring(0, 200));
         throw new Error('Server returned an invalid response');
       }
@@ -264,10 +278,11 @@ class ApiClient {
     body?: any,
     options?: RequestOptions
   ): Promise<T> {
+    const isFormData = body instanceof FormData || (body && typeof body === 'object' && typeof body.append === 'function');
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
     });
   }
 
@@ -276,10 +291,11 @@ class ApiClient {
     body?: any,
     options?: RequestOptions
   ): Promise<T> {
+    const isFormData = body instanceof FormData || (body && typeof body === 'object' && typeof body.append === 'function');
     return this.request<T>(endpoint, {
       ...options,
       method: 'PUT',
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
     });
   }
 
@@ -288,10 +304,11 @@ class ApiClient {
     body?: any,
     options?: RequestOptions
   ): Promise<T> {
+    const isFormData = body instanceof FormData || (body && typeof body === 'object' && typeof body.append === 'function');
     return this.request<T>(endpoint, {
       ...options,
       method: 'PATCH',
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
     });
   }
 
