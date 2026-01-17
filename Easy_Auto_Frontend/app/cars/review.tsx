@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { ENDPOINTS } from '../../constants/API';
 import { useAuth } from '../../contexts/AuthContext';
+import { api } from '@/utils/api';
 
 const { width } = Dimensions.get('window');
 
@@ -26,7 +27,6 @@ export default function ReviewAdScreen() {
     const { id } = useLocalSearchParams();
     const [ad, setAd] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [publishing, setPublishing] = useState(false);
     const [mainImage, setMainImage] = useState<string | null>(null);
 
     useEffect(() => {
@@ -36,12 +36,11 @@ export default function ReviewAdScreen() {
 
     const fetchAdDetails = async () => {
         try {
-            const response = await fetch(`${ENDPOINTS.CARS}/${id}`);
-            const data = await response.json();
-            if (data.success) {
-                setAd(data.data);
-                if (data.data.AdImage && data.data.AdImage.length > 0) {
-                    setMainImage(data.data.AdImage[0].image_url);
+            const response = await api.get<{ success: boolean; data: any }>(`/api/cars/${id}`);
+            if (response.success) {
+                setAd(response.data);
+                if (response.data.AdImage && response.data.AdImage.length > 0) {
+                    setMainImage(response.data.AdImage[0].image_url);
                 }
             } else {
                 Alert.alert("Error", "Failed to load ad details.");
@@ -54,34 +53,7 @@ export default function ReviewAdScreen() {
         }
     };
 
-    const handlePublish = async () => {
-        setPublishing(true);
-        try {
-            const response = await fetch(`${ENDPOINTS.CARS}/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify({ status: 'ACTIVE' }),
-            });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                Alert.alert("Success", "Your ad is now live!", [
-                    { text: "View Listings", onPress: () => router.push('/listings') }
-                ]);
-            } else {
-                Alert.alert("Error", data.message || "Failed to publish ad.");
-            }
-        } catch (error) {
-            console.error(error);
-            Alert.alert("Error", "Network error.");
-        } finally {
-            setPublishing(false);
-        }
-    };
 
     if (!isAuthenticated) return null; // Auth guard should be handled by layout or similar
 
@@ -265,18 +237,14 @@ export default function ReviewAdScreen() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.publishButton, publishing && styles.disabledButton]}
-                        onPress={handlePublish}
-                        disabled={publishing}
+                        style={styles.publishButton}
+                        onPress={() => router.push({
+                            pathname: '/payments/payment',
+                            params: { adId: id }
+                        })}
                     >
-                        {publishing ? (
-                            <ActivityIndicator color="white" />
-                        ) : (
-                            <>
-                                <Ionicons name="card-outline" size={22} color="white" />
-                                <Text style={styles.publishButtonText}>Proceed & Payment</Text>
-                            </>
-                        )}
+                        <Ionicons name="card-outline" size={22} color="white" />
+                        <Text style={styles.publishButtonText}>Proceed & Payment</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
