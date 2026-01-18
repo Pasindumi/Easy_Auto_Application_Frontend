@@ -9,6 +9,7 @@ type Props = {
   style?: ViewStyle;
   textStyle?: TextStyle;
   activeOpacity?: number;
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -18,14 +19,20 @@ export default function Button({
   style,
   textStyle,
   activeOpacity = 0.8,
+  disabled = false,
 }: Props) {
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor }, style]}
+      style={[
+        styles.button,
+        { backgroundColor: disabled ? colors.divider : backgroundColor },
+        style
+      ]}
       onPress={onPress}
       activeOpacity={activeOpacity}
+      disabled={disabled}
     >
-      <Text style={[styles.text, textStyle]}>{title}</Text>
+      <Text style={[styles.text, textStyle, disabled && { color: colors.textGray }]}>{title}</Text>
     </TouchableOpacity>
   );
 }

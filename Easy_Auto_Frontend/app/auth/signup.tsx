@@ -18,6 +18,7 @@ import {
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import InputField from "../../components/InputField";
+import Button from "../../components/ui/button/Button";
 import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function SignupScreen() {
@@ -42,7 +43,7 @@ export default function SignupScreen() {
       return;
     }
     setLastClickTime(now);
-    
+
     setSocialLoading(provider);
     try {
       let result;
@@ -53,7 +54,7 @@ export default function SignupScreen() {
       } else {
         result = await signInWithFacebook();
       }
-      
+
       if (!result.success && result.error) {
         Alert.alert('Sign In Failed', result.error);
       }
@@ -170,14 +171,11 @@ export default function SignupScreen() {
               <Text style={styles.termText}>I agree to the Terms & Conditions</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.actionBtn} 
-              onPress={handleSignup} 
-              activeOpacity={0.9}
+            <Button
+              title={loading ? "Creating Account..." : "Sign Up"}
+              onPress={handleSignup}
               disabled={loading || socialLoading !== null}
-            >
-              <Text style={styles.actionText}>{loading ? "Creating Account..." : "Sign Up"}</Text>
-            </TouchableOpacity>
+            />
 
             <View style={styles.orRow}>
               <View style={styles.line} />
@@ -185,23 +183,23 @@ export default function SignupScreen() {
               <View style={styles.line} />
             </View>
 
-            <SocialButton 
-              icon="logo-apple" 
+            <SocialButton
+              icon="logo-apple"
               text={socialLoading === 'apple' ? "Signing in..." : "Sign in With Apple"}
               onPress={() => handleSocialSignIn('apple')}
               disabled={socialLoading !== null}
             />
-            <SocialButton 
-              icon="logo-google" 
+            <SocialButton
+              icon="logo-google"
               text={socialLoading === 'google' ? "Signing in..." : "Sign in With Google"}
-              iconColor="#DB4437" 
+              iconColor="#DB4437"
               onPress={() => handleSocialSignIn('google')}
               disabled={socialLoading !== null}
             />
-            <SocialButton 
-              icon="logo-facebook" 
+            <SocialButton
+              icon="logo-facebook"
               text={socialLoading === 'facebook' ? "Signing in..." : "Sign in With Facebook"}
-              iconColor="#1877F2" 
+              iconColor="#1877F2"
               onPress={() => handleSocialSignIn('facebook')}
               disabled={socialLoading !== null}
             />
@@ -213,8 +211,8 @@ export default function SignupScreen() {
               </TouchableOpacity>
             </View>
           </View>
+          <Footer />
         </ScrollView>
-        <Footer fixed />
       </KeyboardAvoidingView>
     </View>
   );
@@ -232,10 +230,12 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderRadius: 28,
     overflow: "hidden",
-    marginTop: 10,
-    width: '60%',
+    marginTop: 20,
+    width: '70%',
     borderWidth: 1,
     borderColor: COLORS.divider,
+    backgroundColor: COLORS.white,
+    padding: 4,
   },
   toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center", backgroundColor: COLORS.white },
   activeTab: { backgroundColor: COLORS.primary },
@@ -250,14 +250,11 @@ const styles = StyleSheet.create({
   checkboxChecked: { borderColor: COLORS.primary },
   termText: { color: COLORS.text.muted },
 
-  actionBtn: { backgroundColor: COLORS.primary, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 10 },
-  actionText: { color: COLORS.white, fontWeight: "700", fontSize: 16 },
-
   orRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
   line: { flex: 1, height: 1, backgroundColor: COLORS.divider },
   or: { marginHorizontal: 12, fontWeight: "700", color: COLORS.text.muted },
 
-  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 24, marginBottom: 40 },
+  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 24, marginBottom: 32 },
   small: { color: COLORS.text.muted },
   loginLink: { color: COLORS.primary, fontWeight: "700" },
 });

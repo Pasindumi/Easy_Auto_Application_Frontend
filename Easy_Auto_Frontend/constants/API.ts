@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 // Use the ngrok URL for consistent access across real devices and emulators
-export const API_URL = 'https://odorful-nondomestically-jamee.ngrok-free.dev';
+export const API_URL = 'https://garfield-couped-leslie.ngrok-free.dev';
 
 const API_BASE_URL = `${API_URL}/api`;
 
@@ -15,4 +15,5 @@ export const ENDPOINTS = {
     },
     CARS: `${API_BASE_URL}/cars`,
     AUTH: `${API_BASE_URL}/auth`,
+    PRICING: `${API_BASE_URL}/pricing`,
 };

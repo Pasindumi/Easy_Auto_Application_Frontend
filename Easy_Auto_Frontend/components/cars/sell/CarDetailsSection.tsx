@@ -46,8 +46,20 @@ const CarDetailsSection: React.FC<Props> = ({
     // Filter models based on selected brand
     const getModelOptions = () => {
         if (!carDetails.brand) return [];
-        const selectedBrand = brands.find(b => b.brand_name === carDetails.brand);
-        if (!selectedBrand) return [];
+        // Normalize comparison: trim and lower case both sides
+        // Also handle potential potential type mismatches or extra spaces
+        const selectedBrand = brands.find(b =>
+            String(b.brand_name).toLowerCase().trim() === String(carDetails.brand).toLowerCase().trim()
+        );
+
+        // If we can't find the brand object, we can't filter models correctly which disables the dropdown
+        if (!selectedBrand) {
+            // Fallback: if we can't match ID, maybe return all models or handle differently? 
+            // But usually it means data mismatch. 
+            // Let's try to match by ID if brand name match fails? (Config usually has ID)
+            // But carDetails stores brand NAME. 
+            return [];
+        }
 
         const filteredModels = models.filter(m => m.brand_id === selectedBrand.id);
         if (filteredModels.length > 0) {

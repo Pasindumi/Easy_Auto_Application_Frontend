@@ -90,7 +90,7 @@ export default function LoginScreen() {
       return;
     }
     setLastClickTime(now);
-    
+
     setSocialLoading(provider);
     try {
       let result;
@@ -101,7 +101,7 @@ export default function LoginScreen() {
       } else {
         result = await signInWithFacebook();
       }
-      
+
       if (!result.success && result.error) {
         Alert.alert('Sign In Failed', result.error);
       }
@@ -193,8 +193,13 @@ export default function LoginScreen() {
             />
 
             {/* Forgot password link */}
+<<<<<<< HEAD
             <TouchableOpacity 
               onPress={() => router.push("/auth/forgot-password")}
+=======
+            <TouchableOpacity
+              onPress={() => router.push("/auth/reset-password")}
+>>>>>>> origin/dev
               style={styles.forgotPasswordContainer}
             >
               <Text style={styles.forgot}>Forgot password?</Text>
@@ -216,9 +221,8 @@ export default function LoginScreen() {
             </View>
 
           </View>
+          <Footer />
         </ScrollView>
-
-        <Footer fixed />
       </KeyboardAvoidingView>
     </View>
   );
@@ -234,12 +238,14 @@ const styles = StyleSheet.create({
   toggleRow: {
     flexDirection: "row",
     alignSelf: "center",
-    marginTop: 12,
+    marginTop: 20,
     borderRadius: 28,
     overflow: "hidden",
-    width: '60%',
+    width: '70%',
     borderWidth: 1,
     borderColor: COLORS.divider,
+    backgroundColor: COLORS.white,
+    padding: 4,
   },
   toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center" },
   toggleActive: { backgroundColor: COLORS.primary },
@@ -271,15 +277,15 @@ const styles = StyleSheet.create({
 
   smallText: { color: COLORS.text.muted },
   forgot: { color: COLORS.primary, fontWeight: "700" },
-  forgotPasswordContainer: { 
-    alignSelf: 'flex-end', 
-    marginBottom: 16 
+  forgotPasswordContainer: {
+    alignSelf: 'flex-end',
+    marginBottom: 16
   },
 
   orRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
   orLine: { flex: 1, height: 1, backgroundColor: COLORS.divider },
   orText: { marginHorizontal: 12, color: COLORS.text.muted, fontWeight: "700" },
 
-  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 24, marginBottom: 40 },
+  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 24, marginBottom: 32 },
   loginLink: { color: COLORS.primary, fontWeight: "700" },
 });

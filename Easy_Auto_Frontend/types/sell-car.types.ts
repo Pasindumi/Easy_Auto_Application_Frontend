@@ -18,4 +18,5 @@ export interface CarFormState {
     vehicle_type_id?: string; // New field
     bodyType?: string;
     dynamicAttributes?: { attribute_id: string; value: any }[]; // New field
+    status?: string; // New field for draft/active/pending
 }

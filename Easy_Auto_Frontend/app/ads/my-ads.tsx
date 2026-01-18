@@ -1,11 +1,12 @@
 import COLORS from "@/constants/Colors";
-import { ADS_DATA } from "@/constants/dummydata/ads";
+import { api } from "@/utils/api";
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
+  ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -22,18 +23,54 @@ import { headerSectionStyles } from '../../styles/headerSectionStyles';
 export default function MyAdsScreen() {
   // Protect this route - require authentication
   useProtectedRoute();
-  
+
   const router = useRouter();
+  const [ads, setAds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'expired' | 'draft'>('all');
 
+  // REVISED STRATEGY: Fetch ALL ads to get correct counts, filter Client Side
+  const fetchAllAds = async () => {
+    try {
+      if (!refreshing) setLoading(true); // Don't show full loader on refresh
+      const response = await api.get<{ success: boolean; data: any[] }>(`/api/cars/my-ads`);
+      if (response.success) {
+        // Map backend data to frontend format
+        const mappedAds = response.data.map((ad: any) => ({
+          ...ad,
+          // Format price
+          price: ad.price ? `$${Number(ad.price).toLocaleString()}` : "Contact for Price",
+          // Map status to lowercase for frontend logic
+          status: ad.status ? ad.status.toLowerCase() : "draft",
+          // Extract first image
+          image: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=300&h=200",
+          // Map counts
+          views: ad.views_count || 0,
+          likes: ad.likes_count || 0, // Assuming backend might have this or default to 0
+          messages: 0 // Placeholder until implemented
+        }));
+        setAds(mappedAds);
+      }
+    } catch (error) {
+      console.error("Error fetching ads:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllAds();
+  }, []);
+
   const counts = {
-    total: ADS_DATA.length,
-    active: ADS_DATA.filter(a => a.status === 'active').length,
-    draft: ADS_DATA.filter(a => a.status === 'draft').length,
-    paused: ADS_DATA.filter(a => a.status === 'expired').length,
+    total: ads.length,
+    active: ads.filter(a => a.status === 'active').length,
+    draft: ads.filter(a => a.status === 'draft').length,
+    paused: ads.filter(a => a.status === 'expired' || a.status === 'paused').length,
   };
 
   const mapPageFilterToStatusCard = (f: typeof selectedFilter) => {
@@ -51,11 +88,21 @@ export default function MyAdsScreen() {
     if (key === 'Paused') return setSelectedFilter('expired');
   };
 
-  const filteredAds = ADS_DATA.filter(ad => {
-    const statusMatch = selectedFilter === 'all' || ad.status === selectedFilter;
-    const searchMatch = !searchQuery || ad.title.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredAds = ads.filter(ad => {
+    // Legacy filter function if needed, but we use clientFilteredAds below
+    return true;
+  });
+
+  const clientFilteredAds = ads.filter(ad => {
+    let statusMatch = true;
+    if (selectedFilter === 'active') statusMatch = ad.status === 'active';
+    if (selectedFilter === 'draft') statusMatch = ad.status === 'draft';
+    if (selectedFilter === 'expired') statusMatch = ad.status === 'expired' || ad.status === 'paused';
+
+    const searchMatch = !searchQuery || (ad.title && ad.title.toLowerCase().includes(searchQuery.toLowerCase()));
     return statusMatch && searchMatch;
   });
+
 
   const toggleSelect = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -64,24 +111,24 @@ export default function MyAdsScreen() {
 
   const handleSelectAll = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (filteredAds.length === 0) {
+    if (clientFilteredAds.length === 0) {
       setSelected([]);
       return;
     }
-    const allSelected = filteredAds.every(ad => selected.includes(ad.id));
+    const allSelected = clientFilteredAds.every(ad => selected.includes(ad.id));
     if (allSelected) {
       setSelected([]);
     } else {
-      setSelected(filteredAds.map(ad => ad.id));
+      setSelected(clientFilteredAds.map(ad => ad.id));
     }
   };
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    fetchAllAds();
   }, []);
 
-  const renderAd = ({ item }: { item: typeof ADS_DATA[0]; index: number }) => (
+  const renderAd = ({ item }: { item: any; index: number }) => (
     <AdCard ad={item} selected={selected.includes(item.id)} toggleSelect={toggleSelect} />
   );
 
@@ -129,23 +176,30 @@ export default function MyAdsScreen() {
           </View>
         )}
 
-        <FlatList
-          data={filteredAds}
-          renderItem={renderAd}
-          keyExtractor={item => item.id}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="car-outline" size={48} color={COLORS.divider} />
-              <Text style={styles.emptyTitle}>No ads found</Text>
-              <TouchableOpacity style={styles.emptyButton} onPress={() => router.push('/cars/buy-car')}>
-                <Ionicons name="add-circle-outline" size={16} color={COLORS.white} />
-                <Text style={styles.emptyButtonText}>Create New Ad</Text>
-              </TouchableOpacity>
-            </View>
-          }
-          contentContainerStyle={{ paddingBottom: 24 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
-        />
+        {loading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          </View>
+        ) : (
+          <FlatList
+            data={clientFilteredAds}
+            renderItem={renderAd}
+            keyExtractor={item => item.id}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Ionicons name="car-outline" size={48} color={COLORS.divider} />
+                <Text style={styles.emptyTitle}>No ads found</Text>
+                <TouchableOpacity style={styles.emptyButton} onPress={() => router.push('/cars/sell-car')}>
+                  <Ionicons name="add-circle-outline" size={16} color={COLORS.white} />
+                  <Text style={styles.emptyButtonText}>Create New Ad</Text>
+                </TouchableOpacity>
+              </View>
+            }
+            contentContainerStyle={{ paddingBottom: 24 }}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
+          />
+        )}
+
       </View>
     </View>
   );

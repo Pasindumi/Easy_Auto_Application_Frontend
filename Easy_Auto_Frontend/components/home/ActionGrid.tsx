@@ -239,6 +239,29 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                         </Text>
                     </View>
                 </GlassmorphismButton>
+
+                <GlassmorphismButton
+                    delay={350}
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        router.push("/packages/packages");
+                    }}
+                >
+                    <View style={styles.scrollableActionCard}>
+                        <View
+                            style={[
+                                styles.colorfulIconContainer,
+                                { backgroundColor: "#F1F8E9" },
+                            ]}
+                        >
+                            <MaterialIcons name="school" size={32} color="#43A047" />
+                        </View>
+                        <Text style={styles.scrollableActionLabel}>Packages</Text>
+                        <Text style={styles.scrollableActionDescription}>
+                            Boost your ads
+                        </Text>
+                    </View>
+                </GlassmorphismButton>
             </ScrollView>
         </Animated.View>
     );

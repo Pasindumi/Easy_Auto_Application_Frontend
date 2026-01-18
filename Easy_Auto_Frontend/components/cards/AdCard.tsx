@@ -101,28 +101,31 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
       {/* Actions */}
       <View style={styles.actionRow}>
         <TouchableOpacity
-          onPress={() => router.push(`/cars/view-car?id=${ad.id}`)}
+          onPress={() => router.push(`/cars/review?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="eye-outline" size={16} color="#2563EB" />
           <Text style={styles.actionText}>View</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* Edit Button hidden as per request (available in Review page) */}
+        {/* <TouchableOpacity
           onPress={() => router.push(`/ads/edit-car?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="create-outline" size={16} color="#2563EB" />
           <Text style={styles.actionText}>Edit</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <TouchableOpacity
-          onPress={() => router.push(`/packages/packages?id=${ad.id}`)}
-          style={styles.actionBtn}
-        >
-          <Ionicons name="rocket-outline" size={16} color="#2563EB" />
-          <Text style={styles.actionText}>Boost</Text>
-        </TouchableOpacity>
+        {mapStatus === 'active' && (
+          <TouchableOpacity
+            onPress={() => router.push(`/packages/packages?id=${ad.id}`)}
+            style={styles.actionBtn}
+          >
+            <Ionicons name="rocket-outline" size={16} color="#2563EB" />
+            <Text style={styles.actionText}>Boost</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           onPress={() => router.push(`/ads/delete-car?id=${ad.id}`)}
