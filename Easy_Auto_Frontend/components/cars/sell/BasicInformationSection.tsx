@@ -5,9 +5,12 @@ import { CarFormState } from '../../../types/sell-car.types';
 interface Props {
     carDetails: CarFormState;
     handleInputChange: (field: string, value: string | boolean) => void;
+    descriptionLimit?: number;
 }
 
-const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChange }) => {
+const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChange, descriptionLimit = 500 }) => {
+    const isOverLimit = (carDetails.description?.length || 0) > descriptionLimit;
+
     return (
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Basic Information</Text>
@@ -60,6 +63,16 @@ const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChang
                 numberOfLines={6}
                 textAlignVertical="top"
             />
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                <Text style={[styles.limitText, isOverLimit && styles.limitTextError]}>
+                    {carDetails.description?.length || 0} / {descriptionLimit} characters
+                </Text>
+                {isOverLimit && (
+                    <Text style={styles.warningText}>
+                        Only {descriptionLimit} letters allowed. Extra charges may apply!
+                    </Text>
+                )}
+            </View>
         </View>
     );
 };
@@ -75,6 +88,9 @@ const styles = StyleSheet.create({
     checkboxChecked: { backgroundColor: '#235CF8', borderColor: '#235CF8' },
     checkboxInner: { width: 6, height: 6, backgroundColor: 'white', borderRadius: 3 },
     negotiableText: { fontSize: 14, color: '#374151' },
+    limitText: { fontSize: 12, color: '#6B7280', textAlign: 'right' },
+    limitTextError: { color: '#EF4444', fontWeight: 'bold' },
+    warningText: { fontSize: 12, color: '#EF4444', fontStyle: 'italic' }
 });
 
 export default BasicInformationSection;
