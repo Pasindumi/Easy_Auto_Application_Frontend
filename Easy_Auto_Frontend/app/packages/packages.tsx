@@ -101,6 +101,7 @@ export default function PackagesScreen() {
             return (
               <PackagePlanCard
                 key={pkg.id}
+                id={pkg.id}
                 title={pkg.name}
                 days={duration}
                 price={price}

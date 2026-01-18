@@ -89,7 +89,33 @@ export default function Payment() {
               }
             }
 
-            const subtotalBeforeDiscount = adPrice + extraImageFee;
+            // Extra Description Charge
+            const descLimit = finalAdRule?.description_limit || 500;
+            const userDesc = adData.description || "";
+            const descLength = userDesc.length;
+            let extraDescFee = 0;
+
+            if (descLength > descLimit) {
+              // Find rule for EXT_LTR
+              const extLtrRule = rulesData.find((r: any) =>
+                (r.vehicle_type_id === vehicleTypeId || !r.vehicle_type_id) &&
+                r.price_items?.code === 'EXT_LTR'
+              );
+
+              if (extLtrRule) {
+                const extraLetterPrice = parseFloat(extLtrRule.price);
+                if (extraLetterPrice > 0) {
+                  const extraChars = descLength - descLimit;
+                  extraDescFee = extraChars * extraLetterPrice;
+                  newOrderItems.push({
+                    label: `Extra Description (${extraChars} chars x ${new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(extraLetterPrice)})`,
+                    price: extraDescFee
+                  });
+                }
+              }
+            }
+
+            const subtotalBeforeDiscount = adPrice + extraImageFee + extraDescFee;
             const userAdsCount = userAds.length;
             const isFirstTimeUser = userAdsCount <= 1;
 

@@ -77,6 +77,7 @@ export default function SellCarScreen() {
 
   // State for pricing logic
   const [freeImageCount, setFreeImageCount] = useState(5); // Default to 5
+  const [descriptionLimit, setDescriptionLimit] = useState(500); // Default to 500
 
   // Fetch Logic
   useEffect(() => {
@@ -111,8 +112,15 @@ export default function SellCarScreen() {
             const defaultRule = rulesData.find((r: any) => !r.vehicle_type_id && r.unit === 'PER_AD');
 
             const activeRule = typeRule || defaultRule;
-            if (activeRule && activeRule.free_image_count !== undefined) {
-              setFreeImageCount(activeRule.free_image_count);
+            if (activeRule) {
+              if (activeRule.free_image_count !== undefined) {
+                setFreeImageCount(activeRule.free_image_count);
+              }
+              // We will store description_limit in a new state or just pass it down if we had a clean state for it.
+              // Let's create a state for it.
+              if (activeRule.description_limit !== undefined) {
+                setDescriptionLimit(activeRule.description_limit);
+              }
             }
           }
         }
@@ -429,6 +437,7 @@ export default function SellCarScreen() {
           <BasicInformationSection
             carDetails={carDetails}
             handleInputChange={handleInputChange}
+            descriptionLimit={descriptionLimit}
           />
 
           <CarDetailsSection
