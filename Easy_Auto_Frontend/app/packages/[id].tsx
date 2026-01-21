@@ -105,7 +105,7 @@ export default function PackageDetailScreen() {
 
           <TouchableOpacity
             style={[styles.buyButton, { backgroundColor: pkg.config?.COLOR_THEME || COLORS.primary }]}
-            onPress={() => router.push({ pathname: '/payments/invoice', params: { plan: pkg.name, price: price, days: duration } })}
+            onPress={() => router.push({ pathname: '/payments/invoice', params: { plan: pkg.name, price: price, days: duration, packageId: pkg.id } })}
           >
             <Text style={styles.buyText}>Buy Now</Text>
           </TouchableOpacity>
