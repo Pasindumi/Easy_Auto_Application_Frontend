@@ -38,7 +38,7 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
             if (id) {
                 router.push({ pathname: '/packages/[id]', params: { id } });
             } else {
-                router.push({ pathname: '/payments/invoice', params: { plan: title, price: price, days: days } });
+                router.push({ pathname: '/payments/invoice', params: { plan: title, price: price, days: days, packageId: id } });
             }
         }
     };
