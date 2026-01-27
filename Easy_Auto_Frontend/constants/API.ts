@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 
-// Use the ngrok URL for consistent access across real devices and emulators
-export const API_URL = 'https://odorful-nondomestically-jamee.ngrok-free.dev';
+// Use the env var `EXPO_PUBLIC_API_URL` for consistent access across devices.
+// Falls back to the previous ngrok URL if the env var is not set.
+export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://garfield-couped-leslie.ngrok-free.dev';
 
 const API_BASE_URL = `${API_URL}/api`;
 
