@@ -10,6 +10,7 @@ interface User {
   email?: string;
   phone?: string;
   avatar?: string;
+  is_premium?: boolean;
 }
 
 interface AuthContextType {
