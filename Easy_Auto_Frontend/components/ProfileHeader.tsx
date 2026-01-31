@@ -58,7 +58,11 @@ export default function ProfileHeader({
             <View style={styles.profileCardContent}>
               <View style={styles.avatarContainer}>
                 <Image
-                  source={require('@/assets/images/user.jpeg')}
+                  source={
+                    user?.avatar
+                      ? { uri: user.avatar }
+                      : require('@/assets/images/user.jpeg')
+                  }
                   style={styles.avatar}
                 />
                 <View style={styles.notificationBadge}>

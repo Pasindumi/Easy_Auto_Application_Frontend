@@ -56,8 +56,6 @@ interface RequestOptions extends RequestInit {
 
 class ApiClient {
   private baseURL: string;
-  private isRefreshing: boolean = false;
-  private refreshSubscribers: ((token: string) => void)[] = [];
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
@@ -72,80 +70,15 @@ class ApiClient {
     }
   }
 
-  private async getRefreshToken(): Promise<string | null> {
-    try {
-      return await secureStorage.getItem(REFRESH_TOKEN_KEY);
-    } catch (error) {
-      console.error('Error getting refresh token:', error);
-      return null;
-    }
-  }
-
-  private onRefreshed(token: string) {
-    this.refreshSubscribers.forEach((callback) => callback(token));
-    this.refreshSubscribers = [];
-  }
-
-  private addRefreshSubscriber(callback: (token: string) => void) {
-    this.refreshSubscribers.push(callback);
-  }
-
-  private async refreshAccessToken(): Promise<string | null> {
-    try {
-      const refreshToken = await this.getRefreshToken();
-
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const response = await fetch(`${this.baseURL}/api/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned an invalid response');
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to refresh token');
-      }
-
-      const newAccessToken = data.accessToken || data.token;
-      const newRefreshToken = data.refreshToken || data.refresh_token || refreshToken;
-
-      // Store new tokens
-      await secureStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
-      if (newRefreshToken !== refreshToken) {
-        await secureStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
-      }
-
-      return newAccessToken;
-    } catch (error) {
-      console.error('Token refresh failed:', error);
-      // Clear auth and redirect to login
-      await this.clearAuthAndRedirect();
-      return null;
-    }
-  }
-
   private async clearAuthAndRedirect() {
     try {
+      console.log('[API] Clearing auth due to token expiry...');
       await Promise.all([
         secureStorage.deleteItem(ACCESS_TOKEN_KEY),
         secureStorage.deleteItem(REFRESH_TOKEN_KEY),
         secureStorage.deleteItem(USER_KEY),
       ]);
-
-      // Redirect to login
-      router.replace('/auth/login' as any);
+      console.log('[API] Auth cleared successfully');
     } catch (error) {
       console.error('Error clearing auth:', error);
     }
@@ -192,56 +125,10 @@ class ApiClient {
       });
 
       // Handle 401 Unauthorized - Token expired or invalid
-      if (response.status === 401 && !skipAuth && !skipRetry) {
-        console.log('Token expired, attempting refresh...');
-
-        // If already refreshing, wait for it to complete
-        if (this.isRefreshing) {
-          return new Promise<T>((resolve, reject) => {
-            this.addRefreshSubscriber(async (newToken: string) => {
-              try {
-                // Retry original request with new token
-                requestHeaders['Authorization'] = `Bearer ${newToken}`;
-                const retryResponse = await fetch(url, {
-                  ...restOptions,
-                  headers: requestHeaders,
-                  body: body as BodyInit,
-                });
-
-                const retryContentType = retryResponse.headers.get('content-type');
-                if (!retryContentType || !retryContentType.includes('application/json')) {
-                  // Only try to modify retry logic if not FormData, but usually raw response is fine
-                  // just pass strictly
-                }
-
-                const retryData = await retryResponse.json();
-
-                if (!retryResponse.ok) {
-                  throw new Error(retryData.error || retryData.message || 'Request failed');
-                }
-
-                resolve(retryData as T);
-              } catch (error) {
-                reject(error);
-              }
-            });
-          });
-        }
-
-        // Start refresh process
-        this.isRefreshing = true;
-        const newToken = await this.refreshAccessToken();
-        this.isRefreshing = false;
-
-        if (!newToken) {
-          throw new Error('Failed to refresh token');
-        }
-
-        // Notify subscribers
-        this.onRefreshed(newToken);
-
-        // Retry original request with new token
-        return this.request<T>(endpoint, { ...options, body, skipRetry: true });
+      if (response.status === 401) {
+        console.log('[API] Access token expired (401), logging out...');
+        await this.clearAuthAndRedirect();
+        throw new Error('SESSION_EXPIRED');
       }
 
       // Check content type

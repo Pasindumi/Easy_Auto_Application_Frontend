@@ -34,6 +34,7 @@ interface AuthContextType {
   // Common Methods
   logout: () => Promise<void>;
   requireAuth: () => boolean;
+  updateUser: (userData: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -48,6 +49,7 @@ const AuthContext = createContext<AuthContextType>({
   getValidToken: async () => null,
   logout: async () => { },
   requireAuth: () => false,
+  updateUser: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -112,6 +114,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadStoredAuth();
   }, []);
 
+  // Check if JWT token is expired
+  const isTokenExpired = (token: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expirationTime = payload.exp * 1000; // Convert to milliseconds
+      return Date.now() >= expirationTime;
+    } catch (error) {
+      console.error('[Auth] Error checking token expiration:', error);
+      return true; // Treat as expired if we can't parse it
+    }
+  };
+
   const loadStoredAuth = async () => {
     try {
       console.log('[Auth] Loading stored auth tokens...');
@@ -122,10 +136,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ]);
 
       if (storedAccessToken && storedRefreshToken && storedUser) {
-        console.log('[Auth] Tokens found, restoring session');
-        setAccessToken(storedAccessToken);
-        setRefreshToken(storedRefreshToken);
-        setUser(JSON.parse(storedUser));
+        console.log('[Auth] Tokens found, checking expiration...');
+        
+        // Check if access token is expired
+        if (isTokenExpired(storedAccessToken)) {
+          console.log('[Auth] Access token expired on app load, logging out...');
+          await clearAuth();
+        } else {
+          console.log('[Auth] Token is valid, restoring session');
+          setAccessToken(storedAccessToken);
+          setRefreshToken(storedRefreshToken);
+          setUser(JSON.parse(storedUser));
+        }
       } else {
         console.log('[Auth] No stored tokens found');
       }
@@ -374,6 +396,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return accessToken;
   };
 
+  // Update user data
+  const updateUser = async (userData: Partial<User>) => {
+    try {
+      if (!user) return;
+      
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      await secureStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+      console.log('[Auth] User data updated successfully');
+    } catch (error) {
+      console.error('[Auth] Error updating user data:', error);
+    }
+  };
+
   // Logout
   const logout = async () => {
     try {
@@ -404,6 +440,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getValidToken,
     logout,
     requireAuth,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
