@@ -21,7 +21,7 @@ import { API_URL } from '../../constants/API';
 
 export default function Address() {
   const router = useRouter();
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, logout } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -99,6 +99,12 @@ export default function Address() {
         },
         body: JSON.stringify(addressData),
       });
+
+      if (response.status === 401) {
+        console.log('[Address] Access token expired, logging out...');
+        await logout();
+        throw new Error('SESSION_EXPIRED');
+      }
 
       if (response.ok) {
         Alert.alert('Success', 'Address saved successfully!');
