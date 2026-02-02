@@ -5,6 +5,10 @@ import { typography } from "../../theme";
 
 interface CurrentPlanCardProps {
     onManagePlan: () => void;
+    onUnsubscribe?: () => void;
+    planName?: string;
+    expiryDate?: string;
+    price?: string;
 }
 
 const BenefitItem: React.FC<{ text: string }> = ({ text }) => (
@@ -14,7 +18,13 @@ const BenefitItem: React.FC<{ text: string }> = ({ text }) => (
     </View>
 );
 
-const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({ onManagePlan }) => {
+const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
+    onManagePlan,
+    onUnsubscribe,
+    planName = "Premium Plan",
+    expiryDate = "Active Until Nov 30, 2025",
+    price = "$29.99"
+}) => {
     return (
         <View style={styles.planCard}>
             <View style={styles.topRow}>
@@ -27,15 +37,15 @@ const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({ onManagePlan }) => {
                 </View>
             </View>
 
-            <Text style={styles.planTitle}>Premium Plan</Text>
+            <Text style={styles.planTitle}>{planName}</Text>
             <View style={styles.expiryContainer}>
                 <Ionicons name="time-outline" size={14} color="#6B7280" />
-                <Text style={styles.planSubtitle}>Active Until Nov 30, 2025</Text>
+                <Text style={styles.planSubtitle}>{expiryDate}</Text>
             </View>
 
             <View style={styles.priceRow}>
-                <Text style={styles.price}>$29.99</Text>
-                <Text style={styles.perMonth}>/month</Text>
+                <Text style={styles.price}>{price}</Text>
+                {/* <Text style={styles.perMonth}>/month</Text> */}
             </View>
 
             {/* Benefits Box */}
@@ -57,15 +67,30 @@ const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({ onManagePlan }) => {
                 </View>
             </View>
 
-            {/* Button */}
-            <TouchableOpacity
-                style={styles.manageButton}
-                onPress={onManagePlan}
-                activeOpacity={0.8}
-            >
-                <Ionicons name="settings-outline" size={18} color="#fff" />
-                <Text style={styles.manageText}>Manage Plan</Text>
-            </TouchableOpacity>
+            {/* Buttons Row */}
+            <View style={{ marginTop: 16, gap: 10 }}>
+                {/* Manage Plan Button */}
+                <TouchableOpacity
+                    style={styles.manageButton}
+                    onPress={onManagePlan}
+                    activeOpacity={0.8}
+                >
+                    <Ionicons name="settings-outline" size={18} color="#fff" />
+                    <Text style={styles.manageText}>Manage Plan</Text>
+                </TouchableOpacity>
+
+                {/* Unsubscribe Button */}
+                {onUnsubscribe && (
+                    <TouchableOpacity
+                        style={[styles.manageButton, { backgroundColor: '#FEE2E2', shadowColor: '#EF4444' }]}
+                        onPress={onUnsubscribe}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="close-circle-outline" size={18} color="#EF4444" />
+                        <Text style={[styles.manageText, { color: '#EF4444' }]}>Unsubscribe</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
         </View>
     );
 };
@@ -169,7 +194,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     manageButton: {
-        marginTop: 16,
         backgroundColor: '#235CF8',
         paddingVertical: 14,
         borderRadius: 12,

@@ -1,9 +1,8 @@
-// app/buy-car.tsx
 import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dimensions,
   Image,
@@ -13,22 +12,27 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SUV_CARS, CAR_CARS } from '../../constants/dummydata/buy-car';
+import { api } from '../../utils/api';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_GAP = 16;
 const CARD_WIDTH = (SCREEN_WIDTH - 25 - CARD_GAP) / 2;
 
-const CATEGORIES = [
-  { key: 'car', label: 'Car', icon: 'car-sport' },
-  { key: 'van', label: 'Van', icon: 'car' },
-  { key: 'cab', label: 'Cab', icon: 'taxi' },
-  { key: 'suv', label: 'SUV', icon: 'car-sport' },
-  { key: 'lorry', label: 'Lorry', icon: 'car' },
-  { key: 'bus', label: 'Bus', icon: 'bus' },
-];
+// Helper to map vehicle types to icons
+const getIconForType = (typeName: string) => {
+  const lower = typeName.toLowerCase();
+  if (lower.includes('car')) return 'car-sport';
+  if (lower.includes('van')) return 'car';
+  if (lower.includes('suv')) return 'car-sport';
+  if (lower.includes('bus')) return 'bus';
+  if (lower.includes('lorry') || lower.includes('truck')) return 'bus-outline'; // approximation
+  if (lower.includes('bike') || lower.includes('motor')) return 'bicycle';
+  if (lower.includes('cab') || lower.includes('taxi')) return 'taxi';
+  return 'car-sport'; // default
+};
 
 const FILTER_OPTIONS = [
   { key: 'all', label: 'All' },
@@ -41,10 +45,109 @@ const FILTER_OPTIONS = [
 export default function BuyCarScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>('suv');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Real Data State
+  const [ads, setAds] = useState<any[]>([]);
+  const [vehicleTypes, setVehicleTypes] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+
+  // Fetch Vehicle Types (Categories)
+  useEffect(() => {
+    const fetchTypes = async () => {
+      try {
+        const res: any = await api.get('/api/vehicle-config/types');
+        // Backend returns direct array
+        if (Array.isArray(res)) {
+          const mapped = res
+            .filter((t: any) => t.status === 'ACTIVE') // Filter if status exists
+            .map((t: any) => ({
+              key: t.id,
+              label: t.type_name,
+              icon: getIconForType(t.type_name)
+            }));
+          setVehicleTypes(mapped);
+        } else {
+          console.error("Unexpected response format for vehicle types:", res);
+        }
+      } catch (error) {
+        console.error("Error fetching vehicle types:", error);
+      } finally {
+        setIsCategoriesLoading(false);
+      }
+    };
+    fetchTypes();
+  }, []);
+
+  // Fetch Ads
+  useEffect(() => {
+    const fetchAds = async () => {
+      setIsLoading(true);
+      try {
+        let endpoint = `/api/cars?status=ACTIVE`;
+
+        if (selectedCategory && selectedCategory !== 'all') {
+          endpoint += `&vehicleTypeId=${selectedCategory}`;
+        }
+
+        // Note: Backend might not support 'search' on this endpoint fully yet based on analysis, 
+        // but let's try or we rely on client side filter if needed. 
+        // Backend `getAds` supports: brand, model, minPrice, maxPrice, vehicleTypeId.
+        // It DOES NOT seem to support generic 'search' query param in the `getAds` controller we saw earlier.
+        // Wait, looking at `carController.js` step 35:
+        // `export const getAds = async (req, res) => { ... const { page = 1, limit = 10, brand, model, minPrice, maxPrice, vehicleTypeId } = req.query; ... }`
+        // It does NOT have 'search'. `adminGetAds` HAS 'search'.
+        // So for public `getAds`, we might only be able to filter by strict fields or we need to add search support to backend.
+        // For now, I will Fetch ALL (or strict filter) and maybe client-side filter for 'search' if results are few, 
+        // OR just ignore search if not supported. 
+        // Actually, let's look at `title` filtering. It's missing in `getAds`. 
+        // I will assume for now we just filter by category. Client-side search for title if needed.
+
+        const res = await api.get<any>(endpoint);
+        if (res.success) {
+          let fetchedAds = res.data || [];
+
+          // Client-side search filtering since backend `getAds` didn't show explicit search support in the snippet I saw
+          if (searchQuery) {
+            const lowerQ = searchQuery.toLowerCase();
+            fetchedAds = fetchedAds.filter((ad: any) =>
+              ad.title?.toLowerCase().includes(lowerQ) ||
+              ad.CarDetails?.brand?.toLowerCase().includes(lowerQ) ||
+              ad.CarDetails?.model?.toLowerCase().includes(lowerQ)
+            );
+          }
+
+          // Client-side sorting
+          if (selectedFilter === 'price-low') {
+            fetchedAds.sort((a: any, b: any) => (a.price || 0) - (b.price || 0));
+          } else if (selectedFilter === 'price-high') {
+            fetchedAds.sort((a: any, b: any) => (b.price || 0) - (a.price || 0));
+          } else if (selectedFilter === 'year-new') {
+            fetchedAds.sort((a: any, b: any) => (b.CarDetails?.year || 0) - (a.CarDetails?.year || 0));
+          } else if (selectedFilter === 'year-old') {
+            fetchedAds.sort((a: any, b: any) => (a.CarDetails?.year || 0) - (b.CarDetails?.year || 0));
+          }
+
+          setAds(fetchedAds);
+        }
+      } catch (error) {
+        console.error("Error fetching ads:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Debounce search
+    const timer = setTimeout(() => {
+      fetchAds();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [selectedCategory, searchQuery, selectedFilter]);
 
   const toggleFavorite = (carId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -57,10 +160,16 @@ export default function BuyCarScreen() {
 
   const handleCategoryPress = (key: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedCategory(key);
+    // If clicking same category, toggle off to 'all'? Or just keep as is. 
+    // Usually toggle off is nice.
+    if (selectedCategory === key) {
+      setSelectedCategory('all');
+    } else {
+      setSelectedCategory(key);
+    }
   };
 
-  const renderCategory = (item: typeof CATEGORIES[0]) => {
+  const renderCategory = (item: any) => {
     const isActive = selectedCategory === item.key;
     return (
       <TouchableOpacity
@@ -83,8 +192,12 @@ export default function BuyCarScreen() {
     );
   };
 
-  const renderCarCard = (item: typeof SUV_CARS[0]) => {
+  const renderCarCard = (item: any) => {
     const isFavorite = favorites.includes(item.id);
+    const imageUrl = item.AdImage?.[0]?.image_url;
+    // Format price
+    const formattedPrice = item.price ? `Rs. ${(item.price / 1000000).toFixed(1)}Mn` : 'N/A';
+
     return (
       <TouchableOpacity
         key={item.id}
@@ -92,17 +205,17 @@ export default function BuyCarScreen() {
         activeOpacity={0.8}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          // Navigate to car details
+          router.push(`/cars/${item.id}`);
         }}
       >
         <View style={styles.carImageContainer}>
           <Image
-            source={item.image}
+            source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
             style={styles.carCardImage}
             resizeMode="cover"
           />
           <View style={styles.yearBadge}>
-            <Text style={styles.yearBadgeText}>{item.year}</Text>
+            <Text style={styles.yearBadgeText}>{item.CarDetails?.year || 'N/A'}</Text>
           </View>
           <TouchableOpacity
             style={styles.favoriteButton}
@@ -122,35 +235,30 @@ export default function BuyCarScreen() {
         <View style={styles.carCardBody}>
           <Text style={styles.carTitle} numberOfLines={1}>{item.title}</Text>
           <View style={styles.carMetaRow}>
-            <View style={[styles.carMetaItem, { marginBottom: 4 }]}> {/* km row with more gap below */}
+            <View style={[styles.carMetaItem, { marginBottom: 4 }]}>
               <Ionicons name="speedometer-outline" size={14} color="#6B7280" />
-              <Text style={styles.carMetaText}>{item.km}</Text>
+              <Text style={styles.carMetaText}>
+                {item.CarDetails?.mileage ? `${item.CarDetails.mileage.toLocaleString()} Km` : 'N/A'}
+              </Text>
             </View>
-            <View style={[styles.carMetaItem, { marginBottom: 0 }]}> {/* location row, no extra gap below */}
+            <View style={[styles.carMetaItem, { marginBottom: 0 }]}>
               <Ionicons name="location-outline" size={14} color="#6B7280" />
-              <Text style={styles.carMetaText} numberOfLines={1}>{item.location.split(',')[0]}</Text>
+              <Text style={styles.carMetaText} numberOfLines={1}>
+                {item.location ? item.location.split(',')[0] : 'N/A'}
+              </Text>
             </View>
           </View>
-          <Text style={styles.price}>{item.price}</Text>
+          <Text style={styles.price}>{formattedPrice}</Text>
         </View>
       </TouchableOpacity>
     );
   };
 
-  // Filter cars by selected category
-  const getFilteredCars = () => {
-    if (!selectedCategory || selectedCategory === 'all') return SUV_CARS;
-    if (selectedCategory === 'suv') {
-      // Only show SUVs
-      return SUV_CARS;
-    }
-    if (selectedCategory === 'car') {
-      // Only show Cars
-      return CAR_CARS;
-    }
-    // For demo: return empty for other categories
-    return [];
-  };
+  const getActiveCategoryLabel = () => {
+    if (selectedCategory === 'all') return 'Cars';
+    const cat = vehicleTypes.find(c => c.key === selectedCategory);
+    return cat ? cat.label : 'Cars';
+  }
 
   return (
     <>
@@ -177,7 +285,7 @@ export default function BuyCarScreen() {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 style={styles.searchInput}
-                placeholderTextColor="#B6B8C9" // lighter, modern
+                placeholderTextColor="#B6B8C9"
               />
               <TouchableOpacity
                 style={styles.filterButton}
@@ -207,7 +315,6 @@ export default function BuyCarScreen() {
                     onPress={() => {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       setSelectedFilter(filter.key);
-                      // Do NOT hide filter section after select
                     }}
                     activeOpacity={0.7}
                   >
@@ -232,41 +339,67 @@ export default function BuyCarScreen() {
 
           {/* Category Grid */}
           <View style={styles.categoriesSection}>
-            <View style={styles.categoryRow}>
-              {CATEGORIES.map((item) => renderCategory(item))}
-            </View>
+            {isCategoriesLoading ? (
+              <ActivityIndicator size="small" color="#235CF8" />
+            ) : (
+              <View style={styles.categoryRow}>
+                {vehicleTypes.map((item) => renderCategory(item))}
+              </View>
+            )}
           </View>
 
           {/* Section Header: Available Cars */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
-              Available {selectedCategory ? CATEGORIES.find(c => c.key === selectedCategory)?.label : 'Cars'}
+              Available {getActiveCategoryLabel()}
             </Text>
-            <Text style={styles.sectionSubtitle}>{getFilteredCars().length} listings</Text>
+            <Text style={styles.sectionSubtitle}>{ads.length} listings</Text>
           </View>
 
           {/* Car Grid */}
           <View style={styles.carsSection}>
-            <View style={styles.carsGrid}>
-              {getFilteredCars().map((item, index) => {
-                if (index % 2 === 0) {
-                  const nextItem = getFilteredCars()[index + 1];
-                  return (
-                    <View key={`row-${index}`} style={styles.carsRow}>
-                      <View key={item.id}>
-                        {renderCarCard(item)}
-                      </View>
-                      {nextItem && (
-                        <View key={nextItem.id}>
-                          {renderCarCard(nextItem)}
+            {isLoading ? (
+              <View style={{ padding: 40, alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#235CF8" />
+              </View>
+            ) : ads.length === 0 ? (
+              <View style={styles.noAdsContainer}>
+                <Ionicons name="car-sport-outline" size={48} color="#D1D5DB" />
+                <Text style={styles.noAdsText}>No ads found to display</Text>
+                <Text style={styles.noAdsSubText}>Try changing your filters or search query.</Text>
+              </View>
+            ) : (
+              <View style={styles.carsGrid}>
+                {ads.map((item, index) => {
+                  // We render in pairs manually in the original code, but flexWrap is easier.
+                  // However, to keep original layout logic if it was row-based:
+                  // The original code used a manual row approach. Let's stick to flexWrap 'row' generally 
+                  // or use the original manual pairing if we want to be exact. 
+                  // To be safe and cleaner, let's use a standard flex wrap container logic 
+                  // or just map everything and let flexbox handle it if we change styles.
+                  // But sticking to the original manual pairing 'row' logic ensures strictly 2 columns logic matches.
+                  if (index % 2 === 0) {
+                    const nextItem = ads[index + 1];
+                    return (
+                      <View key={`row-${index}`} style={styles.carsRow}>
+                        <View key={item.id}>
+                          {renderCarCard(item)}
                         </View>
-                      )}
-                    </View>
-                  );
-                }
-                return null;
-              })}
-            </View>
+                        {nextItem ? (
+                          <View key={nextItem.id}>
+                            {renderCarCard(nextItem)}
+                          </View>
+                        ) : (
+                          // Empty filler to maintain alignment if using flex space-between
+                          <View style={{ width: CARD_WIDTH }} />
+                        )}
+                      </View>
+                    );
+                  }
+                  return null;
+                })}
+              </View>
+            )}
           </View>
 
           <View style={{ height: 24 }} />
@@ -292,7 +425,7 @@ const styles = StyleSheet.create({
   searchSection: {
     paddingHorizontal: 16,
     paddingTop: 0,
-    paddingBottom: 15, // reduced from 16
+    paddingBottom: 15,
     marginTop: -32,
     zIndex: 2,
   },
@@ -302,7 +435,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 4, // reduced from 8
+    paddingVertical: 4,
     gap: 12,
     shadowColor: '#000',
     shadowOpacity: 0.05,
@@ -313,7 +446,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 11, // reduced from 13
+    fontSize: 11,
     color: '#111827',
     padding: 0,
     fontWeight: '500',
@@ -353,7 +486,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterChipActive: {
-    backgroundColor: '#235CF8', // solid blue
+    backgroundColor: '#235CF8',
     borderColor: '#235CF8',
     shadowColor: '#235CF8',
     shadowOpacity: 0.15,
@@ -367,7 +500,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   filterChipTextActive: {
-    color: '#fff', // white text for active
+    color: '#fff',
     textShadowColor: 'rgba(35,92,248,0.15)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -400,24 +533,24 @@ const styles = StyleSheet.create({
   categoryRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start', // Changed from space-between to allow natural flow if fewer items
     gap: 12,
   },
   categoryCard: {
-    width: (SCREEN_WIDTH - 32 - 24) / 3, // Account for padding and gaps
+    width: (SCREEN_WIDTH - 32 - 24) / 3, // Keep same width logic
     backgroundColor: '#FFFFFF',
-    borderRadius: 12, // reduced from 16
-    paddingVertical: 12, // reduced from 16
-    paddingHorizontal: 12, // reduced from 12
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     shadowColor: '#000',
-    shadowOpacity: 0.01, // reduced
-    shadowRadius: 2, // reduced
-    shadowOffset: { width: 0, height: 1 }, // reduced
-    elevation: 1, // reduced
+    shadowOpacity: 0.01,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
   },
   categoryCardActive: {
     borderColor: '#235CF8',
@@ -427,22 +560,23 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   categoryIconContainer: {
-    width: 16, // reduced from 22
-    height: 16, // reduced from 22
-    borderRadius: 4, // reduced from 6
+    width: 24, // slightly larger touch target
+    height: 24,
+    borderRadius: 6,
     backgroundColor: '#F9FAFB',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 2, // reduced from 3
+    marginBottom: 4,
   },
   categoryIconContainerActive: {
     backgroundColor: '#E3F2FD',
   },
   categoryLabel: {
-    fontSize: 10, // reduced from 13
+    fontSize: 11,
     fontWeight: '600',
     color: '#6B7280',
     letterSpacing: -0.2,
+    textAlign: 'center',
   },
   categoryLabelActive: {
     color: '#235CF8',
@@ -460,6 +594,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
     gap: CARD_GAP,
+  },
+  // Empty State
+  noAdsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    gap: 12,
+  },
+  noAdsText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  noAdsSubText: {
+    fontSize: 14,
+    color: '#9CA3AF',
   },
   // Modern Car Card
   carCard: {
@@ -492,14 +642,14 @@ const styles = StyleSheet.create({
   },
   yearBadgeText: {
     color: '#FFFFFF',
-    fontSize: 10, // reduced from 12
-    fontWeight: '600', // slightly lighter for clarity
-    letterSpacing: 0.2, // subtle modern touch
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   favoriteButton: {
     position: 'absolute',
-    top: 6, // moved up from 12
-    right: 6, // moved closer to right edge from 12
+    top: 6,
+    right: 6,
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -532,8 +682,8 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   carMetaText: {
-    fontSize: 11, // smaller for modern look
-    color: '#7B7F8A', // lighter
+    fontSize: 11,
+    color: '#7B7F8A',
     fontWeight: '500',
     flexShrink: 1,
     marginLeft: 2,

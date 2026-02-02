@@ -1,11 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   StyleSheet,
   Text,
   View,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,84 +17,64 @@ import PaymentSearch from '../../components/payments/history/PaymentSearch';
 import PaymentSummary from '../../components/payments/history/PaymentSummary';
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { Payment, PaymentSummaryData } from '../../types/payment.types';
+import { api } from '@/utils/api';
 
 export default function PaymentHistoryScreen() {
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const payments: Payment[] = [
-    {
-      id: '1',
-      date: 'Oct 15, 2025',
-      plan: 'Premium Plan',
-      type: 'Monthly',
-      amount: '$29.99',
-      status: 'Successful',
-      card: 'Visa **** **** 4232',
-    },
-    {
-      id: '2',
-      date: 'Oct 13, 2025',
-      plan: 'Basic Plan',
-      type: 'Monthly',
-      amount: '$10.00',
-      status: 'Successful',
-      card: 'Visa **** **** 4232',
-    },
-    {
-      id: '3',
-      date: 'July 17, 2025',
-      plan: 'Premium Plan',
-      type: 'Yearly',
-      amount: '$360.00',
-      status: 'Refunded',
-      card: 'Visa **** **** 4232',
-    },
-    {
-      id: '4',
-      date: 'Oct 13, 2025',
-      plan: 'Basic Plan',
-      type: 'Monthly',
-      amount: '$10.00',
-      status: 'Failed',
-      card: 'Visa **** **** 4232',
-    },
-    {
-      id: '5',
-      date: 'July 17, 2025',
-      plan: 'Premium Plan',
-      type: 'Yearly',
-      amount: '$360.00',
-      status: 'Refunded',
-      card: 'Visa **** **** 4232',
-    },
-    {
-      id: '6',
-      date: 'Oct 15, 2025',
-      plan: 'Premium Plan',
-      type: 'Monthly',
-      amount: '$29.99',
-      status: 'Successful',
-      card: 'Visa **** **** 4232',
-    },
-    {
-      id: '7',
-      date: 'Oct 15, 2025',
-      plan: 'Premium Plan',
-      type: 'Monthly',
-      amount: '$29.99',
-      status: 'Failed',
-      card: 'Visa **** **** 4232',
-    },
-  ];
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
-  const summaryData: PaymentSummaryData = {
-    totalPayments: 7,
-    successful: 4,
-    failed: 2,
-    refunded: 1,
-    totalSpent: '$99.96',
+  const fetchHistory = async () => {
+    try {
+      const res: any = await api.get('/api/payment/my-history');
+      if (res.success && Array.isArray(res.data)) {
+        // Map backend data to frontend type
+        const mapped: Payment[] = res.data.map((p: any) => ({
+          id: p.id,
+          date: p.date,
+          plan: p.plan,
+          type: 'Package', // Default or derive from logic
+          amount: p.amount,
+          status: p.status === 'SUCCESS' ? 'Successful' : p.status === 'FAILED' ? 'Failed' : p.status,
+          card: 'PayHere' // Default
+        }));
+        setPayments(mapped);
+      }
+    } catch (error) {
+      console.error("Failed to fetch payment history:", error);
+      // Alert.alert("Error", "Could not load payment history.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const calculateSummary = (): PaymentSummaryData => {
+    const successful = payments.filter(p => p.status === 'Successful');
+    const failed = payments.filter(p => p.status === 'Failed');
+    const refunded = payments.filter(p => p.status === 'Refunded');
+
+    // Parse amount string "$29.99" -> 29.99
+    // Backend returns "LKR 1000.00", assume we parse it
+    const totalVal = successful.reduce((acc, curr) => {
+      const val = parseFloat(curr.amount.replace(/[^0-9.]/g, ''));
+      return acc + (isNaN(val) ? 0 : val);
+    }, 0);
+
+    return {
+      totalPayments: payments.length,
+      successful: successful.length,
+      failed: failed.length,
+      refunded: refunded.length,
+      totalSpent: `LKR ${totalVal.toFixed(2)}`,
+    };
+  };
+
+  const summaryData = calculateSummary();
 
   const filteredPayments = payments.filter(p =>
     p.plan.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -101,11 +83,19 @@ export default function PaymentHistoryScreen() {
   );
 
   const handleCardPress = (item: Payment) => {
-    router.push({
-      pathname: './payments/preview-payment',
-      params: { ...item },
-    } as any);
+    // router.push({
+    //   pathname: './payments/preview-payment',
+    //   params: { ...item },
+    // } as any);
   };
+
+  if (loading) {
+    return (
+      <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#235CF8" />
+      </View>
+    );
+  }
 
   return (
     <>
@@ -128,9 +118,13 @@ export default function PaymentHistoryScreen() {
           <PaymentSearch value={searchText} onChangeText={setSearchText} />
 
           {/* PAYMENT LIST */}
-          {filteredPayments.map((item) => (
-            <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
-          ))}
+          {filteredPayments.length > 0 ? (
+            filteredPayments.map((item) => (
+              <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
+            ))
+          ) : (
+            <Text style={{ textAlign: 'center', marginTop: 20, color: '#666' }}>No payment history found.</Text>
+          )}
 
           {/* SUMMARY */}
           <PaymentSummary data={summaryData} />

@@ -144,44 +144,34 @@ export default function PackageInvoice() {
 
       const amountFormatted = total.toFixed(2);
       const orderId = displaySummary.invoice;
-      const items = `Package: ${planName}`;
+      // const items = `Package: ${planName}`;
 
       const paymentObj = {
-        order_id: orderId,
-        items: items,
+        orderId: orderId,
         amount: amountFormatted,
-        currency: "LKR",
-
-        first_name: user.name ? user.name.split(' ')[0] : "User",
-        last_name: user.name ? (user.name.split(' ')[1] || "") : "",
-        email: user.email || "customer@example.com",
-        phone: user.phone || "0771234567",
-        address: "No Address",
-        city: "Colombo",
-        country: "Sri Lanka",
-
-        sandbox: true
+        userId: user.id,
+        packageId: pkgIdString,
+        planName: planName
       };
 
-      console.log("Initiating Package Payment:", JSON.stringify(paymentObj));
+      console.log("Initiating Mock Payment:", JSON.stringify(paymentObj));
 
-      const response = await api.post<{ success: boolean; html: string }>(
-        '/api/payment/initiate',
+      // Call Mock API
+      const response = await api.post<{ success: boolean; message: string }>(
+        '/api/payment/mock-success',
         paymentObj
       );
 
-      if (!response.success || !response.html) {
-        throw new Error("Failed to initiate payment. Server returned invalid response.");
+      if (!response.success) {
+        throw new Error(response.message || "Failed to process payment.");
       }
 
-      router.push({
-        pathname: '/payments/payhere-gateway',
-        params: { html: response.html },
-      });
+      // Success Redirect
+      router.push('/payments/successful-payment');
 
     } catch (error: any) {
-      console.error("Payment initiation failed:", error);
-      Alert.alert("Error", error.message || "Failed to initiate payment.");
+      console.error("Payment failed:", error);
+      Alert.alert("Error", error.message || "Failed to settle payment.");
     } finally {
       setLoading(false);
     }

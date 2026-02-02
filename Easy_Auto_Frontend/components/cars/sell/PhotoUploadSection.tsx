@@ -11,6 +11,9 @@ interface Props {
     pricePill?: string;
     freeImageCount?: number;
     onViewPackages?: () => void;
+    extraImagePrice?: number;
+    isUnlimited?: boolean;
+    activePackageName?: string | null;
 }
 
 const PhotoUploadSection: React.FC<Props> = ({
@@ -21,11 +24,27 @@ const PhotoUploadSection: React.FC<Props> = ({
     subtitle: customSubtitle,
     pricePill,
     freeImageCount = 5,
-    onViewPackages
+    onViewPackages,
+    extraImagePrice = 0,
+    isUnlimited = false,
+    activePackageName
 }) => {
 
-    const subtitle = customSubtitle || `Upload up to ${freeImageCount} photos for free.`;
-    const showUpsell = selectedImages.length > freeImageCount;
+    const effectivelyUnlimited = isUnlimited || freeImageCount >= 99;
+
+    let subtitle = customSubtitle;
+    if (!subtitle) {
+        if (effectivelyUnlimited) {
+            subtitle = activePackageName
+                ? `You have subscribed to ${activePackageName}, so you can upload unlimited images!`
+                : "You can upload unlimited images!";
+        } else {
+            subtitle = `Upload up to ${freeImageCount} photos for free.`;
+        }
+    }
+
+    // Only show upsell if NOT unlimited AND over limit
+    const showUpsell = !effectivelyUnlimited && selectedImages.length > freeImageCount;
 
     return (
         <View style={styles.section}>
@@ -37,7 +56,8 @@ const PhotoUploadSection: React.FC<Props> = ({
                     </View>
                 )}
             </View>
-            <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+
+            <Text style={[styles.sectionSubtitle, effectivelyUnlimited && styles.unlimitedText]}>{subtitle}</Text>
 
             <View style={{ alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
                 {/* Render all selected images */}
@@ -66,7 +86,11 @@ const PhotoUploadSection: React.FC<Props> = ({
             {showUpsell && (
                 <View style={styles.upsellContainer}>
                     <Text style={styles.upsellText}>
-                        <Text style={{ fontWeight: 'bold' }}>Extra images selected.</Text> You have exceeded the free limit of {freeImageCount} images. Additional charges will apply.
+                        <Text style={{ fontWeight: 'bold' }}>Extra images selected.</Text>
+                        {extraImagePrice && extraImagePrice > 0
+                            ? ` You have exceeded the free limit. An extra fee of ${new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format((selectedImages.length - freeImageCount) * extraImagePrice)} will apply.`
+                            : ` You have exceeded the free limit of ${freeImageCount} images. Additional charges will apply.`
+                        }
                     </Text>
                     <TouchableOpacity
                         style={styles.upsellButton}
@@ -84,6 +108,7 @@ const styles = StyleSheet.create({
     section: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
     sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
     sectionSubtitle: { fontSize: 13, color: '#6B7280', marginBottom: 16 },
+    unlimitedText: { color: '#059669', fontWeight: '600' }, // Green text for unlimited message
     // Simplified layout styles for flex wrap
     photoContainerUniform: { position: 'relative', width: 70, height: 70, marginBottom: 4 },
     carPhotoUniform: { width: 70, height: 70, borderRadius: 8 },

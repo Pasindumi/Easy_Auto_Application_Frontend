@@ -6,6 +6,9 @@ import { typography } from "../../theme";
 interface PaymentItem {
     id: string;
     date: string;
+    plan?: string;
+    amount?: string;
+    status?: string;
 }
 
 interface PaymentHistorySectionProps {
@@ -38,7 +41,7 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
                                 <Ionicons name="receipt-outline" size={20} color="#235CF8" />
                             </View>
                             <View style={styles.paymentInfo}>
-                                <Text style={styles.paymentTitle}>Premium Plan - Monthly</Text>
+                                <Text style={styles.paymentTitle}>{item.plan || "Premium Plan"}</Text>
                                 <View style={styles.paymentDateRow}>
                                     <Ionicons name="calendar-outline" size={12} color="#9CA3AF" />
                                     <Text style={styles.paymentDate}>{item.date}</Text>
@@ -48,10 +51,18 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
 
                         <View style={styles.paymentRight}>
                             <View style={styles.paymentAmountContainer}>
-                                <Text style={styles.paymentPrice}>$29.99</Text>
-                                <View style={styles.statusBadge}>
-                                    <View style={styles.statusDot} />
-                                    <Text style={styles.completed}>Completed</Text>
+                                <Text style={styles.paymentPrice}>{item.amount || "$0.00"}</Text>
+                                <View style={[styles.statusBadge, {
+                                    backgroundColor: item.status === 'CANCELLED' ? '#FEE2E2' : '#ECFDF5'
+                                }]}>
+                                    <View style={[styles.statusDot, {
+                                        backgroundColor: item.status === 'CANCELLED' ? '#EF4444' : '#10B981'
+                                    }]} />
+                                    <Text style={[styles.completed, {
+                                        color: item.status === 'CANCELLED' ? '#EF4444' : '#10B981'
+                                    }]}>
+                                        {item.status || "Completed"}
+                                    </Text>
                                 </View>
                             </View>
                             <TouchableOpacity

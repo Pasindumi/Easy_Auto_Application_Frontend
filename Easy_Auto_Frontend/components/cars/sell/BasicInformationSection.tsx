@@ -6,14 +6,21 @@ interface Props {
     carDetails: CarFormState;
     handleInputChange: (field: string, value: string | boolean) => void;
     descriptionLimit?: number;
+    extraLetterPrice?: number;
+    isUnlimited?: boolean;
 }
 
-const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChange, descriptionLimit = 500 }) => {
-    const isOverLimit = (carDetails.description?.length || 0) > descriptionLimit;
+const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChange, descriptionLimit = 500, extraLetterPrice = 0, isUnlimited = false }) => {
+    const isOverLimit = !isUnlimited && (carDetails.description?.length || 0) > descriptionLimit;
 
     return (
         <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Basic Information</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <Text style={styles.sectionTitle}>Basic Information</Text>
+                <View style={styles.limitPill}>
+                    <Text style={styles.limitPillText}>{isUnlimited || descriptionLimit >= 10000 ? 'Unlimited' : `${descriptionLimit} chars max`}</Text>
+                </View>
+            </View>
 
             <Text style={styles.label}>Title</Text>
             <TextInput
@@ -62,6 +69,7 @@ const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChang
                 multiline
                 numberOfLines={6}
                 textAlignVertical="top"
+                maxLength={descriptionLimit}
             />
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
                 <Text style={[styles.limitText, isOverLimit && styles.limitTextError]}>
@@ -69,7 +77,11 @@ const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChang
                 </Text>
                 {isOverLimit && (
                     <Text style={styles.warningText}>
-                        Only {descriptionLimit} letters allowed. Extra charges may apply!
+                        {extraLetterPrice && extraLetterPrice > 0 ? (
+                            `Over limit! +${new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(((carDetails.description?.length || 0) - descriptionLimit) * extraLetterPrice)} will be charged.`
+                        ) : (
+                            `Only ${descriptionLimit} letters allowed. Extra charges may apply!`
+                        )}
                     </Text>
                 )}
             </View>
@@ -79,7 +91,9 @@ const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChang
 
 const styles = StyleSheet.create({
     section: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 12 },
+    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
+    limitPill: { backgroundColor: '#F3F4F6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+    limitPillText: { fontSize: 10, color: '#6B7280', fontWeight: '600' },
     label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
     input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16, backgroundColor: 'white', marginBottom: 16 },
     descriptionTextArea: { height: 120, paddingTop: 12 },

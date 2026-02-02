@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import BasicInformationSection from '../../components/cars/sell/BasicInformationSection';
 import CarDetailsSection from '../../components/cars/sell/CarDetailsSection';
 import ContactDetailsSection from '../../components/cars/sell/ContactDetailsSection';
@@ -31,6 +32,7 @@ export default function SellCarScreen() {
   useProtectedRoute();
 
   const router = useRouter();
+  const isFocused = useIsFocused();
   const params = useLocalSearchParams();
   const initialVehicleType = params.vehicleType as string || 'Car';
   const initialVehicleTypeId = params.vehicleTypeId as string || '';
@@ -78,10 +80,59 @@ export default function SellCarScreen() {
   // State for pricing logic
   const [freeImageCount, setFreeImageCount] = useState(5); // Default to 5
   const [descriptionLimit, setDescriptionLimit] = useState(500); // Default to 500
+  const [unlimitedImages, setUnlimitedImages] = useState(false);
+  const [unlimitedDescription, setUnlimitedDescription] = useState(false);
+  const [packageLimits, setPackageLimits] = useState<any>(null); // Store full package info
+  const [activePackageName, setActivePackageName] = useState<string | null>(null);
+  const [extraImagePrice, setExtraImagePrice] = useState(0);
+  const [extraLetterPrice, setExtraLetterPrice] = useState(0);
 
   // Fetch Logic
   useEffect(() => {
     const fetchData = async () => {
+      let finalImgLimit = 5; // Default Base
+      let finalDescLimit = 500; // Default Base
+      let extraImg = 0;
+      let extraDesc = 0;
+      let activePkgId: string | null = null;
+      let pkgConfig: any = null;
+
+      // 1. Fetch Active Package
+      try {
+        const pkgRes = await api.get<{ success: boolean; data: { hasForcedPackage: boolean; limits: any[]; includedItems: any[]; config: any; package?: any } }>('/api/pricing/active-package');
+
+        if (pkgRes.success && pkgRes.data && pkgRes.data.hasForcedPackage) {
+          setPackageLimits(pkgRes.data);
+          activePkgId = pkgRes.data.package?.id;
+          pkgConfig = pkgRes.data.config;
+
+          if (pkgRes.data.package?.name) {
+            setActivePackageName(pkgRes.data.package.name);
+          }
+
+          // A. Process Included Items (Add-ons)
+          if (pkgRes.data.includedItems && Array.isArray(pkgRes.data.includedItems)) {
+            pkgRes.data.includedItems.forEach((item: any) => {
+              const iCode = item.price_items?.code || '';
+              const iName = item.price_items?.name || '';
+
+              const isImageItem = iCode.includes('IMG') || iCode.includes('PHOTO') || iCode === 'IMAGE' || iName.toLowerCase().includes('image') || iName.toLowerCase().includes('photo');
+              const isLetterItem = iCode.includes('LTR') || iCode.includes('DESC') || iCode === 'LETTER' || iName.toLowerCase().includes('letter') || iName.toLowerCase().includes('description');
+
+              if (isImageItem) {
+                if (item.is_unlimited) extraImg += 100; else extraImg += (item.quantity || 0);
+              }
+              if (isLetterItem) {
+                if (item.is_unlimited) extraDesc += 100000; else extraDesc += (item.quantity || 0);
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.log("No active package or error fetching package", e);
+      }
+
+      // 2. Fetch Config & Rules
       if (!activeVehicleTypeId) return;
       try {
         const [brandsRes, attrsRes, modelsRes, conditionsRes, rulesRes] = await Promise.all([
@@ -89,41 +140,95 @@ export default function SellCarScreen() {
           fetch(`${ENDPOINTS.VEHICLE_CONFIG.ATTRIBUTES}/${activeVehicleTypeId}`),
           fetch(`${ENDPOINTS.VEHICLE_CONFIG.MODELS}/${activeVehicleTypeId}`),
           fetch(`${ENDPOINTS.VEHICLE_CONFIG.CONDITIONS}/${activeVehicleTypeId}`),
-          // Fetch all rules and filter locally (assuming lightweight)
-          // Adjust endpoint if you have a specific backend URL for public rules
           fetch(`${ENDPOINTS.PRICING}/rules`)
         ]);
 
-        if (!brandsRes.ok || !attrsRes.ok || !modelsRes.ok || !conditionsRes.ok) {
-          throw new Error("One or more requests failed");
+        if (!brandsRes.ok || !attrsRes.ok || !modelsRes.ok || !conditionsRes.ok) throw new Error("Config request failed");
+
+        // B. Determine Base Limits from Rules
+        if (rulesRes.ok) {
+          const rulesData = await rulesRes.json();
+          if (Array.isArray(rulesData)) {
+            let activeRule = null;
+
+            // Priority 1: Package Specific Rule (If user has package)
+            if (activePkgId) {
+              // Try finding rule for this package & this vehicle type
+              activeRule = rulesData.find((r: any) => r.price_item_id === activePkgId && r.vehicle_type_id === activeVehicleTypeId);
+              // Fallback: Rule for this package (any vehicle type)
+              if (!activeRule) activeRule = rulesData.find((r: any) => r.price_item_id === activePkgId && !r.vehicle_type_id);
+            }
+
+            // Priority 2: Global Rule (If no package rule found)
+            if (!activeRule) {
+              // Look for a rule for this vehicle type that is a Standard Advertisement (item_type === 'AD')
+              // EXCLUDE special extra items (EX_IMG, EXT_LTR) to prevent conflict if they are mislabeled as AD
+              activeRule = rulesData.find((r: any) =>
+                r.vehicle_type_id === activeVehicleTypeId &&
+                r.unit === 'PER_AD' &&
+                r.price_items?.item_type === 'AD' &&
+                !['EX_IMG', 'EXT_LTR', 'BOOST'].includes(r.price_items?.code)
+              );
+            }
+            if (!activeRule) {
+              // Fallback: Generic Rule for All Types
+              activeRule = rulesData.find((r: any) =>
+                !r.vehicle_type_id &&
+                r.unit === 'PER_AD' &&
+                r.price_items?.item_type === 'AD' &&
+                !['EX_IMG', 'EXT_LTR', 'BOOST'].includes(r.price_items?.code)
+              );
+            }
+
+            // Apply Rule Limits
+            if (activeRule) {
+              if (activeRule.free_image_count !== undefined) finalImgLimit = activeRule.free_image_count;
+              if (activeRule.description_limit !== undefined) finalDescLimit = activeRule.description_limit;
+            }
+
+            // Find Extra Prices (EX_IMG and EXT_LTR)
+            const exImgRule = rulesData.find((r: any) =>
+              (r.vehicle_type_id === activeVehicleTypeId || !r.vehicle_type_id) &&
+              r.price_items?.code === 'EX_IMG'
+            );
+            if (exImgRule) setExtraImagePrice(parseFloat(exImgRule.price));
+
+            const extLtrRule = rulesData.find((r: any) =>
+              (r.vehicle_type_id === activeVehicleTypeId || !r.vehicle_type_id) &&
+              r.price_items?.code === 'EXT_LTR'
+            );
+            if (extLtrRule) setExtraLetterPrice(parseFloat(extLtrRule.price));
+          }
         }
+
+        // C. Apply Config Overrides (Strongest)
+        if (pkgConfig) {
+          if (pkgConfig.DESCRIPTION_LIMIT) {
+            const val = pkgConfig.DESCRIPTION_LIMIT;
+            finalDescLimit = (String(val).toLowerCase() === 'unlimited') ? 100000 : (parseInt(val) || finalDescLimit);
+          }
+          if (pkgConfig.IMAGE_LIMIT) {
+            const val = pkgConfig.IMAGE_LIMIT;
+            finalImgLimit = (String(val).toLowerCase() === 'unlimited') ? 100 : (parseInt(val) || finalImgLimit);
+          }
+        }
+
+        // D. Final Calculation (Base + Extras)
+        const totalImgLimit = finalImgLimit + extraImg;
+        const totalDescLimit = finalDescLimit + extraDesc;
+
+        setFreeImageCount(totalImgLimit);
+        setDescriptionLimit(totalDescLimit);
+
+        // Determine unlimited status based on high values (from included items logic above)
+        // or explicitly from checking if we added the "unlimited" buffer
+        setUnlimitedImages(totalImgLimit >= 100);
+        setUnlimitedDescription(totalDescLimit >= 10000);
 
         const brandsData = await brandsRes.json();
         const attrsData = await attrsRes.json();
         const modelsData = await modelsRes.json();
         const conditionsData = await conditionsRes.json();
-
-        // Handle Rules
-        if (rulesRes.ok) {
-          const rulesData = await rulesRes.json();
-          if (Array.isArray(rulesData)) {
-            // Find rule for this vehicle type (PER_AD)
-            const typeRule = rulesData.find((r: any) => r.vehicle_type_id === activeVehicleTypeId && r.unit === 'PER_AD');
-            const defaultRule = rulesData.find((r: any) => !r.vehicle_type_id && r.unit === 'PER_AD');
-
-            const activeRule = typeRule || defaultRule;
-            if (activeRule) {
-              if (activeRule.free_image_count !== undefined) {
-                setFreeImageCount(activeRule.free_image_count);
-              }
-              // We will store description_limit in a new state or just pass it down if we had a clean state for it.
-              // Let's create a state for it.
-              if (activeRule.description_limit !== undefined) {
-                setDescriptionLimit(activeRule.description_limit);
-              }
-            }
-          }
-        }
 
         if (Array.isArray(brandsData)) setBrands(brandsData);
         if (Array.isArray(attrsData)) setAttributes(attrsData);
@@ -134,8 +239,10 @@ export default function SellCarScreen() {
         console.error("Error fetching vehicle config:", error);
       }
     };
-    fetchData();
-  }, [activeVehicleTypeId]);
+    if (isFocused) {
+      fetchData();
+    }
+  }, [activeVehicleTypeId, isFocused]);
 
   // Fetch Existing Ad for Edit Mode
   useEffect(() => {
@@ -256,8 +363,11 @@ export default function SellCarScreen() {
   };
 
   const pickImage = async () => {
-    // Removed strict limit check to allow extra images
-    // if (selectedImages.length >= freeImageCount) { ... }
+    // Strict limit check
+    if (selectedImages.length >= freeImageCount) {
+      Alert.alert("Limit Reached", `You can only upload up to ${freeImageCount} images with your current package.`);
+      return;
+    }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -421,7 +531,14 @@ export default function SellCarScreen() {
       <View style={headerSectionStyles.headerWrap}>
         <View style={headerSectionStyles.header}>
           <Ionicons name="pricetag-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={headerSectionStyles.headerTitle}>Sell Your {vehicleType}</Text>
+          <View>
+            <Text style={headerSectionStyles.headerTitle}>Sell Your {vehicleType}</Text>
+            {activePackageName && (
+              <Text style={{ fontSize: 12, color: COLORS.primary, fontWeight: '600' }}>
+                Active Package: {activePackageName}
+              </Text>
+            )}
+          </View>
         </View>
       </View>
 
@@ -438,6 +555,8 @@ export default function SellCarScreen() {
             carDetails={carDetails}
             handleInputChange={handleInputChange}
             descriptionLimit={descriptionLimit}
+            extraLetterPrice={extraLetterPrice}
+            isUnlimited={unlimitedDescription}
           />
 
           <CarDetailsSection
@@ -457,6 +576,9 @@ export default function SellCarScreen() {
             addImage={pickImage}
             freeImageCount={freeImageCount}
             onViewPackages={handleViewPackages}
+            extraImagePrice={extraImagePrice}
+            isUnlimited={unlimitedImages}
+            activePackageName={activePackageName}
           />
 
           <ContactDetailsSection

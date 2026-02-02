@@ -3,6 +3,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,6 +15,8 @@ import Header from '../../components/Header';
 import { ENDPOINTS } from '../../constants/API';
 import COLORS from '../../constants/Colors';
 
+import { api } from '@/utils/api';
+
 export default function PackageDetailScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
@@ -21,9 +24,15 @@ export default function PackageDetailScreen() {
 
   const [pkg, setPkg] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isCurrentPlan, setIsCurrentPlan] = useState(false);
+  const [activeSubId, setActiveSubId] = useState<string | null>(null);
+  const [usageLimits, setUsageLimits] = useState<any[]>([]);
 
   useEffect(() => {
-    if (id) fetchPackage();
+    if (id) {
+      fetchPackage();
+      checkActiveSubscription();
+    }
   }, [id]);
 
   const fetchPackage = async () => {
@@ -35,7 +44,38 @@ export default function PackageDetailScreen() {
     } catch (err) {
       console.error('Error loading package detail', err);
     } finally {
+      // Logic handled in separate calls, but loading state might need coordination.
+      // We'll let `loading` turn false after package is found, 
+      // isCurrentPlan can update independently or we can group them.
       setLoading(false);
+    }
+  };
+
+  const checkActiveSubscription = async () => {
+    try {
+      // 1. Get detailed active package context (includes limits/usage)
+      const res: any = await api.get('/api/pricing/active-package');
+      if (res.success && res.data) {
+        const activePkgId = res.data.packageId;
+        const isActive = String(activePkgId) === String(id);
+        setIsCurrentPlan(isActive);
+        if (isActive) {
+          setActiveSubId(res.data.subscriptionId);
+          setUsageLimits(res.data.limits || []);
+        } else {
+          setActiveSubId(null);
+          setUsageLimits([]);
+        }
+      } else {
+        // Fallback or No Active Package
+        setIsCurrentPlan(false);
+        setActiveSubId(null);
+        setUsageLimits([]);
+      }
+    } catch (error) {
+      console.log("Check sub failed:", error);
+      setIsCurrentPlan(false);
+      setUsageLimits([]);
     }
   };
 
@@ -45,6 +85,37 @@ export default function PackageDetailScreen() {
   };
 
   const getDuration = () => parseInt(pkg?.config?.DURATION_DAYS || '0');
+
+  const handleUnsubscribe = async () => {
+    Alert.alert(
+      "Unsubscribe",
+      "Are you sure you want to cancel your subscription? You may lose access to premium features immediately.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Unsubscribe",
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              const res: any = await api.post('/api/payment/unsubscribe', { subscriptionId: activeSubId });
+              if (res.success) {
+                Alert.alert("Success", "Subscription cancelled successfully.");
+                setIsCurrentPlan(false); // Update local state immediately
+                router.replace('/packages/subscriptions');
+              } else {
+                throw new Error(res.message || "Failed");
+              }
+            } catch (error: any) {
+              Alert.alert("Error", error.message || "Failed to unsubscribe.");
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   if (loading) {
     return (
@@ -103,12 +174,30 @@ export default function PackageDetailScreen() {
 
           <Text style={styles.durationText}>{duration} days boost</Text>
 
-          <TouchableOpacity
-            style={[styles.buyButton, { backgroundColor: pkg.config?.COLOR_THEME || COLORS.primary }]}
-            onPress={() => router.push({ pathname: '/payments/invoice', params: { plan: pkg.name, price: price, days: duration, packageId: pkg.id } })}
-          >
-            <Text style={styles.buyText}>Buy Now</Text>
-          </TouchableOpacity>
+          {isCurrentPlan ? (
+            <View>
+              <View
+                style={[styles.buyButton, { backgroundColor: '#10B981', opacity: 1, marginBottom: 10 }]}
+              >
+                <Ionicons name="checkmark-circle" size={18} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.buyText}>Active Current Plan</Text>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.buyButton, { backgroundColor: '#EF4444', marginTop: 0 }]}
+                onPress={handleUnsubscribe}
+              >
+                <Text style={styles.buyText}>Unsubscribe</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[styles.buyButton, { backgroundColor: pkg.config?.COLOR_THEME || COLORS.primary }]}
+              onPress={() => router.push({ pathname: '/payments/invoice', params: { plan: pkg.name, price: price, days: duration, packageId: pkg.id } })}
+            >
+              <Text style={styles.buyText}>Buy Now</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Features */}
@@ -139,16 +228,37 @@ export default function PackageDetailScreen() {
 
           {pkg.ad_limits && pkg.ad_limits.length > 0 ? (
             <View style={styles.gridContainer}>
-              {pkg.ad_limits.map((l: any) => (
-                <View key={l.id} style={styles.limitCard}>
-                  <Text style={styles.limitValue}>
-                    {l.is_unlimited ? '∞' : l.quantity}
-                  </Text>
-                  <Text style={styles.limitLabel}>
-                    {l.vehicle_types?.type_name || 'All Vehicles'}
-                  </Text>
-                </View>
-              ))}
+              {pkg.ad_limits.map((l: any) => {
+                // Find matching usage limit if this is the active plan
+                const usage = usageLimits.find(u =>
+                  String(u.vehicle_type_id || '').toLowerCase() === String(l.vehicle_type_id || '').toLowerCase()
+                );
+                const remaining = usage ? usage.remaining_count : null;
+                const usedDisplay = usage ? usage.used_count : 0;
+
+                return (
+                  <View key={l.id} style={styles.limitCard}>
+                    <Text style={styles.limitValue}>
+                      {l.is_unlimited ? '∞' : l.quantity}
+                    </Text>
+                    {isCurrentPlan && (
+                      <View style={{ alignItems: 'center' }}>
+                        <Text style={{ fontSize: 11, color: '#10B981', fontWeight: 'bold' }}>
+                          Remaining: {l.is_unlimited ? '∞' : (remaining ?? l.quantity)}
+                        </Text>
+                        {usedDisplay > 0 && (
+                          <Text style={{ fontSize: 9, color: '#666' }}>
+                            {usedDisplay} Slot{usedDisplay > 1 ? 's' : ''} Used
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                    <Text style={styles.limitLabel}>
+                      {l.vehicle_types?.type_name || 'All Vehicles'}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
           ) : (
             <View style={styles.emptyWrap}>

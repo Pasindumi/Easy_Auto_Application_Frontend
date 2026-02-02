@@ -1,3 +1,4 @@
+// VERIFICATION_TAG: REF_PV_FIX_V2
 import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -27,17 +28,20 @@ export default function Payment() {
 
   const [orderItems, setOrderItems] = useState<OrderItem[]>(paymentData.orderItems);
   const [discountApplied, setDiscountApplied] = useState(false);
+  const [isFreeAd, setIsFreeAd] = useState(false);
+  const [activePackageId, setActivePackageId] = useState<string | null>(null);
 
   useEffect(() => {
     const initData = async () => {
       if (adId) {
         setLoading(true);
         try {
-          const [adRes, rulesRes, discountsRes, myAdsRes] = await Promise.all([
+          const [adRes, rulesRes, discountsRes, myAdsRes, myPkgRes] = await Promise.all([
             api.get<{ success: boolean; data: any }>(`/api/cars/${adId}`),
             fetch(`${ENDPOINTS.PRICING}/rules`),
             api.get<{ success: boolean; data: any }>('/api/discounts/active'),
-            api.get<{ success: boolean; data: any[] }>('/api/cars/my-ads')
+            api.get<{ success: boolean; data: any[] }>('/api/cars/my-ads'),
+            api.get<{ success: boolean; data: any }>('/api/pricing/active-package')
           ]);
 
           if (adRes.success && rulesRes.ok) {
@@ -45,6 +49,7 @@ export default function Payment() {
             const rulesData = await rulesRes.json();
             const discountsData = discountsRes.success ? (discountsRes.data || []) : (Array.isArray(discountsRes) ? discountsRes : []);
             const userAds = myAdsRes.data || (Array.isArray(myAdsRes) ? myAdsRes : []);
+            const pkgData = myPkgRes.success ? myPkgRes.data : null;
 
             setAdDetails(adData);
 
@@ -52,28 +57,71 @@ export default function Payment() {
             const vehicleTypeId = adData.vehicle_type_id;
             const uploadedImagesCount = adData.AdImage?.length || 0;
 
-            const adRule = rulesData.find((r: any) =>
+            // 1. Find the Standard (Global) Advertisement Price for this vehicle type
+            // Based on rules-output.json, the code is 'STD_AD'
+            const standardAdRule = rulesData.find((r: any) =>
               r.vehicle_type_id === vehicleTypeId &&
-              (r.price_items?.code === 'AD' || r.price_items?.item_type === 'AD')
+              r.unit === 'PER_AD' &&
+              (r.price_items?.code === 'STD_AD' || r.price_items?.code === 'AD') &&
+              parseFloat(r.price) > 0
             );
 
-            const defaultAdRule = rulesData.find((r: any) =>
+            const globalAdRule = rulesData.find((r: any) =>
               !r.vehicle_type_id &&
-              (r.price_items?.code === 'AD' || r.price_items?.item_type === 'AD')
+              r.unit === 'PER_AD' &&
+              (r.price_items?.code === 'STD_AD' || r.price_items?.code === 'AD') &&
+              parseFloat(r.price) > 0
             );
 
-            const finalAdRule = adRule || defaultAdRule;
+            const finalAdRule = standardAdRule || globalAdRule;
             const adPrice = finalAdRule ? parseFloat(finalAdRule.price) : 0;
             const freeImageLimit = finalAdRule?.free_image_count || 5;
 
-            newOrderItems.push({
-              label: `Advertisement Fee (${adData.vehicle_type?.type_name || 'Vehicle'})`,
-              price: adPrice
-            });
+            // CHECK PACKAGE LIMITS FOR FREE AD
+            let isFreeAdLocal = false;
+            let packageLimitId = null;
+
+            if (pkgData && pkgData.limits) {
+              const limit = pkgData.limits.find((l: any) =>
+                String(l.vehicle_type_id || '').toLowerCase() === String(vehicleTypeId || '').toLowerCase()
+              );
+              if (limit) {
+                if (limit.is_unlimited || limit.remaining_count > 0) {
+                  isFreeAdLocal = true;
+                  packageLimitId = limit.id;
+                }
+              }
+            }
+
+            setIsFreeAd(isFreeAdLocal);
+            // Use flattened ID from backend
+            setActivePackageId(pkgData?.packageId || null);
+
+            if (isFreeAdLocal) {
+              newOrderItems.push({
+                label: `Advertisement Price`,
+                price: adPrice
+              });
+              newOrderItems.push({
+                label: `Reduce because of package`,
+                price: -adPrice
+              });
+            } else {
+              newOrderItems.push({
+                label: `Advertisement Fee (${adData.vehicle_type?.type_name || 'Vehicle'})`,
+                price: adPrice
+              });
+            }
 
             let extraImageFee = 0;
-            if (uploadedImagesCount > freeImageLimit) {
-              const extraImages = uploadedImagesCount - freeImageLimit;
+            // Determine effective image limit (Max of Rule OR Package Config)
+            let effectiveImageLimit = freeImageLimit;
+            if (pkgData && pkgData.config?.IMAGE_LIMIT) {
+              effectiveImageLimit = Math.max(effectiveImageLimit, parseInt(pkgData.config.IMAGE_LIMIT));
+            }
+
+            if (uploadedImagesCount > effectiveImageLimit) {
+              const extraImages = uploadedImagesCount - effectiveImageLimit;
               const exImgRule = rulesData.find((r: any) =>
                 (r.vehicle_type_id === vehicleTypeId || !r.vehicle_type_id) &&
                 r.price_items?.code === 'EX_IMG'
@@ -90,12 +138,18 @@ export default function Payment() {
             }
 
             // Extra Description Charge
-            const descLimit = finalAdRule?.description_limit || 500;
+            const ruleDescLimit = finalAdRule?.description_limit || 500;
+            let effectiveDescLimit = ruleDescLimit;
+
+            if (pkgData && pkgData.config?.DESCRIPTION_LIMIT) {
+              effectiveDescLimit = Math.max(effectiveDescLimit, parseInt(pkgData.config.DESCRIPTION_LIMIT));
+            }
+
             const userDesc = adData.description || "";
             const descLength = userDesc.length;
             let extraDescFee = 0;
 
-            if (descLength > descLimit) {
+            if (descLength > effectiveDescLimit) {
               // Find rule for EXT_LTR
               const extLtrRule = rulesData.find((r: any) =>
                 (r.vehicle_type_id === vehicleTypeId || !r.vehicle_type_id) &&
@@ -105,7 +159,7 @@ export default function Payment() {
               if (extLtrRule) {
                 const extraLetterPrice = parseFloat(extLtrRule.price);
                 if (extraLetterPrice > 0) {
-                  const extraChars = descLength - descLimit;
+                  const extraChars = descLength - effectiveDescLimit;
                   extraDescFee = extraChars * extraLetterPrice;
                   newOrderItems.push({
                     label: `Extra Description (${extraChars} chars x ${new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(extraLetterPrice)})`,
@@ -119,31 +173,33 @@ export default function Payment() {
             const userAdsCount = userAds.length;
             const isFirstTimeUser = userAdsCount <= 1;
 
-            discountsData.forEach((discount: any) => {
-              const hasCategory = !discount.discount_vehicle_types ||
-                discount.discount_vehicle_types.length === 0 ||
-                discount.discount_vehicle_types.some((v: any) => v.vehicle_type_id === vehicleTypeId);
+            if (!isFreeAdLocal) {
+              discountsData.forEach((discount: any) => {
+                const hasCategory = !discount.discount_vehicle_types ||
+                  discount.discount_vehicle_types.length === 0 ||
+                  discount.discount_vehicle_types.some((v: any) => v.vehicle_type_id === vehicleTypeId);
 
-              if (!hasCategory) return;
-              if (discount.is_first_time_user && !isFirstTimeUser) return;
-              if (discount.min_bulk_ads > 0 && userAdsCount < discount.min_bulk_ads) return;
+                if (!hasCategory) return;
+                if (discount.is_first_time_user && !isFirstTimeUser) return;
+                if (discount.min_bulk_ads > 0 && userAdsCount < discount.min_bulk_ads) return;
 
-              let discountAmount = 0;
-              const discountValue = parseFloat(discount.value);
+                let discountAmount = 0;
+                const discountValue = parseFloat(discount.value);
 
-              if (discount.discount_type === 'PERCENTAGE') {
-                discountAmount = subtotalBeforeDiscount * (discountValue / 100);
-              } else {
-                discountAmount = discountValue;
-              }
+                if (discount.discount_type === 'PERCENTAGE') {
+                  discountAmount = subtotalBeforeDiscount * (discountValue / 100);
+                } else {
+                  discountAmount = discountValue;
+                }
 
-              if (discountAmount > 0) {
-                newOrderItems.push({
-                  label: `Discount: ${discount.name}`,
-                  price: -discountAmount
-                });
-              }
-            });
+                if (discountAmount > 0) {
+                  newOrderItems.push({
+                    label: `Discount: ${discount.name}`,
+                    price: -discountAmount
+                  });
+                }
+              });
+            }
 
             setOrderItems(newOrderItems);
           } else {
@@ -216,6 +272,28 @@ export default function Payment() {
     try {
       setLoading(true);
 
+      if (total === 0 && isFreeAd) {
+        // Handle Free Ad Activation via Package
+        const activationResponse = await api.post<{ success: boolean; message: string }>(
+          '/api/payment/activate-free-ad',
+          {
+            adId: adId,
+            packageId: activePackageId,
+            amount: 0,
+            orderId: displaySummary.invoice
+          }
+        );
+
+        if (activationResponse.success) {
+          Alert.alert("Success", activationResponse.message);
+          router.push('/payments/successful-payment' as any);
+          return;
+        } else {
+          Alert.alert("Error", activationResponse.message || "Failed to activate ad.");
+          return;
+        }
+      }
+
       const amountFormatted = total.toFixed(2);
       const orderId = displaySummary.invoice;
       // Clean description for PayHere
@@ -236,7 +314,7 @@ export default function Payment() {
         address: displaySeller.address || "No 1, Galle Road",
         city: "Colombo",
         country: "Sri Lanka",
-
+        packageId: activePackageId,
         sandbox: true
       };
 
@@ -293,7 +371,7 @@ export default function Payment() {
       <View style={headerSectionStyles.headerWrap}>
         <View style={headerSectionStyles.header}>
           <Ionicons name="receipt-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={headerSectionStyles.headerTitle}>Booking Summary</Text>
+          <Text style={headerSectionStyles.headerTitle}>Booking Summary (V2)</Text>
         </View>
       </View>
 
@@ -302,7 +380,7 @@ export default function Payment() {
           <PaymentSummaryHeader summary={displaySummary} />
           <SellerInfoSection seller={displaySeller} />
           <OrderItemsSection items={orderItems} total={total} />
-          <ImportantNoteSection note={paymentData.note} />
+          <ImportantNoteSection note={total === 0 ? "This advertisement is covered by your active package. You won't be charged for this posting." : paymentData.note} />
           <PromoCodeSection onApply={handleApplyPromo} />
 
           <View style={styles.actionButtons}>
