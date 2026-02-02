@@ -29,8 +29,8 @@ export default function SuccessfulPayment() {
         </View>
 
         {/* Texts */}
-        <Text style={styles.title}>Payment Successful!</Text>
-        <Text style={styles.subtitle}>Your payment has been processed successfully.</Text>
+        <Text style={styles.title}>Payment Done!</Text>
+        <Text style={styles.subtitle}>You can now enjoy your package benefits.</Text>
 
         {/* CTA */}
         <TouchableOpacity
