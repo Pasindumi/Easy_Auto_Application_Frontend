@@ -211,9 +211,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('[Auth] Attempting to get token from provided function...');
         try {
           clerkToken = await getTokenFunc();
-          console.log('[Auth] ✅ Token obtained from provided function (length:', clerkToken?.length, ')');
+          console.log('[Auth] Token obtained from provided function (length:', clerkToken?.length, ')');
         } catch (err: any) {
-          console.error('[Auth] ❌ Failed to get token from function:', err.message);
+          console.error('[Auth] Failed to get token from function:', err.message);
         }
       }
 
