@@ -1,6 +1,5 @@
-import { ALL_BRANDS, FEATURED_BRANDS } from "@/constants/dummydata/homedummydata";
 import { Image } from "expo-image";
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
     Animated,
     Dimensions,
@@ -9,16 +8,25 @@ import {
     Text,
     TouchableOpacity,
     View,
+    ActivityIndicator
 } from "react-native";
+import api from "@/utils/api";
 
 const { width } = Dimensions.get("window");
+
+interface Brand {
+    id: string;
+    brand_name: string;
+    brand_image: string | null;
+    status: string;
+}
 
 // Animated Brand Card Component
 const BrandCard = ({
     brand,
     index,
 }: {
-    brand: { name: string; logo: any };
+    brand: Brand;
     index: number;
 }) => {
     const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -50,16 +58,16 @@ const BrandCard = ({
                 activeOpacity={1}
             >
                 <View style={styles.brandLogoContainer}>
-                    {brand.logo ? (
+                    {brand.brand_image ? (
                         <Image
-                            source={brand.logo}
+                            source={{ uri: brand.brand_image }}
                             style={styles.brandLogoImage}
                             contentFit="contain"
                             transition={200}
                         />
                     ) : (
                         <Text style={styles.brandLogoText}>
-                            {brand.name.substring(0, 2).toUpperCase()}
+                            {brand.brand_name.substring(0, 2).toUpperCase()}
                         </Text>
                     )}
                 </View>
@@ -78,6 +86,46 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
     fadeAnim,
     slideAnim,
 }) => {
+    const [brands, setBrands] = useState<Brand[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBrands = async () => {
+            try {
+                // 1. Get Vehicle Types
+                const types: any = await api.get('/api/vehicle-config/types');
+                const carType = types.find((t: any) => t.type_name.toLowerCase() === 'car' || t.type_name.toLowerCase() === 'cars') || types[0];
+
+                if (carType) {
+                    // 2. Get Brands for this type
+                    const brandsData: any = await api.get(`/api/vehicle-config/brands/${carType.id}`);
+                    setBrands(brandsData);
+                }
+            } catch (error) {
+                console.error("Error fetching brands:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBrands();
+    }, []);
+
+    if (loading) {
+        return (
+            <View style={[styles.sectionWhite, { height: 200, justifyContent: 'center' }]}>
+                <ActivityIndicator size="large" color="#235CF8" />
+            </View>
+        );
+    }
+
+    if (brands.length === 0) {
+        return null;
+    }
+
+    // Use first 12 brands for the home page display
+    const brandsToDisplay = brands.slice(0, 12);
+
     return (
         <Animated.View
             style={[
@@ -91,47 +139,17 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
             <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Explore by Brand</Text>
             </View>
-            {/* Featured Brands */}
-            <Text style={styles.featuredBrandsTitle}>Featured Brands</Text>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.featuredBrandsScroll}
-                contentContainerStyle={{ ...styles.featuredBrandsContainer, paddingBottom: 20 }}
-            >
-                {FEATURED_BRANDS.map((brand, index) => (
-                    <TouchableOpacity
-                        key={`featured-${index}`}
-                        style={styles.featuredBrandCard}
-                    >
-                        <View style={styles.featuredBrandLogoContainer}>
-                            {brand.logo ? (
-                                <Image
-                                    source={brand.logo}
-                                    style={styles.featuredBrandLogo}
-                                    contentFit="contain"
-                                />
-                            ) : (
-                                <Text style={styles.featuredBrandText}>
-                                    {brand.name.substring(0, 2).toUpperCase()}
-                                </Text>
-                            )}
-                        </View>
-                        <Text style={styles.featuredBrandName}>{brand.name}</Text>
-                        <Text style={styles.featuredBrandCount}>{brand.carCount} cars</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-            {/* All Brands Grid - Show only 3 rows (12 brands) */}
+
+            {/* Consolidated Brands Grid */}
             <View style={styles.brandGrid}>
-                {ALL_BRANDS.slice(0, 12).map((brand, index) => (
+                {brandsToDisplay.map((brand, index) => (
                     <View
-                        key={`brand-${brand.name}-${index}`}
+                        key={`brand-${brand.id}`}
                         style={styles.brandCardWithInfo}
                     >
                         <BrandCard brand={brand} index={index} />
-                        <Text style={styles.brandName}>{brand.name}</Text>
-                        <Text style={styles.brandCarCount}>{brand.carCount} cars</Text>
+                        <Text style={styles.brandName}>{brand.brand_name}</Text>
+                        {/* <Text style={styles.brandCarCount}>{brand.carCount} cars</Text> */}
                     </View>
                 ))}
             </View>
