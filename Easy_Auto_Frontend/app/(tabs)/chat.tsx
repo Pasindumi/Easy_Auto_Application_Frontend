@@ -1,172 +1,317 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
-import { DUMMY_CHAT } from '../../constants/dummydata/chat-dummy';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../constants/Colors';
-import { Stack } from 'expo-router';
-import { useProtectedRoute } from '@/hooks/useProtectedRoute';
+import { Stack, useRouter } from 'expo-router';
+import React from 'react';
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const Chat = () => {
-  // Protect this route - require authentication
-  useProtectedRoute();
-  
-  // Get the heading from the first chat message sender, fallback to default
-  const heading = DUMMY_CHAT[0]?.sender || 'Chat';
+// Safe Dummy Data
+
+const CHAT_LIST = [
+  {
+    id: '1',
+    name: 'Toyota Care',
+    lastMessage: 'Is there anything we can do to help?',
+    time: '09:42',
+    unread: 2,
+    avatar: 'https://img.icons8.com/color/48/toyota.png',
+    isOnline: true,
+  },
+  {
+    id: '2',
+    name: 'John Seller',
+    lastMessage: 'The car is available for inspection.',
+    time: 'Yesterday',
+    unread: 0,
+    avatar: null,
+    isOnline: false,
+  },
+  {
+    id: '3',
+    name: 'Support Team',
+    lastMessage: 'Your issue has been resolved.',
+    time: 'Mon',
+    unread: 0,
+    avatar: null,
+    isOnline: true,
+  },
+  {
+    id: '4',
+    name: 'Mike Mechanic',
+    lastMessage: 'I can fix that transmission issue.',
+    time: 'Sun',
+    unread: 5,
+    avatar: null,
+    isOnline: false,
+  },
+];
+
+export default function ChatScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+
+  const renderItem = ({ item }: { item: typeof CHAT_LIST[0] }) => (
+    <TouchableOpacity
+      style={styles.chatItem}
+      activeOpacity={0.7}
+      onPress={() => console.log('Open chat', item.id)}
+    >
+      <View style={styles.avatarContainer}>
+        {item.avatar ? (
+          <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        ) : (
+          <View style={[styles.avatar, styles.placeholderAvatar]}>
+            <Text style={styles.avatarText}>{item.name[0]}</Text>
+          </View>
+        )}
+        {item.isOnline && <View style={styles.onlineDot} />}
+      </View>
+
+      <View style={styles.chatContent}>
+        <View style={styles.chatHeader}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.time}>{item.time}</Text>
+        </View>
+        <View style={styles.chatFooter}>
+          <Text
+            style={[
+              styles.lastMessage,
+              item.unread > 0 && styles.lastMessageBold,
+              { flex: 1, marginRight: 10 } // Added flex and margin
+            ]}
+            numberOfLines={1}
+          >
+            {item.lastMessage}
+          </Text>
+          <View style={styles.rightInfo}>
+            {item.unread > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadText}>{item.unread}</Text>
+              </View>
+            )}
+            <Ionicons name="chevron-forward" size={16} color="#CBD5E1" style={{ marginLeft: 4 }} />
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.headerRow}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>{heading}</Text>
-          <Ionicons name="checkmark-circle" size={18} color="#fff" style={{ marginLeft: 6 }} />
+
+      {/* Header Area */}
+      <LinearGradient
+        colors={['#235CF8', '#1A4ADB']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.headerGradient, { paddingTop: Math.max(insets.top, 20) + 10 }]}
+      >
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Messages</Text>
+          <TouchableOpacity style={styles.iconBtn}>
+            <Ionicons name="search" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
-        <View style={styles.headerIcons}>
-          <Ionicons name="call-outline" size={22} color="#fff" style={styles.headerIcon} />
-          <Ionicons name="ellipsis-vertical" size={22} color="#fff" style={styles.headerIcon} />
-        </View>
+
+      </LinearGradient>
+
+      {/* Main Chat List Container */}
+      <View style={styles.listContainer}>
+        <FlatList
+          data={CHAT_LIST}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={() => <View style={{ height: 15 }} />} // Added top spacing inside card
+        />
       </View>
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.dateWrap}>
-          <Text style={styles.dateText}>Today</Text>
-        </View>
-        {DUMMY_CHAT.map((msg) => (
-          <View
-            key={msg.id}
-            style={[
-              styles.messageWrap,
-              msg.type === 'sent' ? styles.sent : styles.received,
-            ]}
-          >
-            {msg.message ? (
-              <Text style={msg.type === 'sent' ? styles.sentMessageText : styles.messageText}>{msg.message}</Text>
-            ) : null}
-            {msg.images && (
-              <View style={styles.imageRow}>
-                {msg.images.map((img, idx) => (
-                  <Image
-                    key={idx}
-                    source={img}
-                    style={styles.image}
-                    resizeMode="cover"
-                  />
-                ))}
-              </View>
-            )}
-            <Text style={styles.time}>{msg.time}</Text>
-          </View>
-        ))}
-      </ScrollView>
+
+      {/* Floating Action Button for New Chat */}
+      <TouchableOpacity style={styles.fab} activeOpacity={0.9}>
+        <LinearGradient
+          colors={['#235CF8', '#1A4ADB']}
+          style={styles.fabGradient}
+        >
+          <Ionicons name="add" size={30} color="#fff" />
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F8F9FB',
   },
-  headerRow: {
+  headerGradient: {
+    paddingBottom: 60, // Deep padding for card overlap
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    marginBottom: 0,
+  },
+  headerContent: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 8, // increased
-    paddingBottom: 8, // increased
-    minHeight: 120, // increased height
-    backgroundColor: '#235CF8',
-  },
-  headerLeft: {
-    flexDirection: 'row',
     alignItems: 'center',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+    paddingHorizontal: 24,
+    marginBottom: 10,
   },
   headerTitle: {
+    fontSize: 28,
+    fontWeight: '800',
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 22
-    ,
-    letterSpacing: 0.5,
-    marginLeft: 12,
   },
-  headerIcon: {
-    marginLeft: 8,
+  iconBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  content: {
+
+  listContainer: {
     flex: 1,
-    padding: 12,
-    backgroundColor: COLORS.background,
-  },
-  contentContainer: {
-    paddingBottom: 24,
-  },
-  messageWrap: {
-    maxWidth: '80%',
-    marginBottom: 16,
-    borderRadius: 12,
-    padding: 10,
+    marginTop: -40, // Deeper overlap
     backgroundColor: '#fff',
-    alignSelf: 'flex-start',
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 1,
+    paddingTop: 10,
+    marginHorizontal: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 15,
+    overflow: 'hidden', // Contain the list items
   },
-  sent: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#454545ff',
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 120,
   },
-  received: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#fff',
-  },
-  messageText: {
-    color: '#111',
-    fontSize: 15,
-    marginBottom: 4,
-  },
-  sentMessageText: {
-    color: '#fff',
-    fontSize: 15,
-    marginBottom: 4,
-  },
-  imageRow: {
+
+  chatItem: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    padding: 14,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    marginBottom: 12,
+    shadowColor: "#235CF8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginRight: 14,
+  },
+  avatar: {
+    width: 58,
+    height: 58,
+    borderRadius: 18,
+  },
+  placeholderAvatar: {
+    backgroundColor: '#F0F4FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#235CF8',
+  },
+  onlineDot: {
+    position: 'absolute',
+    bottom: 2,
+    right: -2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#22C55E', // Green
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+
+  chatContent: {
+    flex: 1,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
   },
-  image: {
-    width: 90,
-    height: 70,
-    borderRadius: 8,
-    marginRight: 8,
+  chatFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  rightInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
   },
   time: {
-    fontSize: 11,
-    color: '#888',
-    alignSelf: 'flex-end',
-    marginTop: 2,
-  },
-  dateWrap: {
-    alignItems: 'center',
-    marginBottom: 12,
-    marginTop: 4,
-  },
-  dateText: {
-    backgroundColor: '#E5E7EB',
-    color: '#444',
     fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  lastMessage: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  lastMessageBold: {
+    color: '#1F2937',
     fontWeight: '600',
-    paddingHorizontal: 14,
-    paddingVertical: 3,
-    borderRadius: 12,
-    overflow: 'hidden',
-    letterSpacing: 0.2,
+  },
+
+  unreadBadge: {
+    backgroundColor: '#FF3B30',
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  unreadText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#fff',
+    includeFontPadding: false,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+  },
+
+  fab: {
+    position: 'absolute',
+    bottom: 100, // Above tab bar
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    shadowColor: "#235CF8",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  fabGradient: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
-
-export default Chat;
