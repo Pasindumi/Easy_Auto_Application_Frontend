@@ -20,6 +20,9 @@ type Props = {
   secure?: boolean;
   keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
   onIconPress?: () => void;
+  multiline?: boolean;
+  numberOfLines?: number;
+  inputStyle?: object; // Allow custom styling for the input
 };
 
 export default function InputField({
@@ -31,6 +34,9 @@ export default function InputField({
   secure,
   keyboardType = "default",
   onIconPress,
+  multiline,
+  numberOfLines,
+  inputStyle,
 }: Props) {
   const derivedLabel =
     label ??
@@ -44,11 +50,20 @@ export default function InputField({
       {derivedLabel ? <Text style={styles.label}>{derivedLabel}</Text> : null}
 
       {/* Field with Shadow */}
-      <View style={[styles.inputRow, styles.shadow]}>
-        {icon ? <Ionicons name={icon} size={20} style={styles.icon} /> : null}
+      <View style={[
+        styles.inputRow,
+        styles.shadow,
+        multiline ? { alignItems: 'flex-start' } : undefined
+      ]}>
+        {icon ? <Ionicons name={icon} size={20} style={[styles.icon, multiline ? { marginTop: 12 } : undefined]} /> : null}
 
         <TextInput
-          style={[styles.input, icon ? { paddingLeft: 8 } : undefined]}
+          style={[
+            styles.input,
+            icon ? { paddingLeft: 8 } : undefined,
+            multiline ? { height: 100, textAlignVertical: 'top', paddingTop: 8 } : undefined,
+            inputStyle
+          ]}
           placeholder={placeholder}
           placeholderTextColor="#999"
           value={value}
@@ -59,6 +74,8 @@ export default function InputField({
             keyboardType === "email-address" ? "none" : "sentences"
           }
           autoCorrect={false}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
         />
 
         {onIconPress ? (
@@ -93,7 +110,8 @@ const styles = StyleSheet.create({
     borderColor: colors.bgLight,
     borderRadius: 8,
     paddingHorizontal: 12,
-    height: Platform.OS === "ios" ? 48 : 46,
+    minHeight: Platform.OS === "ios" ? 48 : 46, // changed from fixed height to minHeight
+    paddingVertical: 4, // added padding for multiline comfort
     backgroundColor: colors.white,
   },
 
