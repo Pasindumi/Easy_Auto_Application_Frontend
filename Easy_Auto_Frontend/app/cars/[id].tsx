@@ -10,12 +10,17 @@ import {
     Image,
     Linking,
     ScrollView,
+    Share,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
+import SelectField from '@/components/ui/SelectField';
+import LocationModal from '@/components/ui/LocationModal';
+import ReportModal from '@/components/ui/ReportModal';
 import { api } from '@/utils/api';
+import * as Linking_ from 'expo-linking';
 
 const { width } = Dimensions.get('window');
 
@@ -25,10 +30,14 @@ export default function AdDetailsScreen() {
     const [ad, setAd] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [mainImage, setMainImage] = useState<string | null>(null);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
 
     useEffect(() => {
         if (!id) return;
         fetchAdDetails();
+        checkFavoriteStatus();
     }, [id]);
 
     const fetchAdDetails = async () => {
@@ -51,6 +60,17 @@ export default function AdDetailsScreen() {
         }
     };
 
+    const checkFavoriteStatus = async () => {
+        try {
+            const response = await api.get<{ success: boolean; isFavorite: boolean }>(`/api/favorites/check/${id}`);
+            if (response.success) {
+                setIsFavorite(response.isFavorite);
+            }
+        } catch (error) {
+            console.error("Error checking favorite status:", error);
+        }
+    };
+
     const handleCallSeller = () => {
         const phone = ad?.users?.phone;
         if (phone) {
@@ -66,6 +86,49 @@ export default function AdDetailsScreen() {
             Linking.openURL(`mailto:${email}`);
         } else {
             Alert.alert("Info", "Seller email not available.");
+        }
+    };
+
+
+    const handleReportSubmit = async (reason: string) => {
+        try {
+            const response = await api.post<{ success: boolean; message: string }>('/api/reports', {
+                ad_id: id,
+                reason: reason
+            });
+            if (response.success) {
+                Alert.alert("Success", "Thank you for your report. We will review it shortly.");
+            } else {
+                Alert.alert("Error", response.message || "Failed to submit report.");
+            }
+        } catch (error: any) {
+            console.error(error);
+            if (error.status === 401) {
+                Alert.alert("Auth Required", "Please login to report this ad.");
+            } else {
+                Alert.alert("Error", "Something went wrong. Please try again.");
+            }
+        }
+    };
+
+    const handleToggleFavorite = async () => {
+        setFavoriteLoading(true);
+        try {
+            const response = await api.post<{ success: boolean; isFavorite: boolean; message: string }>('/api/favorites/toggle', {
+                ad_id: id
+            });
+            if (response.success) {
+                setIsFavorite(response.isFavorite);
+            }
+        } catch (error: any) {
+            console.error("Toggle favorite error:", error);
+            if (error.status === 401) {
+                Alert.alert("Login Required", "Please login to save this ad to your wishlist.");
+            } else {
+                Alert.alert("Error", "Could not update wishlist. Please try again.");
+            }
+        } finally {
+            setFavoriteLoading(false);
         }
     };
 
@@ -90,6 +153,37 @@ export default function AdDetailsScreen() {
         maximumFractionDigits: 0
     }).format(amount);
 
+    const shareUrl = `https://easyauto.lk/cars/${id}`; // Placeholder domain
+    const shareMessage = `Check out this ${ad?.title} on Easy Auto! ${formattedPrice}\n\n${shareUrl}`;
+
+    const handleWhatsAppShare = () => {
+        const url = `whatsapp://send?text=${encodeURIComponent(shareMessage)}`;
+        Linking.canOpenURL(url).then(supported => {
+            if (supported) {
+                Linking.openURL(url);
+            } else {
+                Linking.openURL(`https://wa.me/?text=${encodeURIComponent(shareMessage)}`);
+            }
+        });
+    };
+
+    const handleFacebookShare = () => {
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+        Linking.openURL(url);
+    };
+
+    const handleNativeShare = async () => {
+        try {
+            await Share.share({
+                message: shareMessage,
+                url: shareUrl, // iOS only
+                title: ad?.title
+            });
+        } catch (error: any) {
+            Alert.alert(error.message);
+        }
+    };
+
     return (
         <View style={styles.safe}>
             <Stack.Screen options={{ headerShown: false }} />
@@ -108,6 +202,20 @@ export default function AdDetailsScreen() {
                             <Ionicons name="camera" size={14} color="white" />
                             <Text style={styles.imageCountText}>{images.length} Photos</Text>
                         </View>
+                        <TouchableOpacity
+                            style={styles.headerBtn}
+                            onPress={handleToggleFavorite}
+                            disabled={favoriteLoading}
+                        >
+                            <Ionicons
+                                name={isFavorite ? "heart" : "heart-outline"}
+                                size={24}
+                                color={isFavorite ? "#EF4444" : "white"}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.headerBtn}>
+                            <Ionicons name="share-outline" size={24} color="white" />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -145,7 +253,25 @@ export default function AdDetailsScreen() {
                     <View style={styles.locationContainer}>
                         <Ionicons name="location-sharp" size={16} color={COLORS.text.muted} />
                         <Text style={styles.locationText}>{ad.location}</Text>
+                    </View>
+                </View>
 
+                {/* SOCIAL SHARE SECTION */}
+                <View style={styles.shareSection}>
+                    <Text style={styles.shareTitle}>Share this Ad</Text>
+                    <View style={styles.shareButtonsRow}>
+                        <TouchableOpacity style={[styles.shareBtn, { backgroundColor: '#25D366' }]} onPress={handleWhatsAppShare}>
+                            <Ionicons name="logo-whatsapp" size={24} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.shareBtn, { backgroundColor: '#1877F2' }]} onPress={handleFacebookShare}>
+                            <Ionicons name="logo-facebook" size={24} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.shareBtn, { backgroundColor: '#E4405F' }]} onPress={handleNativeShare}>
+                            <Ionicons name="logo-instagram" size={24} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.shareBtn, { backgroundColor: COLORS.primary }]} onPress={handleNativeShare}>
+                            <Ionicons name="share-social" size={24} color="white" />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -213,6 +339,21 @@ export default function AdDetailsScreen() {
                     <Text style={styles.descriptionText}>{ad.description || "No description provided for this vehicle."}</Text>
                 </View>
 
+                {/* REPORT AD */}
+                <TouchableOpacity
+                    style={styles.reportContainer}
+                    onPress={() => setShowReportModal(true)}
+                >
+                    <Ionicons name="flag-outline" size={16} color="#EF4444" />
+                    <Text style={styles.reportText}>Report this Ad</Text>
+                </TouchableOpacity>
+
+                <ReportModal
+                    visible={showReportModal}
+                    onClose={() => setShowReportModal(false)}
+                    onSubmit={handleReportSubmit}
+                />
+
                 {/* SELLER CARD */}
                 <View style={styles.sellerCard}>
                     <View style={styles.sellerHeader}>
@@ -270,7 +411,23 @@ const styles = StyleSheet.create({
     scrollContent: { paddingBottom: 100 },
     heroSection: { height: 280, width: '100%', position: 'relative' },
     heroImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-    imageOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.1)' },
+    imageOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        paddingTop: 40, // For the header buttons
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: 12
+    },
+    headerBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
     imageCountBadge: {
         position: 'absolute',
         bottom: 16,
@@ -304,6 +461,10 @@ const styles = StyleSheet.create({
     negotiableText: { color: COLORS.primary, fontSize: 12, fontWeight: '600' },
     locationContainer: { flexDirection: 'row', alignItems: 'center' },
     locationText: { color: COLORS.text.muted, fontSize: 14, marginLeft: 4 },
+    shareSection: { backgroundColor: 'white', padding: 20, marginBottom: 12, alignItems: 'center' },
+    shareTitle: { fontSize: 14, fontWeight: '700', color: COLORS.text.muted, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1 },
+    shareButtonsRow: { flexDirection: 'row', gap: 16 },
+    shareBtn: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
     specsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -399,4 +560,22 @@ const styles = StyleSheet.create({
         shadowRadius: 8
     },
     actionButtonPrimaryText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+    reportContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        backgroundColor: '#FFF5F5',
+        marginHorizontal: 16,
+        borderRadius: 12,
+        marginBottom: 20,
+        gap: 8,
+        borderWidth: 1,
+        borderColor: '#FEE2E2'
+    },
+    reportText: {
+        color: '#EF4444',
+        fontSize: 14,
+        fontWeight: '600'
+    }
 });
