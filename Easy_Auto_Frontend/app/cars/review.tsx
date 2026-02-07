@@ -34,7 +34,12 @@ export default function ReviewAdScreen() {
         fetchAdDetails();
     }, [id]);
 
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    };
+
     const fetchAdDetails = async () => {
+
         try {
             const response = await api.get<{ success: boolean; data: any }>(`/api/cars/${id}`);
             if (response.success) {
@@ -134,7 +139,30 @@ export default function ReviewAdScreen() {
                         <View style={styles.dotSeparator} />
                         <Text style={styles.timeText}>Just now</Text>
                     </View>
+
+                    {ad.active_boosts && ad.active_boosts.length > 0 && (
+                        <View style={[styles.section, { padding: 15, borderRadius: 12, backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#F59E0B', marginTop: 15 }]}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                                <Ionicons name="rocket" size={20} color="#D97706" />
+                                <Text style={{ fontSize: 16, fontWeight: '800', color: '#92400E', marginLeft: 8 }}>Active Boost Package</Text>
+                            </View>
+                            {ad.active_boosts.map((boost: any, index: number) => (
+                                <View key={index} style={{ marginTop: 4 }}>
+                                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#92400E' }}>
+                                        {boost.package?.name || 'Boost Active'}
+                                    </Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
+                                        <Ionicons name="time-outline" size={14} color="#B45309" />
+                                        <Text style={{ fontSize: 13, color: '#B45309', marginLeft: 4 }}>
+                                            Boost Expires On: {formatDate(boost.end_date)}
+                                        </Text>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    )}
                 </View>
+
 
                 {/* KEY SPECS GRID */}
                 {(() => {

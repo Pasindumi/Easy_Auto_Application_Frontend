@@ -12,6 +12,10 @@ export interface Ad {
   messages: number;
   status: 'active' | 'draft' | 'expired' | 'paused';
   image: any; // Use require(...) for local images
+  is_featured?: boolean;
+  is_urgent?: boolean;
+  is_homepage_banner?: boolean;
+  is_popup_promotion?: boolean;
 }
 
 export const ADS_DATA: Ad[] = [

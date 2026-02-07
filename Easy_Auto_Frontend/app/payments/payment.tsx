@@ -235,7 +235,9 @@ export default function Payment() {
     price: new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(adDetails.price),
     date: formatDate(adDetails.createdAt || new Date().toISOString()),
     payout: getSettleDate(adDetails.createdAt || new Date().toISOString()),
+    expiryDate: adDetails.expiry_date ? formatDate(adDetails.expiry_date) : undefined,
     invoice: `INV-${String(adId).substring(0, 10)}`,
+
     coverImage: adDetails.AdImage?.[0]?.image_url || 'blueLogo.png'
   } : paymentData.summary;
 

@@ -14,6 +14,7 @@ interface PackagePlanCardProps {
     isPopular?: boolean;
     onSelect?: () => void;
     id?: number | string;
+    btnText?: string;
 }
 
 const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
@@ -27,6 +28,7 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
     isPopular,
     onSelect,
     id,
+    btnText,
 }) => {
     const router = useRouter();
 
@@ -72,7 +74,7 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
                 style={styles.selectButton}
                 onPress={handleSelect}
             >
-                <Text style={styles.selectText}>Select Plan</Text>
+                <Text style={styles.selectText}>{btnText || "Select Plan"}</Text>
             </TouchableOpacity>
         </View>
     );
