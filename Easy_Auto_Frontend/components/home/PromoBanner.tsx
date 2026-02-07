@@ -15,27 +15,30 @@ import {
 
 const { width } = Dimensions.get("window");
 
-const BANNER_DATA = [
+const STATIC_BANNERS = [
     {
-        id: 1,
+        id: 'static-1',
         title: "Find Your Dream Car",
         subtitle: "Browse thousand of verified listings",
         image:
             "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=400&fit=crop",
+        isAd: false
     },
     {
-        id: 2,
+        id: 'static-2',
         title: "Sell Your Car in a Minute",
         subtitle: "Get instant Quotes from Verified Dealers",
         image:
             "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=400&fit=crop",
+        isAd: false
     },
     {
-        id: 3,
+        id: 'static-3',
         title: "Best Deals Available",
         subtitle: "Compare prices and find the perfect match",
         image:
             "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&h=400&fit=crop",
+        isAd: false
     },
 ];
 
@@ -44,23 +47,54 @@ interface PromoBannerProps {
     scaleAnim: Animated.Value;
 }
 
+import { api } from "@/utils/api";
+import { useRouter } from "expo-router";
+
 const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
+    const router = useRouter();
+    const [banners, setBanners] = useState<any[]>(STATIC_BANNERS);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    useEffect(() => {
+        fetchBoostedAds();
+    }, []);
+
+    const fetchBoostedAds = async () => {
+        try {
+            const response = await api.get<{ success: boolean; data: any[] }>('/api/cars?isHomepageBanner=true&limit=5');
+            if (response.success && response.data.length > 0) {
+                const boostedBanners = response.data.map((ad: any) => ({
+                    id: `ad-${ad.id}`,
+                    title: ad.title,
+                    subtitle: `LKR ${Number(ad.price).toLocaleString()}`,
+                    image: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80",
+                    isAd: true,
+                    adId: ad.id
+                }));
+
+                // Merge strategies: Interleave or Prepend?
+                // Let's prepend boosted ads
+                setBanners([...boostedBanners, ...STATIC_BANNERS]);
+            }
+        } catch (error) {
+            console.error("Error fetching banner ads:", error);
+        }
+    };
 
     // Auto-play functionality
     useEffect(() => {
         autoPlayTimer.current = setInterval(() => {
             setCurrentBannerIndex((prevIndex) => {
-                const nextIndex = (prevIndex + 1) % BANNER_DATA.length;
+                const nextIndex = (prevIndex + 1) % banners.length;
                 scrollViewRef.current?.scrollTo({
                     x: nextIndex * (width - 40),
                     animated: true,
                 });
                 return nextIndex;
             });
-        }, 4000);
+        }, 5000);
 
         return () => {
             if (autoPlayTimer.current) {
@@ -76,7 +110,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
         if (
             index !== currentBannerIndex &&
             index >= 0 &&
-            index < BANNER_DATA.length
+            index < banners.length
         ) {
             setCurrentBannerIndex(index);
         }
@@ -88,6 +122,15 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             x: index * (width - 40),
             animated: true,
         });
+    };
+
+    const handleBannerPress = (banner: any) => {
+        if (banner.isAd && banner.adId) {
+            router.push(`/cars/${banner.adId}`); // Assuming route exists
+        } else {
+            // Navigate to search or specific page for static banners
+            router.push('/(tabs)/search');
+        }
     };
 
     return (
@@ -109,10 +152,10 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 scrollEventThrottle={16}
                 style={styles.bannerScrollView}
             >
-                {BANNER_DATA.map((banner) => (
+                {banners.map((banner) => (
                     <View key={`banner-${banner.id}`} style={styles.banner}>
                         <Image
-                            source={{ uri: banner.image }}
+                            source={banner.image}
                             style={styles.bannerImage}
                             contentFit="cover"
                             transition={300}
@@ -122,8 +165,8 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                         <View style={styles.bannerContent}>
                             <Text style={styles.bannerTitle}>{banner.title}</Text>
                             <Text style={styles.bannerSubtitle}>{banner.subtitle}</Text>
-                            <TouchableOpacity style={styles.bannerCTA}>
-                                <Text style={styles.bannerCTAText}>Explore Now</Text>
+                            <TouchableOpacity style={styles.bannerCTA} onPress={() => handleBannerPress(banner)}>
+                                <Text style={styles.bannerCTAText}>{banner.isAd ? "View Ad" : "Explore Now"}</Text>
                                 <MaterialIcons name="arrow-forward" size={18} color="#FFFFFF" />
                             </TouchableOpacity>
                         </View>
@@ -131,7 +174,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 ))}
             </ScrollView>
             <View style={styles.carouselDots}>
-                {BANNER_DATA.map((_, index) => (
+                {banners.map((_, index) => (
                     <TouchableOpacity
                         key={`banner-dot-${index}`}
                         onPress={() => handleDotPress(index)}

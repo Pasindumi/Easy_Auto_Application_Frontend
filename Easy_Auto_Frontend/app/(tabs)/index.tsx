@@ -12,6 +12,7 @@ import RecommendedCars from "@/components/home/RecommendedCars";
 import Testimonials from "@/components/home/Testimonials";
 import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
+import BoostPopup from "@/components/home/BoostPopup";
 import COLORS from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
@@ -134,6 +135,7 @@ export default function HomeScreen() {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       {/* Sidebars and Drawers */}
+      <BoostPopup />
       <HomeDrawers
         sidebarVisible={sidebarVisible}
         setSidebarVisible={setSidebarVisible}

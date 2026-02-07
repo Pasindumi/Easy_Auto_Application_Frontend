@@ -22,9 +22,11 @@ const PaymentSummaryHeader: React.FC<Props> = ({ summary }) => {
 
             <View style={styles.sectionBox}>
                 <Text style={styles.metaText}>Date: {summary.date}</Text>
+                {summary.expiryDate && <Text style={[styles.metaText, { color: '#ef4444', fontWeight: 'bold' }]}>Expires On: {summary.expiryDate}</Text>}
                 <Text style={styles.metaText}>Settle Pending (expected payout : {summary.payout})</Text>
                 <Text style={styles.metaText}>Invoice : {summary.invoice}</Text>
             </View>
+
         </View>
     );
 };
