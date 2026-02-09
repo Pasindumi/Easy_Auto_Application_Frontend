@@ -18,6 +18,8 @@ import {
 import { ENDPOINTS } from '../../constants/API';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '@/utils/api';
+import ReviewList from '@/components/reviews/ReviewList';
+import StarRating from '@/components/reviews/StarRating';
 
 const { width } = Dimensions.get('window');
 
@@ -28,10 +30,15 @@ export default function ReviewAdScreen() {
     const [ad, setAd] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [mainImage, setMainImage] = useState<string | null>(null);
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
+    const [reviewsLoading, setReviewsLoading] = useState(false);
 
     useEffect(() => {
         if (!id) return;
         fetchAdDetails();
+        fetchReviews();
+        fetchReviewStats();
     }, [id]);
 
     const formatDate = (dateString: string) => {
@@ -55,6 +62,31 @@ export default function ReviewAdScreen() {
             Alert.alert("Error", "Network error.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchReviews = async () => {
+        setReviewsLoading(true);
+        try {
+            const response = await api.get<{ success: boolean; data: any[] }>(`/api/reviews/${id}`);
+            if (response.success) {
+                setReviews(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching reviews:", error);
+        } finally {
+            setReviewsLoading(false);
+        }
+    };
+
+    const fetchReviewStats = async () => {
+        try {
+            const response = await api.get<{ success: boolean; data: { averageRating: number; totalReviews: number } }>(`/api/reviews/stats/${id}`);
+            if (response.success) {
+                setReviewStats(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching review stats:", error);
         }
     };
 
@@ -226,6 +258,21 @@ export default function ReviewAdScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionHeader}>Description</Text>
                     <Text style={styles.descriptionText}>{ad.description || "No description provided for this vehicle."}</Text>
+                </View>
+
+                {/* REVIEWS SECTION */}
+                <View style={styles.section}>
+                    <View style={styles.reviewHeader}>
+                        <Text style={styles.sectionHeader}>Reviews & Ratings</Text>
+                        <View style={styles.ratingBadge}>
+                            <Ionicons name="star" size={16} color="#FFD700" />
+                            <Text style={styles.ratingText}>
+                                {reviewStats.averageRating} ({reviewStats.totalReviews} reviews)
+                            </Text>
+                        </View>
+                    </View>
+
+                    <ReviewList reviews={reviews} loading={reviewsLoading} />
                 </View>
 
                 {/* SELLER CARD */}
@@ -436,5 +483,25 @@ const styles = StyleSheet.create({
         shadowRadius: 8
     },
     publishButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
-    disabledButton: { opacity: 0.6 }
+    disabledButton: { opacity: 0.6 },
+    reviewHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    ratingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFF8E1',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+    },
+    ratingText: {
+        fontWeight: 'bold',
+        color: '#F59E0B',
+        fontSize: 14,
+    },
 });

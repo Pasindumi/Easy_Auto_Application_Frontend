@@ -22,7 +22,10 @@ import InputField from "../../components/InputField";
 import Button from "../../components/ui/button/Button";
 import SocialButton from "../../components/ui/button/SocialButton";
 
+import { useTranslation } from "react-i18next";
+
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { isLoading: authLoading, isAuthenticated, loginWithBackend } = useAuth();
   const { signInWithGoogle, signInWithApple, signInWithFacebook } = useClerkOAuth();
@@ -115,7 +118,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title="Login" />
+      <Header showBack={true} title={t('login')} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -132,19 +135,19 @@ export default function LoginScreen() {
               style={[styles.toggleBtn, styles.toggleInactive]}
               onPress={() => router.push("/auth/signup")}
             >
-              <Text style={[styles.toggleText, styles.blueText]}>Signup</Text>
+              <Text style={[styles.toggleText, styles.blueText]}>{t('signup')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.toggleBtn, styles.toggleActive]} >
-              <Text style={[styles.toggleText, styles.whiteText]}>Login</Text>
+              <Text style={[styles.toggleText, styles.whiteText]}>{t('login')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
-            <Text style={styles.welcome}>Welcome Back!</Text>
+            <Text style={styles.welcome}>{t('auth.welcome_back')}</Text>
             <Text style={styles.subtitle}>
-              Sign in to your account
+              {t('auth.sign_in_subtitle')}
             </Text>
 
             {/* Social login */}
@@ -172,21 +175,21 @@ export default function LoginScreen() {
             {/* OR separator */}
             <View style={styles.orRow}>
               <View style={styles.orLine} />
-              <Text style={styles.orText}>or</Text>
+              <Text style={styles.orText}>{t('auth.or')}</Text>
               <View style={styles.orLine} />
             </View>
 
             {/* Email/Password login */}
             <InputField
               icon="mail-outline"
-              placeholder="Email"
+              placeholder={t('auth.email')}
               value={email}
               onChange={setEmail}
               keyboardType="email-address"
             />
             <InputField
               icon="lock-closed-outline"
-              placeholder="Password"
+              placeholder={t('auth.password')}
               value={password}
               onChange={setPassword}
               secure
@@ -197,22 +200,22 @@ export default function LoginScreen() {
               onPress={() => router.push("/auth/forgot-password")}
               style={styles.forgotPasswordContainer}
             >
-              <Text style={styles.forgot}>Forgot password?</Text>
+              <Text style={styles.forgot}>{t('auth.forgot_password')}</Text>
             </TouchableOpacity>
 
 
             {/* Login button */}
             <Button
-              title={loading ? "Logging in..." : "Login"}
+              title={loading ? "Logging in..." : t('login')}
               onPress={handleEmailLogin}
               disabled={loading || socialLoading !== null}
             />
 
             {/* Signup link */}
             <View style={styles.bottomRow}>
-              <Text style={styles.smallText}>Don’t have an account?</Text>
+              <Text style={styles.smallText}>{t('auth.dont_have_account')}</Text>
               <TouchableOpacity onPress={() => router.push("/auth/signup")}>
-                <Text style={styles.loginLink}> Sign Up</Text>
+                <Text style={styles.loginLink}> {t('signup')}</Text>
               </TouchableOpacity>
             </View>
 

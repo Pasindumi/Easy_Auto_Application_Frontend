@@ -45,7 +45,10 @@ const SORT_OPTIONS = [
   { value: 'year-old', label: 'Oldest First' },
 ];
 
+import { useTranslation } from 'react-i18next';
+
 export default function BuyCarScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -223,18 +226,18 @@ export default function BuyCarScreen() {
       <View style={styles.modalOverlay}>
         <View style={styles.filterModalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Filter Vehicles</Text>
+            <Text style={styles.modalTitle}>{t('buy_car_screen.filter_vehicles')}</Text>
             <TouchableOpacity onPress={() => setShowFilters(false)}>
               <Ionicons name="close" size={24} color="#111827" />
             </TouchableOpacity>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            <Text style={styles.filterGroupTitle}>Price Range (Rs.)</Text>
+            <Text style={styles.filterGroupTitle}>{t('buy_car_screen.price_range')}</Text>
             <View style={styles.priceRow}>
               <View style={styles.priceInputWrap}>
                 <TextInput
-                  placeholder="Min"
+                  placeholder={t('buy_car_screen.min')}
                   value={minPrice}
                   onChangeText={setMinPrice}
                   keyboardType="numeric"
@@ -244,7 +247,7 @@ export default function BuyCarScreen() {
               <View style={styles.priceDivider} />
               <View style={styles.priceInputWrap}>
                 <TextInput
-                  placeholder="Max"
+                  placeholder={t('buy_car_screen.max')}
                   value={maxPrice}
                   onChangeText={setMaxPrice}
                   keyboardType="numeric"
@@ -254,41 +257,41 @@ export default function BuyCarScreen() {
             </View>
 
             <SelectField
-              label="Sort By"
+              label={t('buy_car_screen.sort_by')}
               value={selectedSort}
               options={SORT_OPTIONS}
               onSelect={setSelectedSort}
             />
 
             <SelectField
-              label="Brand"
+              label={t('buy_car_screen.select_brand')}
               value={selectedBrand}
               options={brands}
               onSelect={setSelectedBrand}
               disabled={selectedCategory === 'all' || isBrandsLoading}
-              placeholder={isBrandsLoading ? "Loading..." : "Select Brand"}
+              placeholder={isBrandsLoading ? "Loading..." : t('buy_car_screen.select_brand')}
               searchable={true}
             />
 
             <SelectField
-              label="Model"
+              label={t('buy_car_screen.select_model')}
               value={selectedModel}
               options={models}
               onSelect={setSelectedModel}
               disabled={!selectedBrand || isModelsLoading}
-              placeholder={isModelsLoading ? "Loading..." : "Select Model"}
+              placeholder={isModelsLoading ? "Loading..." : t('buy_car_screen.select_model')}
               searchable={true}
             />
 
             <View style={{ marginBottom: 16 }}>
-              <Text style={styles.filterGroupTitle}>Location</Text>
+              <Text style={styles.filterGroupTitle}>{t('location')}</Text>
               <TouchableOpacity
                 style={styles.locationInputWrap}
                 onPress={() => setShowLocationModal(true)}
               >
                 <Ionicons name="location-outline" size={20} color={locationFilter ? "#111827" : "#9CA3AF"} />
                 <Text style={[styles.locationInput, !locationFilter && { color: '#9CA3AF' }]}>
-                  {locationFilter || "Select location"}
+                  {locationFilter || t('buy_car_screen.select_location')}
                 </Text>
                 <Ionicons name="chevron-down" size={18} color="#9CA3AF" />
               </TouchableOpacity>
@@ -303,10 +306,10 @@ export default function BuyCarScreen() {
 
           <View style={styles.modalFooter}>
             <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
-              <Text style={styles.resetButtonText}>Reset All</Text>
+              <Text style={styles.resetButtonText}>{t('buy_car_screen.reset_all')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.applyButton} onPress={() => setShowFilters(false)}>
-              <Text style={styles.applyButtonText}>Apply Filters</Text>
+              <Text style={styles.applyButtonText}>{t('buy_car_screen.apply_filters')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -382,7 +385,7 @@ export default function BuyCarScreen() {
 
       <View style={styles.topicWrap}>
         <Ionicons name="car-sport" size={24} color="#235CF8" style={{ marginRight: 8 }} />
-        <Text style={styles.topicTitle}>Find Your Vehicle</Text>
+        <Text style={styles.topicTitle}>{t('buy_car_screen.find_vehicle')}</Text>
       </View>
 
       <SafeAreaView style={styles.safe} edges={['bottom']}>
@@ -392,7 +395,7 @@ export default function BuyCarScreen() {
             <View style={styles.searchContainer}>
               <Ionicons name="search-outline" size={20} color="#9CA3AF" />
               <TextInput
-                placeholder="Search brand, model or title..."
+                placeholder={t('home.search_placeholder')}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 style={styles.searchInput}
@@ -406,7 +409,7 @@ export default function BuyCarScreen() {
 
           {/* Browse Categories */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Browse Category</Text>
+            <Text style={styles.sectionTitle}>{t('buy_car_screen.browse_category')}</Text>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
             {isCategoriesLoading ? (
@@ -418,8 +421,8 @@ export default function BuyCarScreen() {
 
           {/* Listings */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Results</Text>
-            <Text style={styles.sectionSubtitle}>{ads.length} items</Text>
+            <Text style={styles.sectionTitle}>{t('buy_car_screen.results')}</Text>
+            <Text style={styles.sectionSubtitle}>{ads.length} {t('buy_car_screen.items')}</Text>
           </View>
 
           <View style={styles.carsSection}>
@@ -428,9 +431,9 @@ export default function BuyCarScreen() {
             ) : ads.length === 0 ? (
               <View style={styles.emptyState}>
                 <Ionicons name="search-outline" size={64} color="#D1D5DB" />
-                <Text style={styles.emptyText}>No vehicles found</Text>
+                <Text style={styles.emptyText}>{t('buy_car_screen.no_vehicles_found')}</Text>
                 <TouchableOpacity onPress={resetFilters}>
-                  <Text style={styles.resetLink}>Clear all filters</Text>
+                  <Text style={styles.resetLink}>{t('buy_car_screen.clear_filters')}</Text>
                 </TouchableOpacity>
               </View>
             ) : (

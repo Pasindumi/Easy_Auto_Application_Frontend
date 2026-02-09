@@ -21,6 +21,9 @@ import LocationModal from '@/components/ui/LocationModal';
 import ReportModal from '@/components/ui/ReportModal';
 import { api } from '@/utils/api';
 import * as Linking_ from 'expo-linking';
+import ReviewList from '@/components/reviews/ReviewList';
+import ReviewForm from '@/components/reviews/ReviewForm';
+import StarRating from '@/components/reviews/StarRating';
 
 const { width } = Dimensions.get('window');
 
@@ -33,11 +36,17 @@ export default function AdDetailsScreen() {
     const [showReportModal, setShowReportModal] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const [favoriteLoading, setFavoriteLoading] = useState(false);
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
+    const [showReviewForm, setShowReviewForm] = useState(false);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
 
     useEffect(() => {
         if (!id) return;
         fetchAdDetails();
         checkFavoriteStatus();
+        fetchReviews();
+        fetchReviewStats();
     }, [id]);
 
     const fetchAdDetails = async () => {
@@ -69,6 +78,37 @@ export default function AdDetailsScreen() {
         } catch (error) {
             console.error("Error checking favorite status:", error);
         }
+    };
+
+    const fetchReviews = async () => {
+        setReviewsLoading(true);
+        try {
+            const response = await api.get<{ success: boolean; data: any[] }>(`/api/reviews/${id}`);
+            if (response.success) {
+                setReviews(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching reviews:", error);
+        } finally {
+            setReviewsLoading(false);
+        }
+    };
+
+    const fetchReviewStats = async () => {
+        try {
+            const response = await api.get<{ success: boolean; data: { averageRating: number; totalReviews: number } }>(`/api/reviews/stats/${id}`);
+            if (response.success) {
+                setReviewStats(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching review stats:", error);
+        }
+    };
+
+    const handleReviewSuccess = () => {
+        setShowReviewForm(false);
+        fetchReviews();
+        fetchReviewStats();
     };
 
     const handleCallSeller = () => {
@@ -354,6 +394,43 @@ export default function AdDetailsScreen() {
                     onSubmit={handleReportSubmit}
                 />
 
+                {/* REVIEWS SECTION */}
+                <View style={styles.section}>
+                    <View style={styles.reviewHeader}>
+                        <Text style={styles.sectionHeader}>Reviews & Ratings</Text>
+                        <View style={styles.ratingBadge}>
+                            <Ionicons name="star" size={16} color="#FFD700" />
+                            <Text style={styles.ratingText}>
+                                {reviewStats.averageRating} ({reviewStats.totalReviews} reviews)
+                            </Text>
+                        </View>
+                    </View>
+
+                    {/* Show "Write Review" button if not owner (assuming we can check user id, but for now just show toggle) */}
+                    {!showReviewForm && (
+                        <TouchableOpacity
+                            style={styles.writeReviewBtn}
+                            onPress={() => setShowReviewForm(true)}
+                        >
+                            <Text style={styles.writeReviewText}>Write a Review</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    {showReviewForm && (
+                        <View style={styles.formWrapper}>
+                            <ReviewForm adId={id as string} onSuccess={handleReviewSuccess} />
+                            <TouchableOpacity
+                                style={styles.cancelReviewBtn}
+                                onPress={() => setShowReviewForm(false)}
+                            >
+                                <Text style={styles.cancelReviewText}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    <ReviewList reviews={reviews} loading={reviewsLoading} />
+                </View>
+
                 {/* SELLER CARD */}
                 <View style={styles.sellerCard}>
                     <View style={styles.sellerHeader}>
@@ -577,5 +654,51 @@ const styles = StyleSheet.create({
         color: '#EF4444',
         fontSize: 14,
         fontWeight: '600'
-    }
+    },
+    reviewHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    ratingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFF8E1',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+    },
+    ratingText: {
+        fontWeight: 'bold',
+        color: '#F59E0B',
+        fontSize: 14,
+    },
+    writeReviewBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: COLORS.primary,
+        alignSelf: 'flex-start',
+        marginBottom: 16,
+    },
+    writeReviewText: {
+        color: COLORS.primary,
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    formWrapper: {
+        marginBottom: 16,
+    },
+    cancelReviewBtn: {
+        alignItems: 'center',
+        padding: 8,
+    },
+    cancelReviewText: {
+        color: COLORS.text.muted,
+        fontSize: 14,
+    },
+    disabledButton: { opacity: 0.6 }
 });

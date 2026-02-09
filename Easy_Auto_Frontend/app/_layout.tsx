@@ -1,3 +1,4 @@
+import "../src/i18n"; // Initialize i18n
 import {
   DarkTheme,
   DefaultTheme,
@@ -34,7 +35,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
               <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
-              <Stack.Screen name="listings" options={{ headerShown: false }} />
+
               <Stack.Screen name="admin" options={{ headerShown: false }} />
               <Stack.Screen
                 name="modals/modal"

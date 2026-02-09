@@ -3,6 +3,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React, { useEffect } from "react";
+import LanguageSwitcher from "../LanguageSwitcher";
 import {
     Animated,
     StyleSheet,
@@ -147,6 +148,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                             </View>
                         )}
                     </TouchableOpacity>
+
+                    {/* Language Switcher */}
+                    <LanguageSwitcher />
                 </View>
             </View>
 
