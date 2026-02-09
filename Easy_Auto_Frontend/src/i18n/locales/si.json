@@ -1,0 +1,75 @@
+{
+    "welcome": "ආයුබෝවන්",
+    "login": "පිවිසෙන්න",
+    "signup": "ලියාපදිංචි වන්න",
+    "logout": "ඉවත් වන්න",
+    "sell_car": "වාහන විකිණීම",
+    "buy_car": "වාහන මිලදී ගැනීම",
+    "car_details": "වාහන විස්තර",
+    "price": "මිල",
+    "location": "ස්ථානය",
+    "contact_seller": "විකිණුම්කරු අමතන්න",
+    "add_vehicle": "වාහනයක් එකතු කරන්න",
+    "search_vehicle": "වාහන සොයන්න",
+    "filters": "පෙරහන්",
+    "notifications": "දැනුම්දීම්",
+    "profile": "පැොෆයිලය",
+    "settings": "සකසුම්",
+    "error_messages": {
+        "generic": "යම් දෝෂයක් සිදු විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+        "network": "ජාල දෝෂයකි. කරුණාකර ඔබේ සම්බන්ධතාවය පරීක්ෂා කරන්න.",
+        "login_failed": "පිවිසීම අසාර්ථකයි. කරුණාකර ඔබගේ දත්ත පරීක්ෂා කරන්න."
+    },
+    "success_messages": {
+        "saved": "සාර්ථකව සුරැකින!",
+        "posted": "දැන්වීම සාර්ථකව පළ කරන ලදී!"
+    },
+    "booking_messages": {
+        "confirm": "වෙන් කිරීම තහවුරු කරන්න",
+        "success": "වෙන් කිරීම සාර්ථකයි!"
+    },
+    "home": {
+        "search_placeholder": "වාහන, වර්ග හෝ මාදිලි සොයන්න...",
+        "recent_searches": "මෑත සොවීම්",
+        "popular_searches": "ජනප්‍රිය සොවීම්"
+    },
+    "auth": {
+        "email": "විද්‍යුත් තැපෑල",
+        "password": "මුරපදය",
+        "forgot_password": "මුරපදය අමතකද?",
+        "dont_have_account": "ගිණුමක් නොමැතිද?",
+        "welcome_back": "නැවත සාදරයෙන් පිළිගනිමු!",
+        "sign_in_subtitle": "ඔබගේ ගිණුමට පිවිසෙන්න",
+        "or": "හෝ"
+    },
+    "listings": {
+        "my_listings": "මගේ ලැයිස්තු",
+        "no_listings_found": "ලැයිස්තු හමු නොවීය",
+        "no_listings_yet": "තවම ලැයිස්තු නොමැත",
+        "create_new_listing": "නව ලැයිස්තුවක් සාදන්න",
+        "boost_visibility": "දෘශ්‍යතාව වැඩි කරන්න",
+        "promote_listing": "ගැනුම්කරුවන් වෙත ළඟා වීමට ඉහළ ලැයිස්තුගත කිරීම ප්‍රවර්ධනය කරන්න",
+        "pause": "විරාමයක්",
+        "delete": "මකන්න",
+        "select_all": "සියල්ල තෝරන්න",
+        "selected": "තෝරාගෙන ඇත"
+    },
+    "buy_car_screen": {
+        "find_vehicle": "ඔබේ වාහනය සොයා ගන්න",
+        "browse_category": "කාණ්ඩ පිරික්සන්න",
+        "results": "ප්‍රතිඵල",
+        "items": "අයිතම",
+        "sort_by": "අනුව පෙළගස්වන්න",
+        "reset_all": "සියල්ල යළි පිහිටුවන්න",
+        "apply_filters": "පෙරහන් යොදන්න",
+        "price_range": "මිල පරාසය (රු.)",
+        "min": "අවම",
+        "max": "උපරිම",
+        "clear_filters": "සියලු පෙරහන් ඉවත් කරන්න",
+        "no_vehicles_found": "වාහන හමු නොවීය",
+        "filter_vehicles": "වාහන පෙරහන් කරන්න",
+        "select_location": "ස්ථානය තෝරන්න",
+        "select_brand": "වෙළඳ නාමය තෝරන්න",
+        "select_model": "මාදිලිය තෝරන්න"
+    }
+}

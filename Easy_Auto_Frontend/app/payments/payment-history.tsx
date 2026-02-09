@@ -7,7 +7,8 @@ import {
   Text,
   View,
   ActivityIndicator,
-  Alert
+  Alert,
+  TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -53,6 +54,34 @@ export default function PaymentHistoryScreen() {
     }
   };
 
+  const handleClearHistory = () => {
+    Alert.alert(
+      "Clear History",
+      "Are you sure you want to clear your payment history? This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setLoading(true);
+              // Assuming backend supports DELETE on this endpoint
+              await api.delete('/api/payment/my-history');
+              setPayments([]);
+              Alert.alert("Success", "Payment history cleared.");
+            } catch (error) {
+              console.error("Failed to clear history:", error);
+              Alert.alert("Error", "Failed to clear payment history.");
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const calculateSummary = (): PaymentSummaryData => {
     const successful = payments.filter(p => p.status === 'Successful');
     const failed = payments.filter(p => p.status === 'Failed');
@@ -83,10 +112,18 @@ export default function PaymentHistoryScreen() {
   );
 
   const handleCardPress = (item: Payment) => {
-    // router.push({
-    //   pathname: './payments/preview-payment',
-    //   params: { ...item },
-    // } as any);
+    router.push({
+      pathname: '/payments/payment-detail',
+      params: {
+        id: item.id,
+        date: item.date,
+        amount: item.amount,
+        plan: item.plan,
+        status: item.status,
+        card: item.card,
+        type: item.type
+      },
+    } as any);
   };
 
   if (loading) {
@@ -110,6 +147,9 @@ export default function PaymentHistoryScreen() {
               <Ionicons name="time-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
               <Text style={headerSectionStyles.headerTitle}>Payment History</Text>
             </View>
+            <TouchableOpacity onPress={handleClearHistory} style={{ padding: 8 }}>
+              <Ionicons name="trash-outline" size={20} color="#EF4444" />
+            </TouchableOpacity>
           </View>
         </View>
 

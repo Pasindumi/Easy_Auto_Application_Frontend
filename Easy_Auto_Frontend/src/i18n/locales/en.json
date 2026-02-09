@@ -1,0 +1,75 @@
+{
+    "welcome": "Welcome",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "sell_car": "Sell Car",
+    "buy_car": "Buy Car",
+    "car_details": "Car Details",
+    "price": "Price",
+    "location": "Location",
+    "contact_seller": "Contact Seller",
+    "add_vehicle": "Add Vehicle",
+    "search_vehicle": "Search Vehicle",
+    "filters": "Filters",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings",
+    "error_messages": {
+        "generic": "Something went wrong. Please try again.",
+        "network": "Network error. Please check your connection.",
+        "login_failed": "Login failed. Please check your credentials."
+    },
+    "success_messages": {
+        "saved": "Saved successfully!",
+        "posted": "Ad posted successfully!"
+    },
+    "booking_messages": {
+        "confirm": "Confirm Booking",
+        "success": "Booking successful!"
+    },
+    "home": {
+        "search_placeholder": "Search cars, brands or models...",
+        "recent_searches": "Recent Searches",
+        "popular_searches": "Popular Searches"
+    },
+    "auth": {
+        "email": "Email",
+        "password": "Password",
+        "forgot_password": "Forgot password?",
+        "dont_have_account": "Don’t have an account?",
+        "welcome_back": "Welcome Back!",
+        "sign_in_subtitle": "Sign in to your account",
+        "or": "or"
+    },
+    "listings": {
+        "my_listings": "My Listings",
+        "no_listings_found": "No listings found",
+        "no_listings_yet": "No listings yet",
+        "create_new_listing": "Create New Listing",
+        "boost_visibility": "Boost Visibility",
+        "promote_listing": "Promote top listing to reach more buyers",
+        "pause": "Pause",
+        "delete": "Delete",
+        "select_all": "Select all",
+        "selected": "selected"
+    },
+    "buy_car_screen": {
+        "find_vehicle": "Find Your Vehicle",
+        "browse_category": "Browse Category",
+        "results": "Results",
+        "items": "items",
+        "sort_by": "Sort By",
+        "reset_all": "Reset All",
+        "apply_filters": "Apply Filters",
+        "price_range": "Price Range (Rs.)",
+        "min": "Min",
+        "max": "Max",
+        "clear_filters": "Clear all filters",
+        "no_vehicles_found": "No vehicles found",
+        "filter_vehicles": "Filter Vehicles",
+        "select_location": "Select location",
+        "select_brand": "Select Brand",
+        "select_model": "Select Model"
+    }
+}
