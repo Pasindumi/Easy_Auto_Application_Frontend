@@ -13,15 +13,21 @@ import {
 import Header from "../../components/Header";
 import { typography } from "../../components/theme";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
+import {useAuth} from "../../contexts/AuthContext";
 
 export default function SwitchAccountScreen() {
   const router = useRouter();
 
   const handleGoToAdmin = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('/admin');
+    router.push('');
   };
+   
 
+  const { user } = useAuth();
+
+  if (!user) return null;
+  
   const AccountCard = ({
     name,
     email,
@@ -84,12 +90,12 @@ export default function SwitchAccountScreen() {
         {/* Current Account Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Current Account</Text>
-          <AccountCard
-            name="Dilmin Ekanayaka"
-            email="dilmin@yahoo.com"
-            role="Premium Member"
-            isActive={true}
-          />
+        <AccountCard
+          name={user.name}
+          email={user.email ?? 'No email'}
+          role={user.is_premium ? 'Premium Member' : 'Normal User'}
+          isActive={true}
+        />
         </View>
 
         {/* Other Accounts Section */}

@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     Animated,
     Dimensions,
@@ -8,7 +8,10 @@ import {
     Text,
     TouchableOpacity,
     View,
+    ActivityIndicator
 } from "react-native";
+import { useRouter } from "expo-router";
+import { api } from "@/utils/api";
 
 const { width } = Dimensions.get("window");
 
@@ -17,12 +20,47 @@ interface RecentlyViewedProps {
     slideAnim: Animated.Value;
 }
 
-import { RECENTLY_VIEWED } from "@/constants/dummydata/homedummydata";
-
 const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
     fadeAnim,
     slideAnim,
 }) => {
+    const router = useRouter();
+    const [ads, setAds] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchAds = async () => {
+            setLoading(true);
+            try {
+                // Fetching active ads. Limiting to 10. 
+                // Since we don't have a real history API yet, we'll show "New Arrivals" or just active ads
+                // The user asked to show active ads "like buy car section".
+                const res: any = await api.get('/api/cars?status=ACTIVE&limit=10&page=2'); // Getting page 2 for variety
+                if (res.success) {
+                    setAds(res.data || []);
+                }
+            } catch (error) {
+                console.error("Error fetching recently viewed (active) ads:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAds();
+    }, []);
+
+    const formatPrice = (price: any) => {
+        const val = Number(price) || 0;
+        return new Intl.NumberFormat('en-LK', {
+            style: 'currency',
+            currency: 'LKR',
+            maximumFractionDigits: 0,
+            compactDisplay: "short",
+            notation: "compact"
+        }).format(val);
+    };
+
+    if (!loading && ads.length === 0) return null;
+
     return (
         <Animated.View
             style={[
@@ -34,35 +72,52 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
             ]}
         >
             <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Recently Viewed</Text>
-                <TouchableOpacity>
+                <Text style={styles.sectionTitle}>New Arrivals</Text>
+                <TouchableOpacity onPress={() => router.push('/cars/buy-car')}>
                     <Text style={styles.seeAllLink}>See all</Text>
                 </TouchableOpacity>
             </View>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.horizontalScroll}
-                contentContainerStyle={{ paddingBottom: 20 }}
-            >
-                {RECENTLY_VIEWED.map((car) => (
-                    <TouchableOpacity
-                        key={`recently-viewed-${car.id}`}
-                        style={styles.recentlyViewedCard}
-                    >
-                        <Image
-                            source={{ uri: car.image }}
-                            style={styles.recentlyViewedImage}
-                            contentFit="cover"
-                        />
-                        <View style={styles.recentlyViewedInfo}>
-                            <Text style={styles.recentlyViewedName}>{car.name}</Text>
-                            <Text style={styles.recentlyViewedPrice}>{car.price}</Text>
-                            <Text style={styles.recentlyViewedTime}>{car.viewedAt}</Text>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+
+            {loading ? (
+                <View style={{ padding: 20 }}>
+                    <ActivityIndicator color="#235CF8" />
+                </View>
+            ) : (
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.horizontalScroll}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                >
+                    {ads.map((car) => {
+                        const imageUrl = car.AdImage?.[0]?.image_url;
+                        const brand = car.CarDetails?.brand || "";
+                        const model = car.CarDetails?.model || "";
+                        const title = car.title || `${brand} ${model}`;
+
+                        return (
+                            <TouchableOpacity
+                                key={`recently-viewed-${car.id}`}
+                                style={styles.recentlyViewedCard}
+                                onPress={() => router.push(`/cars/${car.id}`)}
+                            >
+                                <Image
+                                    source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
+                                    style={styles.recentlyViewedImage}
+                                    contentFit="cover"
+                                />
+                                <View style={styles.recentlyViewedInfo}>
+                                    <Text style={styles.recentlyViewedName} numberOfLines={1}>{title}</Text>
+                                    <Text style={styles.recentlyViewedPrice}>{formatPrice(car.price)}</Text>
+                                    <Text style={styles.recentlyViewedTime} numberOfLines={1}>
+                                        {car.location}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        )
+                    })}
+                </ScrollView>
+            )}
         </Animated.View>
     );
 };

@@ -53,4 +53,6 @@ export interface PaymentDetailSummary {
     date: string;
     payout: string;
     invoice: string;
+    expiryDate?: string;
 }
+

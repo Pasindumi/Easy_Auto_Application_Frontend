@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
   ScrollView,
   StyleSheet,
@@ -14,6 +15,9 @@ import {
 } from 'react-native';
 
 export default function ProfileScreen() {
+  // Protect this route - require authentication
+  useProtectedRoute();
+  
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
 

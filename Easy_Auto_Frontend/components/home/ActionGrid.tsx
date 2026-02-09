@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface ActionGridProps {
     fadeAnim: Animated.Value;
@@ -95,6 +96,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
     newListingsCount,
 }) => {
     const router = useRouter();
+    const { isAuthenticated } = useAuth();
 
     return (
         <Animated.View
@@ -139,7 +141,11 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                     delay={150}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/cars/select-type");
+                        if (isAuthenticated) {
+                            router.push("/cars/select-type");
+                        } else {
+                            router.push("/cars/select-type"); // Guard in the page will handle it
+                        }
                     }}
                 >
                     <View style={styles.scrollableActionCard}>
@@ -230,6 +236,29 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                         <Text style={styles.scrollableActionLabel}>Find Dealers</Text>
                         <Text style={styles.scrollableActionDescription}>
                             {newListingsCount}+ new listings
+                        </Text>
+                    </View>
+                </GlassmorphismButton>
+
+                <GlassmorphismButton
+                    delay={350}
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        router.push("/packages/packages");
+                    }}
+                >
+                    <View style={styles.scrollableActionCard}>
+                        <View
+                            style={[
+                                styles.colorfulIconContainer,
+                                { backgroundColor: "#F1F8E9" },
+                            ]}
+                        >
+                            <MaterialIcons name="school" size={32} color="#43A047" />
+                        </View>
+                        <Text style={styles.scrollableActionLabel}>Packages</Text>
+                        <Text style={styles.scrollableActionDescription}>
+                            Boost your ads
                         </Text>
                     </View>
                 </GlassmorphismButton>

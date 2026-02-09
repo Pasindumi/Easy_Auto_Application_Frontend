@@ -60,6 +60,22 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
         {/* Right content */}
         <View style={styles.infoContainer}>
 
+          {/* Boost Badges */}
+          {(ad.is_featured || ad.is_urgent) && (
+            <View style={{ flexDirection: 'row', marginBottom: 6, gap: 6 }}>
+              {ad.is_urgent && (
+                <View style={{ backgroundColor: '#EF4444', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
+                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>URGENT</Text>
+                </View>
+              )}
+              {ad.is_featured && (
+                <View style={{ backgroundColor: '#F59E0B', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
+                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>FEATURED</Text>
+                </View>
+              )}
+            </View>
+          )}
+
           {/* Title + Status */}
           <View style={styles.titleRow}>
             <Text style={styles.title} numberOfLines={1}>
@@ -101,28 +117,31 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
       {/* Actions */}
       <View style={styles.actionRow}>
         <TouchableOpacity
-          onPress={() => router.push(`/cars/view-car?id=${ad.id}`)}
+          onPress={() => router.push(`/cars/review?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="eye-outline" size={16} color="#2563EB" />
           <Text style={styles.actionText}>View</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* Edit Button hidden as per request (available in Review page) */}
+        {/* <TouchableOpacity
           onPress={() => router.push(`/ads/edit-car?id=${ad.id}`)}
           style={styles.actionBtn}
         >
           <Ionicons name="create-outline" size={16} color="#2563EB" />
           <Text style={styles.actionText}>Edit</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <TouchableOpacity
-          onPress={() => router.push(`/packages/packages?id=${ad.id}`)}
-          style={styles.actionBtn}
-        >
-          <Ionicons name="rocket-outline" size={16} color="#2563EB" />
-          <Text style={styles.actionText}>Boost</Text>
-        </TouchableOpacity>
+        {mapStatus === 'active' && (
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: '/ads/boost/[id]', params: { id: ad.id } })}
+            style={styles.actionBtn}
+          >
+            <Ionicons name="rocket-outline" size={16} color="#2563EB" />
+            <Text style={styles.actionText}>Boost</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           onPress={() => router.push(`/ads/delete-car?id=${ad.id}`)}

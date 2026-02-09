@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Image,
   ScrollView,
@@ -11,93 +11,271 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import { useAuth } from "@/contexts/AuthContext";
+import { API_URL } from "@/constants/API";
+import * as ImagePicker from "expo-image-picker";
+import { api } from "@/utils/api";
 
 export default function EditProfileScreen() {
   const router = useRouter();
+  const { user, accessToken, logout, updateUser } = useAuth();
 
-  const [name, setName] = useState("Dilmin Ekanayaka");
-  const [email, setEmail] = useState("dilmin@example.com");
-  const [phone, setPhone] = useState("+94 77 123 4567");
-  const [location, setLocation] = useState("Badulla, Sri Lanka");
-  const [bio, setBio] = useState(
-    "Car enthusiast and car collector. Looking for classic and modern vehicles"
-  );
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [bio, setBio] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Load user data on mount and when user changes
+  useEffect(() => {
+    loadUserData();
+  }, [user]);
+
+  const loadUserData = async () => {
+    try {
+      setLoading(true);
+      if (!user) {
+        console.log('No user found');
+        setLoading(false);
+        return;
+      }
+
+      console.log('[EditProfile] Loading user data from auth context');
+      
+      // Use user info from auth context
+      setName(user.name || '');
+      setEmail(user.email || '');
+      setPhone(user.phone || '');
+      // Location and bio can be added later when user updates profile
+      
+    } catch (error) {
+      console.error('[EditProfile] Error loading user data:', error);
+      // Fallback: use user info from auth context
+      if (user) {
+        setName(user.name || '');
+        setEmail(user.email || '');
+        setPhone(user.phone || '');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setProfilePhoto(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('[EditProfile] Error picking image:', error);
+      Alert.alert('Error', 'Failed to select image');
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (!name.trim() || !email.trim()) {
+      Alert.alert('Validation Error', 'Please fill in name and email fields');
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      if (!accessToken || !user) {
+        Alert.alert('Error', 'User not authenticated');
+        return;
+      }
+
+      console.log('[EditProfile] Saving user data...');
+
+      // If there's a profile photo, use FormData
+      if (profilePhoto) {
+        const formData = new FormData();
+        
+        // Only append fields that have values
+        if (name.trim()) formData.append('name', name.trim());
+        if (email.trim()) formData.append('email', email.trim());
+        if (phone.trim()) formData.append('phone', phone.trim());
+
+        // Extract filename and create file object
+        const filename = profilePhoto.split('/').pop() || 'profile.jpg';
+        const match = /\.([\w]+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+        // @ts-ignore - FormData handles {uri, name, type} in RN
+        // Backend expects 'avatar' field name (not 'file')
+        formData.append('avatar', {
+          uri: profilePhoto,
+          name: filename,
+          type,
+        });
+
+        console.log('[EditProfile] Using FormData with photo upload');
+
+        // Use api client which handles auth and errors properly
+        const response = await api.put<{ success: boolean; data: any; message?: string }>(
+          `/api/users/${user.id}`,
+          formData
+        );
+
+        if (response.success) {
+          // Update user context with new data from backend
+          if (response.data) {
+            await updateUser({
+              name: response.data.name,
+              email: response.data.email,
+              phone: response.data.phone,
+              avatar: response.data.avatar, // New avatar URL from S3
+            });
+          }
+          Alert.alert('Success', 'Profile updated successfully!');
+          setProfilePhoto(null); // Clear selected photo
+        } else {
+          Alert.alert('Error', response.message || 'Failed to update profile');
+        }
+      } else {
+        // No photo, use JSON - only include fields with values
+        const userData: any = {};
+        if (name.trim()) userData.name = name.trim();
+        if (email.trim()) userData.email = email.trim();
+        if (phone.trim()) userData.phone = phone.trim();
+
+        if (Object.keys(userData).length === 0) {
+          Alert.alert('Error', 'Please provide at least one field to update');
+          setSaving(false);
+          return;
+        }
+
+        console.log('[EditProfile] Using JSON without photo');
+
+        // Use api client
+        const response = await api.put<{ success: boolean; data: any; message?: string }>(
+          `/api/users/${user.id}`,
+          userData
+        );
+
+        if (response.success) {
+          // Update user context with new data from backend
+          if (response.data) {
+            await updateUser({
+              name: response.data.name,
+              email: response.data.email,
+              phone: response.data.phone,
+            });
+          }
+          Alert.alert('Success', 'Profile updated successfully!');
+        } else {
+          Alert.alert('Error', response.message || 'Failed to update profile');
+        }
+      }
+    } catch (error) {
+      console.error('[EditProfile] Error saving profile:', error);
+      Alert.alert('Error', 'An error occurred while saving the profile');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header showBack={true} title="Edit Profile" />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-        {/* Profile Image */}
-        <View style={styles.photoContainer}>
-          <View style={styles.imageWrapper}>
-            <Image
-              source={require("@/assets/images/user.jpeg")}
-              style={styles.profilePhoto}
-            />
-            <View style={styles.cameraIcon}>
-              <Ionicons name="camera" size={18} color={COLORS.primary} />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading your profile...</Text>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+          {/* Profile Image */}
+          <View style={styles.photoContainer}>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={
+                  profilePhoto 
+                    ? { uri: profilePhoto }
+                    : user?.avatar
+                    ? { uri: user.avatar }
+                    : require("@/assets/images/user.jpeg")
+                }
+                style={styles.profilePhoto}
+              />
+              <TouchableOpacity style={styles.cameraIcon} onPress={pickImage}>
+                <Ionicons name="camera" size={18} color={COLORS.primary} />
+              </TouchableOpacity>
             </View>
+
+            <TouchableOpacity onPress={pickImage}>
+              <Text style={styles.changePhotoText}>Change Profile Photo</Text>
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity>
-            <Text style={styles.changePhotoText}>Change Profile Photo</Text>
+          {/* Form */}
+          <View style={styles.formContainer}>
+            <Text style={styles.label}>Full Name</Text>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your full name"
+              placeholderTextColor={COLORS.text.placeholder}
+            />
+
+            <Text style={styles.label}>E-mail</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              keyboardType="email-address"
+              placeholderTextColor={COLORS.text.placeholder}
+            />
+
+            <Text style={styles.label}>Phone number</Text>
+            <TextInput
+              style={styles.input}
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Enter your phone number"
+              keyboardType="phone-pad"
+              placeholderTextColor={COLORS.text.placeholder}
+            />
+
+        
+          </View>
+
+          {/* Save Button */}
+          <TouchableOpacity 
+            style={[styles.saveBtn, saving && styles.saveBtnDisabled]} 
+            activeOpacity={0.8}
+            onPress={handleSaveChanges}
+            disabled={saving}
+          >
+            {saving ? (
+              <>
+                <ActivityIndicator size="small" color={COLORS.white} style={{ marginRight: 8 }} />
+                <Text style={styles.saveBtnText}>Saving...</Text>
+              </>
+            ) : (
+              <Text style={styles.saveBtnText}>Save Changes</Text>
+            )}
           </TouchableOpacity>
-        </View>
-
-        {/* Form */}
-        <View style={styles.formContainer}>
-          <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholderTextColor={COLORS.text.placeholder}
-          />
-
-          <Text style={styles.label}>E-mail</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            placeholderTextColor={COLORS.text.placeholder}
-          />
-
-          <Text style={styles.label}>Phone number</Text>
-          <TextInput
-            style={styles.input}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-            placeholderTextColor={COLORS.text.placeholder}
-          />
-
-          <Text style={styles.label}>Location</Text>
-          <TextInput
-            style={styles.input}
-            value={location}
-            onChangeText={setLocation}
-            placeholderTextColor={COLORS.text.placeholder}
-          />
-
-          <Text style={styles.label}>Bio</Text>
-          <TextInput
-            style={[styles.input, { height: 90, textAlignVertical: "top" }]}
-            value={bio}
-            onChangeText={setBio}
-            multiline
-            placeholderTextColor={COLORS.text.placeholder}
-          />
-        </View>
-
-        {/* Save Button */}
-        <TouchableOpacity style={styles.saveBtn} activeOpacity={0.8}>
-          <Text style={styles.saveBtnText}>Save Changes</Text>
-        </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      )}
 
       {/* BOTTOM NAVIGATION BAR */}
       <View style={styles.bottomNav}>
@@ -121,6 +299,16 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: COLORS.background
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    color: '#666',
+    fontSize: 14,
   },
   photoContainer: {
     alignItems: "center",
@@ -183,12 +371,17 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 10,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  saveBtnDisabled: {
+    opacity: 0.7,
   },
   saveBtnText: {
     color: COLORS.white,

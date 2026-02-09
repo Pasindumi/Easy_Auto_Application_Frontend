@@ -1,7 +1,4 @@
-import { FLASH_SALES } from "@/constants/dummydata/homedummydata";
-import { MaterialIcons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Animated,
     Dimensions,
@@ -10,7 +7,12 @@ import {
     Text,
     TouchableOpacity,
     View,
+    ImageBackground,
 } from "react-native";
+import { api } from "@/utils/api";
+import { Image } from "expo-image";
+
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -21,58 +23,99 @@ interface FlashSaleProps {
 }
 
 const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
+    const router = useRouter();
     const flatListRef = useRef<FlatList>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [discounts, setDiscounts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchDiscounts = async () => {
+        try {
+            const data = await api.get<any[]>('/api/discounts/active');
+            setDiscounts(data);
+        } catch (error) {
+            console.error("Failed to fetch discounts:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDiscounts();
+    }, []);
+
+    const formatDate = (dateString: string) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    };
 
     // Auto-scroll logic
     useEffect(() => {
+        if (discounts.length <= 1) return;
+
         const interval = setInterval(() => {
             setCurrentIndex((prevIndex) => {
-                const nextIndex = (prevIndex + 1) % FLASH_SALES.length;
+                const nextIndex = (prevIndex + 1) % discounts.length;
                 flatListRef.current?.scrollToIndex({
                     index: nextIndex,
                     animated: true,
                 });
                 return nextIndex;
             });
-        }, 4000); // 4 seconds interval
+        }, 5000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [discounts]);
 
-    const renderItem = ({ item }: { item: typeof FLASH_SALES[0] }) => (
+    const handlePress = (item: any) => {
+        router.push(`/discounts/${item.id}`);
+    };
+
+    const renderItem = ({ item }: { item: any }) => (
         <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
-            style={[styles.card, { backgroundColor: item.color }]}
+            style={[styles.card, { backgroundColor: item.color_theme || "#235CF8" }]}
+            onPress={() => handlePress(item)}
         >
-            <View style={styles.cardContent}>
+            {item.offer_image_url && (
+                <Image
+                    source={{ uri: item.offer_image_url }}
+                    style={StyleSheet.absoluteFillObject}
+                    contentFit="cover"
+                />
+            )}
+            <View style={[styles.cardContent, item.offer_image_url && styles.overlay]}>
                 <View style={styles.leftContent}>
-                    <View style={styles.badge}>
-                        <Text style={styles.badgeIcon}>{item.icon}</Text>
-                        <Text style={styles.badgeText}>FLASH SALE</Text>
-                    </View>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.subtitle}>{item.subtitle}</Text>
+                    <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
+                    <Text style={styles.subtitle}>
+                        {item.discount_type === 'PERCENTAGE' ? `${item.value}% OFF` : `$${item.value} OFF`}
+                    </Text>
+                    {(item.start_date || item.end_date) && (
+                        <View style={styles.validityContainer}>
+                            <Text style={styles.validityText}>
+                                {item.start_date ? formatDate(item.start_date) : ""} - {item.end_date ? formatDate(item.end_date) : ""}
+                            </Text>
+                        </View>
+                    )}
                 </View>
                 <View style={styles.rightContent}>
-                    <View style={styles.timerContainer}>
-                        <MaterialIcons name="timer" size={14} color="#FFFFFF" />
-                        <Text style={styles.timerText}>{item.timer}</Text>
-                    </View>
                     <TouchableOpacity
                         style={styles.shopButton}
-                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        onPress={() => handlePress(item)}
                     >
-                        <Text style={[styles.shopButtonText, { color: item.color }]}>Claim</Text>
+                        <Text style={[styles.shopButtonText, { color: item.color_theme || "#235CF8" }]}>Details</Text>
                     </TouchableOpacity>
                 </View>
             </View>
 
             {/* Decorative background circle */}
-            <View style={styles.decorativeCircle} />
+            {!item.offer_image_url && <View style={styles.decorativeCircle} />}
         </TouchableOpacity>
     );
+
+    if (loading) return null;
+    if (discounts.length === 0) return null;
 
     return (
         <Animated.View
@@ -86,7 +129,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
         >
             <FlatList
                 ref={flatListRef}
-                data={FLASH_SALES}
+                data={discounts}
                 renderItem={renderItem}
                 keyExtractor={(item) => `flash-sale-${item.id}`}
                 horizontal
@@ -103,17 +146,19 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
             />
 
             {/* Pagination Dots */}
-            <View style={styles.pagination}>
-                {FLASH_SALES.map((_, index) => (
-                    <View
-                        key={`dot-${index}`}
-                        style={[
-                            styles.dot,
-                            currentIndex === index && styles.activeDot,
-                        ]}
-                    />
-                ))}
-            </View>
+            {discounts.length > 1 && (
+                <View style={styles.pagination}>
+                    {discounts.map((_, index) => (
+                        <View
+                            key={`dot-${index}`}
+                            style={[
+                                styles.dot,
+                                currentIndex === index && styles.activeDot,
+                            ]}
+                        />
+                    ))}
+                </View>
+            )}
         </Animated.View>
     );
 };
@@ -143,30 +188,27 @@ const styles = StyleSheet.create({
         padding: 16,
         zIndex: 2,
     },
+    overlay: {
+        backgroundColor: 'rgba(0,0,0,0.35)',
+        borderRadius: 20,
+    },
     leftContent: {
         flex: 1,
         justifyContent: "center",
         gap: 4,
     },
-    badge: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "rgba(255, 255, 255, 0.25)",
-        alignSelf: "flex-start",
+    validityContainer: {
+        marginTop: 8,
+        backgroundColor: "rgba(255, 255, 255, 0.2)",
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 8,
-        gap: 4,
-        marginBottom: 4,
+        borderRadius: 6,
+        alignSelf: "flex-start",
     },
-    badgeIcon: {
-        fontSize: 12,
-    },
-    badgeText: {
+    validityText: {
         color: "#FFFFFF",
         fontSize: 10,
-        fontWeight: "800",
-        letterSpacing: 1,
+        fontWeight: "700",
     },
     title: {
         color: "#FFFFFF",
@@ -183,22 +225,6 @@ const styles = StyleSheet.create({
     rightContent: {
         alignItems: "center",
         justifyContent: "center",
-        gap: 10,
-    },
-    timerContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.3)",
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 12,
-        gap: 4,
-    },
-    timerText: {
-        color: "#FFFFFF",
-        fontSize: 12,
-        fontWeight: "700",
-        fontFamily: "monospace",
     },
     shopButton: {
         backgroundColor: "#FFFFFF",

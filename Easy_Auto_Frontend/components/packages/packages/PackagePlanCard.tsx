@@ -13,6 +13,8 @@ interface PackagePlanCardProps {
     backgroundColor: string;
     isPopular?: boolean;
     onSelect?: () => void;
+    id?: number | string;
+    btnText?: string;
 }
 
 const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
@@ -25,6 +27,8 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
     backgroundColor,
     isPopular,
     onSelect,
+    id,
+    btnText,
 }) => {
     const router = useRouter();
 
@@ -32,14 +36,12 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
         if (onSelect) {
             onSelect();
         } else {
-            router.push({
-                pathname: "./payments/invoice",
-                params: {
-                    plan: title,
-                    price: price,
-                    days: days
-                }
-            });
+            // Navigate to package detail page by id if provided
+            if (id) {
+                router.push({ pathname: '/packages/[id]', params: { id } });
+            } else {
+                router.push({ pathname: '/payments/invoice', params: { plan: title, price: price, days: days, packageId: id } });
+            }
         }
     };
 
@@ -72,7 +74,7 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
                 style={styles.selectButton}
                 onPress={handleSelect}
             >
-                <Text style={styles.selectText}>Select Plan</Text>
+                <Text style={styles.selectText}>{btnText || "Select Plan"}</Text>
             </TouchableOpacity>
         </View>
     );

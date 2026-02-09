@@ -18,7 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarProps {
   visible: boolean;
@@ -80,13 +80,13 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     },
     { icon: "help-outline", label: "My Ads", route: "/ads/my-ads" },
     { icon: "star-outline", label: "Ratings", route: "/profile/ratings" },
-    { icon: "phone", label: "Contact Us", route: "/support/contact-us" },
+    { icon: "phone", label: "Contact & Complaints", route: "/support/contact-us" },
   ];
 
   const guestMenuItems = [
     { icon: "home", label: "Home", route: "/(tabs)" },
     { icon: "search", label: "Search Cars", route: "/(tabs)/search" },
-    { icon: "phone", label: "Contact Us", route: "/support/contact-us" },
+    { icon: "phone", label: "Contact & Complaints", route: "/support/contact-us" },
   ];
 
   const handleNavigation = (route: string) => {

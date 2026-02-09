@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Animated,
   Dimensions,
@@ -14,6 +15,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { api } from "@/utils/api";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -29,41 +32,29 @@ export default function WishlistDrawer({
   const drawerWidth = width * 0.7;
   const slideAnim = React.useRef(new Animated.Value(drawerWidth)).current;
   const backdropOpacity = React.useRef(new Animated.Value(0)).current;
-  const [wishlistItems, setWishlistItems] = useState([
-    {
-      id: 1,
-      model: "Nissan GTR R35",
-      year: "2020",
-      fuelType: "Petrol",
-      location: "Badulla, Sri Lanka",
-      mileage: "180,000Km",
-      price: "$75,000",
-      image:
-        "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop&auto=format",
-    },
-    {
-      id: 2,
-      model: "Range Rover Sport",
-      year: "2022",
-      fuelType: "Diesel",
-      location: "Colombo, Sri Lanka",
-      mileage: "120,000Km",
-      price: "$85,000",
-      image:
-        "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop&auto=format",
-    },
-    {
-      id: 3,
-      model: "Toyota Camry 2024",
-      year: "2024",
-      fuelType: "Hybrid",
-      location: "Kandy, Sri Lanka",
-      mileage: "50,000Km",
-      price: "$45,000",
-      image:
-        "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop&auto=format",
-    },
-  ]);
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (visible) {
+      fetchWishlist();
+    }
+  }, [visible]);
+
+  const fetchWishlist = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
+      if (response.success) {
+        setWishlistItems(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   React.useEffect(() => {
     if (visible) {
@@ -112,24 +103,35 @@ export default function WishlistDrawer({
         {
           text: "Remove",
           style: "destructive",
-          onPress: () => {
-            setWishlistItems(wishlistItems.filter((item) => item.id !== id));
+          onPress: async () => {
+            try {
+              const response = await api.post<{ success: boolean; isFavorite: boolean }>("/api/favorites/toggle", {
+                ad_id: id
+              });
+              if (response.success && !response.isFavorite) {
+                setWishlistItems(wishlistItems.filter((item) => item.id !== id));
+              }
+            } catch (error) {
+              console.error("Error removing from wishlist:", error);
+              Alert.alert("Error", "Failed to remove item.");
+            }
           },
         },
       ]
     );
   };
 
-  const handleShare = (item: (typeof wishlistItems)[0]) => {
-    Alert.alert("Share", `Sharing ${item.model}...`);
+  const handleShare = (item: any) => {
+    Alert.alert("Share", `Sharing ${item.title}...`);
   };
 
-  const handleViewDetails = (item: (typeof wishlistItems)[0]) => {
-    Alert.alert("View Details", `Opening details for ${item.model}...`);
+  const handleViewDetails = (item: any) => {
+    onClose();
+    router.push(`/cars/${item.id}` as any);
   };
 
-  const handleCompare = (item: (typeof wishlistItems)[0]) => {
-    Alert.alert("Compare", `Adding ${item.model} to comparison...`);
+  const handleCompare = (item: any) => {
+    Alert.alert("Compare", `Adding ${item.title} to comparison...`);
   };
 
   return (
@@ -162,126 +164,148 @@ export default function WishlistDrawer({
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
             >
-              {wishlistItems.length > 0 ? (
+              {loading ? (
+                <View style={{ marginTop: 50 }}>
+                  <ActivityIndicator size="small" color="#235CF8" />
+                </View>
+              ) : wishlistItems.length > 0 ? (
                 <View style={styles.wishlistContainer}>
-                  {wishlistItems.map((item) => (
-                    <View key={item.id} style={styles.wishlistCard}>
-                      <TouchableOpacity
-                        style={styles.cardContent}
-                        activeOpacity={0.9}
-                      >
-                        <View style={styles.carImageContainer}>
-                          <Image
-                            source={{ uri: item.image }}
-                            style={styles.carImage}
-                            contentFit="cover"
-                            transition={200}
-                          />
-                          <View style={styles.cardOverlay}>
-                            <TouchableOpacity
-                              style={styles.favoriteButton}
-                              onPress={() => removeFromWishlist(item.id)}
-                              activeOpacity={0.7}
-                            >
-                              <MaterialIcons
-                                name="favorite"
-                                size={18}
-                                color="#FFFFFF"
+                  {wishlistItems.map((item) => {
+                    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
+                      item.AdImage?.[0]?.image_url;
+                    const details = item.CarDetails?.[0] || item.CarDetails || {};
+                    const formattedPrice = new Intl.NumberFormat('en-LK', {
+                      style: 'currency',
+                      currency: 'LKR',
+                      maximumFractionDigits: 0
+                    }).format(item.price);
+
+                    return (
+                      <View key={item.id} style={styles.wishlistCard}>
+                        <TouchableOpacity
+                          style={styles.cardContent}
+                          activeOpacity={0.9}
+                          onPress={() => handleViewDetails(item)}
+                        >
+                          <View style={styles.carImageContainer}>
+                            {mainImage ? (
+                              <Image
+                                source={{ uri: mainImage }}
+                                style={styles.carImage}
+                                contentFit="cover"
+                                transition={200}
                               />
-                            </TouchableOpacity>
-                            <View style={styles.priceBadge}>
-                              <Text style={styles.priceBadgeText}>
-                                {item.price}
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                        <View style={styles.carInfoContainer}>
-                          <View style={styles.carHeader}>
-                            <Text style={styles.carName} numberOfLines={1}>
-                              {item.model}
-                            </Text>
-                            <View style={styles.yearBadge}>
-                              <Text style={styles.yearText}>{item.year}</Text>
-                            </View>
-                          </View>
-                          <View style={styles.carDetailsRow}>
-                            <View style={styles.carDetailItem}>
-                              <MaterialIcons
-                                name="location-on"
-                                size={14}
-                                color="#6B7280"
-                              />
-                              <Text
-                                style={styles.carLocation}
-                                numberOfLines={1}
+                            ) : (
+                              <View style={[styles.carImage, { backgroundColor: '#E5E7EB', justifyContent: 'center', alignItems: 'center' }]}>
+                                <MaterialIcons name="directions-car" size={40} color="#9CA3AF" />
+                              </View>
+                            )}
+                            <View style={styles.cardOverlay}>
+                              <TouchableOpacity
+                                style={styles.favoriteButton}
+                                onPress={() => removeFromWishlist(item.id)}
+                                activeOpacity={0.7}
                               >
-                                {item.location}
-                              </Text>
+                                <MaterialIcons
+                                  name="favorite"
+                                  size={18}
+                                  color="#FFFFFF"
+                                />
+                              </TouchableOpacity>
+                              <View style={styles.priceBadge}>
+                                <Text style={styles.priceBadgeText}>
+                                  {formattedPrice}
+                                </Text>
+                              </View>
                             </View>
-                            <View style={styles.carDetailItem}>
+                          </View>
+                          <View style={styles.carInfoContainer}>
+                            <View style={styles.carHeader}>
+                              <Text style={styles.carName} numberOfLines={1}>
+                                {item.title}
+                              </Text>
+                              <View style={styles.yearBadge}>
+                                <Text style={styles.yearText}>{details.year || 'N/A'}</Text>
+                              </View>
+                            </View>
+                            <View style={styles.carDetailsRow}>
+                              <View style={styles.carDetailItem}>
+                                <MaterialIcons
+                                  name="location-on"
+                                  size={14}
+                                  color="#6B7280"
+                                />
+                                <Text
+                                  style={styles.carLocation}
+                                  numberOfLines={1}
+                                >
+                                  {item.location}
+                                </Text>
+                              </View>
+                              <View style={styles.carDetailItem}>
+                                <MaterialIcons
+                                  name="speed"
+                                  size={14}
+                                  color="#6B7280"
+                                />
+                                <Text style={styles.carMileage}>
+                                  {details.mileage || 'N/A'}
+                                </Text>
+                              </View>
+                            </View>
+                            <View style={styles.fuelTypeContainer}>
                               <MaterialIcons
-                                name="speed"
+                                name="local-gas-station"
                                 size={14}
-                                color="#6B7280"
+                                color="#235CF8"
                               />
-                              <Text style={styles.carMileage}>
-                                {item.mileage}
+                              <Text style={styles.fuelTypeText}>
+                                {details.fuel_type || 'N/A'}
                               </Text>
                             </View>
                           </View>
-                          <View style={styles.fuelTypeContainer}>
+                        </TouchableOpacity>
+                        <View style={styles.actionButtons}>
+                          <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() => handleViewDetails(item)}
+                            activeOpacity={0.7}
+                          >
                             <MaterialIcons
-                              name="local-gas-station"
-                              size={14}
+                              name="visibility"
+                              size={18}
                               color="#235CF8"
                             />
-                            <Text style={styles.fuelTypeText}>
-                              {item.fuelType}
-                            </Text>
-                          </View>
+                            <Text style={styles.actionButtonText}>View</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() => handleShare(item)}
+                            activeOpacity={0.7}
+                          >
+                            <MaterialIcons
+                              name="share"
+                              size={18}
+                              color="#235CF8"
+                            />
+                            <Text style={styles.actionButtonText}>Share</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() => handleCompare(item)}
+                            activeOpacity={0.7}
+                          >
+                            <MaterialIcons
+                              name="compare-arrows"
+                              size={18}
+                              color="#235CF8"
+                            />
+                            <Text style={styles.actionButtonText}>Compare</Text>
+                          </TouchableOpacity>
                         </View>
-                      </TouchableOpacity>
-                      <View style={styles.actionButtons}>
-                        <TouchableOpacity
-                          style={styles.actionButton}
-                          onPress={() => handleViewDetails(item)}
-                          activeOpacity={0.7}
-                        >
-                          <MaterialIcons
-                            name="visibility"
-                            size={18}
-                            color="#235CF8"
-                          />
-                          <Text style={styles.actionButtonText}>View</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.actionButton}
-                          onPress={() => handleShare(item)}
-                          activeOpacity={0.7}
-                        >
-                          <MaterialIcons
-                            name="share"
-                            size={18}
-                            color="#235CF8"
-                          />
-                          <Text style={styles.actionButtonText}>Share</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.actionButton}
-                          onPress={() => handleCompare(item)}
-                          activeOpacity={0.7}
-                        >
-                          <MaterialIcons
-                            name="compare-arrows"
-                            size={18}
-                            color="#235CF8"
-                          />
-                          <Text style={styles.actionButtonText}>Compare</Text>
-                        </TouchableOpacity>
                       </View>
-                    </View>
-                  ))}
+                    );
+                  })}
                 </View>
               ) : (
                 <View style={styles.emptyContainer}>

@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/contexts/AuthContext';
 
 type ProfileHeaderProps = {
   title: string;
@@ -27,6 +28,7 @@ export default function ProfileHeader({
 }: ProfileHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   const handleProfilePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -56,7 +58,11 @@ export default function ProfileHeader({
             <View style={styles.profileCardContent}>
               <View style={styles.avatarContainer}>
                 <Image
-                  source={require('@/assets/images/user.jpeg')}
+                  source={
+                    user?.avatar
+                      ? { uri: user.avatar }
+                      : require('@/assets/images/user.jpeg')
+                  }
                   style={styles.avatar}
                 />
                 <View style={styles.notificationBadge}>
@@ -67,15 +73,17 @@ export default function ProfileHeader({
               <View style={styles.profileInfo}>
                 <View style={styles.profileHeader}>
                   <View style={styles.profileNames}>
-                    <Text style={styles.username}>Dilmin Ekanayaka</Text>
+                    <Text style={styles.username}>{user?.name || 'User'}</Text>
                     <View style={styles.premiumTag}>
                       <Ionicons name="star" size={12} color={COLORS.white} />
-                      <Text style={styles.premiumText}>Premium Member</Text>
+                      <Text style={styles.premiumText}>
+                        {user?.is_premium ? 'Premium Member' : 'Normal User'}
+                      </Text>
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color={COLORS.white} />
                 </View>
-                <Text style={styles.email}>dilmin@yahoo.com</Text>
+                <Text style={styles.email}>{user?.email || 'No email'}</Text>
               </View>
             </View>
           </TouchableOpacity>

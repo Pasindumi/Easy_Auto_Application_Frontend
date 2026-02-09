@@ -189,10 +189,18 @@ export default function ReviewAd() {
             </View>
           </View>
 
-          {/* Proceed to Payment Button */}
-          <TouchableOpacity style={styles.paymentButton} onPress={() => router.push('/payments/payment')}>
-            <Text style={styles.paymentButtonText}>Proceed to Payment</Text>
-          </TouchableOpacity>
+          {/* Bottom Action Bar */}
+          <View style={styles.bottomActions}>
+            <TouchableOpacity style={styles.editAdBtn} onPress={() => router.back()}>
+              <Feather name="edit" size={18} color={COLORS.primary} style={{ marginRight: 8 }} />
+              <Text style={styles.editAdText}>Edit Ad</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.paymentButton} onPress={() => router.push('/payments/payment')}>
+              <Ionicons name="card-outline" size={20} color={COLORS.white} style={{ marginRight: 8 }} />
+              <Text style={styles.paymentButtonText}>Proceed & Payment</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -247,6 +255,42 @@ const styles = StyleSheet.create({
   sellerImage: { borderRadius: 20, width: 40, height: 40 },
   sellerName: { fontWeight: '500', color: COLORS.text.primary },
   sellerInfo: { color: COLORS.text.muted, fontSize: 12 },
-  paymentButton: { marginTop: 16, width: '100%', backgroundColor: COLORS.status.success, borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
-  paymentButtonText: { color: COLORS.white, fontWeight: 'bold', fontSize: 16 },
+
+  // Updated Bottom Actions Styles
+  bottomActions: {
+    marginTop: 20,
+    flexDirection: 'row',
+    gap: 12,
+  },
+  editAdBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: 8,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.white,
+  },
+  editAdText: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  paymentButton: {
+    flex: 1.5,
+    backgroundColor: COLORS.status.success,
+    borderRadius: 8,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paymentButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 16
+  },
 });
+

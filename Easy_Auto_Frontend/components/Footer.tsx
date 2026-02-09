@@ -50,9 +50,9 @@ const styles = StyleSheet.create({
   footer: {
     width: '100%',
     backgroundColor: '#111',
-    paddingVertical: 18,
+    paddingVertical: 32,
+    paddingBottom: 48,
     alignItems: 'center',
-
   },
   fixedFooter: {
     position: 'absolute',

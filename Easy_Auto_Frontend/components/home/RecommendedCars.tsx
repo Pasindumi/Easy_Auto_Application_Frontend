@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     Animated,
     ScrollView,
@@ -9,19 +9,56 @@ import {
     Text,
     TouchableOpacity,
     View,
+    ActivityIndicator
 } from "react-native";
+import { useRouter } from "expo-router";
+import { api } from "@/utils/api";
 
 interface RecommendedCarsProps {
     fadeAnim: Animated.Value;
     slideAnim: Animated.Value;
 }
 
-import { RECOMMENDED_CARS } from "@/constants/dummydata/homedummydata";
-
 const RecommendedCars: React.FC<RecommendedCarsProps> = ({
     fadeAnim,
     slideAnim,
 }) => {
+    const router = useRouter();
+    const [ads, setAds] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchAds = async () => {
+        setLoading(true);
+        try {
+            // Fetching active ads. Limiting to 10 for "Recommended"
+            const res: any = await api.get('/api/cars?status=ACTIVE&limit=10');
+            if (res.success) {
+                setAds(res.data || []);
+            }
+        } catch (error) {
+            console.error("Error fetching recommended ads:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAds();
+    }, []);
+
+    const formatPrice = (price: any) => {
+        const val = Number(price) || 0;
+        return new Intl.NumberFormat('en-LK', {
+            style: 'currency',
+            currency: 'LKR',
+            maximumFractionDigits: 0,
+            compactDisplay: "short",
+            notation: "compact"
+        }).format(val);
+    };
+
+    if (!loading && ads.length === 0) return null; // Don't show section if no ads
+
     return (
         <Animated.View
             style={[
@@ -36,62 +73,77 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                 <View style={styles.recommendedHeader}>
                     <Text style={styles.sectionTitle}>Recommended For You</Text>
                     <Text style={styles.recommendedSubtitle}>
-                        Based on your searches
+                        Based on available listings
                     </Text>
                 </View>
-                <TouchableOpacity style={styles.refreshButton}>
+                <TouchableOpacity style={styles.refreshButton} onPress={fetchAds}>
                     <MaterialIcons name="refresh" size={18} color="#235CF8" />
                 </TouchableOpacity>
             </View>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.horizontalScroll}
-                contentContainerStyle={{ paddingBottom: 20 }}
-            >
-                {RECOMMENDED_CARS.map((car) => (
-                    <TouchableOpacity
-                        key={`recommended-${car.id}`}
-                        style={styles.recommendedCarCard}
-                        activeOpacity={0.95}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        }}
-                    >
-                        <View style={styles.recommendedImageWrapper}>
-                            <Image
-                                source={{ uri: car.image }}
-                                style={styles.recommendedCarImage}
-                                contentFit="cover"
-                                transition={300}
-                                placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgRj" }}
-                                cachePolicy="memory-disk"
-                            />
-                            {/* Status Badge */}
-                            <View
-                                style={[
-                                    styles.recommendedStatusBadge,
-                                    car.status === "Hot Deal" && styles.statusBadgeHot,
-                                    car.status === "Certified" && styles.statusBadgeCertified,
-                                    car.status === "New" && styles.statusBadgeNew,
-                                ]}
+
+            {loading ? (
+                <View style={{ padding: 20 }}>
+                    <ActivityIndicator color="#235CF8" />
+                </View>
+            ) : (
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.horizontalScroll}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                >
+                    {ads.map((car) => {
+                        const imageUrl = car.AdImage?.[0]?.image_url;
+                        const brand = car.CarDetails?.brand || "";
+                        const model = car.CarDetails?.model || "";
+                        const title = car.title || `${brand} ${model}`;
+
+                        return (
+                            <TouchableOpacity
+                                key={`recommended-${car.id}`}
+                                style={styles.recommendedCarCard}
+                                activeOpacity={0.95}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    router.push(`/cars/${car.id}`);
+                                }}
                             >
-                                <Text style={styles.statusBadgeText}>{car.status}</Text>
-                            </View>
-                        </View>
-                        {/* Car Info */}
-                        <View style={styles.recommendedCarInfo}>
-                            <Text style={styles.recommendedCarName}>{car.name}</Text>
-                            <View style={styles.recommendedCarPriceRow}>
-                                <Text style={styles.recommendedCarPrice}>{car.price}</Text>
-                                <Text style={styles.recommendedCarDistance}>
-                                    {car.distance}
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+                                <View style={styles.recommendedImageWrapper}>
+                                    <Image
+                                        source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
+                                        style={styles.recommendedCarImage}
+                                        contentFit="cover"
+                                        transition={300}
+                                        placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgRj" }}
+                                        cachePolicy="memory-disk"
+                                    />
+                                    {/* Status Badge - Condition */}
+                                    {car.CarDetails?.condition && (
+                                        <View
+                                            style={[
+                                                styles.recommendedStatusBadge,
+                                                styles.statusBadgeNew, // Default blue
+                                            ]}
+                                        >
+                                            <Text style={styles.statusBadgeText}>{car.CarDetails.condition}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                                {/* Car Info */}
+                                <View style={styles.recommendedCarInfo}>
+                                    <Text style={styles.recommendedCarName} numberOfLines={1}>{title}</Text>
+                                    <View style={styles.recommendedCarPriceRow}>
+                                        <Text style={styles.recommendedCarPrice}>{formatPrice(car.price)}</Text>
+                                        <Text style={styles.recommendedCarDistance} numberOfLines={1}>
+                                            {car.location}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        )
+                    })}
+                </ScrollView>
+            )}
         </Animated.View>
     );
 };

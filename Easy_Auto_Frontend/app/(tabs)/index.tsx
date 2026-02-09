@@ -12,8 +12,10 @@ import RecommendedCars from "@/components/home/RecommendedCars";
 import Testimonials from "@/components/home/Testimonials";
 import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
+import BoostPopup from "@/components/home/BoostPopup";
 import COLORS from "@/constants/Colors";
 import { useRouter } from "expo-router";
+import { api } from "@/utils/api";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -38,7 +40,7 @@ export default function HomeScreen() {
   const [wishlistDrawerVisible, setWishlistDrawerVisible] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [notificationCount, setNotificationCount] = useState(3);
-  const [wishlistCount, setWishlistCount] = useState(5);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [compareCount, setCompareCount] = useState(12);
   const [newListingsCount, setNewListingsCount] = useState(500);
@@ -68,8 +70,10 @@ export default function HomeScreen() {
     mainScrollViewRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  // Close previews when clicking outside
+  // Previews / Initial Data
   useEffect(() => {
+    fetchWishlistCount();
+
     if (showNotificationPreview || showWishlistPreview) {
       const timer = setTimeout(() => {
         setShowNotificationPreview(false);
@@ -78,6 +82,17 @@ export default function HomeScreen() {
       return () => clearTimeout(timer);
     }
   }, [showNotificationPreview, showWishlistPreview]);
+
+  const fetchWishlistCount = async () => {
+    try {
+      const response = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
+      if (response.success) {
+        setWishlistCount(response.data.length);
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist count:", error);
+    }
+  };
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -120,6 +135,7 @@ export default function HomeScreen() {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       {/* Sidebars and Drawers */}
+      <BoostPopup />
       <HomeDrawers
         sidebarVisible={sidebarVisible}
         setSidebarVisible={setSidebarVisible}
