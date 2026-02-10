@@ -8,15 +8,39 @@ interface Props {
 }
 
 const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
+    // Helper to parse "LKR 5,000,000" -> 5000000
+    const parsePrice = (priceStr: string) => {
+        return parseInt(priceStr.replace(/[^0-9]/g, ''), 10) || 0;
+    };
+
+    // Helper to parse "50,000 km" -> 50000
+    const parseKm = (kmStr: string) => {
+        return parseInt(kmStr.replace(/[^0-9]/g, ''), 10) || 0;
+    };
+
+    const price1 = parsePrice(vehicle1.price);
+    const price2 = parsePrice(vehicle2.price);
+
+    const km1 = parseKm(vehicle1.km);
+    const km2 = parseKm(vehicle2.km);
+
     return (
         <View style={styles.detailRow}>
             {/* LEFT SIDE */}
             <View style={styles.detailColumn}>
                 <Text style={styles.price}>{vehicle1.price}</Text>
-                <Text style={styles.greenText}>● Lower price</Text>
+                {price1 < price2 ? (
+                    <Text style={styles.greenText}>● Lower price</Text>
+                ) : price1 > price2 ? (
+                    <Text style={styles.redText}>● Higher price</Text>
+                ) : null}
 
                 <Text style={styles.spec}>{vehicle1.km}</Text>
-                <Text style={styles.greenText}>● Less driven</Text>
+                {km1 < km2 ? (
+                    <Text style={styles.greenText}>● Less driven</Text>
+                ) : km1 > km2 ? (
+                    <Text style={styles.redText}>● More driven</Text>
+                ) : null}
 
                 <Text style={styles.spec}>{vehicle1.transmission}</Text>
                 <Text style={styles.spec}>Fuel Type - {vehicle1.fuelType}</Text>
@@ -33,10 +57,18 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
             {/* RIGHT SIDE */}
             <View style={styles.detailColumn}>
                 <Text style={styles.price}>{vehicle2.price}</Text>
-                <Text style={styles.redText}>● Higher price</Text>
+                {price2 < price1 ? (
+                    <Text style={styles.greenText}>● Lower price</Text>
+                ) : price2 > price1 ? (
+                    <Text style={styles.redText}>● Higher price</Text>
+                ) : null}
 
                 <Text style={styles.spec}>{vehicle2.km}</Text>
-                <Text style={styles.redText}>● More driven</Text>
+                {km2 < km1 ? (
+                    <Text style={styles.greenText}>● Less driven</Text>
+                ) : km2 > km1 ? (
+                    <Text style={styles.redText}>● More driven</Text>
+                ) : null}
 
                 <Text style={styles.spec}>{vehicle2.transmission}</Text>
                 <Text style={styles.spec}>Fuel Type - {vehicle2.fuelType}</Text>
