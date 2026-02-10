@@ -15,6 +15,7 @@ import {
     Text,
     TouchableOpacity,
     View,
+    Modal,
 } from 'react-native';
 import SelectField from '@/components/ui/SelectField';
 import LocationModal from '@/components/ui/LocationModal';
@@ -24,11 +25,13 @@ import * as Linking_ from 'expo-linking';
 import ReviewList from '@/components/reviews/ReviewList';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import StarRating from '@/components/reviews/StarRating';
+import { useAuth } from '@/contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 
 export default function AdDetailsScreen() {
     const router = useRouter();
+    const { user } = useAuth();
     const { id } = useLocalSearchParams();
     const [ad, setAd] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -40,6 +43,8 @@ export default function AdDetailsScreen() {
     const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewsLoading, setReviewsLoading] = useState(false);
+    const [showContactModal, setShowContactModal] = useState(false);
+    const [sendingChat, setSendingChat] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -111,22 +116,48 @@ export default function AdDetailsScreen() {
         fetchReviewStats();
     };
 
-    const handleCallSeller = () => {
-        const phone = ad?.users?.phone;
-        if (phone) {
-            Linking.openURL(`tel:${phone}`);
-        } else {
-            Alert.alert("Info", "Seller phone number not available.");
+    const handleChatWithSeller = async () => {
+        if (!ad?.users?.id) {
+            Alert.alert("Error", "Seller information not available.");
+            return;
+        }
+
+        if (user?.id === ad.users.id) {
+            Alert.alert("Info", "This is your own ad. You cannot chat with yourself.");
+            return;
+        }
+
+        setSendingChat(true);
+        try {
+            const response = await api.post<{ success: boolean; data: { id: string } }>(
+                '/api/chat/conversations',
+                { participantId: ad.users.id }
+            );
+
+            if (response.success) {
+                router.push({
+                    pathname: `/chat/${response.data.id}` as any,
+                    params: {
+                        adId: id as string,
+                        adTitle: ad.title,
+                        adImage: ad.AdImage && ad.AdImage.length > 0 ? ad.AdImage[0].image_url : null
+                    }
+                });
+            }
+        } catch (error: any) {
+            console.error('Start Chat Error:', error);
+            if (error.status === 401) {
+                Alert.alert("Auth Required", "Please login to chat with the seller.");
+            } else {
+                Alert.alert("Error", "Failed to start chat. Please try again.");
+            }
+        } finally {
+            setSendingChat(false);
         }
     };
 
-    const handleEmailSeller = () => {
-        const email = ad?.users?.email;
-        if (email) {
-            Linking.openURL(`mailto:${email}`);
-        } else {
-            Alert.alert("Info", "Seller email not available.");
-        }
+    const handleContactSeller = () => {
+        setShowContactModal(true);
     };
 
 
@@ -455,20 +486,103 @@ export default function AdDetailsScreen() {
                 <View style={styles.stickyFooter}>
                     <TouchableOpacity
                         style={styles.actionButtonSecondary}
-                        onPress={handleEmailSeller}
+                        onPress={handleContactSeller}
                     >
-                        <Ionicons name="mail-outline" size={20} color={COLORS.primary} />
-                        <Text style={styles.actionButtonSecondaryText}>Email</Text>
+                        <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
+                        <Text style={styles.actionButtonSecondaryText}>Contact Seller</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={styles.actionButtonPrimary}
-                        onPress={handleCallSeller}
+                        style={[styles.actionButtonPrimary, sendingChat && styles.disabledButton]}
+                        onPress={handleChatWithSeller}
+                        disabled={sendingChat}
                     >
-                        <Ionicons name="call" size={22} color="white" />
-                        <Text style={styles.actionButtonPrimaryText}>Call Seller</Text>
+                        {sendingChat ? (
+                            <ActivityIndicator size="small" color="white" />
+                        ) : (
+                            <>
+                                <Ionicons name="chatbubble-ellipses" size={22} color="white" />
+                                <Text style={styles.actionButtonPrimaryText}>Chat with Seller</Text>
+                            </>
+                        )}
                     </TouchableOpacity>
                 </View>
+
+                {/* CONTACT DETAILS MODAL */}
+                <Modal
+                    visible={showContactModal}
+                    transparent={true}
+                    animationType="fade"
+                    onRequestClose={() => setShowContactModal(false)}
+                >
+                    <TouchableOpacity
+                        style={styles.modalOverlay}
+                        activeOpacity={1}
+                        onPress={() => setShowContactModal(false)}
+                    >
+                        <View style={styles.contactModalContent}>
+                            <View style={styles.modalHeader}>
+                                <Text style={styles.modalTitle}>Seller Contact Details</Text>
+                                <TouchableOpacity onPress={() => setShowContactModal(false)}>
+                                    <Ionicons name="close" size={24} color={COLORS.text.primary} />
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.contactItem}>
+                                <View style={styles.contactIcon}>
+                                    <Ionicons name="call" size={20} color={COLORS.primary} />
+                                </View>
+                                <View style={styles.contactInfo}>
+                                    <Text style={styles.contactLabel}>Mobile Number</Text>
+                                    <Text style={styles.contactValue}>{ad?.users?.phone || "Not provided"}</Text>
+                                </View>
+                                {ad?.users?.phone && (
+                                    <TouchableOpacity
+                                        style={styles.contactAction}
+                                        onPress={() => Linking.openURL(`tel:${ad.users.phone}`)}
+                                    >
+                                        <Ionicons name="call-outline" size={20} color={COLORS.primary} />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+
+                            <View style={styles.contactItem}>
+                                <View style={styles.contactIcon}>
+                                    <Ionicons name="mail" size={20} color={COLORS.primary} />
+                                </View>
+                                <View style={styles.contactInfo}>
+                                    <Text style={styles.contactLabel}>Email Address</Text>
+                                    <Text style={styles.contactValue}>{ad?.users?.email || "Not provided"}</Text>
+                                </View>
+                                {ad?.users?.email && (
+                                    <TouchableOpacity
+                                        style={styles.contactAction}
+                                        onPress={() => Linking.openURL(`mailto:${ad.users.email}`)}
+                                    >
+                                        <Ionicons name="mail-outline" size={20} color={COLORS.primary} />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+
+                            <View style={styles.contactItem}>
+                                <View style={styles.contactIcon}>
+                                    <Ionicons name="location" size={20} color={COLORS.primary} />
+                                </View>
+                                <View style={styles.contactInfo}>
+                                    <Text style={styles.contactLabel}>Address / Location</Text>
+                                    <Text style={styles.contactValue}>{ad?.location || "Not provided"}</Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.closeModalBtn}
+                                onPress={() => setShowContactModal(false)}
+                            >
+                                <Text style={styles.closeModalBtnText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
             </ScrollView>
         </View>
     );
@@ -700,5 +814,91 @@ const styles = StyleSheet.create({
         color: COLORS.text.muted,
         fontSize: 14,
     },
-    disabledButton: { opacity: 0.6 }
+    disabledButton: { opacity: 0.6 },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20
+    },
+    contactModalContent: {
+        backgroundColor: 'white',
+        width: '100%',
+        borderRadius: 24,
+        padding: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+        elevation: 10
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: COLORS.text.primary
+    },
+    contactItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+        backgroundColor: '#F8FAFC',
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#F1F5F9'
+    },
+    contactIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        backgroundColor: COLORS.primaryLight,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 16
+    },
+    contactInfo: {
+        flex: 1
+    },
+    contactLabel: {
+        fontSize: 12,
+        color: COLORS.text.muted,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        marginBottom: 4
+    },
+    contactValue: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: COLORS.text.primary
+    },
+    contactAction: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#E2E8F0'
+    },
+    closeModalBtn: {
+        marginTop: 8,
+        paddingVertical: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 14,
+        backgroundColor: '#F1F5F9'
+    },
+    closeModalBtnText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: COLORS.text.secondary
+    }
 });

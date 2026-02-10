@@ -1,97 +1,163 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
+import { api } from '../../utils/api';
+import { ENDPOINTS } from '../../constants/API';
+import socketService from '../../utils/socket';
+import UserSearch from '../../components/chat/UserSearch';
 
-// Safe Dummy Data
+interface User {
+  id: string;
+  name: string;
+  avatar: string | null;
+}
 
-const CHAT_LIST = [
-  {
-    id: '1',
-    name: 'Toyota Care',
-    lastMessage: 'Is there anything we can do to help?',
-    time: '09:42',
-    unread: 2,
-    avatar: 'https://img.icons8.com/color/48/toyota.png',
-    isOnline: true,
-  },
-  {
-    id: '2',
-    name: 'John Seller',
-    lastMessage: 'The car is available for inspection.',
-    time: 'Yesterday',
-    unread: 0,
-    avatar: null,
-    isOnline: false,
-  },
-  {
-    id: '3',
-    name: 'Support Team',
-    lastMessage: 'Your issue has been resolved.',
-    time: 'Mon',
-    unread: 0,
-    avatar: null,
-    isOnline: true,
-  },
-  {
-    id: '4',
-    name: 'Mike Mechanic',
-    lastMessage: 'I can fix that transmission issue.',
-    time: 'Sun',
-    unread: 5,
-    avatar: null,
-    isOnline: false,
-  },
-];
+interface Conversation {
+  id: string;
+  other_user: User;
+  last_message: {
+    content: string;
+    created_at: string;
+  } | null;
+  unread_count: number;
+}
 
 export default function ChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user, accessToken } = useAuth();
 
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchVisible, setSearchVisible] = useState(false);
 
-  const renderItem = ({ item }: { item: typeof CHAT_LIST[0] }) => (
+  useEffect(() => {
+    if (user?.id && accessToken) {
+      console.log('Connecting to socket with user ID:', user.id);
+      socketService.connect(user.id);
+      fetchConversations();
+
+      socketService.onNotification((notification) => {
+        if (notification.type === 'new_message') {
+          fetchConversations();
+        }
+      });
+
+      return () => {
+        socketService.removeListeners();
+        // socketService.disconnect(); // Keep connection alive while in app?
+      };
+    }
+  }, [user?.id, accessToken]);
+
+  const fetchConversations = async () => {
+    try {
+      const response = await api.get<{ success: boolean; data: Conversation[] }>(
+        `${ENDPOINTS.CHAT}/conversations`
+      );
+      if (response.success) {
+        setConversations(response.data);
+      }
+    } catch (error) {
+      console.error('Fetch Conversations Error:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchConversations();
+  }, []);
+
+  const handleStartChat = async (selectedUser: User) => {
+    setSearchVisible(false);
+    try {
+      const response = await api.post<{ success: boolean; data: { id: string } }>(
+        `${ENDPOINTS.CHAT}/conversations`,
+        { participantId: selectedUser.id }
+      );
+
+      if (response.success) {
+        router.push(`/chat/${response.data.id}` as any);
+      }
+    } catch (error) {
+      console.error('Start Chat Error:', error);
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (days === 1) {
+      return 'Yesterday';
+    } else if (days < 7) {
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return weekdays[date.getDay()];
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+
+  const renderItem = ({ item }: { item: Conversation }) => (
     <TouchableOpacity
       style={styles.chatItem}
-      activeOpacity={0.7}
-      onPress={() => console.log('Open chat', item.id)}
+      activeOpacity={0.8}
+      onPress={() => {
+        // Mark as read locally and navigate
+        const updatedConversations = conversations.map(c =>
+          c.id === item.id ? { ...c, unread_count: 0 } : c
+        );
+        setConversations(updatedConversations);
+        router.push(`/chat/${item.id}` as any);
+      }}
     >
       <View style={styles.avatarContainer}>
-        {item.avatar ? (
-          <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        {item.other_user.avatar ? (
+          <Image source={{ uri: item.other_user.avatar }} style={styles.avatar} />
         ) : (
           <View style={[styles.avatar, styles.placeholderAvatar]}>
-            <Text style={styles.avatarText}>{item.name[0]}</Text>
+            <Text style={styles.avatarText}>{item.other_user.name[0]}</Text>
           </View>
         )}
-        {item.isOnline && <View style={styles.onlineDot} />}
+        <View style={styles.onlineDot} />
       </View>
 
       <View style={styles.chatContent}>
         <View style={styles.chatHeader}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.time}>{item.time}</Text>
+          <Text style={styles.name} numberOfLines={1}>{item.other_user.name}</Text>
+          {item.last_message && (
+            <Text style={[styles.time, item.unread_count > 0 && styles.unreadTime]}>
+              {formatTime(item.last_message.created_at)}
+            </Text>
+          )}
         </View>
         <View style={styles.chatFooter}>
           <Text
             style={[
               styles.lastMessage,
-              item.unread > 0 && styles.lastMessageBold,
-              { flex: 1, marginRight: 10 } // Added flex and margin
+              item.unread_count > 0 && styles.lastMessageBold
             ]}
             numberOfLines={1}
           >
-            {item.lastMessage}
+            {item.last_message?.content || 'No messages yet'}
           </Text>
-          <View style={styles.rightInfo}>
-            {item.unread > 0 && (
-              <View style={styles.unreadBadge}>
-                <Text style={styles.unreadText}>{item.unread}</Text>
-              </View>
-            )}
-            <Ionicons name="chevron-forward" size={16} color="#CBD5E1" style={{ marginLeft: 4 }} />
-          </View>
+          {item.unread_count > 0 && (
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadText}>{item.unread_count > 9 ? '9+' : item.unread_count}</Text>
+            </View>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -101,7 +167,6 @@ export default function ChatScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header Area */}
       <LinearGradient
         colors={['#235CF8', '#1A4ADB']}
         start={{ x: 0, y: 0 }}
@@ -110,27 +175,50 @@ export default function ChatScreen() {
       >
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>Messages</Text>
-          <TouchableOpacity style={styles.iconBtn}>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => setSearchVisible(true)}>
             <Ionicons name="search" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
-
       </LinearGradient>
 
-      {/* Main Chat List Container */}
       <View style={styles.listContainer}>
-        <FlatList
-          data={CHAT_LIST}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={() => <View style={{ height: 15 }} />} // Added top spacing inside card
-        />
+        {loading ? (
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color="#235CF8" />
+          </View>
+        ) : (
+          <FlatList
+            data={conversations}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            ListEmptyComponent={() => (
+              <View style={styles.emptyContainer}>
+                <Ionicons name="chatbubbles-outline" size={80} color="#CBD5E1" />
+                <Text style={styles.emptyTitle}>No messages yet</Text>
+                <Text style={styles.emptySubtitle}>Start a conversation with a buyer or seller!</Text>
+                <TouchableOpacity
+                  style={styles.startBtn}
+                  onPress={() => setSearchVisible(true)}
+                >
+                  <Text style={styles.startBtnText}>Start Chatting</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            ListHeaderComponent={() => <View style={{ height: 15 }} />}
+          />
+        )}
       </View>
 
-      {/* Floating Action Button for New Chat */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.9}>
+      <TouchableOpacity
+        style={styles.fab}
+        activeOpacity={0.9}
+        onPress={() => setSearchVisible(true)}
+      >
         <LinearGradient
           colors={['#235CF8', '#1A4ADB']}
           style={styles.fabGradient}
@@ -138,6 +226,12 @@ export default function ChatScreen() {
           <Ionicons name="add" size={30} color="#fff" />
         </LinearGradient>
       </TouchableOpacity>
+
+      <UserSearch
+        visible={searchVisible}
+        onClose={() => setSearchVisible(false)}
+        onSelectUser={handleStartChat}
+      />
     </View>
   );
 }
@@ -266,6 +360,10 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     fontWeight: '500',
   },
+  unreadTime: {
+    color: '#235CF8',
+    fontWeight: '700',
+  },
   lastMessage: {
     fontSize: 14,
     color: '#6B7280',
@@ -292,6 +390,43 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     textAlign: 'center',
     textAlignVertical: 'center',
+  },
+
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 60,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+    marginTop: 20,
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 10,
+    paddingHorizontal: 40,
+  },
+  startBtn: {
+    marginTop: 30,
+    backgroundColor: '#235CF8',
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  startBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
 
   fab: {

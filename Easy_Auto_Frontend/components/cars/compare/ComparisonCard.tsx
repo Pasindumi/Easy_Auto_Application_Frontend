@@ -1,6 +1,7 @@
+import { Comparison } from '@/types/compare.types';
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { Comparison } from '../../types/compare.types';
+
 
 interface ComparisonCardProps {
     item: Comparison;
