@@ -81,7 +81,16 @@ export default function Payment() {
             let isFreeAdLocal = false;
             let packageLimitId = null;
 
-            if (pkgData && pkgData.limits) {
+            // 1. Check Global Limits (New)
+            if (pkgData && pkgData.global_limit) {
+              const gLimit = pkgData.global_limit;
+              if (gLimit.is_unlimited || gLimit.total_remaining > 0) {
+                isFreeAdLocal = true;
+              }
+            }
+
+            // 2. Check Per-Type Limits (Legacy Fallback)
+            if (!isFreeAdLocal && pkgData && pkgData.limits) {
               const limit = pkgData.limits.find((l: any) =>
                 String(l.vehicle_type_id || '').toLowerCase() === String(vehicleTypeId || '').toLowerCase()
               );

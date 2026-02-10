@@ -10,12 +10,14 @@ export interface Ad {
   views: number;
   likes: number;
   messages: number;
-  status: 'active' | 'draft' | 'expired' | 'paused';
+  status: 'active' | 'draft' | 'expired' | 'paused' | 'banned';
   image: any; // Use require(...) for local images
   is_featured?: boolean;
   is_urgent?: boolean;
   is_homepage_banner?: boolean;
   is_popup_promotion?: boolean;
+  ban_reason?: string;
+  ban_expires_at?: string;
 }
 
 export const ADS_DATA: Ad[] = [
