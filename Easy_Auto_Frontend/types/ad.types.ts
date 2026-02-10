@@ -1,4 +1,4 @@
-export type AdStatus = 'all' | 'pending' | 'active' | 'rejected' | 'expired';
+export type AdStatus = 'all' | 'pending' | 'active' | 'rejected' | 'expired' | 'banned';
 export type NavTab = 'Dashboard' | 'Ads' | 'Users' | 'Analytics' | 'Settings';
 
 export interface Ad {
@@ -22,4 +22,6 @@ export interface Ad {
   fuelType: string;
   transmission: string;
   image: any; // Using 'any' for require() images, ideally ImageSourcePropType
+  ban_reason?: string;
+  ban_expires_at?: string;
 }

@@ -8,11 +8,9 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -35,9 +33,6 @@ export default function DeleteCar() {
   const [ad, setAd] = useState<Ad | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  const [password, setPassword] = useState('');
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [verifyingPassword, setVerifyingPassword] = useState(false);
 
   useEffect(() => {
     fetchAdDetails();
@@ -67,32 +62,24 @@ export default function DeleteCar() {
     }
   };
 
-  const handleOpenPasswordModal = () => {
-    setShowPasswordModal(true);
+  const handleConfirmDelete = () => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to permanently delete this ad? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: performDelete
+        }
+      ]
+    );
   };
 
-  const handleConfirmDelete = async () => {
-    if (!password) {
-      Alert.alert("Error", "Please enter your password to confirm deletion.");
-      return;
-    }
-
-    setVerifyingPassword(true);
+  const performDelete = async () => {
+    setDeleting(true);
     try {
-      // 1. Verify Password
-      const verifyRes = await api.post<{ success: boolean; error?: string }>('/api/auth/verify-password', { password });
-
-      if (!verifyRes.success) {
-        Alert.alert("Verification Failed", verifyRes.error || "Incorrect password. Please try again.");
-        setVerifyingPassword(false);
-        return;
-      }
-
-      // 2. Perform Deletion
-      setVerifyingPassword(false); // Done verifying
-      setDeleting(true); // Now deleting
-      setShowPasswordModal(false); // Close modal
-
       const deleteRes = await api.delete<{ success: boolean; message?: string }>(`/api/cars/${id}`);
 
       if (deleteRes.success) {
@@ -102,13 +89,11 @@ export default function DeleteCar() {
         Alert.alert("Error", deleteRes.message || "Failed to delete the ad.");
       }
     } catch (error: any) {
-      console.error("Delete sequence error:", error);
+      console.error("Delete error:", error);
       const msg = error.response?.data?.error || error.response?.data?.message || "An unexpected error occurred.";
       Alert.alert("Error", msg);
     } finally {
-      setVerifyingPassword(false);
       setDeleting(false);
-      setPassword('');
     }
   };
 
@@ -177,7 +162,7 @@ export default function DeleteCar() {
 
             <TouchableOpacity
               style={[styles.btn, styles.deleteBtn]}
-              onPress={handleOpenPasswordModal}
+              onPress={handleConfirmDelete}
               disabled={deleting}
             >
               {deleting ? (
@@ -192,56 +177,6 @@ export default function DeleteCar() {
           </View>
         </View>
       </ScrollView>
-
-      {/* Password Confirmation Modal */}
-      <Modal
-        visible={showPasswordModal}
-        transparent={true}
-        animationType="fade"
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Security Step</Text>
-            <Text style={styles.modalText}>
-              To delete this ad, please enter your login password to confirm your identity.
-            </Text>
-
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Enter your password"
-              secureTextEntry={true}
-              value={password}
-              onChangeText={setPassword}
-              autoFocus={true}
-            />
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalCancelBtn]}
-                onPress={() => {
-                  setShowPasswordModal(false);
-                  setPassword('');
-                }}
-                disabled={verifyingPassword}
-              >
-                <Text style={styles.modalCancelText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalConfirmBtn]}
-                onPress={handleConfirmDelete}
-                disabled={verifyingPassword}
-              >
-                {verifyingPassword ? (
-                  <ActivityIndicator size="small" color={COLORS.white} />
-                ) : (
-                  <Text style={styles.modalConfirmText}>Confirm</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -326,77 +261,4 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontWeight: '700',
   },
-
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
-    padding: 24,
-    width: '100%',
-    maxWidth: 400,
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: COLORS.text.primary,
-    marginBottom: 12,
-  },
-  modalText: {
-    fontSize: 14,
-    color: COLORS.text.secondary,
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 20,
-  },
-  passwordInput: {
-    width: '100%',
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: COLORS.divider,
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    width: '100%',
-    gap: 12,
-  },
-  modalBtn: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalCancelBtn: {
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.divider,
-  },
-  modalConfirmBtn: {
-    backgroundColor: COLORS.status.danger,
-  },
-  modalCancelText: {
-    color: COLORS.text.primary,
-    fontWeight: '600',
-  },
-  modalConfirmText: {
-    color: COLORS.white,
-    fontWeight: '700',
-  }
 });

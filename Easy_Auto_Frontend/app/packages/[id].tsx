@@ -27,6 +27,7 @@ export default function PackageDetailScreen() {
   const [isCurrentPlan, setIsCurrentPlan] = useState(false);
   const [activeSubId, setActiveSubId] = useState<string | null>(null);
   const [usageLimits, setUsageLimits] = useState<any[]>([]);
+  const [globalLimit, setGlobalLimit] = useState<any | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -62,15 +63,18 @@ export default function PackageDetailScreen() {
         if (isActive) {
           setActiveSubId(res.data.subscriptionId);
           setUsageLimits(res.data.limits || []);
+          setGlobalLimit(res.data.global_limit || null);
         } else {
           setActiveSubId(null);
           setUsageLimits([]);
+          setGlobalLimit(null);
         }
       } else {
         // Fallback or No Active Package
         setIsCurrentPlan(false);
         setActiveSubId(null);
         setUsageLimits([]);
+        setGlobalLimit(null);
       }
     } catch (error) {
       console.log("Check sub failed:", error);
@@ -226,7 +230,31 @@ export default function PackageDetailScreen() {
           </View>
           <Text style={styles.sectionSubtitle}>Maximum ads you can post with this package</Text>
 
-          {pkg.ad_limits && pkg.ad_limits.length > 0 ? (
+          {pkg.config?.FREE_ADS_LIMIT || pkg.config?.IS_UNLIMITED_ADS === 'true' ? (
+            <View style={[styles.limitCard, { width: '100%', borderColor: COLORS.primary, backgroundColor: COLORS.primary + '05', padding: 20 }]}>
+              <Text style={styles.limitValue}>
+                {pkg.config?.IS_UNLIMITED_ADS === 'true' ? '∞' : pkg.config?.FREE_ADS_LIMIT}
+              </Text>
+              {isCurrentPlan && globalLimit && (
+                <View style={{ alignItems: 'center', marginVertical: 8 }}>
+                  <Text style={{ fontSize: 16, color: '#10B981', fontWeight: 'bold' }}>
+                    Remaining Ads: {globalLimit.is_unlimited ? '∞' : globalLimit.total_remaining}
+                  </Text>
+                  {globalLimit.total_used > 0 && (
+                    <Text style={{ fontSize: 12, color: '#666' }}>
+                      {globalLimit.total_used} Slot{globalLimit.total_used > 1 ? 's' : ''} Used
+                    </Text>
+                  )}
+                </View>
+              )}
+              <Text style={[styles.limitLabel, { fontSize: 16, color: COLORS.primary }]}>
+                Global Ad Pool
+              </Text>
+              <Text style={{ fontSize: 11, color: '#64748B', textAlign: 'center', marginTop: 4 }}>
+                Usable for ANY vehicle category
+              </Text>
+            </View>
+          ) : pkg.ad_limits && pkg.ad_limits.length > 0 ? (
             <View style={styles.gridContainer}>
               {pkg.ad_limits.map((l: any) => {
                 // Find matching usage limit if this is the active plan

@@ -30,7 +30,7 @@ export default function MyAdsScreen() {
   const [selected, setSelected] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'expired' | 'draft'>('all');
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'expired' | 'draft' | 'banned'>('all');
 
   // REVISED STRATEGY: Fetch ALL ads to get correct counts, filter Client Side
   const fetchAllAds = async () => {
@@ -45,6 +45,8 @@ export default function MyAdsScreen() {
           price: ad.price ? `$${Number(ad.price).toLocaleString()}` : "Contact for Price",
           // Map status to lowercase for frontend logic
           status: ad.status ? ad.status.toLowerCase() : "draft",
+          ban_reason: ad.ban_reason,
+          ban_expires_at: ad.ban_expires_at,
           // Extract first image
           image: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=300&h=200",
           // Map counts
@@ -70,14 +72,14 @@ export default function MyAdsScreen() {
     total: ads.length,
     active: ads.filter(a => a.status === 'active').length,
     draft: ads.filter(a => a.status === 'draft').length,
-    paused: ads.filter(a => a.status === 'expired' || a.status === 'paused').length,
+    paused: ads.filter(a => a.status === 'expired' || a.status === 'paused' || a.status === 'banned').length,
   };
 
   const mapPageFilterToStatusCard = (f: typeof selectedFilter) => {
     if (f === 'all') return 'all';
     if (f === 'active') return 'Active';
     if (f === 'draft') return 'Draft';
-    if (f === 'expired') return 'Paused';
+    if (f === 'expired' || f === 'banned') return 'Paused';
     return null;
   };
 
@@ -97,7 +99,7 @@ export default function MyAdsScreen() {
     let statusMatch = true;
     if (selectedFilter === 'active') statusMatch = ad.status === 'active';
     if (selectedFilter === 'draft') statusMatch = ad.status === 'draft';
-    if (selectedFilter === 'expired') statusMatch = ad.status === 'expired' || ad.status === 'paused';
+    if (selectedFilter === 'expired') statusMatch = ad.status === 'expired' || ad.status === 'paused' || ad.status === 'banned';
 
     const searchMatch = !searchQuery || (ad.title && ad.title.toLowerCase().includes(searchQuery.toLowerCase()));
     return statusMatch && searchMatch;
