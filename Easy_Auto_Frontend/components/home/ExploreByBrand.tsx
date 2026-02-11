@@ -3,7 +3,6 @@ import React, { useRef, useEffect, useState } from "react";
 import {
     Animated,
     Dimensions,
-    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -11,6 +10,10 @@ import {
     ActivityIndicator
 } from "react-native";
 import api from "@/utils/api";
+import { useRouter } from "expo-router";
+import COLORS from "@/constants/Colors";
+import * as Haptics from "expo-haptics";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
@@ -24,16 +27,16 @@ interface Brand {
 // Animated Brand Card Component
 const BrandCard = ({
     brand,
-    index,
+    onPress,
 }: {
     brand: Brand;
-    index: number;
+    onPress: () => void;
 }) => {
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const handlePressIn = () => {
         Animated.spring(scaleAnim, {
-            toValue: 0.92,
+            toValue: 0.9,
             useNativeDriver: true,
             tension: 300,
             friction: 10,
@@ -50,9 +53,10 @@ const BrandCard = ({
     };
 
     return (
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }], width: '100%', alignItems: 'center' }}>
             <TouchableOpacity
                 style={styles.brandCard}
+                onPress={onPress}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 activeOpacity={1}
@@ -72,6 +76,7 @@ const BrandCard = ({
                     )}
                 </View>
             </TouchableOpacity>
+            <Text style={styles.brandName} numberOfLines={1}>{brand.brand_name}</Text>
         </Animated.View>
     );
 };
@@ -81,11 +86,11 @@ interface ExploreByBrandProps {
     slideAnim: Animated.Value;
 }
 
-
 const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
     fadeAnim,
     slideAnim,
 }) => {
+    const router = useRouter();
     const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -113,8 +118,8 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
 
     if (loading) {
         return (
-            <View style={[styles.sectionWhite, { height: 200, justifyContent: 'center' }]}>
-                <ActivityIndicator size="large" color="#235CF8" />
+            <View style={[styles.container, { height: 200, justifyContent: 'center' }]}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
             </View>
         );
     }
@@ -123,196 +128,144 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
         return null;
     }
 
-    // Use first 12 brands for the home page display
-    const brandsToDisplay = brands.slice(0, 12);
+    // Use first 8 brands for the home page display (2 rows of 4)
+    const brandsToDisplay = brands.slice(0, 8);
 
     return (
         <Animated.View
             style={[
-                styles.sectionWhite,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Explore by Brand</Text>
+            <View style={styles.header}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Explore by Brand</Text>
+                    <Text style={styles.subtitle}>Find your favorite manufacturer</Text>
+                </View>
+                <TouchableOpacity 
+                    style={styles.viewAllButton}
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        router.push('/cars/buy-car'); 
+                    }}
+                >
+                    <Text style={styles.viewAllText}>View All</Text>
+                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
+                </TouchableOpacity>
             </View>
 
-            {/* Consolidated Brands Grid */}
             <View style={styles.brandGrid}>
-                {brandsToDisplay.map((brand, index) => (
+                {brandsToDisplay.map((brand) => (
                     <View
                         key={`brand-${brand.id}`}
-                        style={styles.brandCardWithInfo}
+                        style={styles.brandItemWrapper}
                     >
-                        <BrandCard brand={brand} index={index} />
-                        <Text style={styles.brandName}>{brand.brand_name}</Text>
-                        {/* <Text style={styles.brandCarCount}>{brand.carCount} cars</Text> */}
+                        <BrandCard 
+                            brand={brand} 
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                router.push({
+                                    pathname: '/cars/buy-car', 
+                                    params: { brandId: brand.id, brandName: brand.brand_name } 
+                                } as any);
+                            }}
+                        />
                     </View>
                 ))}
             </View>
-            <TouchableOpacity style={styles.viewAllButton}>
-                <Text style={styles.viewAllButtonText}>View All Brands</Text>
-            </TouchableOpacity>
         </Animated.View>
     );
 };
 
 const styles = StyleSheet.create({
-    sectionWhite: {
-        paddingVertical: 20,
-        backgroundColor: "#FFFFFF",
-        marginBottom: 8,
+    container: {
+        marginBottom: 24,
     },
-    sectionHeader: {
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "flex-end",
+        alignItems: "center",
         paddingHorizontal: 20,
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: -0.4,
-    },
-    featuredBrandsTitle: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: "#111827",
-        marginBottom: 12,
-        marginTop: 8,
-        paddingHorizontal: 20,
-    },
-    featuredBrandsScroll: {
         marginBottom: 20,
     },
-    featuredBrandsContainer: {
-        paddingHorizontal: 20,
-        gap: 12,
+    titleContainer: {
+        flex: 1,
     },
-    featuredBrandCard: {
-        width: 70,
-        alignItems: "center",
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        padding: 8,
-        borderWidth: 1.5,
-        borderColor: "#E5E7EB",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 4,
+    title: {
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.text.primary,
+        letterSpacing: -0.5,
     },
-    featuredBrandLogoContainer: {
-        width: 40,
-        height: 40,
-        justifyContent: "center",
-        alignItems: "center",
-        marginBottom: 4,
-    },
-    featuredBrandLogo: {
-        width: "100%",
-        height: "100%",
-    },
-    featuredBrandText: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: "#235CF8",
-        letterSpacing: 1,
-    },
-    featuredBrandName: {
-        fontSize: 11,
-        fontWeight: "700",
-        color: "#111827",
-        marginBottom: 2,
-        textAlign: "center",
-    },
-    featuredBrandCount: {
-        fontSize: 9,
+    subtitle: {
+        fontSize: 13,
+        color: COLORS.text.muted,
+        marginTop: 2,
         fontWeight: "500",
-        color: "#6B7280",
-        textAlign: "center",
+    },
+    viewAllButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4,
+        padding: 4,
+    },
+    viewAllText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: COLORS.primary,
     },
     brandGrid: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
         paddingHorizontal: 20,
-        marginBottom: 16,
-        marginTop: 16,
+        gap: 12,
     },
-    brandCardWithInfo: {
-        width: (width - 80) / 4,
+    brandItemWrapper: {
+        width: (width - 40 - 36) / 4, // 20px padding * 2, 12px gap * 3
         marginBottom: 16,
         alignItems: "center",
     },
     brandCard: {
         width: "100%",
         aspectRatio: 1,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
-        marginBottom: 8,
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
         justifyContent: "center",
         alignItems: "center",
-        borderWidth: 1.5,
-        borderColor: "#E5E7EB",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.2,
-        shadowRadius: 14,
-        elevation: 5,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 3,
+        marginBottom: 8,
     },
     brandLogoContainer: {
-        width: "100%",
-        height: "100%",
+        width: "70%",
+        height: "70%",
         justifyContent: "center",
         alignItems: "center",
-        padding: 10,
     },
     brandLogoImage: {
         width: "100%",
         height: "100%",
     },
     brandLogoText: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: "700",
-        color: "#235CF8",
-        letterSpacing: 1,
+        color: COLORS.primary,
     },
     brandName: {
         fontSize: 12,
         fontWeight: "600",
-        color: "#111827",
-        marginTop: 6,
+        color: COLORS.text.primary,
         textAlign: "center",
-    },
-    brandCarCount: {
-        fontSize: 10,
-        fontWeight: "500",
-        color: "#6B7280",
-        marginTop: 2,
-        textAlign: "center",
-    },
-    viewAllButton: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        paddingVertical: 14,
-        paddingHorizontal: 20,
-        marginHorizontal: 20,
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#E5E5E5",
-        marginBottom: 20,
-    },
-    viewAllButtonText: {
-        fontSize: 15,
-        fontWeight: "500",
-        color: "#1A1A1A",
     },
 });
 

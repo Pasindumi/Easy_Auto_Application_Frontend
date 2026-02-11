@@ -12,8 +12,12 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
+import COLORS from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 
 const { width } = Dimensions.get("window");
+const CARD_WIDTH = width * 0.6; // Wider cards for better visibility
 
 interface RecentlyViewedProps {
     fadeAnim: Animated.Value;
@@ -33,9 +37,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
             setLoading(true);
             try {
                 // Fetching active ads. Limiting to 10. 
-                // Since we don't have a real history API yet, we'll show "New Arrivals" or just active ads
-                // The user asked to show active ads "like buy car section".
-                const res: any = await api.get('/api/cars?status=ACTIVE&limit=10&page=2'); // Getting page 2 for variety
+                const res: any = await api.get('/api/cars?status=ACTIVE&limit=10&page=2'); 
                 if (res.success) {
                     setAds(res.data || []);
                 }
@@ -59,59 +61,94 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
         }).format(val);
     };
 
+    const handlePress = (id: string) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push(`/cars/${id}`);
+    };
+
     if (!loading && ads.length === 0) return null;
 
     return (
         <Animated.View
             style={[
-                styles.sectionWhite,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>New Arrivals</Text>
-                <TouchableOpacity onPress={() => router.push('/cars/buy-car')}>
-                    <Text style={styles.seeAllLink}>See all</Text>
+            <View style={styles.header}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Fresh Arrivals</Text>
+                    <Text style={styles.subtitle}>Just listed vehicles you might like</Text>
+                </View>
+                <TouchableOpacity 
+                    style={styles.viewAllButton} 
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        router.push('/cars/buy-car');
+                    }}
+                >
+                    <Text style={styles.viewAllText}>View All</Text>
+                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
 
             {loading ? (
-                <View style={{ padding: 20 }}>
-                    <ActivityIndicator color="#235CF8" />
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator color={COLORS.primary} size="small" />
                 </View>
             ) : (
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    style={styles.horizontalScroll}
-                    contentContainerStyle={{ paddingBottom: 20 }}
+                    contentContainerStyle={styles.scrollContent}
+                    decelerationRate="fast"
+                    snapToInterval={CARD_WIDTH + 16}
                 >
                     {ads.map((car) => {
                         const imageUrl = car.AdImage?.[0]?.image_url;
-                        const brand = car.CarDetails?.brand || "";
-                        const model = car.CarDetails?.model || "";
-                        const title = car.title || `${brand} ${model}`;
+                        const title = car.title || `${car.CarDetails?.brand || ''} ${car.CarDetails?.model || ''}`;
 
                         return (
                             <TouchableOpacity
                                 key={`recently-viewed-${car.id}`}
-                                style={styles.recentlyViewedCard}
-                                onPress={() => router.push(`/cars/${car.id}`)}
+                                style={styles.card}
+                                activeOpacity={0.9}
+                                onPress={() => handlePress(car.id)}
                             >
-                                <Image
-                                    source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
-                                    style={styles.recentlyViewedImage}
-                                    contentFit="cover"
-                                />
-                                <View style={styles.recentlyViewedInfo}>
-                                    <Text style={styles.recentlyViewedName} numberOfLines={1}>{title}</Text>
-                                    <Text style={styles.recentlyViewedPrice}>{formatPrice(car.price)}</Text>
-                                    <Text style={styles.recentlyViewedTime} numberOfLines={1}>
-                                        {car.location}
-                                    </Text>
+                                <View style={styles.imageContainer}>
+                                    <Image
+                                        source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
+                                        style={styles.image}
+                                        contentFit="cover"
+                                        transition={300}
+                                    />
+                                    <View style={styles.badgeContainer}>
+                                        <Text style={styles.badgeText}>New</Text>
+                                    </View>
+                                </View>
+                                
+                                <View style={styles.cardContent}>
+                                    <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
+                                    <Text style={styles.cardPrice}>{formatPrice(car.price)}</Text>
+                                    
+                                    <View style={styles.metaRow}>
+                                        <View style={styles.metaItem}>
+                                            <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
+                                            <Text style={styles.metaText} numberOfLines={1}>
+                                                {car.location?.split(',')[0] || 'N/A'}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.metaDivider} />
+                                        <View style={styles.metaItem}>
+                                            <Ionicons name="speedometer-outline" size={12} color={COLORS.text.muted} />
+                                            <Text style={styles.metaText}>
+                                                {car.CarDetails?.mileage ? `${(Number(car.CarDetails.mileage)/1000).toFixed(0)}k km` : 'N/A'}
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </View>
                             </TouchableOpacity>
                         )
@@ -123,73 +160,129 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
 };
 
 const styles = StyleSheet.create({
-    sectionWhite: {
-        paddingVertical: 20,
-        paddingBottom: 32,
-        backgroundColor: "#FFFFFF",
-        marginBottom: 8,
+    container: {
+        marginBottom: 24,
+        backgroundColor: COLORS.background, // Ensure background consistency
     },
-    sectionHeader: {
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "flex-end",
+        alignItems: "center",
         paddingHorizontal: 20,
         marginBottom: 16,
     },
-    sectionTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: -0.4,
+    titleContainer: {
+        flex: 1,
     },
-    seeAllLink: {
-        fontSize: 14,
-        color: "#235CF8",
+    title: {
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.text.primary,
+        letterSpacing: -0.5,
+    },
+    subtitle: {
+        fontSize: 13,
+        color: COLORS.text.muted,
+        marginTop: 2,
+        fontWeight: "500",
+    },
+    viewAllButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        padding: 4,
+    },
+    viewAllText: {
+        fontSize: 13,
+        color: COLORS.primary,
         fontWeight: "600",
     },
-    horizontalScroll: {
+    loadingContainer: {
+        height: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    scrollContent: {
         paddingHorizontal: 20,
+        gap: 16,
     },
-    recentlyViewedCard: {
-        width: 150,
-        marginRight: 12,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
+    card: {
+        width: CARD_WIDTH,
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
         overflow: "hidden",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
         elevation: 6,
+        borderWidth: 1,
+        borderColor: COLORS.border,
     },
-    recentlyViewedImage: {
+    imageContainer: {
+        height: 140,
         width: "100%",
-        height: 100,
+        position: 'relative',
     },
-    recentlyViewedInfo: {
-        padding: 12,
-        gap: 4,
-        alignItems: "flex-start",
+    image: {
+        width: "100%",
+        height: "100%",
     },
-    recentlyViewedName: {
-        fontSize: 14,
+    badgeContainer: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    badgeText: {
+        color: COLORS.white,
+        fontSize: 10,
         fontWeight: "700",
-        color: "#111827",
-        textAlign: "left",
+        textTransform: 'uppercase',
     },
-    recentlyViewedPrice: {
+    cardContent: {
+        padding: 16,
+    },
+    cardTitle: {
         fontSize: 15,
         fontWeight: "700",
-        color: "#235CF8",
-        textAlign: "left",
+        color: COLORS.text.primary,
+        marginBottom: 6,
     },
-    recentlyViewedTime: {
+    cardPrice: {
+        fontSize: 18,
+        fontWeight: "800",
+        color: COLORS.primary,
+        marginBottom: 12,
+        letterSpacing: -0.5,
+    },
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.background, // Slightly grey background for meta
+        padding: 8,
+        borderRadius: 10,
+    },
+    metaItem: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        justifyContent: 'center',
+    },
+    metaText: {
         fontSize: 11,
-        color: "#6B7280",
-        fontWeight: "500",
-        textAlign: "left",
+        color: COLORS.text.muted,
+        fontWeight: "600",
+    },
+    metaDivider: {
+        width: 1,
+        height: 12,
+        backgroundColor: COLORS.border,
+        marginHorizontal: 4,
     },
 });
 

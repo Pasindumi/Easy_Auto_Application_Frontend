@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type ProfileHeaderProps = {
   title: string;
@@ -46,7 +47,10 @@ export default function ProfileHeader({
         <RNStatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
       ) : null}
 
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
+      <LinearGradient
+        colors={[COLORS.primary, '#1E40AF']}
+        style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}
+      >
         <Text style={styles.headerTitle}>{title}</Text>
 
         {showProfileCard && (
@@ -65,30 +69,36 @@ export default function ProfileHeader({
                   }
                   style={styles.avatar}
                 />
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.badgeText}>2</Text>
-                </View>
+                {user?.is_premium && (
+                  <View style={styles.premiumBadge}>
+                    <Ionicons name="star" size={12} color="#FFD700" />
+                  </View>
+                )}
               </View>
 
               <View style={styles.profileInfo}>
                 <View style={styles.profileHeader}>
                   <View style={styles.profileNames}>
-                    <Text style={styles.username}>{user?.name || 'User'}</Text>
+                    <Text style={styles.username} numberOfLines={1}>
+                      {user?.name || 'User'}
+                    </Text>
                     <View style={styles.premiumTag}>
-                      <Ionicons name="star" size={12} color={COLORS.white} />
+                      <Ionicons name="shield-checkmark" size={12} color={COLORS.white} />
                       <Text style={styles.premiumText}>
-                        {user?.is_premium ? 'Premium Member' : 'Normal User'}
+                        {user?.is_premium ? 'Premium Member' : 'Member'}
                       </Text>
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color={COLORS.white} />
                 </View>
-                <Text style={styles.email}>{user?.email || 'No email'}</Text>
+                <Text style={styles.email} numberOfLines={1}>
+                  {user?.email || 'No email'}
+                </Text>
               </View>
             </View>
           </TouchableOpacity>
         )}
-      </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -104,63 +114,67 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   header: {
-    backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
-    paddingBottom: 24,
+    paddingBottom: 28,
     paddingTop: 0,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
   },
   headerTitle: {
     color: COLORS.white,
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 0,
-    marginTop: 4,
-    letterSpacing: -0.4,
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 20,
+    marginTop: 8,
+    letterSpacing: -0.5,
     lineHeight: 28,
   },
   profileCard: {
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   profileCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 18,
   },
   avatarContainer: {
     position: 'relative',
-    marginRight: 12,
+    marginRight: 16,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 2,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 3,
     borderColor: COLORS.white,
   },
-  notificationBadge: {
+  premiumBadge: {
     position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: COLORS.status.danger,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    top: -4,
+    right: -4,
+    backgroundColor: '#1E40AF',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.primary,
-  },
-  badgeText: {
-    color: COLORS.white,
-    fontSize: 10,
-    fontWeight: '700',
+    borderColor: COLORS.white,
   },
   profileInfo: {
     flex: 1,
@@ -169,37 +183,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   profileNames: {
     flex: 1,
   },
   username: {
     color: COLORS.white,
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: -0.2,
-    marginBottom: 4,
+    fontSize: 17,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+    marginBottom: 6,
   },
   premiumTag: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.28)',
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   premiumText: {
     color: COLORS.white,
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     letterSpacing: -0.1,
   },
   email: {
-    color: '#DDE7FF',
-    fontSize: 13,
+    color: '#E0E7FF',
+    fontSize: 14,
     fontWeight: '500',
   },
 });

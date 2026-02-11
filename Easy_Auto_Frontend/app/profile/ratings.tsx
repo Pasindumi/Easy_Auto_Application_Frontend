@@ -1,8 +1,6 @@
-// PROJECT_ROOT/app/ratings.tsx
-
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FlatList,
   Image,
@@ -11,36 +9,37 @@ import {
   Text,
   TouchableOpacity,
   View,
+  RefreshControl,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
+import COLORS from '@/constants/Colors';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 
-// ---- Review Data ----
 const REVIEWS = [
   {
     id: '1',
-    name: 'Martin Luthur',
+    name: 'Martin Luther',
     rating: 4.0,
-    date: '2 week ago',
+    date: '2 weeks ago',
     image: require('@/assets/images/user.jpeg'),
-    comment: 'Best Seller, excellent communication, quick response',
+    comment: 'Best Seller, excellent communication, quick response. Highly recommended!',
   },
   {
     id: '2',
     name: 'Dilmin Ekanayaka',
     rating: 4.8,
-    date: '3 week ago',
+    date: '3 weeks ago',
     image: require('@/assets/images/user1.jpg'),
-    comment: 'Best Seller, excellent communication, quick response',
+    comment: 'Professional and trustworthy. The car was exactly as described.',
   },
   {
     id: '3',
     name: 'Ishini Gimhani',
     rating: 5.0,
-    date: '4 week ago',
+    date: '4 weeks ago',
     image: require('@/assets/images/user.jpeg'),
-    comment: 'Best Seller, excellent communication, quick response',
+    comment: 'Amazing experience! Very helpful and responsive throughout the process.',
   },
   {
     id: '4',
@@ -48,230 +47,413 @@ const REVIEWS = [
     rating: 4.0,
     date: '1 month ago',
     image: require('@/assets/images/user.jpeg'),
-    comment: 'Best Seller, excellent communication, quick response',
+    comment: 'Good seller with fair pricing. Would do business again.',
   },
   {
     id: '5',
     name: 'Malsha Nethmini',
-    rating: 4.0,
-    date: '2 month ago',
+    rating: 4.5,
+    date: '2 months ago',
     image: require('@/assets/images/user.jpeg'),
-    comment: 'Best Seller, excellent communication, quick response',
+    comment: 'Very satisfied with the service. Quick and professional.',
   },
 ];
 
-// ---- Star Component ----
-const StarRating = ({ rating }: { rating: number }) => {
+const StarRating = ({ rating, size = 16 }: { rating: number; size?: number }) => {
   const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 !== 0;
 
   for (let i = 1; i <= 5; i++) {
-    stars.push(
-      <Ionicons
-        key={i}
-        name={i <= rating ? 'star' : 'star-outline'}
-        size={14}
-        color="#F9C74F"
-        style={{ marginRight: 2 }}
-      />
-    );
+    if (i <= fullStars) {
+      stars.push(
+        <Ionicons
+          key={i}
+          name="star"
+          size={size}
+          color="#FFB800"
+          style={{ marginRight: 2 }}
+        />
+      );
+    } else if (i === fullStars + 1 && hasHalfStar) {
+      stars.push(
+        <Ionicons
+          key={i}
+          name="star-half"
+          size={size}
+          color="#FFB800"
+          style={{ marginRight: 2 }}
+        />
+      );
+    } else {
+      stars.push(
+        <Ionicons
+          key={i}
+          name="star-outline"
+          size={size}
+          color="#D1D5DB"
+          style={{ marginRight: 2 }}
+        />
+      );
+    }
   }
 
   return <View style={{ flexDirection: 'row' }}>{stars}</View>;
 };
 
-// ---- Main Screen ----
 export default function RatingsScreen() {
   const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1500);
+  };
+
+  const ratingBreakdown = [
+    { stars: 5, count: 12, percentage: 60 },
+    { stars: 4, count: 5, percentage: 25 },
+    { stars: 3, count: 2, percentage: 10 },
+    { stars: 2, count: 1, percentage: 5 },
+    { stars: 1, count: 0, percentage: 0 },
+  ];
 
   return (
-    <>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} title="Ratings & Reviews" />
 
-      <SafeAreaView style={styles.safe}>
-        {/* Header */}
-        <Header />
-        <View style={headerSectionStyles.headerWrap}>
-          <View style={headerSectionStyles.header}>
-            <View style={headerSectionStyles.headerLeft}>
-              <Ionicons name="star-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-              <Text style={headerSectionStyles.headerTitle}>Ratings</Text>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+          />
+        }
+      >
+        {/* Overall Rating Card */}
+        <LinearGradient
+          colors={[COLORS.primary, '#1E40AF']}
+          style={styles.overallCard}
+        >
+          <View style={styles.overallContent}>
+            <View style={styles.ratingNumberSection}>
+              <Text style={styles.overallNumber}>4.9</Text>
+              <StarRating rating={4.9} size={20} />
+              <Text style={styles.reviewCount}>Based on 20 reviews</Text>
+            </View>
+
+            <View style={styles.ratingBreakdown}>
+              {ratingBreakdown.map((item) => (
+                <View key={item.stars} style={styles.breakdownRow}>
+                  <Text style={styles.breakdownStars}>{item.stars}</Text>
+                  <Ionicons name="star" size={12} color="#FFB800" />
+                  <View style={styles.progressBarBg}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        { width: `${item.percentage}%` }
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.breakdownCount}>{item.count}</Text>
+                </View>
+              ))}
             </View>
           </View>
+        </LinearGradient>
+
+        {/* Filter Tabs */}
+        <View style={styles.filterSection}>
+          <Text style={styles.sectionTitle}>Customer Reviews</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.filterTabs}>
+              {['All', '5 Star', '4 Star', '3 Star', 'Recent'].map((filter) => (
+                <TouchableOpacity
+                  key={filter}
+                  style={[
+                    styles.filterTab,
+                    filter === 'All' && styles.filterTabActive
+                  ]}
+                  onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                >
+                  <Text
+                    style={[
+                      styles.filterTabText,
+                      filter === 'All' && styles.filterTabTextActive
+                    ]}
+                  >
+                    {filter}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
         </View>
 
-        <ScrollView contentContainerStyle={styles.container}>
-
-          {/* Overall Rating */}
-          <View style={styles.overallContainer}>
-            <Text style={styles.overallTitle}>Overall Ratings</Text>
-
-            <Text style={styles.overallNumber}>4.9</Text>
-
-            <View style={{ flexDirection: 'row', marginVertical: 6 }}>
-              <StarRating rating={5} />
-            </View>
-
-            <Text style={styles.reviewText}>Based on 20 Reviews</Text>
-          </View>
-
-          {/* Reviews List */}
-          <FlatList
-            data={REVIEWS}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            renderItem={({ item }) => (
-              <View style={styles.reviewCard}>
+        {/* Reviews List */}
+        <View style={styles.reviewsList}>
+          {REVIEWS.map((item) => (
+            <View key={item.id} style={styles.reviewCard}>
+              <View style={styles.reviewHeader}>
                 <Image source={item.image} style={styles.avatar} />
-
-                <View style={styles.reviewContent}>
-                  <View style={styles.reviewHeader}>
-                    <Text style={styles.reviewName}>{item.name}</Text>
-                    <Text style={styles.reviewDate}>{item.date}</Text>
+                <View style={styles.reviewHeaderInfo}>
+                  <Text style={styles.reviewName}>{item.name}</Text>
+                  <View style={styles.reviewRating}>
+                    <StarRating rating={item.rating} size={14} />
+                    <Text style={styles.ratingValue}>{item.rating.toFixed(1)}</Text>
                   </View>
-
-                  <View style={styles.reviewStars}>
-                    <StarRating rating={Math.round(item.rating)} />
-                    <Text style={styles.ratingNum}>({item.rating})</Text>
-                  </View>
-
-                  <Text style={styles.comment}>{"\""}{item.comment}{"\""}</Text>
                 </View>
+                <Text style={styles.reviewDate}>{item.date}</Text>
               </View>
-            )}
-          />
 
-          {/* View All Button */}
-          <TouchableOpacity style={styles.viewAllBtn}>
-            <Text style={styles.viewAllText}>View All Ratings</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+              <Text style={styles.comment}>{item.comment}</Text>
+
+              {/* Helpful Actions */}
+              <View style={styles.reviewActions}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                >
+                  <Ionicons name="thumbs-up-outline" size={16} color={COLORS.text.muted} />
+                  <Text style={styles.actionText}>Helpful</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                >
+                  <Ionicons name="chatbubble-outline" size={16} color={COLORS.text.muted} />
+                  <Text style={styles.actionText}>Reply</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Load More Button */}
+        <TouchableOpacity
+          style={styles.loadMoreBtn}
+          onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+        >
+          <LinearGradient
+            colors={[COLORS.primary, '#1E40AF']}
+            style={styles.loadMoreGradient}
+          >
+            <Text style={styles.loadMoreText}>Load More Reviews</Text>
+            <Ionicons name="chevron-down" size={20} color={COLORS.white} />
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </View>
   );
 }
 
-// ---- Styles ----
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background,
   },
-
-  header: {
-    height: 100,
-    backgroundColor: '#235CF8',
-    paddingTop: 50,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  headerTitle: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
-    letterSpacing: 0.5,
-  },
-
   container: {
-    padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
-
-  overallContainer: {
-    alignItems: 'center',
-    paddingVertical: 20,
+  overallCard: {
+    margin: 16,
+    borderRadius: 20,
+    padding: 24,
+    elevation: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
   },
-
-  overallTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111',
-    marginBottom: 8,
-  },
-
-  overallNumber: {
-    fontSize: 56,
-    fontWeight: '800',
-    color: '#235CF8',
-  },
-
-  reviewText: {
-    fontSize: 12,
-    color: '#666',
-  },
-
-  reviewCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
+  overallContent: {
     flexDirection: 'row',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 2,
+    gap: 24,
   },
-
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    marginRight: 12,
-  },
-
-  reviewContent: {
+  ratingNumberSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
   },
-
+  overallNumber: {
+    fontSize: 64,
+    fontWeight: '900',
+    color: COLORS.white,
+    marginBottom: 8,
+  },
+  reviewCount: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 8,
+    fontWeight: '600',
+  },
+  ratingBreakdown: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 8,
+  },
+  breakdownRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  breakdownStars: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.white,
+    width: 12,
+  },
+  progressBarBg: {
+    flex: 1,
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#FFB800',
+    borderRadius: 3,
+  },
+  breakdownCount: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.white,
+    width: 20,
+    textAlign: 'right',
+  },
+  filterSection: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: COLORS.text.primary,
+    marginBottom: 12,
+  },
+  filterTabs: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  filterTab: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: COLORS.divider,
+    backgroundColor: COLORS.white,
+  },
+  filterTabActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  filterTabText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.text.secondary,
+  },
+  filterTabTextActive: {
+    color: COLORS.white,
+  },
+  reviewsList: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  reviewCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
   reviewHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
-
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
+  },
+  reviewHeaderInfo: {
+    flex: 1,
+  },
   reviewName: {
     fontWeight: '700',
-    fontSize: 14,
-    color: '#111',
+    fontSize: 15,
+    color: COLORS.text.primary,
+    marginBottom: 4,
   },
-
-  reviewDate: {
-    fontSize: 11,
-    color: '#888',
-  },
-
-  reviewStars: {
+  reviewRating: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 4,
+    gap: 6,
   },
-
-  ratingNum: {
+  ratingValue: {
     fontSize: 12,
-    marginLeft: 6,
-    color: '#777',
+    fontWeight: '600',
+    color: COLORS.text.secondary,
   },
-
+  reviewDate: {
+    fontSize: 11,
+    color: COLORS.text.muted,
+  },
   comment: {
-    fontSize: 12,
-    color: '#444',
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    lineHeight: 20,
+    marginBottom: 12,
   },
-
-  viewAllBtn: {
-    marginTop: 16,
-    backgroundColor: '#fff',
-    paddingVertical: 14,
+  reviewActions: {
+    flexDirection: 'row',
+    gap: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.divider,
+  },
+  actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
+    gap: 6,
   },
-
-  viewAllText: {
+  actionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.text.muted,
+  },
+  loadMoreBtn: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 14,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  loadMoreGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 8,
+  },
+  loadMoreText: {
+    fontSize: 15,
     fontWeight: '700',
-    color: '#111',
+    color: COLORS.white,
   },
 });

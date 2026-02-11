@@ -1,5 +1,10 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import COLORS from "@/constants/Colors";
+import { api } from "@/utils/api";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -15,8 +20,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { api } from "@/utils/api";
-import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -29,7 +32,7 @@ export default function WishlistDrawer({
   visible,
   onClose,
 }: WishlistDrawerProps) {
-  const drawerWidth = width * 0.7;
+  const drawerWidth = width * 0.85;
   const slideAnim = React.useRef(new Animated.Value(drawerWidth)).current;
   const backdropOpacity = React.useRef(new Animated.Value(0)).current;
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
@@ -39,25 +42,6 @@ export default function WishlistDrawer({
   React.useEffect(() => {
     if (visible) {
       fetchWishlist();
-    }
-  }, [visible]);
-
-  const fetchWishlist = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
-      if (response.success) {
-        setWishlistItems(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching wishlist:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    if (visible) {
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: 0,
@@ -88,18 +72,29 @@ export default function WishlistDrawer({
         }),
       ]).start();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+  }, [visible, drawerWidth, slideAnim, backdropOpacity]);
+
+  const fetchWishlist = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
+      if (response.success) {
+        setWishlistItems(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const removeFromWishlist = (id: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Alert.alert(
-      "Remove from Wishlist",
-      "Are you sure you want to remove this car from your wishlist?",
+      "Remove",
+      "Remove this vehicle from your wishlist?",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Remove",
           style: "destructive",
@@ -122,16 +117,14 @@ export default function WishlistDrawer({
   };
 
   const handleShare = (item: any) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Alert.alert("Share", `Sharing ${item.title}...`);
   };
 
   const handleViewDetails = (item: any) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
     router.push(`/cars/${item.id}` as any);
-  };
-
-  const handleCompare = (item: any) => {
-    Alert.alert("Compare", `Adding ${item.title} to comparison...`);
   };
 
   return (
@@ -146,30 +139,36 @@ export default function WishlistDrawer({
           style={[
             styles.drawer,
             {
+              width: drawerWidth,
               transform: [{ translateX: slideAnim }],
             },
           ]}
         >
           <SafeAreaView style={styles.drawerContent} edges={["top", "bottom"]}>
-            <View style={styles.drawerHeader}>
-              <View style={styles.headerTop}>
-                <Text style={styles.drawerTitle}>Wishlist</Text>
-                <View style={styles.headerCountBadge}>
-                  <Text style={styles.headerCount}>{wishlistItems.length}</Text>
+            <LinearGradient
+                colors={[COLORS.primary, '#1E40AF']}
+                style={styles.header}
+            >
+                <View style={styles.headerTitleRow}>
+                    <Text style={styles.title}>Wishlist</Text>
+                    <View style={styles.countBadge}>
+                        <Text style={styles.countText}>{wishlistItems.length}</Text>
+                    </View>
                 </View>
-              </View>
-            </View>
+                <Text style={styles.subtitle}>Your saved dream cars</Text>
+            </LinearGradient>
+
             <ScrollView
               style={styles.scrollView}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
             >
               {loading ? (
-                <View style={{ marginTop: 50 }}>
-                  <ActivityIndicator size="small" color="#235CF8" />
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color={COLORS.primary} />
                 </View>
               ) : wishlistItems.length > 0 ? (
-                <View style={styles.wishlistContainer}>
+                <View style={styles.container}>
                   {wishlistItems.map((item) => {
                     const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
                       item.AdImage?.[0]?.image_url;
@@ -181,46 +180,35 @@ export default function WishlistDrawer({
                     }).format(item.price);
 
                     return (
-                      <View key={item.id} style={styles.wishlistCard}>
+                      <View key={item.id} style={styles.card}>
                         <TouchableOpacity
                           style={styles.cardContent}
                           activeOpacity={0.9}
                           onPress={() => handleViewDetails(item)}
                         >
-                          <View style={styles.carImageContainer}>
+                          <View style={styles.imageContainer}>
                             {mainImage ? (
                               <Image
                                 source={{ uri: mainImage }}
-                                style={styles.carImage}
+                                style={styles.image}
                                 contentFit="cover"
                                 transition={200}
                               />
                             ) : (
-                              <View style={[styles.carImage, { backgroundColor: '#E5E7EB', justifyContent: 'center', alignItems: 'center' }]}>
-                                <MaterialIcons name="directions-car" size={40} color="#9CA3AF" />
+                              <View style={styles.imagePlaceholder}>
+                                <Ionicons name="car-outline" size={40} color={COLORS.border} />
                               </View>
                             )}
-                            <View style={styles.cardOverlay}>
-                              <TouchableOpacity
-                                style={styles.favoriteButton}
+                            <TouchableOpacity
+                                style={styles.favBtn}
                                 onPress={() => removeFromWishlist(item.id)}
-                                activeOpacity={0.7}
-                              >
-                                <MaterialIcons
-                                  name="favorite"
-                                  size={18}
-                                  color="#FFFFFF"
-                                />
-                              </TouchableOpacity>
-                              <View style={styles.priceBadge}>
-                                <Text style={styles.priceBadgeText}>
-                                  {formattedPrice}
-                                </Text>
-                              </View>
-                            </View>
+                            >
+                                <Ionicons name="heart" size={20} color="#EF4444" />
+                            </TouchableOpacity>
                           </View>
-                          <View style={styles.carInfoContainer}>
-                            <View style={styles.carHeader}>
+
+                          <View style={styles.info}>
+                            <View style={styles.cardHeader}>
                               <Text style={styles.carName} numberOfLines={1}>
                                 {item.title}
                               </Text>
@@ -228,79 +216,42 @@ export default function WishlistDrawer({
                                 <Text style={styles.yearText}>{details.year || 'N/A'}</Text>
                               </View>
                             </View>
-                            <View style={styles.carDetailsRow}>
-                              <View style={styles.carDetailItem}>
-                                <MaterialIcons
-                                  name="location-on"
-                                  size={14}
-                                  color="#6B7280"
-                                />
-                                <Text
-                                  style={styles.carLocation}
-                                  numberOfLines={1}
-                                >
-                                  {item.location}
-                                </Text>
+
+                            <Text style={styles.price}>{formattedPrice}</Text>
+
+                            <View style={styles.metaRow}>
+                              <View style={styles.metaItem}>
+                                <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
+                                <Text style={styles.metaText} numberOfLines={1}>{item.location}</Text>
                               </View>
-                              <View style={styles.carDetailItem}>
-                                <MaterialIcons
-                                  name="speed"
-                                  size={14}
-                                  color="#6B7280"
-                                />
-                                <Text style={styles.carMileage}>
-                                  {details.mileage || 'N/A'}
-                                </Text>
+                              <View style={styles.metaItem}>
+                                <Ionicons name="speedometer-outline" size={12} color={COLORS.text.muted} />
+                                <Text style={styles.metaText}>{details.mileage || 'N/A'} km</Text>
                               </View>
-                            </View>
-                            <View style={styles.fuelTypeContainer}>
-                              <MaterialIcons
-                                name="local-gas-station"
-                                size={14}
-                                color="#235CF8"
-                              />
-                              <Text style={styles.fuelTypeText}>
-                                {details.fuel_type || 'N/A'}
-                              </Text>
                             </View>
                           </View>
                         </TouchableOpacity>
-                        <View style={styles.actionButtons}>
+
+                        <View style={styles.actions}>
                           <TouchableOpacity
-                            style={styles.actionButton}
+                            style={styles.actionBtn}
                             onPress={() => handleViewDetails(item)}
-                            activeOpacity={0.7}
                           >
-                            <MaterialIcons
-                              name="visibility"
-                              size={18}
-                              color="#235CF8"
-                            />
-                            <Text style={styles.actionButtonText}>View</Text>
+                            <Ionicons name="eye-outline" size={18} color={COLORS.primary} />
+                            <Text style={styles.actionText}>View</Text>
                           </TouchableOpacity>
                           <TouchableOpacity
-                            style={styles.actionButton}
+                            style={styles.actionBtn}
                             onPress={() => handleShare(item)}
-                            activeOpacity={0.7}
                           >
-                            <MaterialIcons
-                              name="share"
-                              size={18}
-                              color="#235CF8"
-                            />
-                            <Text style={styles.actionButtonText}>Share</Text>
+                            <Ionicons name="share-social-outline" size={18} color={COLORS.primary} />
+                            <Text style={styles.actionText}>Share</Text>
                           </TouchableOpacity>
                           <TouchableOpacity
-                            style={styles.actionButton}
-                            onPress={() => handleCompare(item)}
-                            activeOpacity={0.7}
+                            style={styles.compareBtn}
                           >
-                            <MaterialIcons
-                              name="compare-arrows"
-                              size={18}
-                              color="#235CF8"
-                            />
-                            <Text style={styles.actionButtonText}>Compare</Text>
+                            <Ionicons name="git-compare-outline" size={18} color={COLORS.primary} />
+                            <Text style={styles.actionText}>Compare</Text>
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -308,31 +259,25 @@ export default function WishlistDrawer({
                   })}
                 </View>
               ) : (
-                <View style={styles.emptyContainer}>
-                  <View style={styles.emptyIconContainer}>
-                    <MaterialIcons
-                      name="favorite-border"
-                      size={48}
-                      color="#D1D5DB"
-                    />
+                <View style={styles.empty}>
+                  <View style={styles.emptyCircle}>
+                    <Ionicons name="heart-dislike-outline" size={48} color={COLORS.border} />
                   </View>
-                  <Text style={styles.emptyText}>Your wishlist is empty</Text>
-                  <Text style={styles.emptySubtext}>
-                    Start saving your favorite cars to view them here
-                  </Text>
+                  <Text style={styles.emptyTitle}>Wishlist Empty</Text>
+                  <Text style={styles.emptyText}>Tap the heart icon on any car to save it here for later.</Text>
+                  <TouchableOpacity 
+                    style={styles.browseBtn}
+                    onPress={() => { onClose(); router.push('/cars/buy-car'); }}
+                  >
+                    <Text style={styles.browseText}>Browse Cars</Text>
+                  </TouchableOpacity>
                 </View>
               )}
             </ScrollView>
           </SafeAreaView>
         </Animated.View>
-        <Animated.View
-          style={[
-            styles.backdrop,
-            {
-              opacity: backdropOpacity,
-            },
-          ]}
-        >
+
+        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
           <TouchableOpacity
             style={styles.backdropTouchable}
             activeOpacity={1}
@@ -351,248 +296,241 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   backdropTouchable: {
     flex: 1,
   },
   drawer: {
-    width: width * 0.7,
-    backgroundColor: "#235CF8",
+    backgroundColor: COLORS.background,
     height: "100%",
     shadowColor: "#000",
-    shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 12,
+    shadowOffset: { width: -10, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 20,
   },
   drawerContent: {
     flex: 1,
-    backgroundColor: "#235CF8",
   },
-  drawerHeader: {
-    backgroundColor: "#235CF8",
-    paddingTop: 16,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+  header: {
+    padding: 24,
+    paddingTop: 32,
+    borderBottomLeftRadius: 32,
   },
-  headerTop: {
+  headerTitleRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
+    marginBottom: 4,
   },
-  drawerTitle: {
+  title: {
     fontSize: 22,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    letterSpacing: 0.3,
+    fontWeight: "800",
+    color: COLORS.white,
+    letterSpacing: -0.5,
   },
-  headerCountBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
+  subtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: "500",
+  },
+  countBadge: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
     minWidth: 36,
     alignItems: "center",
-    justifyContent: "center",
   },
-  headerCount: {
+  countText: {
     fontSize: 13,
-    fontWeight: "700",
-    color: "#FFFFFF",
+    fontWeight: "800",
+    color: COLORS.white,
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
   },
   scrollContent: {
     padding: 16,
-    paddingTop: 20,
+    paddingBottom: 40,
   },
-  wishlistContainer: {
-    gap: 12,
+  loadingContainer: {
+    flex: 1,
+    paddingTop: 100,
+    alignItems: "center",
   },
-  wishlistCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+  container: {
+    gap: 16,
+  },
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
     overflow: "hidden",
-    marginBottom: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
   cardContent: {
     width: "100%",
   },
-  carImageContainer: {
+  imageContainer: {
     position: "relative",
-    height: 180,
+    height: 160,
     width: "100%",
   },
-  carImage: {
+  image: {
     width: "100%",
     height: "100%",
   },
-  cardOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
+  imagePlaceholder: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  favoriteButton: {
+  favBtn: {
     position: "absolute",
     top: 12,
     right: 12,
-    zIndex: 2,
-    backgroundColor: "rgba(239, 68, 68, 0.9)",
-    borderRadius: 20,
-    width: 40,
-    height: 40,
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    width: 36,
+    height: 36,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#EF4444",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  priceBadge: {
-    position: "absolute",
-    bottom: 12,
-    left: 12,
-    backgroundColor: "rgba(35, 92, 248, 0.95)",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  priceBadgeText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    letterSpacing: -0.2,
-  },
-  carInfoContainer: {
+  info: {
     padding: 16,
-    gap: 12,
   },
-  carHeader: {
+  cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 8,
+    marginBottom: 8,
   },
   carName: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#1F2937",
+    fontSize: 16,
+    fontWeight: "700",
+    color: COLORS.text.primary,
     letterSpacing: -0.3,
   },
   yearBadge: {
-    backgroundColor: "#EEF4FF",
-    borderRadius: 8,
+    backgroundColor: '#EEF4FF',
     paddingHorizontal: 8,
     paddingVertical: 4,
+    borderRadius: 8,
   },
   yearText: {
     fontSize: 11,
-    fontWeight: "600",
-    color: "#235CF8",
+    fontWeight: "700",
+    color: COLORS.primary,
   },
-  carDetailsRow: {
+  price: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: COLORS.primary,
+    marginBottom: 12,
+  },
+  metaRow: {
     flexDirection: "row",
     gap: 16,
-    flexWrap: "wrap",
   },
-  carDetailItem: {
+  metaItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
   },
-  carLocation: {
+  metaText: {
     fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "400",
-    maxWidth: 100,
+    color: COLORS.text.muted,
+    fontWeight: "500",
   },
-  carMileage: {
-    fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "400",
-  },
-  fuelTypeContainer: {
+  actions: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#F0F9FF",
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  fuelTypeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#235CF8",
-  },
-  actionButtons: {
-    flexDirection: "row",
+    padding: 12,
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
+    borderTopColor: COLORS.border,
+    backgroundColor: '#FAFBFD',
   },
-  actionButton: {
+  actionBtn: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: "#F9FAFB",
+    paddingVertical: 8,
   },
-  actionButtonText: {
+  compareBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 8,
+    borderLeftWidth: 1,
+    borderLeftColor: COLORS.border,
+  },
+  actionText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#235CF8",
+    color: COLORS.text.primary,
   },
-  emptyContainer: {
+  empty: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 100,
+    paddingTop: 80,
     paddingHorizontal: 32,
   },
-  emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#F3F4F6",
+  emptyCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: COLORS.text.primary,
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
   emptyText: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1F2937",
-    marginBottom: 8,
-    letterSpacing: -0.3,
-  },
-  emptySubtext: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.text.muted,
     textAlign: "center",
-    lineHeight: 20,
-    fontWeight: "400",
+    lineHeight: 22,
+    marginBottom: 24,
   },
+  browseBtn: {
+      backgroundColor: COLORS.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 16,
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 4,
+  },
+  browseText: {
+      color: COLORS.white,
+      fontWeight: "700",
+      fontSize: 15,
+  }
 });

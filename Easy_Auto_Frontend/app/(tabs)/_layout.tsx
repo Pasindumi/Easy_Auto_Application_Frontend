@@ -155,20 +155,22 @@ export default function TabLayout() {
         // Clean Tab Bar Container
         tabBarStyle: {
           backgroundColor: "#FFFFFF",
-          borderTopWidth: 0.5,
-          borderTopColor: "rgba(0, 0, 0, 0.06)",
+          borderTopWidth: 1,
+          borderTopColor: "#E5E7EB",
           height: Platform.OS === "ios" ? 68 + insets.bottom : 68,
-          minHeight: Platform.OS === "ios" ? 68 + insets.bottom : 68,
           paddingBottom:
             Platform.OS === "ios" ? Math.max(insets.bottom, 10) : 10,
           paddingTop: 8,
           paddingHorizontal: 0,
           position: "absolute",
-          elevation: 8,
-          shadowColor: "rgba(0, 0, 0, 0.05)",
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 1,
-          shadowRadius: 8,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          elevation: 20,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
         },
 
         // Tab Item Styling
@@ -177,7 +179,6 @@ export default function TabLayout() {
           justifyContent: "center",
           alignItems: "center",
           flex: 1,
-          minHeight: 68,
           height: "100%",
         },
       }}
@@ -189,16 +190,6 @@ export default function TabLayout() {
           title: "Home",
           tabBarLabel: "Home",
           tabBarAccessibilityLabel: "Home tab",
-          tabBarShowLabel: true,
-          tabBarLabelStyle: {
-            fontSize: 10,
-            fontWeight: "600",
-            marginTop: 4,
-            marginBottom: 0,
-            letterSpacing: 0.3,
-            opacity: 1,
-            height: "auto",
-          },
           tabBarIcon: ({ focused }) => (
             <ModernTabIcon
               focused={focused}
@@ -207,14 +198,6 @@ export default function TabLayout() {
             />
           ),
           tabBarButton: (props) => <HapticTab {...props} />,
-          tabBarItemStyle: {
-            paddingVertical: 4,
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-            minHeight: 68,
-            height: "100%",
-          },
         }}
       />
 
@@ -225,16 +208,6 @@ export default function TabLayout() {
           title: "Search",
           tabBarLabel: "Search",
           tabBarAccessibilityLabel: "Search tab",
-          tabBarShowLabel: true,
-          tabBarLabelStyle: {
-            fontSize: 10,
-            fontWeight: "600",
-            marginTop: 4,
-            marginBottom: 0,
-            letterSpacing: 0.3,
-            opacity: 1,
-            height: "auto",
-          },
           tabBarIcon: ({ focused }) => (
             <ModernTabIcon
               focused={focused}
@@ -243,14 +216,6 @@ export default function TabLayout() {
             />
           ),
           tabBarButton: (props) => <HapticTab {...props} />,
-          tabBarItemStyle: {
-            paddingVertical: 4,
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-            minHeight: 68,
-            height: "100%",
-          },
         }}
       />
 
@@ -261,34 +226,12 @@ export default function TabLayout() {
           title: "Compare",
           tabBarLabel: "",
           tabBarAccessibilityLabel: "Compare cars tab",
-          tabBarShowLabel: false,
-          tabBarLabelStyle: {
-            height: 0,
-            width: 0,
-            opacity: 0,
-            fontSize: 0,
-            margin: 0,
-            padding: 0,
-            display: "none",
-          },
           tabBarIcon: ({ focused }) => (
             <View style={{ marginTop: -12 }}>
               <CompareButton focused={focused} />
             </View>
           ),
           tabBarButton: (props) => <HapticTab {...props} />,
-          tabBarIconStyle: {
-            marginTop: 0,
-            marginBottom: 0,
-          },
-          tabBarItemStyle: {
-            paddingVertical: 4,
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-            minHeight: 68,
-            height: "100%",
-          },
         }}
       />
 
@@ -299,16 +242,6 @@ export default function TabLayout() {
           title: "Chat",
           tabBarLabel: "Chat",
           tabBarAccessibilityLabel: "Chat tab",
-          tabBarShowLabel: true,
-          tabBarLabelStyle: {
-            fontSize: 10,
-            fontWeight: "600",
-            marginTop: 4,
-            marginBottom: 0,
-            letterSpacing: 0.3,
-            opacity: 1,
-            height: "auto",
-          },
           tabBarIcon: ({ focused }) => (
             <ModernTabIcon
               focused={focused}
@@ -317,14 +250,6 @@ export default function TabLayout() {
             />
           ),
           tabBarButton: (props) => <HapticTab {...props} />,
-          tabBarItemStyle: {
-            paddingVertical: 4,
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-            minHeight: 68,
-            height: "100%",
-          },
         }}
       />
 
@@ -335,16 +260,6 @@ export default function TabLayout() {
           title: "Profile",
           tabBarLabel: "Profile",
           tabBarAccessibilityLabel: "Profile tab",
-          tabBarShowLabel: true,
-          tabBarLabelStyle: {
-            fontSize: 10,
-            fontWeight: "600",
-            marginTop: 4,
-            marginBottom: 0,
-            letterSpacing: 0.3,
-            opacity: 1,
-            height: "auto",
-          },
           tabBarIcon: ({ focused }) => (
 
             <ModernTabIcon
@@ -354,14 +269,6 @@ export default function TabLayout() {
             />
           ),
           tabBarButton: (props) => <HapticTab {...props} />,
-          tabBarItemStyle: {
-            paddingVertical: 4,
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-            minHeight: 68,
-            height: "100%",
-          },
         }}
       />
 

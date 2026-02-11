@@ -14,6 +14,7 @@ import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
 import BoostPopup from "@/components/home/BoostPopup";
 import COLORS from "@/constants/Colors";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import React, { useEffect, useRef, useState } from "react";
@@ -34,6 +35,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { isAuthenticated } = useAuth(); // Get auth state
+  
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [notificationDrawerVisible, setNotificationDrawerVisible] =
     useState(false);
@@ -72,7 +75,11 @@ export default function HomeScreen() {
 
   // Previews / Initial Data
   useEffect(() => {
-    fetchWishlistCount();
+    if (isAuthenticated) {
+      fetchWishlistCount();
+    } else {
+      setWishlistCount(0);
+    }
 
     if (showNotificationPreview || showWishlistPreview) {
       const timer = setTimeout(() => {
@@ -81,7 +88,7 @@ export default function HomeScreen() {
       }, 5000); // Auto-close after 5 seconds
       return () => clearTimeout(timer);
     }
-  }, [showNotificationPreview, showWishlistPreview]);
+  }, [showNotificationPreview, showWishlistPreview, isAuthenticated]);
 
   const fetchWishlistCount = async () => {
     try {
@@ -189,16 +196,8 @@ export default function HomeScreen() {
         onScroll={handleMainScroll}
         scrollEventThrottle={16}
       >
-        {/* Daily Deals Section */}
-        <DailyDeals fadeAnim={fadeAnim} slideAnim={slideAnim} />
 
-        {/* Flash Sale Banner */}
-        <FlashSale fadeAnim={fadeAnim} slideAnim={slideAnim} />
-
-        {/* Value Propositions & Trust Indicators */}
-        <ValueProps fadeAnim={fadeAnim} slideAnim={slideAnim} />
-
-        {/* Promotional Banner */}
+        {/* Promotional Banner (Hero) */}
         <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
 
         {/* Action Buttons Grid */}
@@ -209,8 +208,16 @@ export default function HomeScreen() {
           newListingsCount={newListingsCount}
         />
 
-        {/* Section Divider */}
-        <View style={styles.sectionDivider} />
+        {/* Value Propositions (Brief Trust Indicators) */}
+        <ValueProps fadeAnim={fadeAnim} slideAnim={slideAnim} />
+
+        {/* Flash Sale Banner (High Urgency) */}
+        <FlashSale fadeAnim={fadeAnim} slideAnim={slideAnim} />
+
+        {/* Daily Deals Section */}
+        <DailyDeals fadeAnim={fadeAnim} slideAnim={slideAnim} />
+
+        <View style={styles.spacer} />
 
         {/* Trending Cars Section */}
         <TrendingCars
@@ -220,23 +227,18 @@ export default function HomeScreen() {
           setTrendingCategory={setTrendingCategory}
         />
 
-        {/* Section Divider */}
-        <View style={styles.sectionDivider} />
+        <View style={styles.spacer} />
 
         {/* Recommended For You Section */}
         <RecommendedCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
 
-        {/* Recently Viewed Section */}
-        <RecentlyViewed fadeAnim={fadeAnim} slideAnim={slideAnim} />
-
-        {/* Section Divider */}
-        <View style={styles.sectionDivider} />
-
         {/* Explore by Brand Section */}
         <ExploreByBrand fadeAnim={fadeAnim} slideAnim={slideAnim} />
 
-        {/* Section Divider */}
-        <View style={styles.sectionDivider} />
+        {/* Recently Viewed Section */}
+        <RecentlyViewed fadeAnim={fadeAnim} slideAnim={slideAnim} />
+
+        <View style={styles.spacer} />
 
         {/* Compare Cars Section */}
         <CarComparison fadeAnim={fadeAnim} slideAnim={slideAnim} />
@@ -266,6 +268,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     marginHorizontal: 20,
     opacity: 0.5,
+  },
+  spacer: {
+    height: 24,
   },
   previewBackdrop: {
     position: "absolute",

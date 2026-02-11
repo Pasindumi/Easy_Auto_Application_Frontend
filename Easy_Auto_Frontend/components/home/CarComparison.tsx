@@ -10,8 +10,13 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import COLORS from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
+const CARD_WIDTH = width * 0.85;
 
 interface CarComparisonProps {
     fadeAnim: Animated.Value;
@@ -19,60 +24,77 @@ interface CarComparisonProps {
 }
 
 const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) => {
+    const router = useRouter();
+
+    const handlePress = () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push('/compare' as any);
+    };
 
     return (
         <Animated.View
             style={[
-                styles.section,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Compare Cars</Text>
-                <TouchableOpacity>
-                    <Text style={styles.seeAllLink}>See all</Text>
+            <View style={styles.header}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Compare Cars</Text>
+                    <Text style={styles.subtitle}>Head-to-head comparisons</Text>
+                </View>
+                <TouchableOpacity 
+                    style={styles.viewAllButton} 
+                    onPress={() => router.push('/compare' as any)}
+                >
+                    <Text style={styles.viewAllText}>View All</Text>
+                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
+
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.horizontalScroll}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={styles.scrollContent}
+                decelerationRate="fast"
+                snapToInterval={CARD_WIDTH + 16}
             >
-                {COMPARISONS.map((comparison) => (
+                {COMPARISONS.map((comparison, index) => (
                     <TouchableOpacity
-                        key={`compare-${comparison.id}`}
-                        style={styles.compareCard}
+                        key={`compare-${index}`}
+                        style={styles.card}
+                        activeOpacity={0.9}
+                        onPress={handlePress}
                     >
-                        <View style={styles.side}>
+                        <View style={styles.carContainer}>
                             <Image
                                 source={{ uri: comparison.car1.image }}
-                                style={styles.carImage}
+                                style={styles.image}
                                 contentFit="cover"
                                 transition={300}
                             />
-                            <Text style={styles.carName}>{comparison.car1.name}</Text>
-                            <Text style={styles.carYear}>{comparison.car1.model}</Text>
+                            <Text style={styles.carName} numberOfLines={1}>{comparison.car1.name}</Text>
+                            <Text style={styles.carModel}>{comparison.car1.model}</Text>
                         </View>
 
-                        <View style={styles.vsColumn}>
-                            <View style={styles.vsCircle}>
-                                <Text style={styles.vsText}>vs</Text>
+                        <View style={styles.vsContainer}>
+                            <View style={styles.vsBadge}>
+                                <Text style={styles.vsText}>VS</Text>
                             </View>
                         </View>
 
-                        <View style={styles.side}>
+                        <View style={styles.carContainer}>
                             <Image
                                 source={{ uri: comparison.car2.image }}
-                                style={styles.carImage}
+                                style={styles.image}
                                 contentFit="cover"
                                 transition={300}
                             />
-                            <Text style={styles.carName}>{comparison.car2.name}</Text>
-                            <Text style={styles.carYear}>{comparison.car2.model}</Text>
+                            <Text style={styles.carName} numberOfLines={1}>{comparison.car2.name}</Text>
+                            <Text style={styles.carModel}>{comparison.car2.model}</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -82,89 +104,115 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
 };
 
 const styles = StyleSheet.create({
-    section: {
-        paddingHorizontal: 0,
-        paddingVertical: 24,
-        paddingBottom: 32,
-        backgroundColor: "#FFFFFF",
+    container: {
+        marginBottom: 24,
+        paddingVertical: 16,
+        backgroundColor: COLORS.background,
     },
-    sectionHeader: {
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "flex-end",
+        alignItems: "center",
         paddingHorizontal: 20,
         marginBottom: 16,
     },
-    sectionTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: -0.4,
+    titleContainer: {
+        flex: 1,
     },
-    seeAllLink: {
-        fontSize: 14,
-        color: "#235CF8",
+    title: {
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.text.primary,
+        letterSpacing: -0.5,
+    },
+    subtitle: {
+        fontSize: 13,
+        color: COLORS.text.muted,
+        marginTop: 2,
+        fontWeight: "500",
+    },
+    viewAllButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        padding: 4,
+    },
+    viewAllText: {
+        fontSize: 13,
+        color: COLORS.primary,
         fontWeight: "600",
     },
-    horizontalScroll: {
+    scrollContent: {
         paddingHorizontal: 20,
+        gap: 16,
     },
-    compareCard: {
+    card: {
+        width: CARD_WIDTH,
         flexDirection: "row",
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        padding: 14,
-        marginRight: 16,
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        padding: 16,
         alignItems: "center",
         justifyContent: "space-between",
-        shadowColor: "#235CF8",
+        shadowColor: COLORS.shadow,
         shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
         elevation: 6,
-        borderWidth: 0.5,
-        borderColor: "rgba(35,92,248,0.3)",
+        borderWidth: 1,
+        borderColor: COLORS.border,
     },
-    side: {
+    carContainer: {
         flex: 1,
         alignItems: "center",
+        maxWidth: '42%',
     },
-    carImage: {
-        width: 120,
-        height: 70,
-        borderRadius: 8,
-        marginBottom: 8,
+    image: {
+        width: '100%',
+        aspectRatio: 1.5,
+        borderRadius: 12,
+        marginBottom: 12,
+        backgroundColor: COLORS.background,
     },
     carName: {
+        fontSize: 13,
         fontWeight: "700",
-        color: "#111827",
+        color: COLORS.text.primary,
         textAlign: "center",
-        fontSize: 14,
+        marginBottom: 2,
     },
-    carYear: {
-        color: "#235CF8",
-        marginTop: 4,
-        fontSize: 12,
+    carModel: {
+        fontSize: 11,
+        color: COLORS.primary,
         fontWeight: "600",
+        textAlign: "center",
     },
-    vsColumn: {
+    vsContainer: {
         width: 40,
         alignItems: "center",
+        justifyContent: 'center',
+        zIndex: 10,
     },
-    vsCircle: {
+    vsBadge: {
         width: 36,
         height: 36,
         borderRadius: 18,
-        backgroundColor: "#FFFFFF",
-        borderWidth: 1,
-        borderColor: "#E6E8EE",
+        backgroundColor: COLORS.primary,
         alignItems: "center",
         justifyContent: "center",
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+        borderWidth: 2,
+        borderColor: COLORS.white,
     },
     vsText: {
-        color: "#235CF8",
-        fontWeight: "700",
+        color: COLORS.white,
+        fontWeight: "900",
         fontSize: 12,
+        fontStyle: 'italic',
     },
 });
 
