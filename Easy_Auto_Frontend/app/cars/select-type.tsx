@@ -28,7 +28,11 @@ export default function SelectVehicleTypeScreen() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(ENDPOINTS.VEHICLE_CONFIG.TYPES);
+            const response = await fetch(ENDPOINTS.VEHICLE_CONFIG.TYPES, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                },
+            });
             if (!response.ok) throw new Error(`Server returned ${response.status}`);
             const data = await response.json();
             if (Array.isArray(data)) {

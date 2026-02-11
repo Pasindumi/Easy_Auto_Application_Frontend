@@ -45,20 +45,18 @@ export default function Header({ showBack = true, title }: Props) {
             )}
           </TouchableOpacity>
 
-          {/* Logo */}
-          <View style={styles.centerWrap}>
-            {!title && (
+          {/* Right Aligned Content */}
+          <View style={styles.rightWrap}>
+            {title ? (
+              <Text style={styles.title}>{title}</Text>
+            ) : (
               <Image
-                source={require("@/assets/images/logo.png")}
+                source={require("../assets/images/logo.png")}
                 resizeMode="contain"
                 style={styles.logoImg}
               />
             )}
-
-            {title && <Text style={styles.title}>{title}</Text>}
           </View>
-
-          <View style={{ width: 40 }} />
         </View>
       </SafeAreaView>
     </View>
@@ -87,14 +85,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  centerWrap: {
+  rightWrap: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-end",
+    justifyContent: "center",
   },
   logoImg: {
-    width: 100,
-    height: 32,
-    marginTop: 0,   // ← moves logo upward
+    width: 240,
+    height: 70,
+    marginRight: -10, // Pull it closer to the edge
   },
   title: {
     color: "#fff",
@@ -103,8 +102,8 @@ const styles = StyleSheet.create({
   },
 
 
-   headerWrap: { backgroundColor: '#F9FAFB' },
+  headerWrap: { backgroundColor: '#F9FAFB' },
   header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
-   headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
+  headerTitle: { color: '#235CF8', fontSize: 18, fontWeight: '600' },
 });
