@@ -1,6 +1,9 @@
+import COLORS from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+
 
 interface Props {
     selectedImages: string[];
@@ -77,7 +80,7 @@ const PhotoUploadSection: React.FC<Props> = ({
                 {addImage && (
                     <TouchableOpacity style={styles.addPhotoButtonUniform} onPress={addImage}>
                         <Text style={styles.addPhotoTextUniform}>Add Photo</Text>
-                        <Ionicons name="add" size={32} color="#235CF8" style={{ marginTop: 2 }} />
+                        <Ionicons name="add" size={32} color="#3B82F6" style={{ marginTop: 2 }} />
                     </TouchableOpacity>
                 )}
             </View>
@@ -104,23 +107,74 @@ const PhotoUploadSection: React.FC<Props> = ({
     );
 };
 
+
+
 const styles = StyleSheet.create({
-    section: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
-    sectionSubtitle: { fontSize: 13, color: '#6B7280', marginBottom: 16 },
-    unlimitedText: { color: '#059669', fontWeight: '600' }, // Green text for unlimited message
-    // Simplified layout styles for flex wrap
-    photoContainerUniform: { position: 'relative', width: 70, height: 70, marginBottom: 4 },
-    carPhotoUniform: { width: 70, height: 70, borderRadius: 8 },
-    removePhotoButtonUniform: { position: 'absolute', top: -8, right: -8, backgroundColor: '#EF4444', borderRadius: 12, width: 24, height: 24, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
-    addPhotoButtonUniform: { width: 70, height: 70, backgroundColor: '#F8F9FA', borderRadius: 8, borderWidth: 2, borderColor: '#235CF8', borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' },
-    addPhotoTextUniform: { fontSize: 11, color: '#235CF8', fontWeight: '600', marginBottom: 2 },
+    section: {
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 16,
+        elevation: 2,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        borderWidth: 1,
+        borderColor: COLORS.border
+    },
+    sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary },
+    sectionSubtitle: { fontSize: 13, color: COLORS.text.muted, marginBottom: 20, lineHeight: 20 },
+    unlimitedText: { color: '#10B981', fontWeight: '600' },
+
+    photoContainerUniform: {
+        position: 'relative',
+        width: 80,
+        height: 80,
+        marginBottom: 8,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    carPhotoUniform: { width: 80, height: 80, borderRadius: 12 },
+    removePhotoButtonUniform: {
+        position: 'absolute',
+        top: -6,
+        right: -6,
+        backgroundColor: '#EF4444',
+        borderRadius: 12,
+        width: 24,
+        height: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 2,
+        borderWidth: 2,
+        borderColor: COLORS.white
+    },
+
+    addPhotoButtonUniform: {
+        width: 80,
+        height: 80,
+        backgroundColor: '#EFF6FF',
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#BFDBFE',
+        borderStyle: 'dashed',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column'
+    },
+    addPhotoTextUniform: { fontSize: 10, color: '#3B82F6', fontWeight: '700', marginTop: 4 },
+
     pricePill: { backgroundColor: '#E0F2FE', borderRadius: 16, paddingVertical: 4, paddingHorizontal: 12, marginLeft: 8 },
-    pricePillText: { fontSize: 12, color: '#0A4D92', fontWeight: '500' },
-    upsellContainer: { marginTop: 12, padding: 12, backgroundColor: '#FFF7ED', borderRadius: 8, borderWidth: 1, borderColor: '#FFEDD5' },
-    upsellText: { fontSize: 14, color: '#9A3412', marginBottom: 8 },
-    upsellButton: { backgroundColor: '#EA580C', paddingVertical: 8, borderRadius: 6, alignItems: 'center' },
-    upsellButtonText: { color: 'white', fontWeight: '600', fontSize: 14 },
+    pricePillText: { fontSize: 12, color: '#0A4D92', fontWeight: '600' },
+
+    upsellContainer: { marginTop: 16, padding: 16, backgroundColor: '#FFF7ED', borderRadius: 12, borderWidth: 1, borderColor: '#FED7AA' },
+    upsellText: { fontSize: 14, color: '#9A3412', marginBottom: 12, lineHeight: 20 },
+    upsellButton: { backgroundColor: '#EA580C', paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+    upsellButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 14 },
 });
 
 export default PhotoUploadSection;

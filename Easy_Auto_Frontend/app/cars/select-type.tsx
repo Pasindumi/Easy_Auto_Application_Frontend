@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
-import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -10,12 +10,14 @@ import {
     TouchableOpacity,
     View,
     ActivityIndicator,
-    Platform,
-    Alert
+    Alert,
+    Dimensions
 } from 'react-native';
 import { ENDPOINTS } from '../../constants/API';
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { useAuth } from '../../contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
 
 export default function SelectVehicleTypeScreen() {
     const router = useRouter();
@@ -61,62 +63,89 @@ export default function SelectVehicleTypeScreen() {
 
     const getIconName = (name: string) => {
         const n = name.toLowerCase();
-        if (n.includes('car')) return 'directions-car';
-        if (n.includes('bike') || n.includes('motor')) return 'two-wheeler';
-        if (n.includes('three')) return 'electric-rickshaw';
-        if (n.includes('van')) return 'airport-shuttle';
-        if (n.includes('bus')) return 'directions-bus';
-        if (n.includes('lorry') || n.includes('truck')) return 'local-shipping';
-        return 'directions-car';
+        if (n.includes('car')) return 'car-sport';
+        if (n.includes('bike') || n.includes('motor')) return 'motorbike';
+        if (n.includes('three')) return 'rickshaw'; // MaterialCommunityIcons has this? Checking fallback
+        if (n.includes('van')) return 'van-utility';
+        if (n.includes('bus')) return 'bus';
+        if (n.includes('lorry') || n.includes('truck')) return 'truck';
+        return 'car';
     };
 
-    const renderItem = ({ item }: { item: any }) => (
-        <TouchableOpacity
-            style={styles.card}
-            onPress={() => handleSelect(item)}
-            activeOpacity={0.7}
-        >
-            <View style={[styles.iconContainer, { backgroundColor: COLORS.primary + '15' }]}>
-                {/* @ts-ignore */}
-                <MaterialIcons name={getIconName(item.type_name)} size={32} color={COLORS.primary} />
-            </View>
-            <View style={styles.textContainer}>
-                <Text style={styles.label}>{item.type_name}</Text>
-                <Text style={styles.subLabel}>Sell your {item.type_name.toLowerCase()}</Text>
-            </View>
-            <MaterialIcons name="chevron-right" size={24} color={COLORS.text.gray} />
-        </TouchableOpacity>
-    );
+    // Helper to get icon family/name safely
+    const getIcon = (name: string) => {
+        const n = name.toLowerCase();
+        if (n.includes('car')) return { lib: Ionicons, name: 'car-sport' };
+        if (n.includes('bike') || n.includes('motor')) return { lib: MaterialCommunityIcons, name: 'motorbike' };
+        if (n.includes('three')) return { lib: MaterialCommunityIcons, name: 'rickshaw-electric' }; // or tuktuk? using generic
+        if (n.includes('van')) return { lib: MaterialCommunityIcons, name: 'van-passenger' };
+        if (n.includes('bus')) return { lib: Ionicons, name: 'bus' };
+        if (n.includes('lorry') || n.includes('truck')) return { lib: MaterialCommunityIcons, name: 'truck' };
+        if (n.includes('heavy') || n.includes('machinery')) return { lib: MaterialCommunityIcons, name: 'excavator' };
+        return { lib: Ionicons, name: 'car' };
+    };
+
+    const renderItem = ({ item }: { item: any }) => {
+        const iconData = getIcon(item.type_name);
+        const IconLib = iconData.lib;
+
+        return (
+            <TouchableOpacity
+                style={styles.card}
+                onPress={() => handleSelect(item)}
+                activeOpacity={0.9}
+            >
+                <LinearGradient
+                    colors={[COLORS.white, '#F8FAFC']}
+                    style={styles.cardGradient}
+                >
+                    <View style={styles.iconContainer}>
+                        <LinearGradient
+                            colors={['#EFF6FF', '#DBEAFE']}
+                            style={styles.iconBackground}
+                        >
+                            <IconLib name={iconData.name as any} size={32} color={COLORS.primary} />
+                        </LinearGradient>
+                    </View>
+
+                    <View style={styles.textContainer}>
+                        <Text style={styles.cardTitle}>{item.type_name}</Text>
+                        <Text style={styles.cardSubtitle}>Sell your {item.type_name}</Text>
+                    </View>
+
+                    <View style={styles.arrowContainer}>
+                        <Ionicons name="arrow-forward" size={20} color={COLORS.primary} />
+                    </View>
+                </LinearGradient>
+            </TouchableOpacity>
+        );
+    };
 
     if (!isAuthenticated) {
         return (
             <View style={styles.container}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <Header showBack={true} />
+                <Header showBack={true} title="Sell Your Vehicle" />
                 <View style={styles.authGuardContainer}>
                     <View style={styles.iconCircle}>
-                        <Ionicons name="lock-closed-outline" size={40} color={COLORS.primary} />
+                        <Ionicons name="lock-closed" size={40} color={COLORS.primary} />
                     </View>
                     <Text style={styles.authGuardTitle}>Login Required</Text>
-                    <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicles on Easy Auto.</Text>
+                    <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicle on Easy Auto.</Text>
 
                     <View style={styles.authButtonGroup}>
-                        <View style={{ flex: 1, marginRight: 10 }}>
-                            <TouchableOpacity
-                                style={[styles.authButton, { backgroundColor: COLORS.primary }]}
-                                onPress={() => router.push('/auth/login')}
-                            >
-                                <Text style={[styles.authButtonText, { color: COLORS.white }]}>Login</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <TouchableOpacity
-                                style={[styles.authButton, { backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.primary }]}
-                                onPress={() => router.push('/auth/signup')}
-                            >
-                                <Text style={[styles.authButtonText, { color: COLORS.primary }]}>Sign Up</Text>
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity
+                            style={[styles.authButton, styles.loginButton]}
+                            onPress={() => router.push('/auth/login')}
+                        >
+                            <Text style={styles.loginButtonText}>Login</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.authButton, styles.signupButton]}
+                            onPress={() => router.push('/auth/signup')}
+                        >
+                            <Text style={styles.signupButtonText}>Sign Up</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -126,26 +155,23 @@ export default function SelectVehicleTypeScreen() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header showBack={true} title="Select Vehicle Type" />
+            <Header showBack={true} title="Select Type" />
 
-            {/* Unified Sub-Header */}
-            <View style={headerSectionStyles.headerWrap}>
-                <View style={headerSectionStyles.header}>
-                    <MaterialIcons name="add-circle-outline" size={24} color={COLORS.primary} style={{ marginRight: 8 }} />
-                    <Text style={headerSectionStyles.headerTitle}>What are you selling?</Text>
-                </View>
+            <View style={styles.headerSection}>
+                <Text style={styles.headerTitle}>What are you selling?</Text>
+                <Text style={styles.headerSubtitle}>Choose the vehicle category to proceed</Text>
             </View>
 
             {loading ? (
-                <View style={{ flex: 1, justifyContent: 'center' }}>
+                <View style={styles.centerContainer}>
                     <ActivityIndicator size="large" color={COLORS.primary} />
                 </View>
             ) : error ? (
-                <View style={styles.errorContainer}>
-                    <MaterialIcons name="error-outline" size={48} color={COLORS.primary} />
+                <View style={styles.centerContainer}>
+                    <Ionicons name="alert-circle-outline" size={48} color={COLORS.status.danger} />
                     <Text style={styles.errorText}>{error}</Text>
                     <TouchableOpacity style={styles.retryButton} onPress={fetchTypes}>
-                        <Text style={styles.retryButtonText}>Retry</Text>
+                        <Text style={styles.retryButtonText}>Try Again</Text>
                     </TouchableOpacity>
                 </View>
             ) : (
@@ -155,7 +181,8 @@ export default function SelectVehicleTypeScreen() {
                     keyExtractor={item => item.id}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20, color: '#666' }}>No vehicle types available.</Text>}
+                    numColumns={2}
+                    columnWrapperStyle={styles.columnWrapper}
                 />
             )}
         </View>
@@ -167,115 +194,162 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.background,
     },
+    headerSection: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        paddingBottom: 10,
+    },
+    headerTitle: {
+        fontSize: 24,
+        fontWeight: '800',
+        color: COLORS.text.primary,
+        marginBottom: 8,
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: COLORS.text.muted,
+        fontWeight: '500',
+    },
     listContent: {
         padding: 20,
-        paddingTop: 10,
+        paddingBottom: 40,
+    },
+    columnWrapper: {
+        justifyContent: 'space-between',
+        marginBottom: 16,
     },
     card: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'white',
+        width: (width - 56) / 2, // 20px padding * 2, 16px gap
+        borderRadius: 20,
+        backgroundColor: COLORS.white,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.06,
+        shadowRadius: 12,
+        elevation: 4,
+        overflow: 'hidden',
+    },
+    cardGradient: {
         padding: 16,
-        marginBottom: 12,
-        borderRadius: 16,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        borderWidth: 1,
-        borderColor: '#F3F4F6',
+        alignItems: 'center',
+        height: 160,
+        justifyContent: 'space-between',
     },
     iconContainer: {
-        width: 56,
-        height: 56,
-        borderRadius: 12,
-        alignItems: 'center',
+        marginBottom: 12,
+    },
+    iconBackground: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         justifyContent: 'center',
-        marginRight: 16,
+        alignItems: 'center',
     },
     textContainer: {
-        flex: 1,
+        alignItems: 'center',
     },
-    label: {
+    cardTitle: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#1F2937',
+        color: COLORS.text.primary,
         marginBottom: 4,
+        textAlign: 'center',
     },
-    subLabel: {
-        fontSize: 13,
-        color: '#6B7280',
+    cardSubtitle: {
+        fontSize: 11,
+        color: COLORS.text.muted,
+        textAlign: 'center',
+    },
+    arrowContainer: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        opacity: 0.5,
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
     },
     authGuardContainer: {
         flex: 1,
         padding: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: COLORS.background,
     },
     iconCircle: {
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: COLORS.primary + '10', // Light primary background
+        backgroundColor: 'rgba(35, 92, 248, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 24,
     },
     authGuardTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: '800',
         color: COLORS.text.primary,
         marginBottom: 12,
     },
     authGuardMessage: {
-        fontSize: 16,
+        fontSize: 15,
         color: COLORS.text.muted,
         textAlign: 'center',
-        lineHeight: 24,
+        lineHeight: 22,
         marginBottom: 32,
     },
     authButtonGroup: {
         flexDirection: 'row',
         width: '100%',
+        gap: 12,
     },
     authButton: {
-        paddingVertical: 14,
-        borderRadius: 12,
+        flex: 1,
+        height: 50,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    loginButton: {
+        backgroundColor: COLORS.primary,
         shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8,
         elevation: 4,
     },
-    authButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+    signupButton: {
+        backgroundColor: COLORS.white,
+        borderWidth: 1.5,
+        borderColor: COLORS.primary,
     },
-    errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
+    loginButtonText: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: COLORS.white,
+    },
+    signupButtonText: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: COLORS.primary,
     },
     errorText: {
         fontSize: 16,
-        color: '#666',
+        color: COLORS.text.muted,
         textAlign: 'center',
         marginTop: 12,
         marginBottom: 24,
     },
     retryButton: {
-        backgroundColor: COLORS.primary,
         paddingHorizontal: 24,
         paddingVertical: 12,
-        borderRadius: 8,
+        backgroundColor: COLORS.primary,
+        borderRadius: 12,
     },
     retryButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
+        color: COLORS.white,
+        fontWeight: '700',
     },
 });

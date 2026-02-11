@@ -65,7 +65,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
                 });
                 return nextIndex;
             });
-        }, 5000);
+        }, 6000);
 
         return () => clearInterval(interval);
     }, [discounts]);
@@ -101,7 +101,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
             <View style={styles.cardContent}>
                 <View style={styles.leftContent}>
                     <View style={styles.badgeContainer}>
-                         <Text style={styles.badgeText}>FLASH SALE</Text>
+                        <Text style={styles.badgeText}>FLASH SALE</Text>
                     </View>
                     <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
                     <Text style={styles.discountValue}>

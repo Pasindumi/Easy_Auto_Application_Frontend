@@ -64,10 +64,11 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 
     const fetchAllBanners = async () => {
         try {
-            // Fetch both boosted ads and announcements in parallel
-            const [adsRes, announcementsRes] = await Promise.all([
+            // Fetch boosted ads, announcements, and active discounts in parallel
+            const [adsRes, announcementsRes, discountsRes] = await Promise.all([
                 api.get<{ success: boolean; data: any[] }>('/api/cars?isHomepageBanner=true&limit=5'),
-                api.get<{ success: boolean; data: any[] }>('/api/announcements/active')
+                api.get<{ success: boolean; data: any[] }>('/api/announcements/active'),
+                api.get<{ success: boolean; data: any[] }>('/api/discounts/active')
             ]);
 
             let combinedBanners: any[] = [];
@@ -82,8 +83,27 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     isAd: true,
                     adId: ad.id
                 }));
-                setBanners([...boostedBanners, ...STATIC_BANNERS]);
+                // Interleave or just append? Let's append for now, or maybe prioritize ads?
+                // existing logic was ads + static.
                 combinedBanners = [...combinedBanners, ...boostedBanners];
+            }
+
+            // Add Discounts (Offers)
+            // The user specifically asked for "Offers" to be displayed.
+            // We map them to the banner structure.
+            if (discountsRes.data && discountsRes.data.length > 0) {
+                const discountBanners = discountsRes.data.map((discount: any) => ({
+                    id: `discount-${discount.id}`,
+                    title: discount.name,
+                    subtitle: discount.discount_type === 'PERCENTAGE'
+                        ? `${discount.value}% OFF`
+                        : `$${discount.value} OFF`,
+                    image: discount.offer_image_url || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=400&fit=crop", // Default offer image
+                    isDiscount: true,
+                    discountId: discount.id,
+                    link: null // Discounts navigate via discountId
+                }));
+                combinedBanners = [...combinedBanners, ...discountBanners];
             }
 
             // Add Announcements
@@ -94,12 +114,22 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     subtitle: ann.content || '',
                     image: ann.image_url || "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80",
                     isAd: false,
+                    isDiscount: false, // Explicitly false
                     link: ann.link
                 }));
                 combinedBanners = [...combinedBanners, ...announcements];
             }
 
-            // If no banners at all, maybe add a default one or leave empty
+            // Add Static Banners if we don't have enough content (optional, but good for filling space)
+            // or just always add them at the end? 
+            // The original code did: setBanners([...boostedBanners, ...STATIC_BANNERS]); 
+            // Let's keep a few static ones if the total is low, or just append them to ensure there's always something.
+            // If combinedBanners is empty, we definitely need defaults.
+            if (combinedBanners.length < 3) {
+                combinedBanners = [...combinedBanners, ...STATIC_BANNERS];
+            }
+
+            // If still empty (shouldn't happen with static banners, but good safety)
             if (combinedBanners.length === 0) {
                 combinedBanners = [
                     {
@@ -115,6 +145,8 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             setBanners(combinedBanners);
         } catch (error) {
             console.error("Error fetching banner data:", error);
+            // Fallback to static banners on error
+            setBanners(STATIC_BANNERS);
         }
     };
 
@@ -139,7 +171,6 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             }
         };
     }, [banners.length]);
-    }, [banners]);
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
@@ -198,7 +229,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             >
                 {banners.map((banner, index) => (
                     <View key={`banner-${banner.id}-${index}`} style={styles.bannerWrapper}>
-                         <TouchableOpacity 
+                        <TouchableOpacity
                             activeOpacity={0.9}
                             onPress={() => handleBannerPress(banner)}
                             style={styles.bannerCard}
@@ -209,7 +240,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                                 contentFit="cover"
                                 transition={500}
                             />
-                            
+
                             {/* Premium Gradient Overlay */}
                             <LinearGradient
                                 colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
@@ -224,7 +255,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                                 )}
                                 <Text style={styles.title} numberOfLines={2}>{banner.title}</Text>
                                 <Text style={styles.subtitle} numberOfLines={1}>{banner.subtitle}</Text>
-                                
+
                                 <View style={styles.ctaButton}>
                                     <Text style={styles.ctaText}>{banner.isAd ? "View Details" : "Explore"}</Text>
                                     <MaterialIcons name="arrow-forward" size={16} color={COLORS.white} />
@@ -262,7 +293,7 @@ const styles = StyleSheet.create({
     bannerWrapper: {
         width: width - 32,
         height: 200,
-        marginRight: 0, 
+        marginRight: 0,
     },
     bannerCard: {
         flex: 1,

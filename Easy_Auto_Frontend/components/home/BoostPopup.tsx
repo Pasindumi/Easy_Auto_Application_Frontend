@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import { api } from '@/utils/api';
 import { useRouter } from 'expo-router';
@@ -23,9 +23,6 @@ const BoostPopup = () => {
 
     const fetchPopupAds = async () => {
         try {
-            // Fetch one random popup ad. Limit=5 to get a pool, then pick random.
-            // Using a dummy param for now or existing API
-            const response = await api.get<{ success: boolean; data: any[] }>('/api/cars?status=ACTIVE&limit=5');
             // Fetch multiple popup ads
             const response = await api.get<{ success: boolean; data: any[] }>('/api/cars?isPopupPromotion=true&limit=10');
 
@@ -74,9 +71,8 @@ const BoostPopup = () => {
         setVisible(false);
     };
 
-    const handlePress = () => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const handlePress = (ad: any) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         setVisible(false);
         if (ad && ad.id) {
             router.push(`/cars/${ad.id}`);
@@ -98,27 +94,6 @@ const BoostPopup = () => {
                         <Ionicons name="close-circle" size={32} color={COLORS.white} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity activeOpacity={0.95} onPress={handlePress} style={styles.content}>
-                        <View style={styles.imageContainer}>
-                            <Image
-                                source={{ uri: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80" }}
-                                style={styles.image}
-                                contentFit="cover"
-                            />
-                            <View style={styles.tag}>
-                                <Text style={styles.tagText}>Featured Deal</Text>
-                            </View>
-                        </View>
-                        
-                        <View style={styles.textContainer}>
-                            <Text style={styles.title} numberOfLines={2}>{ad.title}</Text>
-                            <Text style={styles.price}>
-                                {Number(ad.price).toLocaleString('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 })}
-                            </Text>
-
-                            <TouchableOpacity style={styles.ctaButton} onPress={handlePress}>
-                                <Text style={styles.ctaText}>View Offer</Text>
-                                <Ionicons name="arrow-forward" size={18} color={COLORS.white} />
                     <ScrollView
                         ref={scrollViewRef}
                         horizontal
@@ -127,6 +102,7 @@ const BoostPopup = () => {
                         onScroll={handleScroll}
                         scrollEventThrottle={16}
                         style={styles.slider}
+                        contentContainerStyle={styles.scrollContent}
                     >
                         {ads.map((ad, index) => (
                             <TouchableOpacity
@@ -185,18 +161,11 @@ const styles = StyleSheet.create({
     },
     modalView: {
         width: width * 0.85,
-        backgroundColor: COLORS.white,
         backgroundColor: 'white',
         borderRadius: 24,
         overflow: 'hidden',
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 15,
@@ -206,61 +175,16 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 12,
         right: 12,
-        zIndex: 10,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        borderRadius: 20,
         zIndex: 20,
         backgroundColor: 'rgba(0,0,0,0.4)',
-        borderRadius: 15,
+        borderRadius: 20,
     },
     slider: {
         width: '100%',
     },
-    imageContainer: {
-        position: 'relative',
-        width: '100%',
-        height: 280,
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-    tag: {
-        position: 'absolute',
-        top: 16,
-        left: 16,
-        backgroundColor: COLORS.accent,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-    },
-    tagText: {
-        color: COLORS.white,
-        fontSize: 12,
-        fontWeight: '800',
-        textTransform: 'uppercase',
-    },
-    textContainer: {
-        padding: 24,
-        backgroundColor: COLORS.white,
+    scrollContent: {
         alignItems: 'center',
     },
-    title: {
-        fontSize: 18,
-        fontWeight: '800',
-        textAlign: 'center',
-        marginBottom: 8,
-        color: COLORS.text.primary,
-        letterSpacing: -0.5,
-    },
-    price: {
-        fontSize: 24,
-        fontWeight: '900',
-        color: COLORS.primary,
     slide: {
         width: width * 0.85,
     },
@@ -303,14 +227,6 @@ const styles = StyleSheet.create({
     ctaButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: COLORS.primary,
-        paddingVertical: 14,
-        paddingHorizontal: 32,
-        borderRadius: 16,
-        gap: 8,
-        width: '100%',
-        justifyContent: 'center',
-        shadowColor: COLORS.primary,
         backgroundColor: '#2563EB',
         paddingVertical: 12,
         paddingHorizontal: 30,
@@ -323,9 +239,6 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     ctaText: {
-        color: COLORS.white,
-        fontWeight: '700',
-        fontSize: 16,
         color: '#fff',
         fontWeight: '700',
         fontSize: 14,
@@ -333,7 +246,7 @@ const styles = StyleSheet.create({
     dotsContainer: {
         flexDirection: 'row',
         position: 'absolute',
-        bottom: 180, // Positioned above the text container ideally or at bottom
+        bottom: 180, // Positioned above the text container
         alignSelf: 'center',
         zIndex: 15,
         gap: 6,

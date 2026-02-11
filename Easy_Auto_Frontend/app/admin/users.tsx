@@ -4,19 +4,19 @@ import * as Haptics from "expo-haptics";
 import { Stack, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-    Alert,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AdminBottomNav from "./components/AdminBottomNav";
-import UserCard from "./components/UserCard";
-import { ADMIN_USERS_DATA, User, USER_STATS, UserRole, UserStatus } from "./data/adminUsers";
+import AdminBottomNav from "@/src/admin/components/AdminBottomNav";
+import UserCard from "@/src/admin/components/UserCard";
+import { ADMIN_USERS_DATA, User, USER_STATS, UserRole, UserStatus } from "@/src/admin/data/adminUsers";
 
 type SortOption = "date" | "ads" | "revenue" | "name";
 
