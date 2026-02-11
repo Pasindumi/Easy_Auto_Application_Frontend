@@ -161,7 +161,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
 
                             <View style={styles.priceTag}>
                                 <Text style={styles.priceText}>
-                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(ad.price)}
+                                    {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price)}
                                 </Text>
                             </View>
                         </View>

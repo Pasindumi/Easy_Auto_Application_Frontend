@@ -9,7 +9,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import PromoBanner from "@/components/home/PromoBanner";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 import RecommendedCars from "@/components/home/RecommendedCars";
-import Testimonials from "@/components/home/Testimonials";
+import HomeReviewsSlider from "@/components/home/HomeReviewsSlider";
 import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
 import BoostPopup from "@/components/home/BoostPopup";
@@ -243,7 +243,7 @@ export default function HomeScreen() {
         <CarComparison fadeAnim={fadeAnim} slideAnim={slideAnim} />
 
         {/* What Our Users Say Section */}
-        <Testimonials fadeAnim={fadeAnim} slideAnim={slideAnim} />
+        <HomeReviewsSlider />
       </ScrollView>
 
       {/* Back to Top Button */}

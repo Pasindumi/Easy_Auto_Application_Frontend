@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     },
     refreshButton: {
         padding: 8,
-        backgroundColor: COLORS.secondary,
+        backgroundColor: COLORS.primaryLight,
         borderRadius: 12,
     },
     loadingContainer: {
