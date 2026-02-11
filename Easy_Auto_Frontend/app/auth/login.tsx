@@ -118,7 +118,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title={t('login')} />
+      <Header showBack={router.canGoBack()} title={t('login')} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}

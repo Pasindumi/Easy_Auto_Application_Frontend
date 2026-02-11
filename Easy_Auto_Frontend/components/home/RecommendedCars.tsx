@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
@@ -9,10 +9,14 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator
+    ActivityIndicator,
+    Dimensions
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
+import COLORS from "@/constants/Colors";
+
+const { width } = Dimensions.get("window");
 
 interface RecommendedCarsProps {
     fadeAnim: Animated.Value;
@@ -57,90 +61,102 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
         }).format(val);
     };
 
-    if (!loading && ads.length === 0) return null; // Don't show section if no ads
+    // If loading or empty, handle gracefully
+    if (!loading && ads.length === 0) return null;
 
     return (
         <Animated.View
             style={[
-                styles.sectionWhite,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.sectionHeader}>
-                <View style={styles.recommendedHeader}>
-                    <Text style={styles.sectionTitle}>Recommended For You</Text>
-                    <Text style={styles.recommendedSubtitle}>
-                        Based on available listings
-                    </Text>
+            <View style={styles.header}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Recommended For You</Text>
+                    <Text style={styles.subtitle}>Curated based on your interests</Text>
                 </View>
-                <TouchableOpacity style={styles.refreshButton} onPress={fetchAds}>
-                    <MaterialIcons name="refresh" size={18} color="#235CF8" />
+                <TouchableOpacity 
+                    style={styles.refreshButton} 
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        fetchAds();
+                    }}
+                >
+                    <Ionicons name="refresh" size={20} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
 
             {loading ? (
-                <View style={{ padding: 20 }}>
-                    <ActivityIndicator color="#235CF8" />
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
                 </View>
             ) : (
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    style={styles.horizontalScroll}
-                    contentContainerStyle={{ paddingBottom: 20 }}
+                    contentContainerStyle={styles.scrollContent}
+                    decelerationRate="fast"
+                    snapToInterval={240} 
                 >
-                    {ads.map((car) => {
+                    {ads.map((car, index) => {
                         const imageUrl = car.AdImage?.[0]?.image_url;
                         const brand = car.CarDetails?.brand || "";
                         const model = car.CarDetails?.model || "";
                         const title = car.title || `${brand} ${model}`;
-
+                        
                         return (
                             <TouchableOpacity
-                                key={`recommended-${car.id}`}
-                                style={styles.recommendedCarCard}
-                                activeOpacity={0.95}
+                                key={`recommended-${car.id}-${index}`}
+                                style={styles.card}
+                                activeOpacity={0.9}
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    router.push(`/cars/${car.id}`);
+                                    router.push(`/cars/${car.id}` as any);
                                 }}
                             >
-                                <View style={styles.recommendedImageWrapper}>
+                                <View style={styles.imageContainer}>
                                     <Image
                                         source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
-                                        style={styles.recommendedCarImage}
+                                        style={styles.image}
                                         contentFit="cover"
-                                        transition={300}
-                                        placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgRj" }}
+                                        transition={400}
                                         cachePolicy="memory-disk"
                                     />
-                                    {/* Status Badge - Condition */}
-                                    {car.CarDetails?.condition && (
-                                        <View
-                                            style={[
-                                                styles.recommendedStatusBadge,
-                                                styles.statusBadgeNew, // Default blue
-                                            ]}
-                                        >
-                                            <Text style={styles.statusBadgeText}>{car.CarDetails.condition}</Text>
-                                        </View>
-                                    )}
+                                    {/* Price Tag Overlay */}
+                                    <View style={styles.priceTag}>
+                                        <Text style={styles.priceText}>{formatPrice(car.price)}</Text>
+                                    </View>
+                                    
+                                    {/* Like Button (Placeholder) */}
+                                    <View style={styles.likeButton}>
+                                         <Ionicons name="heart-outline" size={18} color={COLORS.white} />
+                                    </View>
                                 </View>
-                                {/* Car Info */}
-                                <View style={styles.recommendedCarInfo}>
-                                    <Text style={styles.recommendedCarName} numberOfLines={1}>{title}</Text>
-                                    <View style={styles.recommendedCarPriceRow}>
-                                        <Text style={styles.recommendedCarPrice}>{formatPrice(car.price)}</Text>
-                                        <Text style={styles.recommendedCarDistance} numberOfLines={1}>
-                                            {car.location}
-                                        </Text>
+                                
+                                <View style={styles.cardContent}>
+                                    <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
+                                    <View style={styles.detailsRow}>
+                                        <View style={styles.detailItem}>
+                                            <MaterialIcons name="calendar-today" size={12} color={COLORS.text.muted} />
+                                            <Text style={styles.detailText}>{car.CarDetails?.manufacture_year || "N/A"}</Text>
+                                        </View>
+                                        <View style={styles.dotSeparator} />
+                                        <View style={styles.detailItem}>
+                                            <MaterialIcons name="speed" size={12} color={COLORS.text.muted} />
+                                            <Text style={styles.detailText}>{car.CarDetails?.mileage ? `${(Number(car.CarDetails.mileage)/1000).toFixed(0)}k km` : "N/A"}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.locationRow}>
+                                        <MaterialIcons name="location-on" size={14} color={COLORS.text.muted} />
+                                        <Text style={styles.locationText} numberOfLines={1}>{car.location || "Sri Lanka"}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                        )
+                        );
                     })}
                 </ScrollView>
             )}
@@ -149,125 +165,138 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
 };
 
 const styles = StyleSheet.create({
-    sectionWhite: {
-        paddingVertical: 20,
-        paddingBottom: 32,
-        backgroundColor: "#FFFFFF",
-        marginBottom: 8,
+    container: {
+        marginTop: 8,
+        marginBottom: 24,
     },
-    sectionHeader: {
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "flex-end",
+        alignItems: "center",
         paddingHorizontal: 20,
         marginBottom: 16,
     },
-    recommendedHeader: {
+    titleContainer: {
         flex: 1,
     },
-    sectionTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: -0.4,
+    title: {
+        fontSize: 20,
+        fontWeight: "800", // Extra bold
+        color: COLORS.text.primary,
+        letterSpacing: -0.5,
     },
-    recommendedSubtitle: {
-        fontSize: 12,
-        color: "#6B7280",
-        fontWeight: "500",
+    subtitle: {
+        fontSize: 13,
+        color: COLORS.text.muted,
         marginTop: 2,
+        fontWeight: "500",
     },
     refreshButton: {
         padding: 8,
+        backgroundColor: COLORS.secondary,
         borderRadius: 12,
-        backgroundColor: "#EBF4FF",
     },
-    horizontalScroll: {
+    loadingContainer: {
+        height: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    scrollContent: {
         paddingHorizontal: 20,
+        paddingBottom: 20, // Space for shadow
+        gap: 16,
     },
-    recommendedCarCard: {
-        width: 150,
-        marginRight: 12,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
-        overflow: "hidden",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
+    card: {
+        width: 230,
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        shadowColor: COLORS.shadow, // Use specialized shadow color
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
         shadowRadius: 16,
         elevation: 6,
+        borderWidth: 1,
+        borderColor: COLORS.border, // Subtle border
     },
-    recommendedImageWrapper: {
-        position: "relative",
+    imageContainer: {
+        height: 140,
         width: "100%",
-        height: 110,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         overflow: "hidden",
+        position: 'relative',
     },
-    recommendedCarImage: {
+    image: {
         width: "100%",
         height: "100%",
     },
-    recommendedStatusBadge: {
-        position: "absolute",
-        top: 12,
-        right: 12,
+    priceTag: {
+        position: 'absolute',
+        bottom: 10,
+        left: 10,
+        backgroundColor: 'rgba(0,0,0,0.75)',
         paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 3,
-        zIndex: 3,
+        paddingVertical: 4,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
-    statusBadgeHot: {
-        backgroundColor: "#FF6B35",
-    },
-    statusBadgeCertified: {
-        backgroundColor: "#10B981",
-    },
-    statusBadgeNew: {
-        backgroundColor: "#235CF8",
-    },
-    statusBadgeText: {
-        fontSize: 10,
+    priceText: {
+        color: COLORS.white,
         fontWeight: "700",
-        color: "#FFFFFF",
-        letterSpacing: 0.2,
+        fontSize: 12,
     },
-    recommendedCarInfo: {
-        padding: 12,
+    likeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cardContent: {
+        padding: 14,
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: COLORS.text.primary,
+        marginBottom: 8,
+    },
+    detailsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    detailItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 4,
-        alignItems: "flex-start",
     },
-    recommendedCarName: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: -0.2,
-        textAlign: "left",
-    },
-    recommendedCarPriceRow: {
-        flexDirection: "column",
-        alignItems: "flex-start",
-        gap: 2,
-        width: "100%",
-    },
-    recommendedCarPrice: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: "#235CF8",
-        letterSpacing: -0.2,
-        textAlign: "left",
-    },
-    recommendedCarDistance: {
-        fontSize: 11,
-        color: "#6B7280",
+    detailText: {
+        fontSize: 12,
+        color: COLORS.text.secondary,
         fontWeight: "500",
-        textAlign: "left",
+    },
+    dotSeparator: {
+        width: 3,
+        height: 3,
+        borderRadius: 1.5,
+        backgroundColor: COLORS.text.placeholder,
+        marginHorizontal: 8,
+    },
+    locationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    locationText: {
+        fontSize: 12,
+        color: COLORS.text.muted,
+        flex: 1,
     },
 });
 

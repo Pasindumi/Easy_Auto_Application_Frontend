@@ -1,4 +1,5 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import COLORS from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Alert,
@@ -13,6 +14,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
 
@@ -25,23 +28,22 @@ export default function NotificationDrawer({
   visible,
   onClose,
 }: NotificationDrawerProps) {
-  const drawerWidth = width * 0.7;
+  const drawerWidth = width * 0.8;
   const slideAnim = React.useRef(new Animated.Value(drawerWidth)).current;
   const backdropOpacity = React.useRef(new Animated.Value(0)).current;
   const [notifications, setNotifications] = useState([
-
     {
       id: 1,
       title: "New Car Listing",
       message: "A new car matching your preferences has been added",
       time: "2 hours ago",
       read: false,
-      type: "info",
+      type: "car",
     },
     {
       id: 2,
       title: "Price Drop Alert",
-      message: "The price of your saved car has been reduced by $5,000",
+      message: "The price of your saved car has been reduced by LKR 500,000",
       time: "5 hours ago",
       read: false,
       type: "price",
@@ -60,7 +62,7 @@ export default function NotificationDrawer({
       message: "Your premium subscription will expire in 3 days",
       time: "2 days ago",
       read: true,
-      type: "reminder",
+      type: "alert",
     },
   ]);
 
@@ -96,30 +98,29 @@ export default function NotificationDrawer({
         }),
       ]).start();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+  }, [visible, drawerWidth, slideAnim, backdropOpacity]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAsRead = (id: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setNotifications(
       notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
   };
 
   const markAllAsRead = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setNotifications(notifications.map((n) => ({ ...n, read: true })));
   };
 
   const deleteNotification = (id: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Alert.alert(
-      "Delete Notification",
-      "Are you sure you want to delete this notification?",
+      "Remove",
+      "Delete this notification?",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
@@ -133,16 +134,33 @@ export default function NotificationDrawer({
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "price":
-        return "local-offer";
-      case "message":
-        return "message";
-      case "reminder":
-        return "schedule";
-      default:
-        return "notifications";
+      case "price": return "pricetag";
+      case "message": return "chatbubble-ellipses";
+      case "alert": return "alert-circle";
+      case "car": return "car-sport";
+      default: return "notifications";
     }
   };
+
+  const getIconBgColor = (type: string, read: boolean) => {
+      if (read) return '#F3F4F6';
+      switch (type) {
+          case "price": return 'rgba(16, 185, 129, 0.1)';
+          case "alert": return 'rgba(239, 68, 68, 0.1)';
+          case "message": return 'rgba(35, 92, 248, 0.1)';
+          default: return 'rgba(35, 92, 248, 0.1)';
+      }
+  }
+
+  const getIconColor = (type: string, read: boolean) => {
+    if (read) return COLORS.text.muted;
+    switch (type) {
+        case "price": return '#10B981';
+        case "alert": return '#EF4444';
+        case "message": return COLORS.primary;
+        default: return COLORS.primary;
+    }
+}
 
   return (
     <Modal
@@ -156,92 +174,84 @@ export default function NotificationDrawer({
           style={[
             styles.drawer,
             {
+              width: drawerWidth,
               transform: [{ translateX: slideAnim }],
             },
           ]}
         >
           <SafeAreaView style={styles.drawerContent} edges={["top", "bottom"]}>
-            <View style={styles.drawerHeader}>
-              <View style={styles.headerTop}>
-                <Text style={styles.drawerTitle}>Notifications</Text>
-                <View style={styles.headerCountBadge}>
-                  <Text style={styles.headerCount}>{unreadCount}</Text>
+            <LinearGradient
+                colors={[COLORS.primary, '#1E40AF']}
+                style={styles.header}
+            >
+                <View style={styles.headerTitleRow}>
+                    <Text style={styles.title}>Notifications</Text>
+                    <View style={styles.countBadge}>
+                        <Text style={styles.countText}>{unreadCount}</Text>
+                    </View>
                 </View>
-              </View>
-              {unreadCount > 0 && (
-                <TouchableOpacity
-                  style={styles.markAllButton}
-                  onPress={markAllAsRead}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.markAllText}>Mark all as read</Text>
-                </TouchableOpacity>
-              )}
-            </View>
+                {unreadCount > 0 && (
+                    <TouchableOpacity onPress={markAllAsRead} style={styles.markAllBtn}>
+                        <Text style={styles.markAllText}>Clear All Unread</Text>
+                    </TouchableOpacity>
+                )}
+            </LinearGradient>
+
             <ScrollView
               style={styles.scrollView}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
             >
               {notifications.length > 0 ? (
-                <View style={styles.notificationsContainer}>
-                  {notifications.map((notification) => (
+                <View style={styles.container}>
+                  {notifications.map((n) => (
                     <TouchableOpacity
-                      key={notification.id}
+                      key={n.id}
                       style={[
-                        styles.notificationCard,
-                        !notification.read && styles.unreadCard,
+                        styles.card,
+                        !n.read && styles.unreadCard,
                       ]}
-                      onPress={() => markAsRead(notification.id)}
-                      activeOpacity={0.7}
+                      onPress={() => markAsRead(n.id)}
+                      activeOpacity={0.8}
                     >
                       <View
                         style={[
-                          styles.notificationIconContainer,
-                          !notification.read && styles.unreadIconContainer,
+                          styles.iconContainer,
+                          { backgroundColor: getIconBgColor(n.type, n.read) }
                         ]}
                       >
-                        <MaterialIcons
-                          name={getNotificationIcon(notification.type) as any}
+                        <Ionicons
+                          name={getNotificationIcon(n.type) as any}
                           size={20}
-                          color={notification.read ? "#9BA1A6" : "#235CF8"}
+                          color={getIconColor(n.type, n.read)}
                         />
                       </View>
-                      <View style={styles.notificationContent}>
-                        <View style={styles.notificationHeader}>
+
+                      <View style={styles.content}>
+                        <View style={styles.cardHeader}>
                           <Text
                             style={[
-                              styles.notificationTitle,
-                              !notification.read && styles.unreadTitle,
+                              styles.cardTitle,
+                              !n.read && styles.unreadTitle,
                             ]}
                             numberOfLines={1}
                           >
-                            {notification.title}
+                            {n.title}
                           </Text>
-                          {!notification.read && (
-                            <View style={styles.unreadDot} />
-                          )}
+                          {!n.read && <View style={styles.unreadDot} />}
                         </View>
-                        <Text
-                          style={styles.notificationMessage}
-                          numberOfLines={2}
-                        >
-                          {notification.message}
+                        
+                        <Text style={styles.message} numberOfLines={2}>
+                          {n.message}
                         </Text>
-                        <View style={styles.notificationFooter}>
-                          <Text style={styles.notificationTime}>
-                            {notification.time}
-                          </Text>
+                        
+                        <View style={styles.cardFooter}>
+                          <Text style={styles.time}>{n.time}</Text>
                           <TouchableOpacity
-                            style={styles.deleteButton}
-                            onPress={() => deleteNotification(notification.id)}
-                            activeOpacity={0.7}
+                            style={styles.deleteBtn}
+                            onPress={() => deleteNotification(n.id)}
                           >
-                            <MaterialIcons
-                              name="delete-outline"
-                              size={16}
-                              color="#9BA1A6"
-                            />
+                            <Ionicons name="trash-outline" size={16} color={COLORS.text.muted} />
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -249,31 +259,19 @@ export default function NotificationDrawer({
                   ))}
                 </View>
               ) : (
-                <View style={styles.emptyContainer}>
-                  <View style={styles.emptyIconContainer}>
-                    <MaterialIcons
-                      name="notifications-none"
-                      size={48}
-                      color="#D1D5DB"
-                    />
+                <View style={styles.empty}>
+                  <View style={styles.emptyCircle}>
+                    <Ionicons name="notifications-off-outline" size={48} color={COLORS.border} />
                   </View>
-                  <Text style={styles.emptyText}>No notifications</Text>
-                  <Text style={styles.emptySubtext}>
-                    You&apos;re all caught up! Check back later for updates.
-                  </Text>
+                  <Text style={styles.emptyTitle}>All Clear!</Text>
+                  <Text style={styles.emptyText}>You have no new notifications at the moment.</Text>
                 </View>
               )}
             </ScrollView>
           </SafeAreaView>
         </Animated.View>
-        <Animated.View
-          style={[
-            styles.backdrop,
-            {
-              opacity: backdropOpacity,
-            },
-          ]}
-        >
+
+        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
           <TouchableOpacity
             style={styles.backdropTouchable}
             activeOpacity={1}
@@ -292,186 +290,168 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   backdropTouchable: {
     flex: 1,
   },
   drawer: {
-    width: width * 0.7,
-    backgroundColor: "#235CF8",
+    backgroundColor: COLORS.background,
     height: "100%",
     shadowColor: "#000",
-    shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 12,
+    shadowOffset: { width: -10, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 20,
   },
   drawerContent: {
     flex: 1,
-    backgroundColor: "#235CF8",
   },
-  drawerHeader: {
-    backgroundColor: "#235CF8",
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+  header: {
+    padding: 24,
+    paddingTop: 32,
+    borderBottomLeftRadius: 32,
   },
-  headerTop: {
+  headerTitleRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
     marginBottom: 12,
   },
-  drawerTitle: {
+  title: {
     fontSize: 22,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    letterSpacing: 0.3,
+    fontWeight: "800",
+    color: COLORS.white,
+    letterSpacing: -0.5,
   },
-  headerCountBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
+  countBadge: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
     minWidth: 36,
     alignItems: "center",
-    justifyContent: "center",
   },
-  headerCount: {
+  countText: {
     fontSize: 13,
-    fontWeight: "700",
-    color: "#FFFFFF",
+    fontWeight: "800",
+    color: COLORS.white,
   },
-  markAllButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 6,
-    paddingHorizontal: 0,
+  markAllBtn: {
+      alignSelf: 'flex-start',
   },
   markAllText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.9)",
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
   },
   scrollContent: {
     padding: 16,
-    paddingTop: 20,
+    paddingBottom: 40,
   },
-  notificationsContainer: {
+  container: {
     gap: 12,
   },
-  notificationCard: {
+  card: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
     padding: 16,
-    marginBottom: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
     borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
   unreadCard: {
-    borderColor: "#235CF8",
-    borderWidth: 1.5,
-    backgroundColor: "#F0F4FF",
+    borderColor: COLORS.primary,
+    backgroundColor: '#F0F4FF',
   },
-  notificationIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: 16,
   },
-  unreadIconContainer: {
-    backgroundColor: "#EEF4FF",
-  },
-  notificationContent: {
+  content: {
     flex: 1,
-    gap: 8,
   },
-  notificationHeader: {
+  cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 8,
+    marginBottom: 4,
   },
-  notificationTitle: {
+  cardTitle: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-    letterSpacing: -0.2,
+    fontWeight: "700",
+    color: COLORS.text.primary,
+    letterSpacing: -0.3,
   },
   unreadTitle: {
-    color: "#235CF8",
-  },
-  notificationMessage: {
-    fontSize: 14,
-    color: "#6B7280",
-    lineHeight: 20,
-    fontWeight: "400",
-  },
-  notificationFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 4,
-  },
-  notificationTime: {
-    fontSize: 12,
-    color: "#9BA1A6",
-    fontWeight: "400",
-  },
-  deleteButton: {
-    padding: 4,
+    color: COLORS.primary,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#235CF8",
+    backgroundColor: COLORS.primary,
+    marginLeft: 8,
   },
-  emptyContainer: {
+  message: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  cardFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  time: {
+    fontSize: 12,
+    color: COLORS.text.muted,
+    fontWeight: "500",
+  },
+  deleteBtn: {
+    padding: 4,
+  },
+  empty: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 100,
+    paddingTop: 80,
     paddingHorizontal: 32,
   },
-  emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#F3F4F6",
+  emptyCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: COLORS.text.primary,
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
   emptyText: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1F2937",
-    marginBottom: 8,
-    letterSpacing: -0.3,
-  },
-  emptySubtext: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.text.muted,
     textAlign: "center",
-    lineHeight: 20,
-    fontWeight: "400",
+    lineHeight: 22,
   },
 });

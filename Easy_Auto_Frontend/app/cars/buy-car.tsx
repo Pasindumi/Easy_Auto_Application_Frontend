@@ -1,7 +1,7 @@
 import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Dimensions,
@@ -50,6 +50,9 @@ import { useTranslation } from 'react-i18next';
 export default function BuyCarScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const { brandId, brandName } = params;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSort, setSelectedSort] = useState('all');
@@ -60,7 +63,7 @@ export default function BuyCarScreen() {
   // Filter States
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState(brandId ? String(brandId) : '');
   const [selectedModel, setSelectedModel] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
 
@@ -88,6 +91,14 @@ export default function BuyCarScreen() {
               icon: getIconForType(t.type_name)
             }));
           setVehicleTypes(mapped);
+
+          // If brandId is present, try to find 'Car' category and select it
+          if (brandId) {
+             const carType = mapped.find((t: any) => t.label.toLowerCase().includes('car'));
+             if (carType) {
+                 setSelectedCategory(carType.key);
+             }
+          }
         }
       } catch (error) {
         console.error("Error fetching vehicle types:", error);
@@ -96,7 +107,7 @@ export default function BuyCarScreen() {
       }
     };
     fetchTypes();
-  }, []);
+  }, [brandId]);
 
   // Fetch Brands when category changes
   useEffect(() => {
@@ -162,7 +173,11 @@ export default function BuyCarScreen() {
       // In CarDetails table, brand and model ARE text.
       if (selectedBrand) {
         const brandObj = brands.find(b => b.value === selectedBrand);
-        if (brandObj) endpoint += `&brand=${encodeURIComponent(brandObj.label)}`;
+        if (brandObj) {
+            endpoint += `&brand=${encodeURIComponent(brandObj.label)}`;
+        } else if (brandName && String(brandId) === selectedBrand) {
+            endpoint += `&brand=${encodeURIComponent(String(brandName))}`;
+        }
       }
       if (selectedModel) {
         const modelObj = models.find(m => m.value === selectedModel);
@@ -191,7 +206,7 @@ export default function BuyCarScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedCategory, searchQuery, selectedSort, minPrice, maxPrice, selectedBrand, selectedModel, locationFilter, brands, models]);
+  }, [selectedCategory, searchQuery, selectedSort, minPrice, maxPrice, selectedBrand, selectedModel, locationFilter, brands, models, brandName, brandId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

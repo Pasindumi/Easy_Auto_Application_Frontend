@@ -114,15 +114,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadStoredAuth();
   }, []);
 
-  // Check if JWT token is expired
+  // Use a faster isTokenExpired check with safer padding logic if needed
   const isTokenExpired = (token: string): boolean => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expirationTime = payload.exp * 1000; // Convert to milliseconds
-      return Date.now() >= expirationTime;
+      if (!token || !token.includes('.')) return true;
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const payload = JSON.parse(jsonPayload);
+      const expirationTime = payload.exp * 1000;
+      // Add a 30s buffer
+      return Date.now() + 30000 >= expirationTime;
     } catch (error) {
       console.error('[Auth] Error checking token expiration:', error);
-      return true; // Treat as expired if we can't parse it
+      return true;
     }
   };
 
@@ -138,10 +148,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (storedAccessToken && storedRefreshToken && storedUser) {
         console.log('[Auth] Tokens found, checking expiration...');
         
-        // Check if access token is expired
+        // Handle expiration on load
         if (isTokenExpired(storedAccessToken)) {
-          console.log('[Auth] Access token expired on app load, logging out...');
-          await clearAuth();
+          console.log('[Auth] Access token expired on app load, attempting prompt refresh...');
+          // We set it temporarily if refresh is possible, otherwise clear
+          // For now, let's restore and let ApiClient try refresh on first call
+          // but if refresh fails it will clear.
+          setAccessToken(storedAccessToken);
+          setRefreshToken(storedRefreshToken);
+          setUser(JSON.parse(storedUser));
         } else {
           console.log('[Auth] Token is valid, restoring session');
           setAccessToken(storedAccessToken);
@@ -202,48 +217,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleClerkAuth = async (getTokenFunc?: any) => {
     try {
       console.log('[Auth] handleClerkAuth: Starting backend sync...');
-      console.log('[Auth] getTokenFunc provided:', typeof getTokenFunc);
-
       let clerkToken;
 
-      // If we have a getToken function passed from OAuth flow, use it
       if (typeof getTokenFunc === 'function') {
-        console.log('[Auth] Attempting to get token from provided function...');
         try {
           clerkToken = await getTokenFunc();
-          console.log('[Auth] Token obtained from provided function (length:', clerkToken?.length, ')');
         } catch (err: any) {
           console.error('[Auth] Failed to get token from function:', err.message);
         }
       }
 
-      // Fallback to context hooks if function didn't work
       if (!clerkToken) {
-        console.log('[Auth] Falling back to context getClerkToken...');
-        console.log('[Auth] isSignedIn:', isSignedIn);
-        console.log('[Auth] clerkUser:', clerkUser ? { id: clerkUser.id, email: clerkUser.primaryEmailAddress?.emailAddress } : 'null');
-
         if (!isSignedIn || !clerkUser) {
           throw new Error('Not signed in with Clerk');
         }
-
-        // Get Clerk session token with mobile template
-        console.log('[Auth] Fetching Clerk session token with mobile template...');
         
         try {
-          // Use mobile template for better compatibility
           clerkToken = await getClerkToken({ template: 'mobile' });
-          console.log('[Auth] Token obtained with mobile template');
         } catch (err) {
-          console.log('[Auth] Mobile template not available, trying default...');
-          try {
-            clerkToken = await getClerkToken({ template: 'default' });
-            console.log('[Auth] Token obtained with default template');
-          } catch (err2) {
-            console.log('[Auth] Template methods failed, trying without template...');
-            clerkToken = await getClerkToken();
-            console.log('[Auth] Token obtained without template');
-          }
+          clerkToken = await getClerkToken();
         }
       }
 
@@ -251,12 +243,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Failed to get Clerk token');
       }
 
-      console.log('[Auth] Clerk token obtained (length:', clerkToken.length, ')');
-      console.log('[Auth] Clerk token (first 50 chars):', clerkToken.substring(0, 50) + '...');
-      console.log('[Auth] Sending request to:', `${ENDPOINTS.AUTH}/clerk`);
-
-      // Send Clerk token to backend in Authorization header
-      // Backend will verify token with Clerk and extract user info
       const response = await fetch(`${ENDPOINTS.AUTH}/clerk`, {
         method: 'POST',
         headers: {
@@ -266,77 +252,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       });
 
-      console.log('[Auth] Backend response status:', response.status);
-
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('[Auth] Invalid response type. Content-Type:', contentType);
-        console.error('[Auth] Response body:', text.substring(0, 500));
-        throw new Error(`Auth Sync Error (${response.status}): Endpoint might be unreachable or returning an error page. Expected JSON but got HTML/Text. View console for details.`);
+        throw new Error(`Auth Sync Error: Expected JSON but got ${contentType}`);
       }
 
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('[Auth] Backend returned error status:', response.status);
-        console.error('[Auth] Backend error message:', data.error || data.message);
-        console.error('[Auth] Full error response:', JSON.stringify(data));
-
-        // Provide specific error messages
-        if (response.status === 401) {
-          throw new Error('Authentication failed. The backend could not verify your Clerk session. Please contact support.');
-        } else if (response.status === 400) {
-          throw new Error(data.error || 'Invalid request. Please try again.');
-        } else if (response.status >= 500) {
-          throw new Error('Server error. Please try again later.');
-        } else {
-          throw new Error(data.error || data.message || 'Authentication failed. Please try again.');
-        }
+        throw new Error(data.error || data.message || 'Authentication failed');
       }
 
-      console.log('[Auth] Backend response data:', {
-        hasAccessToken: !!(data.accessToken || data.token),
-        hasRefreshToken: !!(data.refreshToken || data.refresh_token),
-        hasUser: !!data.user,
-        userData: data.user ? { id: data.user.id, email: data.user.email, name: data.user.name } : null
-      });
-
-      // Save backend JWT tokens and user data
       const access = data.accessToken || data.token;
       const refresh = data.refreshToken || data.refresh_token;
 
       if (!access || !refresh) {
-        console.error('[Auth] Missing tokens in response:', {
-          hasAccess: !!access,
-          hasRefresh: !!refresh,
-          responseKeys: Object.keys(data)
-        });
         throw new Error('Invalid token response from server');
       }
 
-      console.log('[Auth] Saving tokens to secure store...');
       await loginWithBackend(access, refresh, data.user);
-      console.log('[Auth] Backend sync completed successfully');
-
       return { success: true };
     } catch (error: any) {
-      console.error('[Auth] Clerk auth error:', {
-        message: error.message,
-        name: error.name,
-        stack: error.stack,
-        response: error.response,
-      });
-
-      // Return user-friendly error message
+      console.error('[Auth] Clerk auth error:', error.message);
       return {
         success: false,
-        error: error.message || 'Authentication failed. Please try again.'
+        error: error.message || 'Authentication failed'
       };
     }
   };
 
-  // Token Refresh: Get new access token using refresh token
   const refreshAccessToken = async (): Promise<{ success: boolean; accessToken?: string; error?: string }> => {
     try {
       const currentRefreshToken = refreshToken || await secureStorage.getItem(REFRESH_TOKEN_KEY);
@@ -362,7 +306,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await response.json();
 
       if (!response.ok) {
-        // If refresh fails, logout
         await clearAuth();
         throw new Error(data.error || 'Failed to refresh token');
       }
@@ -370,7 +313,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const newAccessToken = data.accessToken || data.token;
       const newRefreshToken = data.refreshToken || data.refresh_token || currentRefreshToken;
 
-      // Update tokens
       await secureStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
       if (newRefreshToken !== currentRefreshToken) {
         await secureStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
@@ -385,45 +327,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Get valid token (refresh if needed)
   const getValidToken = async (): Promise<string | null> => {
-    if (!accessToken) {
-      return null;
+    if (!accessToken) return null;
+    
+    // If expired, try to refresh immediately
+    if (isTokenExpired(accessToken)) {
+      const result = await refreshAccessToken();
+      return result.success ? result.accessToken! : null;
     }
-
-    // In a production app, you should decode the JWT and check expiry
-    // For now, assume the token is valid and let the API client handle refresh on 401
+    
     return accessToken;
   };
 
-  // Update user data
   const updateUser = async (userData: Partial<User>) => {
     try {
       if (!user) return;
-      
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
       await secureStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
-      console.log('[Auth] User data updated successfully');
     } catch (error) {
       console.error('[Auth] Error updating user data:', error);
     }
   };
 
-  // Logout
   const logout = async () => {
     try {
-      console.log('[Auth] Logging out - clearing Clerk session...');
       await signOut();
-      console.log('[Auth] Clerk session cleared');
     } catch (error) {
       console.error('[Auth] Error signing out from Clerk:', error);
-      // Continue with backend logout even if Clerk fails
     }
     await clearAuth();
   };
 
-  // Check if user is authenticated (for guards)
   const requireAuth = () => {
     return !!accessToken && !!user;
   };

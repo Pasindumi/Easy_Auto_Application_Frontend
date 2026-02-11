@@ -9,6 +9,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import COLORS from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 interface DailyDealsProps {
     fadeAnim: Animated.Value;
@@ -46,70 +48,79 @@ export default function DailyDeals({ fadeAnim, slideAnim }: DailyDealsProps) {
     return (
         <Animated.View
             style={[
-                styles.dailyDealsContainer,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.dailyDealsHeader}>
-                <View>
-                    <Text style={styles.dailyDealsTitle}>Daily Deals</Text>
-                    <Text style={styles.dailyDealsSubtitle}>Limited time offers</Text>
+            <View style={styles.header}>
+                <View style={styles.headerTextContainer}>
+                    <View style={styles.titleRow}>
+                        <Text style={styles.title}>Daily Deals</Text>
+                        <View style={styles.fireIconContainer}>
+                             <Ionicons name="flame" size={18} color="#FF4444" />
+                        </View>
+                    </View>
+                    <Text style={styles.subtitle}>Limited time offers ending soon</Text>
                 </View>
-                <View style={styles.countdownContainer}>
-                    <Text style={styles.countdownLabel}>Ends in:</Text>
-                    <View style={styles.countdownTimer}>
-                        <View style={styles.countdownItem}>
-                            <Text style={styles.countdownValue}>
-                                {String(timeLeft.hours).padStart(2, "0")}
-                            </Text>
-                            <Text style={styles.countdownUnit}>H</Text>
-                        </View>
-                        <Text style={styles.countdownSeparator}>:</Text>
-                        <View style={styles.countdownItem}>
-                            <Text style={styles.countdownValue}>
-                                {String(timeLeft.minutes).padStart(2, "0")}
-                            </Text>
-                            <Text style={styles.countdownUnit}>M</Text>
-                        </View>
-                        <Text style={styles.countdownSeparator}>:</Text>
-                        <View style={styles.countdownItem}>
-                            <Text style={styles.countdownValue}>
-                                {String(timeLeft.seconds).padStart(2, "0")}
-                            </Text>
-                            <Text style={styles.countdownUnit}>S</Text>
-                        </View>
+                
+                <View style={styles.timerContainer}>
+                    <View style={styles.timerBlock}>
+                        <Text style={styles.timerValue}>{String(timeLeft.hours).padStart(2, "0")}</Text>
+                        <Text style={styles.timerLabel}>Hr</Text>
+                    </View>
+                    <Text style={styles.timerSeparator}>:</Text>
+                    <View style={styles.timerBlock}>
+                        <Text style={styles.timerValue}>{String(timeLeft.minutes).padStart(2, "0")}</Text>
+                        <Text style={styles.timerLabel}>Min</Text>
+                    </View>
+                    <Text style={styles.timerSeparator}>:</Text>
+                    <View style={styles.timerBlock}>
+                        <Text style={styles.timerValue}>{String(timeLeft.seconds).padStart(2, "0")}</Text>
+                        <Text style={styles.timerLabel}>Sec</Text>
                     </View>
                 </View>
             </View>
+
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.dailyDealsScroll}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={styles.scrollContent}
+                decelerationRate="fast"
+                snapToInterval={200}
             >
                 {DAILY_DEALS.map((deal) => (
                     <TouchableOpacity
                         key={`deal-${deal.id}`}
-                        style={styles.dailyDealCard}
+                        style={styles.card}
+                        activeOpacity={0.9}
                     >
-                        <Image
-                            source={{ uri: deal.image }}
-                            style={styles.dailyDealImage}
-                            contentFit="cover"
-                        />
-                        <View style={styles.dailyDealBadge}>
-                            <Text style={styles.dailyDealBadgeText}>{deal.discount}</Text>
+                        <View style={styles.imageContainer}>
+                            <Image
+                                source={{ uri: deal.image }}
+                                style={styles.image}
+                                contentFit="cover"
+                                transition={300}
+                            />
+                            <View style={styles.discountBadge}>
+                                <Text style={styles.discountText}>{deal.discount}</Text>
+                            </View>
                         </View>
-                        <View style={styles.dailyDealInfo}>
-                            <Text style={styles.dailyDealName}>{deal.name}</Text>
-                            <View style={styles.dailyDealPriceRow}>
-                                <Text style={styles.dailyDealOriginalPrice}>
-                                    {deal.originalPrice}
-                                </Text>
-                                <Text style={styles.dailyDealPrice}>{deal.dealPrice}</Text>
+                        
+                        <View style={styles.cardContent}>
+                            <Text style={styles.cardTitle} numberOfLines={2}>{deal.name}</Text>
+                            <View style={styles.priceContainer}>
+                                <Text style={styles.dealPrice}>{deal.dealPrice}</Text>
+                                <Text style={styles.originalPrice}>{deal.originalPrice}</Text>
+                            </View>
+                            
+                            <View style={styles.progressBarContainer}>
+                                <View style={styles.progressBarBackground}>
+                                    <View style={[styles.progressBarFill, { width: '75%' }]} />
+                                </View>
+                                <Text style={styles.stockText}>5 left</Text>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -120,134 +131,161 @@ export default function DailyDeals({ fadeAnim, slideAnim }: DailyDealsProps) {
 }
 
 const styles = StyleSheet.create({
-    dailyDealsContainer: {
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        paddingBottom: 32,
-        backgroundColor: "#FFF5F5",
-        marginBottom: 12,
+    container: {
+        marginBottom: 24,
+        paddingVertical: 16,
+        backgroundColor: '#FFF0F0', // Very light red background for urgency
     },
-    dailyDealsHeader: {
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
+        paddingHorizontal: 20,
         marginBottom: 16,
     },
-    dailyDealsTitle: {
-        fontSize: 20,
-        fontWeight: "700",
-        color: "#111827",
-        marginBottom: 4,
+    headerTextContainer: {
+        flex: 1,
     },
-    dailyDealsSubtitle: {
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    fireIconContainer: {
+        backgroundColor: '#FFE5E5',
+        padding: 4,
+        borderRadius: 12,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.text.primary,
+        letterSpacing: -0.5,
+    },
+    subtitle: {
         fontSize: 13,
-        color: "#6B7280",
+        color: COLORS.text.muted, // Muted text or red-ish?
+        marginTop: 2,
         fontWeight: "500",
     },
-    countdownContainer: {
-        alignItems: "flex-end",
-    },
-    countdownLabel: {
-        fontSize: 11,
-        color: "#6B7280",
-        fontWeight: "600",
-        marginBottom: 6,
-        textTransform: "uppercase",
-    },
-    countdownTimer: {
+    timerContainer: {
         flexDirection: "row",
         alignItems: "center",
         gap: 4,
     },
-    countdownItem: {
-        backgroundColor: "#FFFFFF",
+    timerBlock: {
+        backgroundColor: "#FF4444",
         borderRadius: 8,
         paddingHorizontal: 8,
         paddingVertical: 6,
-        minWidth: 40,
+        minWidth: 42,
         alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
     },
-    countdownValue: {
+    timerValue: {
         fontSize: 16,
-        fontWeight: "700",
-        color: "#FF4444",
+        fontWeight: "800", // Extra bold
+        color: COLORS.white,
+        fontVariant: ['tabular-nums'],
     },
-    countdownUnit: {
+    timerLabel: {
         fontSize: 9,
         fontWeight: "600",
-        color: "#9CA3AF",
-        marginTop: 2,
+        color: 'rgba(255,255,255,0.8)',
+        marginTop: 0,
     },
-    countdownSeparator: {
-        fontSize: 18,
-        fontWeight: "700",
+    timerSeparator: {
+        fontSize: 20,
+        fontWeight: "800",
         color: "#FF4444",
+        marginBottom: 10, // Align with numbers
     },
-    dailyDealsScroll: {
-        marginHorizontal: -20,
+    scrollContent: {
         paddingHorizontal: 20,
+        gap: 16,
     },
-    dailyDealCard: {
-        width: 150,
-        marginRight: 12,
-        backgroundColor: "#FFFFFF",
+    card: {
+        width: 180,
+        backgroundColor: COLORS.white,
         borderRadius: 16,
         overflow: "hidden",
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 4,
         borderWidth: 1,
-        borderColor: "#E5E7EB",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
-        elevation: 6,
+        borderColor: 'rgba(255, 68, 68, 0.1)', // Subtle red border
     },
-    dailyDealImage: {
+    imageContainer: {
+        height: 120,
         width: "100%",
-        height: 110,
+        position: 'relative',
     },
-    dailyDealBadge: {
+    image: {
+        width: "100%",
+        height: "100%",
+    },
+    discountBadge: {
         position: "absolute",
-        top: 12,
-        right: 12,
+        top: 8,
+        left: 8,
         backgroundColor: "#FF4444",
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 12,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
     },
-    dailyDealBadgeText: {
+    discountText: {
         fontSize: 11,
-        fontWeight: "700",
-        color: "#FFFFFF",
+        fontWeight: "800",
+        color: COLORS.white,
     },
-    dailyDealInfo: {
+    cardContent: {
         padding: 12,
-        minHeight: 80,
-        justifyContent: "space-between",
     },
-    dailyDealName: {
-        fontSize: 15,
+    cardTitle: {
+        fontSize: 14,
         fontWeight: "700",
-        color: "#111827",
+        color: COLORS.text.primary,
         marginBottom: 8,
-        lineHeight: 20,
+        height: 40, // Fixed height for 2 lines
     },
-    dailyDealPriceRow: {
+    priceContainer: {
         flexDirection: "row",
-        alignItems: "center",
-        marginTop: "auto",
-        gap: 8,
+        alignItems: "baseline",
+        gap: 6,
+        marginBottom: 12,
     },
-    dailyDealOriginalPrice: {
-        fontSize: 13,
-        color: "#9CA3AF",
+    dealPrice: {
+        fontSize: 16,
+        fontWeight: "800",
+        color: "#FF4444",
+    },
+    originalPrice: {
+        fontSize: 12,
+        color: COLORS.text.muted,
         textDecorationLine: "line-through",
         fontWeight: "500",
     },
-    dailyDealPrice: {
-        fontSize: 18,
-        fontWeight: "700",
-        color: "#FF4444",
+    progressBarContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    progressBarBackground: {
+        flex: 1,
+        height: 6,
+        backgroundColor: '#FFE5E5',
+        borderRadius: 3,
+        overflow: 'hidden',
+    },
+    progressBarFill: {
+        height: '100%',
+        backgroundColor: '#FF4444',
+        borderRadius: 3,
+    },
+    stockText: {
+        fontSize: 10,
+        fontWeight: "600",
+        color: '#FF4444',
     },
 });

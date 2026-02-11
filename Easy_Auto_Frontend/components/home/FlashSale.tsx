@@ -7,12 +7,14 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ImageBackground,
 } from "react-native";
 import { api } from "@/utils/api";
 import { Image } from "expo-image";
-
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
+import COLORS from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -69,30 +71,45 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
     }, [discounts]);
 
     const handlePress = (item: any) => {
-        router.push(`/discounts/${item.id}`);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push(`/discounts/${item.id}` as any);
     };
 
     const renderItem = ({ item }: { item: any }) => (
         <TouchableOpacity
-            activeOpacity={0.9}
-            style={[styles.card, { backgroundColor: item.color_theme || "#235CF8" }]}
+            activeOpacity={0.95}
+            style={[styles.card, { backgroundColor: item.color_theme || COLORS.primary }]}
             onPress={() => handlePress(item)}
         >
-            {item.offer_image_url && (
-                <Image
-                    source={{ uri: item.offer_image_url }}
-                    style={StyleSheet.absoluteFillObject}
-                    contentFit="cover"
-                />
+            {item.offer_image_url ? (
+                <>
+                    <Image
+                        source={{ uri: item.offer_image_url }}
+                        style={StyleSheet.absoluteFillObject}
+                        contentFit="cover"
+                        transition={500}
+                    />
+                    <LinearGradient
+                        colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.7)']}
+                        style={StyleSheet.absoluteFillObject}
+                    />
+                </>
+            ) : (
+                <View style={styles.decorativeCircle} />
             )}
-            <View style={[styles.cardContent, item.offer_image_url && styles.overlay]}>
+
+            <View style={styles.cardContent}>
                 <View style={styles.leftContent}>
+                    <View style={styles.badgeContainer}>
+                         <Text style={styles.badgeText}>FLASH SALE</Text>
+                    </View>
                     <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
-                    <Text style={styles.subtitle}>
+                    <Text style={styles.discountValue}>
                         {item.discount_type === 'PERCENTAGE' ? `${item.value}% OFF` : `$${item.value} OFF`}
                     </Text>
                     {(item.start_date || item.end_date) && (
                         <View style={styles.validityContainer}>
+                            <Ionicons name="time-outline" size={12} color="rgba(255,255,255,0.8)" />
                             <Text style={styles.validityText}>
                                 {item.start_date ? formatDate(item.start_date) : ""} - {item.end_date ? formatDate(item.end_date) : ""}
                             </Text>
@@ -100,17 +117,11 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
                     )}
                 </View>
                 <View style={styles.rightContent}>
-                    <TouchableOpacity
-                        style={styles.shopButton}
-                        onPress={() => handlePress(item)}
-                    >
-                        <Text style={[styles.shopButtonText, { color: item.color_theme || "#235CF8" }]}>Details</Text>
-                    </TouchableOpacity>
+                    <View style={styles.shopButton}>
+                        <Ionicons name="arrow-forward" size={24} color={item.color_theme || COLORS.primary} />
+                    </View>
                 </View>
             </View>
-
-            {/* Decorative background circle */}
-            {!item.offer_image_url && <View style={styles.decorativeCircle} />}
         </TouchableOpacity>
     );
 
@@ -165,104 +176,124 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 16,
+        marginBottom: 24,
     },
     scrollContent: {
         paddingHorizontal: 20,
     },
     card: {
         width: CARD_WIDTH,
-        height: 120,
-        borderRadius: 20,
+        height: 160, // Increased height
+        borderRadius: 24,
         marginRight: 12,
         overflow: "hidden",
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
         elevation: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
     },
     cardContent: {
         flex: 1,
         flexDirection: "row",
-        padding: 16,
-        zIndex: 2,
-    },
-    overlay: {
-        backgroundColor: 'rgba(0,0,0,0.35)',
-        borderRadius: 20,
+        padding: 24,
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     leftContent: {
         flex: 1,
         justifyContent: "center",
-        gap: 4,
+        gap: 6,
     },
-    validityContainer: {
-        marginTop: 8,
-        backgroundColor: "rgba(255, 255, 255, 0.2)",
+    badgeContainer: {
+        backgroundColor: 'rgba(255,255,255,0.2)',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 6,
-        alignSelf: "flex-start",
+        borderRadius: 8,
+        alignSelf: 'flex-start',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.3)',
     },
-    validityText: {
-        color: "#FFFFFF",
+    badgeText: {
+        color: COLORS.white,
         fontSize: 10,
-        fontWeight: "700",
+        fontWeight: "800",
+        letterSpacing: 0.5,
     },
     title: {
-        color: "#FFFFFF",
-        fontSize: 18,
-        fontWeight: "900",
+        color: COLORS.white,
+        fontSize: 20,
+        fontWeight: "700",
         letterSpacing: -0.5,
+        textShadowColor: 'rgba(0,0,0,0.3)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
     },
-    subtitle: {
-        color: "#FFFFFF",
+    discountValue: {
+        color: COLORS.white,
+        fontSize: 28,
+        fontWeight: "900", // Black weight
+        letterSpacing: -1,
+        textShadowColor: 'rgba(0,0,0,0.3)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
+    },
+    validityContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+    },
+    validityText: {
+        color: "rgba(255,255,255,0.9)",
         fontSize: 12,
-        opacity: 0.9,
         fontWeight: "600",
     },
     rightContent: {
-        alignItems: "center",
         justifyContent: "center",
+        alignItems: "center",
+        paddingLeft: 16,
     },
     shopButton: {
-        backgroundColor: "#FFFFFF",
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 12,
-        elevation: 2,
-    },
-    shopButtonText: {
-        fontSize: 14,
-        fontWeight: "800",
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: COLORS.white,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
     decorativeCircle: {
         position: "absolute",
-        right: -30,
-        bottom: -30,
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: "rgba(255, 255, 255, 0.15)",
-        zIndex: 1,
+        right: -40,
+        bottom: -40,
+        width: 180,
+        height: 180,
+        borderRadius: 90,
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        zIndex: -1,
     },
     pagination: {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 12,
-        gap: 6,
+        marginTop: 16,
+        gap: 8,
     },
     dot: {
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: "#E5E7EB",
+        backgroundColor: COLORS.border,
     },
     activeDot: {
-        width: 16,
-        backgroundColor: "#235CF8",
+        width: 20,
+        backgroundColor: COLORS.primary,
+        borderRadius: 4,
     },
 });
 
