@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CarFormState } from '../../../types/sell-car.types';
+import COLORS from '@/constants/Colors';
 import LocationModal from '../../ui/LocationModal';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -105,36 +106,68 @@ const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChang
 };
 
 const styles = StyleSheet.create({
-    section: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
-    limitPill: { backgroundColor: '#F3F4F6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
-    limitPillText: { fontSize: 10, color: '#6B7280', fontWeight: '600' },
-    label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-    input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16, backgroundColor: 'white', marginBottom: 16 },
-    descriptionTextArea: { height: 120, paddingTop: 12 },
+    section: {
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 16,
+        elevation: 2,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        borderWidth: 1,
+        borderColor: COLORS.border
+    },
+    sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary },
+    limitPill: { backgroundColor: COLORS.secondary, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+    limitPillText: { fontSize: 11, color: COLORS.text.secondary, fontWeight: '600' },
+    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
+    input: {
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        backgroundColor: '#F9FAFB',
+        marginBottom: 20,
+        color: COLORS.text.primary
+    },
+    descriptionTextArea: { height: 140, paddingTop: 16, textAlignVertical: 'top' },
     locationSelector: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         borderWidth: 1,
-        borderColor: '#D1D5DB',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 12,
-        backgroundColor: 'white',
-        marginBottom: 16
+        borderColor: COLORS.border,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        backgroundColor: '#F9FAFB',
+        marginBottom: 20
     },
     locationInfo: { flexDirection: 'row', alignItems: 'center' },
-    locationText: { fontSize: 16, color: '#111827', marginLeft: 8 },
-    locationPlaceholder: { color: '#9CA3AF' },
-    checkboxContainer: { flexDirection: 'row', alignItems: 'center' },
-    checkbox: { width: 16, height: 16, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, marginRight: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' },
-    checkboxChecked: { backgroundColor: '#235CF8', borderColor: '#235CF8' },
-    checkboxInner: { width: 6, height: 6, backgroundColor: 'white', borderRadius: 3 },
-    negotiableText: { fontSize: 14, color: '#374151' },
-    limitText: { fontSize: 12, color: '#6B7280', textAlign: 'right' },
-    limitTextError: { color: '#EF4444', fontWeight: 'bold' },
-    warningText: { fontSize: 12, color: '#EF4444', fontStyle: 'italic' }
+    locationText: { fontSize: 15, color: COLORS.text.primary, marginLeft: 10, fontWeight: '500' },
+    locationPlaceholder: { color: COLORS.text.placeholder },
+    checkboxContainer: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderWidth: 2,
+        borderColor: COLORS.border,
+        borderRadius: 6,
+        marginRight: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: COLORS.white
+    },
+    checkboxChecked: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+    checkboxInner: { width: 8, height: 8, backgroundColor: COLORS.white, borderRadius: 2 },
+    negotiableText: { fontSize: 15, color: COLORS.text.primary, fontWeight: '500' },
+    limitText: { fontSize: 12, color: COLORS.text.muted, textAlign: 'right' },
+    limitTextError: { color: COLORS.status.danger, fontWeight: '700' },
+    warningText: { fontSize: 12, color: COLORS.status.danger, fontStyle: 'italic', marginTop: 4 }
 });
 
 export default BasicInformationSection;

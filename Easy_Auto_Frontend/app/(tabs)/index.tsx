@@ -1,6 +1,6 @@
 import ActionGrid from "@/components/home/ActionGrid";
 import CarComparison from "@/components/home/CarComparison";
-import DailyDeals from "@/components/home/DailyDeals";
+
 import ExploreByBrand from "@/components/home/ExploreByBrand";
 import FlashSale from "@/components/home/FlashSale";
 import { BackToTop } from "@/components/home/HomeCommon";
@@ -36,7 +36,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { isAuthenticated } = useAuth(); // Get auth state
-  
+
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [notificationDrawerVisible, setNotificationDrawerVisible] =
     useState(false);
@@ -214,8 +214,7 @@ export default function HomeScreen() {
         {/* Flash Sale Banner (High Urgency) */}
         <FlashSale fadeAnim={fadeAnim} slideAnim={slideAnim} />
 
-        {/* Daily Deals Section */}
-        <DailyDeals fadeAnim={fadeAnim} slideAnim={slideAnim} />
+
 
         <View style={styles.spacer} />
 

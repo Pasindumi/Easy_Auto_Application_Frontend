@@ -174,17 +174,51 @@ const CarDetailsSection: React.FC<Props> = ({
     );
 };
 
+import COLORS from '@/constants/Colors';
+
 const styles = StyleSheet.create({
-    section: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 12 },
-    subTitle: { fontSize: 16, fontWeight: '600', color: '#374151', marginBottom: 10, marginTop: 5 },
-    divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 15 },
-    formRow: { flexDirection: 'row', gap: 12 },
+    section: {
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 16,
+        elevation: 2,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        borderWidth: 1,
+        borderColor: COLORS.border
+    },
+    sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary, marginBottom: 16 },
+    subTitle: { fontSize: 15, fontWeight: '700', color: COLORS.text.primary, marginBottom: 12, marginTop: 8 },
+    divider: { height: 1, backgroundColor: COLORS.border, marginVertical: 20 },
+    formRow: { flexDirection: 'row', gap: 16, marginBottom: 4 },
     formHalf: { flex: 1 },
-    label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-    input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16, backgroundColor: 'white', marginBottom: 16 },
-    switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    dynamicSection: { marginTop: 10 }
+    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
+    input: {
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        backgroundColor: '#F9FAFB',
+        marginBottom: 20,
+        color: COLORS.text.primary
+    },
+    switchRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+        backgroundColor: '#F9FAFB',
+        padding: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border
+    },
+    dynamicSection: { marginTop: 8 }
 });
 
 export default CarDetailsSection;

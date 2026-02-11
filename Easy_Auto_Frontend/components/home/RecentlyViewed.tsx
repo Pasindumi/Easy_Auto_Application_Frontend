@@ -37,7 +37,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
             setLoading(true);
             try {
                 // Fetching active ads. Limiting to 10. 
-                const res: any = await api.get('/api/cars?status=ACTIVE&limit=10&page=2'); 
+                const res: any = await api.get('/api/cars?status=ACTIVE&limit=10&sort=created_at&order=desc');
                 if (res.success) {
                     setAds(res.data || []);
                 }
@@ -80,11 +80,11 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
         >
             <View style={styles.header}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Fresh Arrivals</Text>
-                    <Text style={styles.subtitle}>Just listed vehicles you might like</Text>
+                    <Text style={styles.title}>New Ads</Text>
+                    <Text style={styles.subtitle}>Latest additions to our inventory</Text>
                 </View>
-                <TouchableOpacity 
-                    style={styles.viewAllButton} 
+                <TouchableOpacity
+                    style={styles.viewAllButton}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         router.push('/cars/buy-car');
@@ -129,11 +129,11 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
                                         <Text style={styles.badgeText}>New</Text>
                                     </View>
                                 </View>
-                                
+
                                 <View style={styles.cardContent}>
                                     <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
                                     <Text style={styles.cardPrice}>{formatPrice(car.price)}</Text>
-                                    
+
                                     <View style={styles.metaRow}>
                                         <View style={styles.metaItem}>
                                             <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
@@ -145,7 +145,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
                                         <View style={styles.metaItem}>
                                             <Ionicons name="speedometer-outline" size={12} color={COLORS.text.muted} />
                                             <Text style={styles.metaText}>
-                                                {car.CarDetails?.mileage ? `${(Number(car.CarDetails.mileage)/1000).toFixed(0)}k km` : 'N/A'}
+                                                {car.CarDetails?.mileage ? `${(Number(car.CarDetails.mileage) / 1000).toFixed(0)}k km` : 'N/A'}
                                             </Text>
                                         </View>
                                     </View>

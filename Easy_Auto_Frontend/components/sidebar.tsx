@@ -73,14 +73,14 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
       label: "My Subscriptions",
       route: "/packages/subscriptions",
     },
-    { icon: "car-sport", label: "My Listings", route: "/listings" },
+    { icon: "heart", label: "Saved Ads", route: "/profile/wishlist" }, // Use a likely route, can be adjusted 
     {
       icon: "wallet",
       label: "Payment History",
       route: "/payments/payment-history",
     },
     { icon: "megaphone", label: "My Ads", route: "/ads/my-ads" },
-    { icon: "star", label: "Ratings", route: "/profile/ratings" },
+    { icon: "chatbubbles", label: "Messages", route: "/chat" },
     { icon: "chatbubble-ellipses", label: "Contact & Support", route: "/support/contact-us" },
   ];
 
@@ -161,71 +161,71 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                         <Ionicons name="checkmark" size={12} color={COLORS.white} />
                       </View>
                     </TouchableOpacity>
-                    
+
                     <View style={styles.profileInfo}>
-                        <Text style={styles.userName} numberOfLines={1}>
-                            {user?.name || "Dilmin Ekanayaka"}
-                        </Text>
-                        <Text style={styles.userEmail} numberOfLines={1}>
-                            {user?.email || "dilmin@example.com"}
-                        </Text>
+                      <Text style={styles.userName} numberOfLines={1}>
+                        {user?.name || "Dilmin Ekanayaka"}
+                      </Text>
+                      <Text style={styles.userEmail} numberOfLines={1}>
+                        {user?.email || "dilmin@example.com"}
+                      </Text>
                     </View>
 
                     <TouchableOpacity
-                        style={styles.premiumBadge}
-                        activeOpacity={0.8}
-                        onPress={() => handleNavigation("/packages/subscriptions")}
+                      style={styles.premiumBadge}
+                      activeOpacity={0.8}
+                      onPress={() => handleNavigation("/packages/subscriptions")}
                     >
-                        <Ionicons name="sparkles" size={14} color="#FFD700" />
-                        <Text style={styles.premiumText}>Premium Member</Text>
+                      <Ionicons name="sparkles" size={14} color="#FFD700" />
+                      <Text style={styles.premiumText}>Premium Member</Text>
                     </TouchableOpacity>
                   </LinearGradient>
 
                   <View style={styles.menuSection}>
                     <Text style={styles.sectionLabel}>Dashboard</Text>
                     <View style={styles.menuCard}>
-                        {userMenuItems.map((item, index) => (
+                      {userMenuItems.map((item, index) => (
                         <TouchableOpacity
-                            key={index}
-                            style={[styles.menuItem, index === userMenuItems.length - 1 && { borderBottomWidth: 0 }]}
-                            onPress={() => handleNavigation(item.route)}
-                            activeOpacity={0.7}
+                          key={index}
+                          style={[styles.menuItem, index === userMenuItems.length - 1 && { borderBottomWidth: 0 }]}
+                          onPress={() => handleNavigation(item.route)}
+                          activeOpacity={0.7}
                         >
-                            <View style={[styles.iconBox, { backgroundColor: 'rgba(35, 92, 248, 0.08)' }]}>
-                                <Ionicons name={item.icon as any} size={18} color={COLORS.primary} />
-                            </View>
-                            <Text style={styles.menuItemText}>{item.label}</Text>
-                            <Ionicons name="chevron-forward" size={16} color={COLORS.border} />
+                          <View style={[styles.iconBox, { backgroundColor: 'rgba(35, 92, 248, 0.08)' }]}>
+                            <Ionicons name={item.icon as any} size={18} color={COLORS.primary} />
+                          </View>
+                          <Text style={styles.menuItemText}>{item.label}</Text>
+                          <Ionicons name="chevron-forward" size={16} color={COLORS.border} />
                         </TouchableOpacity>
-                        ))}
+                      ))}
                     </View>
                   </View>
 
                   <View style={styles.menuSection}>
                     <Text style={styles.sectionLabel}>Account Settings</Text>
                     <View style={styles.menuCard}>
-                        <TouchableOpacity
-                            style={styles.menuItem}
-                            onPress={() => handleNavigation("/settings/settings")}
-                            activeOpacity={0.7}
-                        >
-                            <View style={[styles.iconBox, { backgroundColor: '#F3F4F6' }]}>
-                                <Ionicons name="settings-outline" size={18} color={COLORS.text.secondary} />
-                            </View>
-                            <Text style={styles.menuItemText}>Settings</Text>
-                            <Ionicons name="chevron-forward" size={16} color={COLORS.border} />
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity
-                            style={[styles.menuItem, { borderBottomWidth: 0 }]}
-                            onPress={handleLogout}
-                            activeOpacity={0.7}
-                        >
-                            <View style={[styles.iconBox, { backgroundColor: '#FEF2F2' }]}>
-                                <Ionicons name="log-out-outline" size={18} color="#EF4444" />
-                            </View>
-                            <Text style={[styles.menuItemText, { color: "#EF4444" }]}>Logout</Text>
-                        </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => handleNavigation("/settings/settings")}
+                        activeOpacity={0.7}
+                      >
+                        <View style={[styles.iconBox, { backgroundColor: '#F3F4F6' }]}>
+                          <Ionicons name="settings-outline" size={18} color={COLORS.text.secondary} />
+                        </View>
+                        <Text style={styles.menuItemText}>Settings</Text>
+                        <Ionicons name="chevron-forward" size={16} color={COLORS.border} />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.menuItem, { borderBottomWidth: 0 }]}
+                        onPress={handleLogout}
+                        activeOpacity={0.7}
+                      >
+                        <View style={[styles.iconBox, { backgroundColor: '#FEF2F2' }]}>
+                          <Ionicons name="log-out-outline" size={18} color="#EF4444" />
+                        </View>
+                        <Text style={[styles.menuItemText, { color: "#EF4444" }]}>Logout</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 </>
@@ -236,46 +236,46 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                     style={styles.guestHeader}
                   >
                     <View style={styles.guestIconCircle}>
-                        <Ionicons name="person" size={40} color={COLORS.white} style={{ opacity: 0.9 }} />
+                      <Ionicons name="person" size={40} color={COLORS.white} style={{ opacity: 0.9 }} />
                     </View>
                     <Text style={styles.guestTitle}>Welcome to EasyAuto</Text>
                     <Text style={styles.guestSubtitle}>Sign in to unlock more features</Text>
-                    
+
                     <View style={styles.authButtons}>
-                        <TouchableOpacity
-                            style={styles.loginBtn}
-                            onPress={() => handleNavigation("/auth/login")}
-                            activeOpacity={0.9}
-                        >
-                            <Text style={styles.loginText}>Sign In</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.signupBtn}
-                            onPress={() => handleNavigation("/auth/signup")}
-                            activeOpacity={0.9}
-                        >
-                            <Text style={styles.signupText}>Join Now</Text>
-                        </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.loginBtn}
+                        onPress={() => handleNavigation("/auth/login")}
+                        activeOpacity={0.9}
+                      >
+                        <Text style={styles.loginText}>Sign In</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.signupBtn}
+                        onPress={() => handleNavigation("/auth/signup")}
+                        activeOpacity={0.9}
+                      >
+                        <Text style={styles.signupText}>Join Now</Text>
+                      </TouchableOpacity>
                     </View>
                   </LinearGradient>
 
                   <View style={styles.menuSection}>
                     <Text style={styles.sectionLabel}>Explore</Text>
                     <View style={styles.menuCard}>
-                        {guestMenuItems.map((item, index) => (
+                      {guestMenuItems.map((item, index) => (
                         <TouchableOpacity
-                            key={index}
-                            style={[styles.menuItem, index === guestMenuItems.length - 1 && { borderBottomWidth: 0 }]}
-                            onPress={() => handleNavigation(item.route)}
-                            activeOpacity={0.7}
+                          key={index}
+                          style={[styles.menuItem, index === guestMenuItems.length - 1 && { borderBottomWidth: 0 }]}
+                          onPress={() => handleNavigation(item.route)}
+                          activeOpacity={0.7}
                         >
-                            <View style={[styles.iconBox, { backgroundColor: 'rgba(35, 92, 248, 0.08)' }]}>
-                                <Ionicons name={item.icon as any} size={18} color={COLORS.primary} />
-                            </View>
-                            <Text style={styles.menuItemText}>{item.label}</Text>
-                            <Ionicons name="chevron-forward" size={16} color={COLORS.border} />
+                          <View style={[styles.iconBox, { backgroundColor: 'rgba(35, 92, 248, 0.08)' }]}>
+                            <Ionicons name={item.icon as any} size={18} color={COLORS.primary} />
+                          </View>
+                          <Text style={styles.menuItemText}>{item.label}</Text>
+                          <Ionicons name="chevron-forward" size={16} color={COLORS.border} />
                         </TouchableOpacity>
-                        ))}
+                      ))}
                     </View>
                   </View>
                 </>
@@ -292,7 +292,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
             </ScrollView>
           </SafeAreaView>
         </Animated.View>
-        
+
         <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
           <TouchableOpacity
             style={styles.backdropTouchable}

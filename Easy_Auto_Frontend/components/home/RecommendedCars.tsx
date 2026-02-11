@@ -35,7 +35,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
         setLoading(true);
         try {
             // Fetching active ads. Limiting to 10 for "Recommended"
-            const res: any = await api.get('/api/cars?status=ACTIVE&limit=10');
+            const res: any = await api.get('/api/cars/recommended');
             if (res.success) {
                 setAds(res.data || []);
             }
@@ -79,8 +79,8 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                     <Text style={styles.title}>Recommended For You</Text>
                     <Text style={styles.subtitle}>Curated based on your interests</Text>
                 </View>
-                <TouchableOpacity 
-                    style={styles.refreshButton} 
+                <TouchableOpacity
+                    style={styles.refreshButton}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         fetchAds();
@@ -100,14 +100,14 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
                     decelerationRate="fast"
-                    snapToInterval={240} 
+                    snapToInterval={240}
                 >
                     {ads.map((car, index) => {
                         const imageUrl = car.AdImage?.[0]?.image_url;
                         const brand = car.CarDetails?.brand || "";
                         const model = car.CarDetails?.model || "";
                         const title = car.title || `${brand} ${model}`;
-                        
+
                         return (
                             <TouchableOpacity
                                 key={`recommended-${car.id}-${index}`}
@@ -130,13 +130,13 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                                     <View style={styles.priceTag}>
                                         <Text style={styles.priceText}>{formatPrice(car.price)}</Text>
                                     </View>
-                                    
+
                                     {/* Like Button (Placeholder) */}
                                     <View style={styles.likeButton}>
-                                         <Ionicons name="heart-outline" size={18} color={COLORS.white} />
+                                        <Ionicons name="heart-outline" size={18} color={COLORS.white} />
                                     </View>
                                 </View>
-                                
+
                                 <View style={styles.cardContent}>
                                     <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
                                     <View style={styles.detailsRow}>
@@ -147,7 +147,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                                         <View style={styles.dotSeparator} />
                                         <View style={styles.detailItem}>
                                             <MaterialIcons name="speed" size={12} color={COLORS.text.muted} />
-                                            <Text style={styles.detailText}>{car.CarDetails?.mileage ? `${(Number(car.CarDetails.mileage)/1000).toFixed(0)}k km` : "N/A"}</Text>
+                                            <Text style={styles.detailText}>{car.CarDetails?.mileage ? `${(Number(car.CarDetails.mileage) / 1000).toFixed(0)}k km` : "N/A"}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.locationRow}>

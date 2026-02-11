@@ -7,7 +7,8 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator
+    ActivityIndicator,
+    ScrollView
 } from "react-native";
 import api from "@/utils/api";
 import { useRouter } from "expo-router";
@@ -86,50 +87,80 @@ interface ExploreByBrandProps {
     slideAnim: Animated.Value;
 }
 
+
 const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
     fadeAnim,
     slideAnim,
 }) => {
     const router = useRouter();
     const [brands, setBrands] = useState<Brand[]>([]);
+    const [vehicleTypes, setVehicleTypes] = useState<any[]>([]);
+    const [selectedType, setSelectedType] = useState<string>("All");
     const [loading, setLoading] = useState(true);
 
+    // Initial Fetch (Types + Initial Brands)
     useEffect(() => {
-        const fetchBrands = async () => {
+        const fetchInitialData = async () => {
             try {
                 // 1. Get Vehicle Types
-                const types: any = await api.get('/api/vehicle-config/types');
-                const carType = types.find((t: any) => t.type_name.toLowerCase() === 'car' || t.type_name.toLowerCase() === 'cars') || types[0];
-
-                if (carType) {
-                    // 2. Get Brands for this type
-                    const brandsData: any = await api.get(`/api/vehicle-config/brands/${carType.id}`);
-                    setBrands(brandsData);
+                const typesRes: any = await api.get('/api/vehicle-config/types');
+                if (Array.isArray(typesRes)) {
+                    // Prepend "All" option
+                    const allOption = { id: 'all', type_name: 'All' };
+                    setVehicleTypes([allOption, ...typesRes]);
                 }
+
+                // 2. Fetch Initial Brands (All, Random)
+                await fetchBrands("all");
+
             } catch (error) {
-                console.error("Error fetching brands:", error);
-            } finally {
+                console.error("Error fetching initial data:", error);
                 setLoading(false);
             }
         };
 
-        fetchBrands();
+        fetchInitialData();
     }, []);
 
-    if (loading) {
+    const fetchBrands = async (typeId: string) => {
+        setLoading(true);
+        try {
+            let url = '/api/vehicle-config/brands';
+            const params: any = { limit: 8 };
+
+            if (typeId === 'all') {
+                params.random = 'true';
+            } else {
+                params.type_id = typeId;
+            }
+
+            // Construct query string manually or use axios params if available (using simple string here for fetch wrapper)
+            const queryString = new URLSearchParams(params).toString();
+            const fullUrl = `${url}?${queryString}`;
+
+            const brandsData: any = await api.get(fullUrl);
+            setBrands(brandsData || []);
+        } catch (error) {
+            console.error("Error fetching brands:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTypeSelect = (typeId: string, typeName: string) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setSelectedType(typeName); // Determine active state by name or ID
+        // Note: state update is async, but we pass ID directly
+        fetchBrands(typeId);
+    };
+
+    if (loading && vehicleTypes.length === 0) {
         return (
             <View style={[styles.container, { height: 200, justifyContent: 'center' }]}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
             </View>
         );
     }
-
-    if (brands.length === 0) {
-        return null;
-    }
-
-    // Use first 8 brands for the home page display (2 rows of 4)
-    const brandsToDisplay = brands.slice(0, 8);
 
     return (
         <Animated.View
@@ -146,11 +177,11 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
                     <Text style={styles.title}>Explore by Brand</Text>
                     <Text style={styles.subtitle}>Find your favorite manufacturer</Text>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.viewAllButton}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push('/cars/buy-car'); 
+                        router.push('/brands');
                     }}
                 >
                     <Text style={styles.viewAllText}>View All</Text>
@@ -158,25 +189,64 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.brandGrid}>
-                {brandsToDisplay.map((brand) => (
-                    <View
-                        key={`brand-${brand.id}`}
-                        style={styles.brandItemWrapper}
-                    >
-                        <BrandCard 
-                            brand={brand} 
-                            onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                router.push({
-                                    pathname: '/cars/buy-car', 
-                                    params: { brandId: brand.id, brandName: brand.brand_name } 
-                                } as any);
-                            }}
-                        />
-                    </View>
-                ))}
+            {/* Vehicle Type Tabs */}
+            <View style={{ marginBottom: 16 }}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+                >
+                    {vehicleTypes.map((type) => (
+                        <TouchableOpacity
+                            key={type.id}
+                            style={[
+                                styles.tab,
+                                selectedType === type.type_name && styles.tabActive
+                            ]}
+                            onPress={() => handleTypeSelect(type.id, type.type_name)}
+                        >
+                            <Text style={[
+                                styles.tabText,
+                                selectedType === type.type_name && styles.tabTextActive
+                            ]}>
+                                {type.type_name}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
             </View>
+
+            {loading ? (
+                <View style={{ height: 160, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                </View>
+            ) : (
+                <View style={styles.brandGrid}>
+                    {brands.length > 0 ? brands.map((brand) => (
+                        <View
+                            key={`brand-${brand.id}`}
+                            style={styles.brandItemWrapper}
+                        >
+                            <BrandCard
+                                brand={brand}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    // if selectedType !== All, perform specific logic?
+                                    // passing selected brand is usually enough
+                                    router.push({
+                                        pathname: '/cars/buy-car',
+                                        params: { brandId: brand.id, brandName: brand.brand_name }
+                                    } as any);
+                                }}
+                            />
+                        </View>
+                    )) : (
+                        <View style={{ width: '100%', padding: 20, alignItems: 'center' }}>
+                            <Text style={{ color: COLORS.text.muted }}>No brands found for this category.</Text>
+                        </View>
+                    )}
+                </View>
+            )}
         </Animated.View>
     );
 };
@@ -266,6 +336,24 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: COLORS.text.primary,
         textAlign: "center",
+    },
+    tab: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: COLORS.secondary,
+        marginRight: 4,
+    },
+    tabActive: {
+        backgroundColor: COLORS.primary,
+    },
+    tabText: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: COLORS.text.secondary,
+    },
+    tabTextActive: {
+        color: COLORS.white,
     },
 });
 

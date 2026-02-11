@@ -9,10 +9,10 @@ type NavTab = "Dashboard" | "Ads" | "Users" | "Analytics" | "Settings";
 
 // Route mapping - centralized navigation configuration
 const ROUTE_MAP: Record<NavTab, string | null> = {
-  Dashboard: "./",
-  Ads: "./ads",
-  Users: "./users",
-  Analytics: "./analytics",
+  Dashboard: "/admin",
+  Ads: "/admin/ads",
+  Users: "/admin/users",
+  Analytics: "/admin/analytics",
   Settings: null, // Coming soon
 };
 
@@ -43,32 +43,32 @@ export default function AdminBottomNav({
     outline: string;
     label: string;
   }[] = [
-    {
-      key: "Dashboard",
-      icon: "grid",
-      outline: "grid-outline",
-      label: "Dashboard",
-    },
-    { key: "Ads", icon: "car", outline: "car-outline", label: "Ads" },
-    {
-      key: "Users",
-      icon: "people",
-      outline: "people-outline",
-      label: "Users",
-    },
-    {
-      key: "Analytics",
-      icon: "bar-chart",
-      outline: "bar-chart-outline",
-      label: "Analytics",
-    },
-    {
-      key: "Settings",
-      icon: "settings",
-      outline: "settings-outline",
-      label: "Settings",
-    },
-  ];
+      {
+        key: "Dashboard",
+        icon: "grid",
+        outline: "grid-outline",
+        label: "Dashboard",
+      },
+      { key: "Ads", icon: "car", outline: "car-outline", label: "Ads" },
+      {
+        key: "Users",
+        icon: "people",
+        outline: "people-outline",
+        label: "Users",
+      },
+      {
+        key: "Analytics",
+        icon: "bar-chart",
+        outline: "bar-chart-outline",
+        label: "Analytics",
+      },
+      {
+        key: "Settings",
+        icon: "settings",
+        outline: "settings-outline",
+        label: "Settings",
+      },
+    ];
 
   const handleTabPress = (tab: NavTab) => {
     // Haptic feedback on every press

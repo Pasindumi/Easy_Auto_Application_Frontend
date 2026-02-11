@@ -1,7 +1,7 @@
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     Animated,
     ScrollView,
@@ -10,6 +10,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useRouter } from "expo-router";
+import { api } from "@/utils/api";
 
 interface TrendingCarsProps {
     fadeAnim: Animated.Value;
@@ -18,7 +20,7 @@ interface TrendingCarsProps {
     setTrendingCategory: (category: string) => void;
 }
 
-import { CATEGORIES, TRENDING_CARS } from "@/constants/dummydata/homedummydata";
+import { CATEGORIES } from "@/constants/dummydata/homedummydata";
 import COLORS from "@/constants/Colors";
 
 const TrendingCars: React.FC<TrendingCarsProps> = ({
@@ -27,6 +29,36 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     trendingCategory,
     setTrendingCategory,
 }) => {
+    const router = useRouter(); // Use router for navigation
+    const [trendingAds, setTrendingAds] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchTrendingAds();
+    }, []);
+
+    const fetchTrendingAds = async () => {
+        try {
+            setLoading(true);
+            const response: any = await api.get('/api/cars/trending');
+            if (response.success && Array.isArray(response.data)) {
+                setTrendingAds(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching trending ads:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Use dummy data if no API data or while loading (optional, or just show skeleton)
+    // For now, let's prefer API data, fall back to empty if none
+    const displayAds = trendingAds.length > 0 ? trendingAds : [];
+
+    if (!loading && displayAds.length === 0) {
+        return null; // Hide section if no trending ads
+    }
+
     return (
         <Animated.View
             style={[
@@ -39,21 +71,29 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
         >
             <View style={styles.header}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Trending Cars</Text>
+                    <Text style={styles.title}>Trending Ads</Text>
                     <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
+                {/* 
                 <TouchableOpacity
                     style={styles.viewAllButton}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        // Navigate to all ads or filtered view
+                        router.push('/(tabs)/explore');
                     }}
                 >
                     <Text style={styles.viewAllText}>View All</Text>
                     <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
+                */}
             </View>
 
-            {/* Category Tabs */}
+            {/* Category Tabs - Optional: Keep or Remove? User asked to "Update Trending Cars section to Trending Ads". 
+                If the backend doesn't support category filtering for trending yet, maybe hide tabs or keep them if we want to filter CLIENT SIDE.
+                For now, I will comment them out as the requirement implies a specific "Trending Ads" list based on reviews.
+            */}
+            {/* 
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -80,26 +120,10 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                         >
                             {category.name}
                         </Text>
-                        {category.count > 0 && (
-                            <View
-                                style={[
-                                    styles.badge,
-                                    trendingCategory === category.name && styles.badgeActive,
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.badgeText,
-                                        trendingCategory === category.name && styles.badgeTextActive,
-                                    ]}
-                                >
-                                    {category.count}
-                                </Text>
-                            </View>
-                        )}
                     </TouchableOpacity>
                 ))}
             </ScrollView>
+            */}
 
             <ScrollView
                 horizontal
@@ -108,57 +132,56 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                 decelerationRate="fast"
                 snapToInterval={240}
             >
-                {TRENDING_CARS.map((car, index) => (
+                {displayAds.map((ad, index) => (
                     <TouchableOpacity
-                        key={`trending-${car.id}-${index}`}
+                        key={`trending-${ad.id}-${index}`}
                         style={styles.card}
                         activeOpacity={0.9}
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.push(`/cars/${ad.id}`);
                         }}
                     >
                         <View style={styles.imageContainer}>
                             <Image
-                                source={{ uri: car.image }}
+                                source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
                                 style={styles.image}
                                 contentFit="cover"
                                 transition={300}
-                                placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgRj" }}
                                 cachePolicy="memory-disk"
-                                priority="high"
                             />
-                            
-                            {/* Status Badge */}
-                            <View
-                                style={[
-                                    styles.statusBadge,
-                                    car.status === "Hot Deal" && styles.statusHot,
-                                    car.status === "Certified" && styles.statusCertified,
-                                    car.status === "New" && styles.statusNew,
-                                ]}
-                            >
-                                <Text style={styles.statusText}>{car.status}</Text>
+
+                            {/* Status Badge from Backend Logic if needed, or just Review Count badge */}
+                            <View style={styles.reviewBadge}>
+                                <Ionicons name="star" size={10} color="#FFD700" />
+                                <Text style={styles.reviewText}>
+                                    {ad.review_count || 0} Reviews
+                                </Text>
                             </View>
 
                             <View style={styles.priceTag}>
-                                <Text style={styles.priceText}>{car.price}</Text>
+                                <Text style={styles.priceText}>
+                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(ad.price)}
+                                </Text>
                             </View>
                         </View>
-                        
+
                         <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle}>
-                                {car.model} {car.year && `(${car.year})`}
+                            <Text style={styles.cardTitle} numberOfLines={1}>
+                                {ad.title}
                             </Text>
-                           
-                           <View style={styles.detailsRow}>
+                            <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                {ad.CarDetails?.model} {ad.CarDetails?.year}
+                            </Text>
+
+                            <View style={styles.detailsRow}>
                                 <View style={styles.locationRow}>
                                     <Ionicons name="location-outline" size={14} color={COLORS.text.muted} />
-                                    <Text style={styles.locationText}>
-                                        {car.location.split(",")[0]}
+                                    <Text style={styles.locationText} numberOfLines={1}>
+                                        {ad.location?.split(",")[0] || "Unknown"}
                                     </Text>
                                 </View>
-                                {/* Rating or other info could go here */}
-                           </View>
+                            </View>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -335,6 +358,29 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: COLORS.text.muted,
         fontWeight: "500",
+    },
+    reviewBadge: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backdropFilter: 'blur(10px)',
+    },
+    reviewText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    cardSubTitle: {
+        fontSize: 12,
+        color: COLORS.text.muted,
+        marginTop: 2,
     },
 });
 

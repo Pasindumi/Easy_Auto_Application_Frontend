@@ -13,10 +13,10 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AdminBottomNav from "./components/AdminBottomNav";
-import LineChart from "./components/LineChart";
-import PieChart from "./components/PieChart";
-import SimpleBarChart from "./components/SimpleBarChart";
+import AdminBottomNav from "@/src/admin/components/AdminBottomNav";
+import LineChart from "@/src/admin/components/LineChart";
+import PieChart from "@/src/admin/components/PieChart";
+import SimpleBarChart from "@/src/admin/components/SimpleBarChart";
 import {
   AD_PERFORMANCE_DATA,
   ANALYTICS_SUMMARY,
@@ -24,7 +24,7 @@ import {
   TOP_PERFORMING_ADS,
   TRAFFIC_SOURCES,
   USER_GROWTH_DATA,
-} from "./data/adminAnalytics";
+} from "@/src/admin/data/adminAnalytics";
 
 const { width } = Dimensions.get("window");
 
