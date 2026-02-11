@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
     Animated,
@@ -12,6 +13,9 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { api } from "@/utils/api";
+import { useRouter } from "expo-router";
+import COLORS from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
 
@@ -19,22 +23,22 @@ const STATIC_BANNERS = [
     {
         id: 'static-1',
         title: "Find Your Dream Car",
-        subtitle: "Browse thousand of verified listings",
+        subtitle: "Browse thousands of verified listings",
         image:
             "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=400&fit=crop",
         isAd: false
     },
     {
         id: 'static-2',
-        title: "Sell Your Car in a Minute",
-        subtitle: "Get instant Quotes from Verified Dealers",
+        title: "Sell Your Car Fast",
+        subtitle: "Get instant quotes from verified dealers",
         image:
             "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=400&fit=crop",
         isAd: false
     },
     {
         id: 'static-3',
-        title: "Best Deals Available",
+        title: "Best Market Deals",
         subtitle: "Compare prices and find the perfect match",
         image:
             "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&h=400&fit=crop",
@@ -46,9 +50,6 @@ interface PromoBannerProps {
     fadeAnim: Animated.Value;
     scaleAnim: Animated.Value;
 }
-
-import { api } from "@/utils/api";
-import { useRouter } from "expo-router";
 
 const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const router = useRouter();
@@ -73,9 +74,6 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     isAd: true,
                     adId: ad.id
                 }));
-
-                // Merge strategies: Interleave or Prepend?
-                // Let's prepend boosted ads
                 setBanners([...boostedBanners, ...STATIC_BANNERS]);
             }
         } catch (error) {
@@ -89,7 +87,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             setCurrentBannerIndex((prevIndex) => {
                 const nextIndex = (prevIndex + 1) % banners.length;
                 scrollViewRef.current?.scrollTo({
-                    x: nextIndex * (width - 40),
+                    x: nextIndex * (width - 32), // Adjusted for margin
                     animated: true,
                 });
                 return nextIndex;
@@ -101,11 +99,11 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 clearInterval(autoPlayTimer.current);
             }
         };
-    }, []);
+    }, [banners.length]);
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
-        const bannerWidth = width - 40;
+        const bannerWidth = width - 32;
         const index = Math.round(scrollPosition / bannerWidth);
         if (
             index !== currentBannerIndex &&
@@ -119,16 +117,15 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const handleDotPress = (index: number) => {
         setCurrentBannerIndex(index);
         scrollViewRef.current?.scrollTo({
-            x: index * (width - 40),
+            x: index * (width - 32),
             animated: true,
         });
     };
 
     const handleBannerPress = (banner: any) => {
         if (banner.isAd && banner.adId) {
-            router.push(`/cars/${banner.adId}`); // Assuming route exists
+            router.push(`/cars/${banner.adId}` as any);
         } else {
-            // Navigate to search or specific page for static banners
             router.push('/(tabs)/search');
         }
     };
@@ -136,7 +133,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     return (
         <Animated.View
             style={[
-                styles.bannerContainer,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ scale: scaleAnim }],
@@ -150,45 +147,59 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 showsHorizontalScrollIndicator={false}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
-                style={styles.bannerScrollView}
+                contentContainerStyle={styles.scrollContent}
+                decelerationRate="fast"
+                snapToInterval={width - 32}
             >
-                {banners.map((banner) => (
-                    <View key={`banner-${banner.id}`} style={styles.banner}>
-                        <Image
-                            source={banner.image}
-                            style={styles.bannerImage}
-                            contentFit="cover"
-                            transition={300}
-                        />
-                        <View style={styles.bannerGradientOverlay} />
-                        <View style={styles.bannerOverlay} />
-                        <View style={styles.bannerContent}>
-                            <Text style={styles.bannerTitle}>{banner.title}</Text>
-                            <Text style={styles.bannerSubtitle}>{banner.subtitle}</Text>
-                            <TouchableOpacity style={styles.bannerCTA} onPress={() => handleBannerPress(banner)}>
-                                <Text style={styles.bannerCTAText}>{banner.isAd ? "View Ad" : "Explore Now"}</Text>
-                                <MaterialIcons name="arrow-forward" size={18} color="#FFFFFF" />
-                            </TouchableOpacity>
-                        </View>
+                {banners.map((banner, index) => (
+                    <View key={`banner-${banner.id}-${index}`} style={styles.bannerWrapper}>
+                         <TouchableOpacity 
+                            activeOpacity={0.9}
+                            onPress={() => handleBannerPress(banner)}
+                            style={styles.bannerCard}
+                        >
+                            <Image
+                                source={banner.image}
+                                style={styles.bannerImage}
+                                contentFit="cover"
+                                transition={500}
+                            />
+                            
+                            {/* Premium Gradient Overlay */}
+                            <LinearGradient
+                                colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
+                                style={styles.gradient}
+                            />
+
+                            <View style={styles.contentContainer}>
+                                {banner.isAd && (
+                                    <View style={styles.adBadge}>
+                                        <Text style={styles.adBadgeText}>Featured</Text>
+                                    </View>
+                                )}
+                                <Text style={styles.title} numberOfLines={2}>{banner.title}</Text>
+                                <Text style={styles.subtitle} numberOfLines={1}>{banner.subtitle}</Text>
+                                
+                                <View style={styles.ctaButton}>
+                                    <Text style={styles.ctaText}>{banner.isAd ? "View Details" : "Explore"}</Text>
+                                    <MaterialIcons name="arrow-forward" size={16} color={COLORS.white} />
+                                </View>
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 ))}
             </ScrollView>
-            <View style={styles.carouselDots}>
+
+            {/* Pagination Dots */}
+            <View style={styles.pagination}>
                 {banners.map((_, index) => (
-                    <TouchableOpacity
-                        key={`banner-dot-${index}`}
-                        onPress={() => handleDotPress(index)}
-                        activeOpacity={0.7}
-                    >
-                        <View
-                            style={[
-                                styles.dot,
-                                index === currentBannerIndex
-                                    ? styles.dotActive
-                                    : styles.dotInactive,
-                            ]}
-                        />
-                    </TouchableOpacity>
+                    <Animated.View
+                        key={`dot-${index}`}
+                        style={[
+                            styles.dot,
+                            index === currentBannerIndex ? styles.dotActive : styles.dotInactive
+                        ]}
+                    />
                 ))}
             </View>
         </Animated.View>
@@ -196,117 +207,113 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 };
 
 const styles = StyleSheet.create({
-    bannerContainer: {
-        paddingHorizontal: 20,
-        marginBottom: 16,
-        paddingTop: 8,
+    container: {
+        marginTop: 16,
+        marginBottom: 24,
     },
-    bannerScrollView: {
-        marginBottom: 16,
+    scrollContent: {
+        paddingHorizontal: 16,
     },
-    banner: {
-        backgroundColor: "#2C3E50",
-        borderRadius: 24,
-        height: 220,
-        width: width - 40,
-        overflow: "hidden",
-        position: "relative",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 20,
+    bannerWrapper: {
+        width: width - 32,
+        height: 200,
+        marginRight: 0, 
+    },
+    bannerCard: {
+        flex: 1,
+        borderRadius: 20,
+        overflow: 'hidden',
+        backgroundColor: COLORS.secondary,
+        position: 'relative',
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
         elevation: 8,
-        marginRight: 0,
     },
     bannerImage: {
-        width: "100%",
-        height: "100%",
-        position: "absolute",
+        width: '100%',
+        height: '100%',
     },
-    bannerGradientOverlay: {
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: "70%",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    bannerOverlay: {
-        position: "absolute",
-        top: 0,
+    gradient: {
+        position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.2)",
+        height: '100%',
     },
-    bannerContent: {
-        position: "absolute",
+    contentContainer: {
+        position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        padding: 24,
-        zIndex: 2,
+        padding: 20,
     },
-    bannerTitle: {
-        fontSize: 24,
-        fontWeight: "700",
-        color: "#FFFFFF",
+    adBadge: {
+        backgroundColor: COLORS.accent,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        alignSelf: 'flex-start',
         marginBottom: 8,
+    },
+    adBadgeText: {
+        color: COLORS.white,
+        fontSize: 10,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: '800',
+        color: COLORS.white,
+        marginBottom: 4,
         letterSpacing: -0.5,
+        textShadowColor: 'rgba(0,0,0,0.3)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 4,
     },
-    bannerSubtitle: {
-        fontSize: 15,
-        color: "#FFFFFF",
-        opacity: 0.95,
-        fontWeight: "400",
-        lineHeight: 22,
+    subtitle: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.9)',
         marginBottom: 16,
+        fontWeight: '500',
     },
-    bannerCTA: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#FFFFFF",
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 16,
-        alignSelf: "flex-start",
-        gap: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 6,
+    ctaButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        alignSelf: 'flex-start',
+        gap: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.3)',
     },
-    bannerCTAText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: "#235CF8",
-        letterSpacing: -0.2,
+    ctaText: {
+        color: COLORS.white,
+        fontSize: 13,
+        fontWeight: '600',
     },
-    carouselDots: {
-        flexDirection: "row",
-        justifyContent: "center",
-        gap: 8,
-        alignItems: "center",
-        marginTop: 4,
+    pagination: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 16,
+        gap: 6,
     },
     dot: {
-        height: 8,
-        borderRadius: 4,
+        height: 6,
+        borderRadius: 3,
     },
     dotActive: {
-        width: 32,
-        backgroundColor: "#235CF8",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.4,
-        shadowRadius: 4,
-        elevation: 4,
+        width: 24,
+        backgroundColor: COLORS.primary,
     },
     dotInactive: {
-        width: 8,
-        backgroundColor: "#D1D5DB",
-        opacity: 0.6,
+        width: 6,
+        backgroundColor: COLORS.border,
     },
 });
 

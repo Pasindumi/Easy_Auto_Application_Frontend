@@ -1,10 +1,11 @@
 import ProfileHeader from '@/components/ProfileHeader';
 import COLORS from "@/constants/Colors";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   ScrollView,
   StyleSheet,
@@ -12,18 +13,79 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { api } from '@/utils/api';
 
 export default function ProfileScreen() {
-  // Protect this route - require authentication
   useProtectedRoute();
   
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState({
+    listings: 0,
+    saved: 0,
+    views: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserStats();
+  }, []);
+
+  const fetchUserStats = async () => {
+    try {
+      // Fetch user statistics from API
+      // This is a placeholder - adjust based on your API
+      const response = await api.get<any>('/api/users/stats');
+      if (response.success) {
+        setStats({
+          listings: response.data.listings || 0,
+          saved: response.data.saved || 0,
+          views: response.data.views || 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      // Use default values on error
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchUserStats();
+  };
 
   const handleMenuItemPress = (route: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push(route as any);
+  };
+
+  const handleLogout = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/(tabs)');
+          },
+        },
+      ]
+    );
   };
 
   const SettingItem = ({
@@ -32,7 +94,8 @@ export default function ProfileScreen() {
     subtitle,
     onPress,
     rightElement,
-    color = COLORS.primary
+    color = COLORS.primary,
+    iconBg,
   }: {
     icon: any;
     title: string;
@@ -40,6 +103,7 @@ export default function ProfileScreen() {
     onPress?: () => void;
     rightElement?: React.ReactNode;
     color?: string;
+    iconBg?: string;
   }) => (
     <TouchableOpacity
       style={styles.settingItem}
@@ -48,9 +112,12 @@ export default function ProfileScreen() {
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={[styles.settingIcon, { backgroundColor: `${color}10` }]}>
-          <Ionicons name={icon} size={20} color={color} />
-        </View>
+        <LinearGradient
+          colors={iconBg ? [iconBg, iconBg] : [`${color}15`, `${color}25`]}
+          style={styles.settingIcon}
+        >
+          <Ionicons name={icon} size={22} color={color} />
+        </LinearGradient>
         <View style={styles.settingTextContainer}>
           <Text style={styles.settingTitle}>{title}</Text>
           {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
@@ -60,9 +127,22 @@ export default function ProfileScreen() {
       {rightElement ? (
         rightElement
       ) : (
-        <Ionicons name="chevron-forward" size={18} color={COLORS.divider} />
+        <Ionicons name="chevron-forward" size={20} color={COLORS.text.muted} />
       )}
     </TouchableOpacity>
+  );
+
+  const StatCard = ({ icon, value, label, color }: any) => (
+    <View style={styles.statCard}>
+      <LinearGradient
+        colors={[`${color}15`, `${color}25`]}
+        style={styles.statIconContainer}
+      >
+        <MaterialCommunityIcons name={icon} size={24} color={color} />
+      </LinearGradient>
+      <Text style={[styles.statValue, { color }]}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
   );
 
   return (
@@ -74,22 +154,96 @@ export default function ProfileScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+            progressViewOffset={180}
+          />
+        }
       >
         {/* Quick Stats Section */}
-        <View style={styles.statsCard}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Listings</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>8</Text>
-            <Text style={styles.statLabel}>Saved</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>24</Text>
-            <Text style={styles.statLabel}>Views</Text>
+        <View style={styles.statsContainer}>
+          <StatCard
+            icon="car-multiple"
+            value={loading ? '...' : stats.listings}
+            label="My Listings"
+            color={COLORS.primary}
+          />
+          <StatCard
+            icon="heart"
+            value={loading ? '...' : stats.saved}
+            label="Saved"
+            color="#EF4444"
+          />
+          <StatCard
+            icon="eye"
+            value={loading ? '...' : stats.views}
+            label="Profile Views"
+            color="#10B981"
+          />
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            <TouchableOpacity
+              style={styles.quickActionCard}
+              onPress={() => handleMenuItemPress('/ads/my-ads')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#3B82F6', '#2563EB']}
+                style={styles.quickActionGradient}
+              >
+                <Ionicons name="megaphone" size={28} color={COLORS.white} />
+                <Text style={styles.quickActionText}>My Ads</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionCard}
+              onPress={() => handleMenuItemPress('/packages/subscriptions')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#8B5CF6', '#7C3AED']}
+                style={styles.quickActionGradient}
+              >
+                <Ionicons name="ribbon" size={28} color={COLORS.white} />
+                <Text style={styles.quickActionText}>Premium</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionCard}
+              onPress={() => handleMenuItemPress('/payments/payment-history')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#10B981', '#059669']}
+                style={styles.quickActionGradient}
+              >
+                <Ionicons name="wallet" size={28} color={COLORS.white} />
+                <Text style={styles.quickActionText}>Payments</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionCard}
+              onPress={() => handleMenuItemPress('/profile/ratings')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#F59E0B', '#D97706']}
+                style={styles.quickActionGradient}
+              >
+                <Ionicons name="star" size={28} color={COLORS.white} />
+                <Text style={styles.quickActionText}>Ratings</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -102,13 +256,23 @@ export default function ProfileScreen() {
               title="Edit Profile"
               subtitle="Update your profile information"
               onPress={() => handleMenuItemPress('/profile/edit-profile')}
+              color={COLORS.primary}
             />
             <View style={styles.divider} />
             <SettingItem
               icon="location-outline"
               title="Address"
-              subtitle="Update your location"
+              subtitle="Manage your saved addresses"
               onPress={() => handleMenuItemPress('/profile/address')}
+              color="#10B981"
+            />
+            <View style={styles.divider} />
+            <SettingItem
+              icon="shield-checkmark-outline"
+              title="Verification"
+              subtitle="Verify your account"
+              onPress={() => {}}
+              color="#8B5CF6"
             />
           </View>
         </View>
@@ -122,20 +286,23 @@ export default function ProfileScreen() {
               title="Notifications"
               subtitle="Manage alerts and updates"
               onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
+              color="#F59E0B"
             />
             <View style={styles.divider} />
             <SettingItem
               icon="card-outline"
               title="Payment Methods"
-              subtitle="Manage your payments"
+              subtitle="Manage your payment options"
               onPress={() => handleMenuItemPress('/payments/payment-methods')}
+              color="#10B981"
             />
             <View style={styles.divider} />
             <SettingItem
               icon="lock-closed-outline"
-              title="Privacy and Security"
-              subtitle="Control your data"
+              title="Privacy & Security"
+              subtitle="Control your data and privacy"
               onPress={() => handleMenuItemPress('/settings/privacy-policy')}
+              color="#EF4444"
             />
             <View style={styles.divider} />
             <SettingItem
@@ -143,11 +310,14 @@ export default function ProfileScreen() {
               title="Language"
               subtitle="English (US)"
               onPress={() => handleMenuItemPress('/settings/select-language')}
+              color="#3B82F6"
             />
             <View style={styles.divider} />
             <SettingItem
               icon="moon-outline"
               title="Dark Mode"
+              subtitle="Coming soon"
+              color="#6B7280"
               rightElement={
                 <Switch
                   value={darkMode}
@@ -156,7 +326,8 @@ export default function ProfileScreen() {
                     setDarkMode(value);
                   }}
                   thumbColor={COLORS.white}
-                  trackColor={{ true: COLORS.primary, false: COLORS.divider }}
+                  trackColor={{ true: COLORS.primary, false: '#D1D5DB' }}
+                  ios_backgroundColor="#D1D5DB"
                 />
               }
             />
@@ -165,46 +336,75 @@ export default function ProfileScreen() {
 
         {/* Support Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
+          <Text style={styles.sectionTitle}>Support & About</Text>
           <View style={styles.card}>
             <SettingItem
               icon="help-circle-outline"
               title="Help & Support"
+              subtitle="Get help with your account"
               onPress={() => handleMenuItemPress('/support/help-support')}
+              color="#3B82F6"
+            />
+            <View style={styles.divider} />
+            <SettingItem
+              icon="chatbubble-ellipses-outline"
+              title="Contact Us"
+              subtitle="Reach out to our team"
+              onPress={() => handleMenuItemPress('/support/contact-us')}
+              color="#10B981"
             />
             <View style={styles.divider} />
             <SettingItem
               icon="information-circle-outline"
-              title="About this App"
+              title="About EasyAuto"
+              subtitle="Learn more about us"
               onPress={() => handleMenuItemPress('/settings/about-app')}
+              color="#8B5CF6"
             />
             <View style={styles.divider} />
             <SettingItem
               icon="people-outline"
               title="Invite Friends"
-              onPress={() => handleMenuItemPress('/settings/invite-friends')}
+              subtitle="Share and earn rewards"
+              onPress={() => handleMenuItemPress('/support/invite-friend')}
+              color="#F59E0B"
             />
             <View style={styles.divider} />
             <SettingItem
-              icon="repeat-outline"
-              title="Switch Accounts"
-              onPress={() => handleMenuItemPress('/settings/switch-account')}
+              icon="document-text-outline"
+              title="Terms & Conditions"
+              onPress={() => handleMenuItemPress('/settings/terms-conditions')}
+              color="#6B7280"
             />
           </View>
         </View>
 
-        {/* Logout Button */}
+        {/* Danger Zone */}
         <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={() => { }}
-            activeOpacity={0.7}
-          >
-            <View style={styles.logoutIconContainer}>
-              <Ionicons name="log-out-outline" size={20} color={COLORS.status.danger} />
-            </View>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
+          <Text style={styles.sectionTitle}>Account Actions</Text>
+          <View style={styles.card}>
+            <SettingItem
+              icon="repeat-outline"
+              title="Switch Account"
+              subtitle="Change to another account"
+              onPress={() => handleMenuItemPress('/settings/switch-account')}
+              color="#3B82F6"
+            />
+            <View style={styles.divider} />
+            <SettingItem
+              icon="log-out-outline"
+              title="Logout"
+              subtitle="Sign out of your account"
+              onPress={handleLogout}
+              color="#EF4444"
+            />
+          </View>
+        </View>
+
+        {/* App Version */}
+        <View style={styles.versionContainer}>
+          <Text style={styles.versionText}>EasyAuto v1.0.0</Text>
+          <Text style={styles.versionSubtext}>Made with ❤️ in Sri Lanka</Text>
         </View>
 
         <View style={{ height: 100 }} />
@@ -222,63 +422,102 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    paddingTop: 180,
+    paddingTop: 220,
     paddingBottom: 40,
   },
-  statsCard: {
+  statsContainer: {
     flexDirection: 'row',
-    backgroundColor: COLORS.white,
     marginHorizontal: 16,
     marginTop: 20,
     marginBottom: 24,
-    borderRadius: 16,
-    paddingVertical: 18,
-    borderWidth: 1,
-    borderColor: COLORS.divider,
+    gap: 12,
   },
-  statItem: {
+  statCard: {
     flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+  },
+  statIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: COLORS.primary,
-    marginBottom: 2,
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     color: COLORS.text.muted,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: COLORS.divider,
+    textAlign: 'center',
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 24,
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.text.muted,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+    fontWeight: '700',
     marginBottom: 12,
     marginLeft: 4,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  quickActionCard: {
+    width: '48%',
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  quickActionGradient: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 100,
+  },
+  quickActionText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '700',
+    marginTop: 8,
   },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: 16,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: COLORS.divider,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 14,
+    padding: 16,
   },
   settingLeft: {
     flexDirection: 'row',
@@ -286,12 +525,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 14,
   },
   settingTextContainer: {
     flex: 1,
@@ -300,38 +539,30 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.text.primary,
+    marginBottom: 2,
   },
   settingSubtitle: {
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.text.muted,
-    marginTop: 1,
+    marginTop: 2,
   },
   divider: {
     height: 1,
     backgroundColor: COLORS.divider,
-    marginLeft: 64,
+    marginLeft: 74,
   },
-  logoutButton: {
-    flexDirection: 'row',
+  versionContainer: {
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#FEE2E2',
+    paddingVertical: 24,
   },
-  logoutIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: '#FEE2E2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+  versionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.text.muted,
+    marginBottom: 4,
   },
-  logoutText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.status.danger,
+  versionSubtext: {
+    fontSize: 12,
+    color: COLORS.text.muted,
   },
 });

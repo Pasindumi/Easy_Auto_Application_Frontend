@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React from "react";
@@ -19,6 +19,7 @@ interface TrendingCarsProps {
 }
 
 import { CATEGORIES, TRENDING_CARS } from "@/constants/dummydata/homedummydata";
+import COLORS from "@/constants/Colors";
 
 const TrendingCars: React.FC<TrendingCarsProps> = ({
     fadeAnim,
@@ -29,26 +30,26 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     return (
         <Animated.View
             style={[
-                styles.section,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.sectionHeader}>
-                <View style={styles.sectionTitleContainer}>
-                    <Text style={styles.sectionTitle}>Trending Cars</Text>
-                    <Text style={styles.sectionSubtitle}>Most popular this week</Text>
+            <View style={styles.header}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Trending Cars</Text>
+                    <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
                 <TouchableOpacity
-                    style={styles.viewAllButtonSmall}
+                    style={styles.viewAllButton}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     }}
                 >
-                    <Text style={styles.viewAllButtonTextSmall}>View All</Text>
-                    <MaterialIcons name="arrow-forward" size={16} color="#235CF8" />
+                    <Text style={styles.viewAllText}>View All</Text>
+                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
 
@@ -56,15 +57,15 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.categoryTabsScroll}
-                contentContainerStyle={styles.categoryTabsContainer}
+                style={styles.tabsScroll}
+                contentContainerStyle={styles.tabsContainer}
             >
                 {CATEGORIES.map((category) => (
                     <TouchableOpacity
                         key={`category-${category.name}`}
                         style={[
-                            styles.categoryTab,
-                            trendingCategory === category.name && styles.categoryTabActive,
+                            styles.tab,
+                            trendingCategory === category.name && styles.tabActive,
                         ]}
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -73,9 +74,8 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                     >
                         <Text
                             style={[
-                                styles.categoryTabText,
-                                trendingCategory === category.name &&
-                                styles.categoryTabTextActive,
+                                styles.tabText,
+                                trendingCategory === category.name && styles.tabTextActive,
                             ]}
                         >
                             {category.name}
@@ -83,16 +83,14 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                         {category.count > 0 && (
                             <View
                                 style={[
-                                    styles.categoryCountBadge,
-                                    trendingCategory === category.name &&
-                                    styles.categoryCountBadgeActive,
+                                    styles.badge,
+                                    trendingCategory === category.name && styles.badgeActive,
                                 ]}
                             >
                                 <Text
                                     style={[
-                                        styles.categoryCountText,
-                                        trendingCategory === category.name &&
-                                        styles.categoryCountTextActive,
+                                        styles.badgeText,
+                                        trendingCategory === category.name && styles.badgeTextActive,
                                     ]}
                                 >
                                     {category.count}
@@ -106,52 +104,61 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.horizontalScroll}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={styles.cardsContainer}
+                decelerationRate="fast"
+                snapToInterval={240}
             >
-                {TRENDING_CARS.map((car) => (
+                {TRENDING_CARS.map((car, index) => (
                     <TouchableOpacity
-                        key={`trending-${car.id}`}
-                        style={styles.trendingCarCard}
-                        activeOpacity={0.95}
+                        key={`trending-${car.id}-${index}`}
+                        style={styles.card}
+                        activeOpacity={0.9}
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                     >
-                        <View style={styles.trendingImageWrapper}>
+                        <View style={styles.imageContainer}>
                             <Image
                                 source={{ uri: car.image }}
-                                style={styles.trendingCarImage}
+                                style={styles.image}
                                 contentFit="cover"
                                 transition={300}
                                 placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgRj" }}
                                 cachePolicy="memory-disk"
                                 priority="high"
-                                recyclingKey={`trending-${car.id}`}
                             />
+                            
                             {/* Status Badge */}
                             <View
                                 style={[
-                                    styles.trendingStatusBadge,
-                                    car.status === "Hot Deal" && styles.statusBadgeHot,
-                                    car.status === "Certified" && styles.statusBadgeCertified,
-                                    car.status === "New" && styles.statusBadgeNew,
+                                    styles.statusBadge,
+                                    car.status === "Hot Deal" && styles.statusHot,
+                                    car.status === "Certified" && styles.statusCertified,
+                                    car.status === "New" && styles.statusNew,
                                 ]}
                             >
-                                <Text style={styles.statusBadgeText}>{car.status}</Text>
+                                <Text style={styles.statusText}>{car.status}</Text>
+                            </View>
+
+                            <View style={styles.priceTag}>
+                                <Text style={styles.priceText}>{car.price}</Text>
                             </View>
                         </View>
-                        {/* Car Info */}
-                        <View style={styles.trendingCarInfo}>
-                            <Text style={styles.trendingCarName}>
+                        
+                        <View style={styles.cardContent}>
+                            <Text style={styles.cardTitle}>
                                 {car.model} {car.year && `(${car.year})`}
                             </Text>
-                            <View style={styles.trendingCarPriceRow}>
-                                <Text style={styles.trendingCarPrice}>{car.price}</Text>
-                                <Text style={styles.trendingCarLocation}>
-                                    {car.location.split(",")[0]}
-                                </Text>
-                            </View>
+                           
+                           <View style={styles.detailsRow}>
+                                <View style={styles.locationRow}>
+                                    <Ionicons name="location-outline" size={14} color={COLORS.text.muted} />
+                                    <Text style={styles.locationText}>
+                                        {car.location.split(",")[0]}
+                                    </Text>
+                                </View>
+                                {/* Rating or other info could go here */}
+                           </View>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -161,176 +168,173 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
 };
 
 const styles = StyleSheet.create({
-    section: {
-        paddingVertical: 20,
-        paddingBottom: 32,
-        backgroundColor: "#FFFFFF",
-        marginBottom: 8,
+    container: {
+        marginTop: 8,
+        marginBottom: 24,
     },
-    sectionHeader: {
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "flex-end",
+        alignItems: "center",
         paddingHorizontal: 20,
         marginBottom: 16,
     },
-    sectionTitleContainer: {
-        gap: 4,
+    titleContainer: {
+        flex: 1,
     },
-    sectionTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-        color: "#111827",
+    title: {
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.text.primary,
         letterSpacing: -0.5,
     },
-    sectionSubtitle: {
+    subtitle: {
         fontSize: 13,
-        color: "#6B7280",
+        color: COLORS.text.muted,
+        marginTop: 2,
         fontWeight: "500",
     },
-    viewAllButtonSmall: {
+    viewAllButton: {
         flexDirection: "row",
         alignItems: "center",
         gap: 4,
+        padding: 4,
     },
-    viewAllButtonTextSmall: {
+    viewAllText: {
         fontSize: 13,
         fontWeight: "600",
-        color: "#235CF8",
+        color: COLORS.primary,
     },
-    categoryTabsScroll: {
+    tabsScroll: {
         marginBottom: 20,
     },
-    categoryTabsContainer: {
+    tabsContainer: {
         paddingHorizontal: 20,
-        gap: 12,
+        gap: 10,
     },
-    categoryTab: {
+    tab: {
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 12,
-        backgroundColor: "#F3F4F6",
-        borderWidth: 1,
-        borderColor: "#F3F4F6",
+        borderRadius: 20, // Full rounded
+        backgroundColor: COLORS.secondary,
         gap: 8,
     },
-    categoryTabActive: {
-        backgroundColor: "#EEF2FF",
-        borderColor: "#235CF8",
+    tabActive: {
+        backgroundColor: COLORS.primary,
     },
-    categoryTabText: {
+    tabText: {
         fontSize: 14,
         fontWeight: "600",
-        color: "#6B7280",
+        color: COLORS.text.secondary,
     },
-    categoryTabTextActive: {
-        color: "#235CF8",
+    tabTextActive: {
+        color: COLORS.white,
     },
-    categoryCountBadge: {
-        backgroundColor: "#E5E7EB",
+    badge: {
+        backgroundColor: "rgba(0,0,0,0.05)",
         paddingHorizontal: 6,
         paddingVertical: 2,
-        borderRadius: 6,
+        borderRadius: 8,
     },
-    categoryCountBadgeActive: {
-        backgroundColor: "#235CF8",
+    badgeActive: {
+        backgroundColor: "rgba(255,255,255,0.2)",
     },
-    categoryCountText: {
+    badgeText: {
         fontSize: 10,
         fontWeight: "700",
-        color: "#4B5563",
+        color: COLORS.text.muted,
     },
-    categoryCountTextActive: {
-        color: "#FFFFFF",
+    badgeTextActive: {
+        color: COLORS.white,
     },
-    horizontalScroll: {
+    cardsContainer: {
         paddingHorizontal: 20,
+        gap: 16,
     },
-    trendingCarCard: {
-        width: 150,
-        marginRight: 12,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
-        overflow: "hidden",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
+    card: {
+        width: 230,
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
         shadowRadius: 16,
         elevation: 6,
+        borderWidth: 1,
+        borderColor: COLORS.border,
     },
-    trendingImageWrapper: {
-        position: "relative",
+    imageContainer: {
+        height: 140,
         width: "100%",
-        height: 110,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         overflow: "hidden",
+        position: 'relative',
     },
-    trendingCarImage: {
+    image: {
         width: "100%",
         height: "100%",
     },
-    trendingStatusBadge: {
+    statusBadge: {
         position: "absolute",
-        top: 12,
-        right: 12,
+        top: 10,
+        right: 10,
         paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 3,
-        zIndex: 3,
+        paddingVertical: 4,
+        borderRadius: 8,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        backdropFilter: 'blur(10px)', // doesn't work on RN, but just logic
     },
-    statusBadgeHot: {
-        backgroundColor: "#FF6B35",
-    },
-    statusBadgeCertified: {
-        backgroundColor: "#10B981",
-    },
-    statusBadgeNew: {
-        backgroundColor: "#235CF8",
-    },
-    statusBadgeText: {
+    statusHot: { backgroundColor: COLORS.status.danger },
+    statusCertified: { backgroundColor: COLORS.status.success },
+    statusNew: { backgroundColor: COLORS.primary },
+    statusText: {
         fontSize: 10,
         fontWeight: "700",
-        color: "#FFFFFF",
-        letterSpacing: 0.2,
+        color: COLORS.white,
+        textTransform: 'uppercase',
     },
-    trendingCarInfo: {
-        padding: 12,
+    priceTag: {
+        position: 'absolute',
+        bottom: 10,
+        left: 10,
+        backgroundColor: 'rgba(0,0,0,0.75)',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    priceText: {
+        color: COLORS.white,
+        fontWeight: "700",
+        fontSize: 12,
+    },
+    cardContent: {
+        padding: 14,
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: COLORS.text.primary,
+        marginBottom: 8,
+    },
+    detailsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    locationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 4,
-        alignItems: "flex-start",
     },
-    trendingCarName: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: -0.2,
-        textAlign: "left",
-    },
-    trendingCarPriceRow: {
-        flexDirection: "column",
-        alignItems: "flex-start",
-        gap: 2,
-        width: "100%",
-    },
-    trendingCarPrice: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: "#235CF8",
-        letterSpacing: -0.2,
-        textAlign: "left",
-    },
-    trendingCarLocation: {
-        fontSize: 11,
-        color: "#6B7280",
+    locationText: {
+        fontSize: 12,
+        color: COLORS.text.muted,
         fontWeight: "500",
-        textAlign: "left",
     },
 });
 

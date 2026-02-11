@@ -1,4 +1,5 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import COLORS from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef } from "react";
 import {
     Animated,
@@ -66,7 +67,9 @@ export const EmptyState = ({
     onAction?: () => void;
 }) => (
     <View style={styles.emptyStateContainer}>
-        <MaterialIcons name={icon as any} size={64} color="#D1D5DB" />
+        <View style={styles.emptyIconCircle}>
+            <Ionicons name={icon as any} size={48} color={COLORS.text.muted} />
+        </View>
         <Text style={styles.emptyStateTitle}>{title}</Text>
         <Text style={styles.emptyStateMessage}>{message}</Text>
         {actionText && onAction && (
@@ -83,8 +86,8 @@ export const SkeletonLoader = ({
     height,
     style,
 }: {
-    width: number;
-    height: number;
+    width: any;
+    height: any;
     style?: any;
 }) => {
     const shimmerAnim = useRef(new Animated.Value(0)).current;
@@ -94,12 +97,12 @@ export const SkeletonLoader = ({
             Animated.sequence([
                 Animated.timing(shimmerAnim, {
                     toValue: 1,
-                    duration: 1000,
+                    duration: 1200,
                     useNativeDriver: true,
                 }),
                 Animated.timing(shimmerAnim, {
                     toValue: 0,
-                    duration: 1000,
+                    duration: 1200,
                     useNativeDriver: true,
                 }),
             ])
@@ -108,7 +111,7 @@ export const SkeletonLoader = ({
 
     const opacity = shimmerAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: [0.3, 0.7],
+        outputRange: [0.3, 0.6],
     });
 
     return (
@@ -117,13 +120,46 @@ export const SkeletonLoader = ({
                 {
                     width,
                     height,
-                    backgroundColor: "#E5E7EB",
-                    borderRadius: 8,
+                    backgroundColor: COLORS.border,
+                    borderRadius: 12,
                     opacity,
                 },
                 style,
             ]}
         />
+    );
+};
+
+// Back to Top Button
+export const BackToTop = ({
+    visible,
+    onPress,
+}: {
+    visible: boolean;
+    onPress: () => void;
+}) => {
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.timing(fadeAnim, {
+            toValue: visible ? 1 : 0,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    }, [visible]);
+
+    if (!visible) return null;
+
+    return (
+        <Animated.View style={[styles.backToTopContainer, { opacity: fadeAnim }]}>
+            <TouchableOpacity
+                style={styles.backToTopButton}
+                onPress={onPress}
+                activeOpacity={0.8}
+            >
+                <Ionicons name="chevron-up" size={24} color={COLORS.white} />
+            </TouchableOpacity>
+        </Animated.View>
     );
 };
 
@@ -134,69 +170,65 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+    emptyIconCircle: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: COLORS.background,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
     emptyStateTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-        color: "#111827",
-        marginTop: 16,
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.text.primary,
         marginBottom: 8,
         textAlign: "center",
+        letterSpacing: -0.5,
     },
     emptyStateMessage: {
         fontSize: 14,
-        color: "#6B7280",
+        color: COLORS.text.muted,
         textAlign: "center",
-        lineHeight: 20,
-        marginBottom: 24,
+        lineHeight: 22,
+        marginBottom: 32,
     },
     emptyStateButton: {
-        backgroundColor: "#235CF8",
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 12,
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 32,
+        paddingVertical: 14,
+        borderRadius: 16,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
     emptyStateButtonText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#FFFFFF",
+        fontSize: 16,
+        fontWeight: "700",
+        color: COLORS.white,
     },
-    // Back to Top Button
-    backToTopButton: {
+    backToTopContainer: {
         position: "absolute",
         bottom: 100,
         right: 20,
+        zIndex: 1000,
+    },
+    backToTopButton: {
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: "#235CF8",
+        backgroundColor: COLORS.primary,
         justifyContent: "center",
         alignItems: "center",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
         elevation: 8,
-        zIndex: 1000,
+        borderWidth: 2,
+        borderColor: COLORS.white,
     },
 });
-
-// Back to Top Button
-export const BackToTop = ({
-    visible,
-    onPress,
-}: {
-    visible: boolean;
-    onPress: () => void;
-}) => {
-    if (!visible) return null;
-
-    return (
-        <TouchableOpacity
-            style={styles.backToTopButton}
-            onPress={onPress}
-            activeOpacity={0.8}
-        >
-            <MaterialIcons name="keyboard-arrow-up" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-    );
-};

@@ -10,8 +10,11 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import COLORS from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
+const CARD_WIDTH = width * 0.85;
 
 interface TestimonialsProps {
     fadeAnim: Animated.Value;
@@ -23,61 +26,65 @@ const Testimonials: React.FC<TestimonialsProps> = ({ fadeAnim, slideAnim }) => {
     return (
         <Animated.View
             style={[
-                styles.sectionWhite,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitleNoMargin}>What Our Users Say</Text>
-                <TouchableOpacity>
-                    <Text style={styles.seeAllLink}>See all</Text>
+            <View style={styles.header}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>What Our Users Say</Text>
+                    <Text style={styles.subtitle}>Trusted by thousands of happy customers</Text>
+                </View>
+                <TouchableOpacity style={styles.viewAllButton}>
+                    <Text style={styles.viewAllText}>View All</Text>
+                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
+
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.horizontalScroll}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={styles.scrollContent}
+                decelerationRate="fast"
+                snapToInterval={CARD_WIDTH + 16}
             >
                 {TESTIMONIALS.map((testimonial, index) => (
-                    <TouchableOpacity
+                    <View
                         key={`testimonial-${index}`}
-                        style={styles.testimonialCard}
+                        style={styles.card}
                     >
-                        <View style={styles.testimonialHeader}>
-                            <View style={styles.avatarContainer}>
-                                <Text style={styles.avatar}>{testimonial.avatar}</Text>
+                        <View style={styles.cardHeader}>
+                            <View style={styles.userInfo}>
+                                <View style={styles.avatarContainer}>
+                                    <Text style={styles.avatar}>{testimonial.avatar}</Text>
+                                </View>
+                                <View>
+                                    <Text style={styles.userName}>{testimonial.name}</Text>
+                                    <View style={styles.ratingRow}>
+                                        {[...Array(5)].map((_, i) => (
+                                            <MaterialIcons
+                                                key={`star-${i}`}
+                                                name="star"
+                                                size={14}
+                                                color={i < testimonial.rating ? "#FFD700" : COLORS.border}
+                                            />
+                                        ))}
+                                        <Text style={styles.dateText}>{testimonial.date}</Text>
+                                    </View>
+                                </View>
                             </View>
-                            <View style={styles.testimonialInfo}>
-                                <View style={styles.testimonialNameRow}>
-                                    <Text style={styles.testimonialName}>
-                                        {testimonial.name}
-                                    </Text>
-                                    <Text style={styles.testimonialDate}>
-                                        {testimonial.date}
-                                    </Text>
-                                </View>
-                                <View style={styles.ratingContainer}>
-                                    {[...Array(testimonial.rating)].map((_, i) => (
-                                        <MaterialIcons
-                                            key={`testimonial-${index}-star-${i}`}
-                                            name="star"
-                                            size={16}
-                                            color="#FFD700"
-                                        />
-                                    ))}
-                                </View>
+                            <View style={styles.quoteIconContainer}>
+                                <MaterialIcons name="format-quote" size={24} color={COLORS.primary} style={{ opacity: 0.2 }} />
                             </View>
                         </View>
-                        <Text style={styles.testimonialQuote}>
-                            {'"'}
-                            {testimonial.quote}
-                            {'"'}
+                        
+                        <Text style={styles.quoteText}>
+                            "{testimonial.quote}"
                         </Text>
-                    </TouchableOpacity>
+                    </View>
                 ))}
             </ScrollView>
         </Animated.View>
@@ -85,101 +92,108 @@ const Testimonials: React.FC<TestimonialsProps> = ({ fadeAnim, slideAnim }) => {
 };
 
 const styles = StyleSheet.create({
-    sectionWhite: {
-        paddingHorizontal: 0,
-        paddingVertical: 24,
-        paddingBottom: 32,
-        backgroundColor: "#FFFFFF",
+    container: {
+        marginBottom: 40,
+        paddingVertical: 16,
+        backgroundColor: COLORS.background,
     },
-    sectionHeader: {
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "flex-end",
+        alignItems: "center",
         paddingHorizontal: 20,
-        marginBottom: 16,
+        marginBottom: 20,
     },
-    sectionTitleNoMargin: {
-        fontSize: 22,
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: -0.4,
+    titleContainer: {
+        flex: 1,
     },
-    seeAllLink: {
-        fontSize: 14,
-        color: "#235CF8",
+    title: {
+        fontSize: 20,
+        fontWeight: "800",
+        color: COLORS.text.primary,
+        letterSpacing: -0.5,
+    },
+    subtitle: {
+        fontSize: 13,
+        color: COLORS.text.muted,
+        marginTop: 2,
+        fontWeight: "500",
+    },
+    viewAllButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        padding: 4,
+    },
+    viewAllText: {
+        fontSize: 13,
+        color: COLORS.primary,
         fontWeight: "600",
     },
-    horizontalScroll: {
+    scrollContent: {
         paddingHorizontal: 20,
+        gap: 16,
     },
-    testimonialCard: {
-        width: width * 0.85,
-        backgroundColor: "#FFFFFF",
+    card: {
+        width: CARD_WIDTH,
+        backgroundColor: COLORS.white,
         borderRadius: 24,
-        padding: 24,
-        marginRight: 16,
+        padding: 20,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
         borderWidth: 1,
-        borderColor: "#E5E7EB",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
-        elevation: 6,
+        borderColor: COLORS.border,
     },
-    testimonialHeader: {
+    cardHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        marginBottom: 16,
+    },
+    userInfo: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 16,
         gap: 12,
     },
     avatarContainer: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: "#F3F4F6",
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: COLORS.background,
         justifyContent: "center",
         alignItems: "center",
-        borderWidth: 2.5,
-        borderColor: "#E5E7EB",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
+        borderWidth: 1,
+        borderColor: COLORS.border,
     },
     avatar: {
-        fontSize: 28,
+        fontSize: 24,
     },
-    testimonialInfo: {
-        flex: 1,
-        gap: 8,
-    },
-    testimonialNameRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-    },
-    testimonialName: {
-        fontSize: 17,
+    userName: {
+        fontSize: 16,
         fontWeight: "700",
-        color: "#1F2937",
-        letterSpacing: -0.3,
+        color: COLORS.text.primary,
+        marginBottom: 4,
     },
-    testimonialDate: {
-        fontSize: 12,
-        color: "#9CA3AF",
-        fontWeight: "500",
-    },
-    ratingContainer: {
+    ratingRow: {
         flexDirection: "row",
-        gap: 3,
+        alignItems: "center",
+        gap: 4,
     },
-    testimonialQuote: {
+    dateText: {
+        fontSize: 11,
+        color: COLORS.text.muted,
+        marginLeft: 8,
+    },
+    quoteIconContainer: {
+        // Optional styling for quote icon container
+    },
+    quoteText: {
         fontSize: 15,
-        color: "#4B5563",
+        color: COLORS.text.secondary,
         lineHeight: 24,
-        fontWeight: "400",
-        letterSpacing: -0.1,
         fontStyle: "italic",
     },
 });

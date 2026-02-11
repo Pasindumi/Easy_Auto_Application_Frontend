@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
@@ -12,6 +12,7 @@ import {
     View,
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
+import COLORS from "@/constants/Colors";
 
 interface ActionGridProps {
     fadeAnim: Animated.Value;
@@ -20,8 +21,8 @@ interface ActionGridProps {
     newListingsCount: number;
 }
 
-// Pressable Action Button with Glassmorphism
-const GlassmorphismButton = ({
+// Modern Pressable Card
+const ActionCard = ({
     children,
     onPress,
     delay = 0,
@@ -37,27 +38,27 @@ const GlassmorphismButton = ({
         Animated.parallel([
             Animated.timing(scaleAnim, {
                 toValue: 1,
-                duration: 400,
+                duration: 500,
                 delay,
-                easing: Easing.out(Easing.back(1.1)),
+                easing: Easing.out(Easing.back(1.5)),
                 useNativeDriver: true,
             }),
             Animated.timing(opacityAnim, {
                 toValue: 1,
-                duration: 400,
+                duration: 500,
                 delay,
                 easing: Easing.out(Easing.ease),
                 useNativeDriver: true,
             }),
         ]).start();
-    }, [delay, scaleAnim, opacityAnim]);
+    }, [delay]);
 
     const handlePressIn = () => {
         Animated.spring(scaleAnim, {
-            toValue: 0.95,
+            toValue: 0.92,
             useNativeDriver: true,
-            tension: 300,
-            friction: 10,
+            tension: 400,
+            friction: 12,
         }).start();
     };
 
@@ -65,8 +66,8 @@ const GlassmorphismButton = ({
         Animated.spring(scaleAnim, {
             toValue: 1,
             useNativeDriver: true,
-            tension: 300,
-            friction: 10,
+            tension: 400,
+            friction: 12,
         }).start();
     };
 
@@ -82,6 +83,7 @@ const GlassmorphismButton = ({
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 activeOpacity={1}
+                style={styles.cardContainer}
             >
                 {children}
             </TouchableOpacity>
@@ -98,10 +100,75 @@ const ActionGrid: React.FC<ActionGridProps> = ({
     const router = useRouter();
     const { isAuthenticated } = useAuth();
 
+    const actions = [
+        {
+            label: "Buy a Car",
+            desc: "Find your dream ride",
+            icon: "car-sport",
+            iconFamily: Ionicons,
+            color: "#235CF8",
+            bgColor: "#EEF3FF",
+            route: "/cars/buy-car",
+        },
+        {
+            label: "Sell Car",
+            desc: "Get instant quotes",
+            icon: "cash-outline",
+            iconFamily: Ionicons,
+            color: "#059669",
+            bgColor: "#ECFDF5",
+             onPress: () => {
+                if (isAuthenticated) {
+                    router.push("/cars/select-type");
+                } else {
+                    router.push("/cars/select-type"); // Protected route handles redirect
+                }
+            }
+        },
+        {
+            label: "Rentals",
+            desc: "Flexible options",
+            icon: "key-outline",
+            iconFamily: Ionicons,
+            color: "#D97706",
+            bgColor: "#FFFBEB",
+            route: "/cars/rent-car",
+        },
+        {
+            label: "Compare",
+            desc: "Side by side",
+            icon: "git-compare-outline",
+            iconFamily: Ionicons,
+            color: "#7C3AED",
+            bgColor: "#F5F3FF",
+            route: "/(tabs)/compare",
+            badge: compareCount > 0 ? (compareCount > 9 ? "9+" : compareCount) : null,
+            badgeColor: COLORS.status.danger
+        },
+        {
+            label: "Dealers",
+            desc: `${newListingsCount}+ Listings`,
+            icon: "storefront-outline",
+            iconFamily: Ionicons,
+            color: "#DC2626",
+            bgColor: "#FEF2F2",
+            route: "/find-dealers",
+        },
+         {
+            label: "Packages",
+            desc: "Boost ads",
+            icon: "rocket-outline",
+            iconFamily: Ionicons,
+            color: "#0891B2",
+            bgColor: "#ECFEFF",
+            route: "/packages/packages",
+        },
+    ];
+
     return (
         <Animated.View
             style={[
-                styles.actionGridContainer,
+                styles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
@@ -111,240 +178,111 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollableActionContainer}
-                style={styles.scrollableActionScrollView}
+                contentContainerStyle={styles.scrollContent}
+                decelerationRate="fast"
+                snapToInterval={110} 
             >
-                <GlassmorphismButton
-                    delay={100}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/cars/buy-car");
-                    }}
-                >
-                    <View style={styles.scrollableActionCard}>
-                        <View
-                            style={[
-                                styles.colorfulIconContainer,
-                                { backgroundColor: "#E3F2FD" },
-                            ]}
-                        >
-                            <MaterialIcons name="directions-car" size={32} color="#1976D2" />
-                        </View>
-                        <Text style={styles.scrollableActionLabel}>Buy a Car</Text>
-                        <Text style={styles.scrollableActionDescription}>
-                            Find your perfect car
-                        </Text>
-                    </View>
-                </GlassmorphismButton>
-
-                <GlassmorphismButton
-                    delay={150}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        if (isAuthenticated) {
-                            router.push("/cars/select-type");
-                        } else {
-                            router.push("/cars/select-type"); // Guard in the page will handle it
-                        }
-                    }}
-                >
-                    <View style={styles.scrollableActionCard}>
-                        <View
-                            style={[
-                                styles.colorfulIconContainer,
-                                { backgroundColor: "#FFF3E0" },
-                            ]}
-                        >
-                            <MaterialIcons name="sell" size={32} color="#F57C00" />
-                        </View>
-                        <Text style={styles.scrollableActionLabel}>Sell Vehicle</Text>
-                        <Text style={styles.scrollableActionDescription}>
-                            Get instant quotes
-                        </Text>
-                    </View>
-                </GlassmorphismButton>
-
-                <GlassmorphismButton
-                    delay={200}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/cars/rent-car");
-                    }}
-                >
-                    <View style={styles.scrollableActionCard}>
-                        <View
-                            style={[
-                                styles.colorfulIconContainer,
-                                { backgroundColor: "#E8F5E9" },
-                            ]}
-                        >
-                            <MaterialIcons name="vpn-key" size={32} color="#388E3C" />
-                        </View>
-                        <Text style={styles.scrollableActionLabel}>Rent a Car</Text>
-                        <Text style={styles.scrollableActionDescription}>
-                            Daily & monthly rates
-                        </Text>
-                    </View>
-                </GlassmorphismButton>
-
-                <GlassmorphismButton
-                    delay={250}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/(tabs)/compare");
-                    }}
-                >
-                    <View style={styles.scrollableActionCard}>
-                        <View style={styles.actionCardHeader}>
-                            <View
-                                style={[
-                                    styles.colorfulIconContainer,
-                                    { backgroundColor: "#F3E5F5" },
-                                ]}
-                            >
-                                <MaterialIcons name="compare-arrows" size={32} color="#7B1FA2" />
+                {actions.map((action, index) => (
+                    <ActionCard
+                        key={index}
+                        delay={100 + index * 50}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            if (action.onPress) {
+                                action.onPress();
+                            } else if (action.route) {
+                                router.push(action.route as any);
+                            }
+                        }}
+                    >
+                        <View style={styles.cardContent}>
+                            <View style={[styles.iconBox, { backgroundColor: action.bgColor }]}>
+                                <action.iconFamily name={action.icon as any} size={26} color={action.color} />
                             </View>
-                            {compareCount > 0 && (
-                                <View style={styles.actionBadge}>
-                                    <Text style={styles.actionBadgeText}>
-                                        {compareCount > 9 ? "9+" : compareCount}
-                                    </Text>
+                            
+                            {action.badge && (
+                                <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>
+                                    <Text style={styles.badgeText}>{action.badge}</Text>
                                 </View>
                             )}
-                        </View>
-                        <Text style={styles.scrollableActionLabel}>Compare</Text>
-                        <Text style={styles.scrollableActionDescription}>Side by side</Text>
-                    </View>
-                </GlassmorphismButton>
 
-                <GlassmorphismButton
-                    delay={300}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/find-dealers");
-                    }}
-                >
-                    <View style={styles.scrollableActionCard}>
-                        <View
-                            style={[
-                                styles.colorfulIconContainer,
-                                { backgroundColor: "#FFEBEE" },
-                            ]}
-                        >
-                            <MaterialIcons name="store" size={32} color="#C62828" />
+                            <Text style={styles.label}>{action.label}</Text>
+                            <Text style={styles.desc}>{action.desc}</Text>
                         </View>
-                        <Text style={styles.scrollableActionLabel}>Find Dealers</Text>
-                        <Text style={styles.scrollableActionDescription}>
-                            {newListingsCount}+ new listings
-                        </Text>
-                    </View>
-                </GlassmorphismButton>
-
-                <GlassmorphismButton
-                    delay={350}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.push("/packages/packages");
-                    }}
-                >
-                    <View style={styles.scrollableActionCard}>
-                        <View
-                            style={[
-                                styles.colorfulIconContainer,
-                                { backgroundColor: "#F1F8E9" },
-                            ]}
-                        >
-                            <MaterialIcons name="school" size={32} color="#43A047" />
-                        </View>
-                        <Text style={styles.scrollableActionLabel}>Packages</Text>
-                        <Text style={styles.scrollableActionDescription}>
-                            Boost your ads
-                        </Text>
-                    </View>
-                </GlassmorphismButton>
+                    </ActionCard>
+                ))}
             </ScrollView>
         </Animated.View>
     );
 };
 
 const styles = StyleSheet.create({
-    actionGridContainer: {
-        paddingHorizontal: 20,
-        paddingTop: 16,
-        paddingBottom: 32,
-        marginBottom: 0,
-        backgroundColor: "#FFFFFF",
+    container: {
+        marginBottom: 8,
+        backgroundColor: COLORS.white,
     },
-    scrollableActionScrollView: {
-        marginHorizontal: -20,
-        paddingHorizontal: 20,
+    scrollContent: {
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        gap: 12,
     },
-    scrollableActionContainer: {
-        flexDirection: "row",
-        gap: 10,
-        paddingRight: 20,
-        paddingBottom: 20,
-    },
-    scrollableActionCard: {
-        width: 100,
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
+    cardContainer: {
+        width: 105, 
+        height: 130,
+        backgroundColor: COLORS.white,
         borderRadius: 20,
-        paddingVertical: 16,
-        paddingHorizontal: 8,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 3,
+        borderWidth: 1,
+        borderColor: COLORS.divider,
+    },
+    cardContent: {
+        flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        borderWidth: 1,
-        borderColor: "#F3F4F6",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
-        elevation: 6,
+        padding: 8,
     },
-    colorfulIconContainer: {
-        width: 60,
-        height: 60,
+    iconBox: {
+        width: 52,
+        height: 52,
         borderRadius: 18,
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 12,
     },
-    scrollableActionLabel: {
+    label: {
         fontSize: 13,
         fontWeight: "700",
-        color: "#111827",
-        textAlign: "center",
+        color: COLORS.text.primary,
+        marginBottom: 4,
+        textAlign: 'center',
     },
-    scrollableActionDescription: {
+    desc: {
         fontSize: 10,
-        color: "#6B7280",
-        fontWeight: "400",
-        textAlign: "center",
-        marginTop: 2,
+        color: COLORS.text.muted,
+        textAlign: 'center',
+        lineHeight: 12,
     },
-    actionCardHeader: {
-        position: "relative",
-        alignItems: "center",
-        justifyContent: "center",
+    badge: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        height: 18,
+        minWidth: 18,
+        borderRadius: 9,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 4,
+        borderWidth: 1.5,
+        borderColor: COLORS.white,
     },
-    actionBadge: {
-        position: "absolute",
-        top: -4,
-        right: -4,
-        backgroundColor: "#FF4444",
-        borderRadius: 10,
-        minWidth: 20,
-        height: 20,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 5,
-        borderWidth: 2,
-        borderColor: "#FFFFFF",
-    },
-    actionBadgeText: {
-        color: "#FFFFFF",
-        fontSize: 10,
-        fontWeight: "700",
+    badgeText: {
+        color: COLORS.white,
+        fontSize: 9,
+        fontWeight: 'bold',
     },
 });
 

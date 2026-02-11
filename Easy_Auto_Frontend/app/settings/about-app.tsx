@@ -43,7 +43,7 @@ export default function AboutApp() {
           <View style={styles.appCard}>
 
             <Image
-              source={require('@/assets/images/blueLogo.png')}
+              source={require('@/assets/images/logo.png')}
               style={styles.logo}
             />
 

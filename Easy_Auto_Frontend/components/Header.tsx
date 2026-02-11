@@ -34,7 +34,11 @@ export default function Header({ showBack = true, title }: Props) {
         <View style={styles.headerRow}>
           {/* Back Button */}
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              }
+            }}
             style={styles.backButton}
             activeOpacity={0.7}
           >

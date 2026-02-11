@@ -49,7 +49,7 @@ export default function InviteFriend() {
           {/* SMALL LOGO + TAGLINE */}
           <View style={styles.logoSection}>
             <View style={styles.logoCircle}>
-              <Image source={require('@/assets/images/blueLogo.png')} style={styles.logo} />
+              <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
             </View>
             <Text style={styles.brandTag}>Invite friends & earn rewards</Text>
           </View>

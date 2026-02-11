@@ -1,7 +1,8 @@
 import COLORS from "@/constants/Colors";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
 import LanguageSwitcher from "../LanguageSwitcher";
 import {
@@ -10,7 +11,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 interface HomeHeaderProps {
@@ -38,9 +39,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     initialHeaderOpacity,
     paddingTop,
     notificationCount,
-    setNotificationCount,
-    wishlistCount,
-    setWishlistCount,
     setSidebarVisible,
     setNotificationDrawerVisible,
     setWishlistDrawerVisible,
@@ -48,6 +46,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     setShowNotificationPreview,
     showWishlistPreview,
     setShowWishlistPreview,
+    wishlistCount,
     searchFocused,
     setSearchFocused,
     showSearchSuggestions,
@@ -72,53 +71,54 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     paddingTop,
                 },
             ]}
-            pointerEvents="box-none"
         >
-            <View style={styles.headerContent}>
+            <LinearGradient
+                colors={[COLORS.primary, '#1E40AF']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.gradient}
+            />
+            
+            <View style={styles.topRow}>
                 {/* Left: Hamburger Menu */}
                 <TouchableOpacity
                     onPress={() => {
                         setSidebarVisible(true);
-                        try {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        } catch (e) {
-                            // Ignore
-                        }
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     }}
-                    style={styles.menuButton}
                     activeOpacity={0.7}
-                    hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
                 >
-                    <Ionicons name="menu-outline" size={28} color={COLORS.white} />
+                    <View style={styles.menuIconBox}>
+                        <Ionicons name="menu-outline" size={26} color={COLORS.white} />
+                    </View>
                 </TouchableOpacity>
 
                 {/* Center: Logo */}
-                <View style={styles.centeredLogoContainer}>
+                <View style={styles.logoContainer}>
                     <Image
-                        source={require("@/assets/images/white logo bg.png")}
+                        source={require("@/assets/images/logo.png")}
                         style={styles.logoImage}
                         contentFit="contain"
                     />
                 </View>
 
                 {/* Right: Icons */}
-                <View style={styles.rightIconsContainer}>
+                <View style={styles.rightActions}>
+                    <View style={styles.langWrapper}>
+                        <LanguageSwitcher />
+                    </View>
+
                     {/* Notification Icon */}
                     <TouchableOpacity
-                        style={styles.iconButton}
+                        style={styles.actionIcon}
                         onPress={() => {
                             setNotificationDrawerVisible(true);
-                            try {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            } catch (e) {
-                                // Ignore haptics error
-                            }
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
-                        activeOpacity={0.7}
                     >
-                        <Ionicons name="notifications-outline" size={26} color={COLORS.white} />
+                        <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
                         {notificationCount > 0 && (
-                            <View style={[styles.badge, { borderColor: COLORS.primary }]}>
+                            <View style={styles.badge}>
                                 <Text style={styles.badgeText}>
                                     {notificationCount > 9 ? "9+" : notificationCount}
                                 </Text>
@@ -128,265 +128,322 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
                     {/* Wishlist Heart Icon */}
                     <TouchableOpacity
-                        style={styles.iconButton}
+                        style={styles.actionIcon}
                         onPress={() => {
                             setWishlistDrawerVisible(true);
-                            try {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            } catch (error) {
-                                // Ignore haptics error
-                            }
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
-                        activeOpacity={0.7}
                     >
-                        <Ionicons name="heart-outline" size={26} color={COLORS.white} />
+                        <Ionicons name="heart-outline" size={24} color={COLORS.white} />
                         {wishlistCount > 0 && (
-                            <View style={[styles.badge, { borderColor: COLORS.primary }]}>
+                            <View style={styles.badge}>
                                 <Text style={styles.badgeText}>
                                     {wishlistCount > 9 ? "9+" : wishlistCount}
                                 </Text>
                             </View>
                         )}
                     </TouchableOpacity>
-
-                    {/* Language Switcher */}
-                    <LanguageSwitcher />
                 </View>
             </View>
 
+            <View style={styles.greetingSection}>
+                 <Text style={styles.greetingTitle}>Find Your Dream Car</Text>
+                 <View style={styles.locationWrapper}>
+                    <Ionicons name="location" size={12} color="rgba(255,255,255,0.7)" />
+                    <Text style={styles.locationText}>Colombo, Sri Lanka</Text>
+                 </View>
+            </View>
+
             {/* Integrated Search Bar */}
-            <View style={styles.searchSection}>
-                <View style={styles.searchWrapper}>
-                    <View
-                        style={[
-                            styles.searchContainer,
-                            searchFocused && styles.searchContainerFocused,
-                        ]}
-                    >
-                        <MaterialIcons
+            <View style={styles.searchContainerOuter}>
+                <View
+                    style={[
+                        styles.searchBar,
+                        searchFocused && styles.searchBarFocused,
+                    ]}
+                >
+                    <View style={styles.searchIconBox}>
+                        <Ionicons
                             name="search"
-                            size={22}
-                            color={searchFocused ? COLORS.primary : COLORS.text.placeholder}
-                            style={styles.searchIcon}
+                            size={20}
+                            color={searchFocused ? COLORS.primary : COLORS.text.muted}
                         />
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Search cars, brands or models..."
-                            placeholderTextColor={COLORS.text.placeholder}
-                            onFocus={() => {
-                                setSearchFocused(true);
-                                setShowSearchSuggestions(true);
-                            }}
-                            onBlur={() => {
-                                setSearchFocused(false);
-                                setTimeout(() => setShowSearchSuggestions(false), 200);
-                            }}
-                        />
-                        <TouchableOpacity
-                            activeOpacity={0.75}
-                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        >
-                            <MaterialIcons
-                                name="tune"
-                                size={20}
-                                color={searchFocused ? COLORS.primary : COLORS.text.placeholder}
-                            />
-                        </TouchableOpacity>
                     </View>
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search by brand, model or type..."
+                        placeholderTextColor={COLORS.text.placeholder}
+                        onFocus={() => {
+                            setSearchFocused(true);
+                            setShowSearchSuggestions(true);
+                        }}
+                        onBlur={() => {
+                            setSearchFocused(false);
+                            setTimeout(() => setShowSearchSuggestions(false), 200);
+                        }}
+                    />
+                    <TouchableOpacity
+                         style={styles.filterBtn}
+                         onPress={() => {
+                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                         }}
+                    >
+                        <Ionicons
+                            name="options-outline"
+                            size={20}
+                            color={COLORS.primary}
+                        />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Quick Search Suggestions */}
                 {showSearchSuggestions && (
-                    <View style={styles.searchSuggestions}>
-                        <Text style={styles.suggestionsTitle}>Recent Searches</Text>
+                    <View style={styles.suggestionsContainer}>
+                        <View style={styles.suggestionHeaderRow}>
+                            <Text style={styles.suggestionsHeader}>Recent Searches</Text>
+                            <TouchableOpacity>
+                                <Text style={styles.clearAllText}>Clear</Text>
+                            </TouchableOpacity>
+                        </View>
                         {["Toyota Camry", "Honda Civic", "BMW 3 Series"].map(
                             (suggestion, index) => (
                                 <TouchableOpacity
-                                    key={`recent-search-${index}`}
-                                    style={styles.suggestionItem}
-                                    activeOpacity={0.7}
+                                    key={`recent-${index}`}
+                                    style={styles.suggestionRow}
                                 >
-                                    <MaterialIcons name="history" size={16} color={COLORS.text.muted} />
+                                    <View style={styles.historyIconBox}>
+                                        <Ionicons name="time-outline" size={18} color={COLORS.text.muted} />
+                                    </View>
                                     <Text style={styles.suggestionText}>{suggestion}</Text>
+                                    <Ionicons name="chevron-forward" size={14} color={COLORS.border} />
                                 </TouchableOpacity>
                             )
                         )}
-                        <Text style={styles.suggestionsTitle}>Popular Searches</Text>
-                        {["SUV", "Sedan", "Electric Cars"].map((suggestion, index) => (
-                            <TouchableOpacity
-                                key={`popular-${index}`}
-                                style={styles.suggestionItem}
-                                activeOpacity={0.7}
-                            >
-                                <MaterialIcons name="trending-up" size={16} color={COLORS.primary} />
-                                <Text style={[styles.suggestionText, styles.popularText]}>
-                                    {suggestion}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+                        <Text style={[styles.suggestionsHeader, { marginTop: 16 }]}>Popular Brands</Text>
+                        <View style={styles.popularGrid}>
+                            {["Toyota", "BMW", "Benz", "Audi"].map((brand, idx) => (
+                                <TouchableOpacity key={idx} style={styles.popularTag}>
+                                    <Text style={styles.popularTagText}>{brand}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     </View>
                 )}
             </View>
-        </Animated.View >
+        </Animated.View>
     );
 };
 
 const styles = StyleSheet.create({
     header: {
         backgroundColor: COLORS.primary,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        marginBottom: 0,
+        paddingHorizontal: 16,
+        paddingBottom: 24,
+        borderBottomLeftRadius: 36,
+        borderBottomRightRadius: 36,
+        zIndex: 100,
+        position: 'relative',
+        overflow: 'hidden',
     },
-    headerContent: {
+    gradient: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    topRow: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        minHeight: 50,
-        marginBottom: 14,
-        zIndex: 50,
-        position: 'relative',
+        marginBottom: 16,
+        height: 48,
     },
-    menuButton: {
-        width: 44,
-        height: 44,
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 100,
-        marginBottom: 80,
-    },
-    rightIconsContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-        marginBottom: 80,
-        zIndex: 100,
-    },
-    centeredLogoContainer: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1,
-    },
-    logoImage: {
-        width: 350,
-        height: 155,
-    },
-    iconButton: {
+    menuIconBox: {
         width: 40,
         height: 40,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    logoContainer: {
+        flex: 1,
         alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
+    },
+    logoImage: {
+        width: 120, 
+        height: 32, 
+    },
+    rightActions: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+    },
+    langWrapper: {
+        marginRight: 4,
+    },
+    actionIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        justifyContent: 'center',
+        alignItems: "center",
     },
     badge: {
         position: "absolute",
-        top: 4,
-        right: 4,
-        backgroundColor: COLORS.status.danger,
-        borderRadius: 10,
-        minWidth: 18,
-        height: 18,
+        top: 8,
+        right: 8,
+        backgroundColor: "#EF4444",
+        borderRadius: 6,
+        minWidth: 12,
+        height: 12,
         alignItems: "center",
         justifyContent: "center",
-        paddingHorizontal: 4,
-        borderWidth: 2,
+        borderWidth: 1.5,
+        borderColor: COLORS.primary,
     },
     badgeText: {
         color: COLORS.white,
-        fontSize: 10,
-        fontWeight: "700",
-        letterSpacing: -0.2,
+        fontSize: 7,
+        fontWeight: "800",
     },
-    searchSection: {
-        marginTop: -55,
-        zIndex: 10,
+    greetingSection: {
+        marginBottom: 20,
+        paddingLeft: 4,
     },
-    searchWrapper: {
-        paddingBottom: 0,
+    greetingTitle: {
+        fontSize: 22,
+        fontWeight: "800",
+        color: COLORS.white,
+        letterSpacing: -0.5,
     },
-    searchContainer: {
+    locationWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+    },
+    locationText: {
+        fontSize: 12,
+        color: 'rgba(255, 255, 255, 0.7)',
+        fontWeight: "500",
+    },
+    searchContainerOuter: {
+        zIndex: 110,
+    },
+    searchBar: {
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: COLORS.white,
-        borderRadius: 14,
-        paddingHorizontal: 16,
-        paddingVertical: 6,
-        gap: 12,
+        borderRadius: 18,
+        paddingHorizontal: 8,
+        height: 54,
+        gap: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    searchBarFocused: {
         borderWidth: 1.5,
-        borderColor: "rgba(255, 255, 255, 0.3)",
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        elevation: 4,
-    },
-    searchContainerFocused: {
         borderColor: COLORS.white,
-        borderWidth: 2,
-        backgroundColor: COLORS.white,
-        shadowOpacity: 0.12,
-        shadowRadius: 14,
+        shadowOpacity: 0.15,
     },
-    searchIcon: {
-        marginRight: 0,
+    searchIconBox: {
+        width: 38,
+        height: 38,
+        borderRadius: 14,
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     searchInput: {
         flex: 1,
-        fontSize: 16,
-        color: COLORS.text.primary,
-        fontWeight: "400",
-        paddingVertical: 0,
-        letterSpacing: -0.2,
-    },
-    searchSuggestions: {
-        position: 'absolute',
-        top: 60,
-        left: 0,
-        right: 0,
-        backgroundColor: COLORS.white,
-        borderRadius: 16,
-        marginTop: 8,
-        padding: 12,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 8,
-        maxHeight: 300,
-        zIndex: 2000,
-    },
-    suggestionsTitle: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: COLORS.text.muted,
-        marginTop: 8,
-        marginBottom: 8,
-        textTransform: "uppercase",
-        letterSpacing: 0.5,
-    },
-    suggestionItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingVertical: 10,
-        paddingHorizontal: 8,
-        borderRadius: 8,
-        gap: 10,
-    },
-    suggestionText: {
-        fontSize: 14,
+        fontSize: 15,
         color: COLORS.text.primary,
         fontWeight: "500",
     },
-    popularText: {
+    filterBtn: {
+        width: 38,
+        height: 38,
+        borderRadius: 14,
+        backgroundColor: 'rgba(35, 92, 248, 0.08)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    suggestionsContainer: {
+        position: 'absolute',
+        top: 64,
+        left: 0,
+        right: 0,
+        backgroundColor: COLORS.white,
+        borderRadius: 24,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 20 },
+        shadowOpacity: 0.15,
+        shadowRadius: 30,
+        elevation: 15,
+        zIndex: 2000,
+    },
+    suggestionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    suggestionsHeader: {
+        fontSize: 12,
+        fontWeight: "800",
+        color: COLORS.text.muted,
+        textTransform: "uppercase",
+        letterSpacing: 1,
+    },
+    clearAllText: {
+        fontSize: 12,
+        fontWeight: "700",
         color: COLORS.primary,
+    },
+    suggestionRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 12,
+        gap: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+    },
+    historyIconBox: {
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        backgroundColor: '#F9FAFB',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    suggestionText: {
+        flex: 1,
+        fontSize: 14,
+        color: COLORS.text.primary,
         fontWeight: "600",
     },
+    popularGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginTop: 12,
+    },
+    popularTag: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+        backgroundColor: '#F3F4F6',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    popularTagText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: COLORS.text.primary,
+    },
 });
+
 export default HomeHeader;
