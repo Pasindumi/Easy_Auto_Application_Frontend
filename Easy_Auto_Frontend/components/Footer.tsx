@@ -26,7 +26,7 @@ export default function Footer({
       {/* Logo or fallback icon */}
       {!imgError ? (
         <Image
-          source={require('@/assets/images/logo.png')}
+          source={require('@/assets/applogonew.png')}
           style={styles.logo}
           resizeMode="contain"
           onError={() => setImgError(true)}
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     zIndex: 50,
     paddingBottom: 50,
   },
-  logo: { width: 120, height: 40, marginBottom: 12 },
+  logo: { width: 180, height: 60, marginBottom: 12 },
   fallbackLogo: { marginBottom: 12, alignItems: 'center' },
   footerText: { color: '#fff', fontSize: 14, fontWeight: '600', textAlign: 'center' },
   footerSmall: { color: '#bbb', fontSize: 12, marginTop: 6, textAlign: 'center' },

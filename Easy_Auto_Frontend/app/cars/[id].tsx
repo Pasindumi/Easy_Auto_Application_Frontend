@@ -275,7 +275,7 @@ export default function AdDetailsScreen() {
                             {Array.from({ length: 12 }).map((_, index) => (
                                 <View key={index} style={styles.watermarkTile}>
                                     <Image
-                                        source={require('../../assets/images/logo.png')}
+                                        source={require('../../assets/applogonew.png')}
                                         style={styles.watermarkImage}
                                         resizeMode="contain"
                                     />
@@ -663,10 +663,10 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     watermarkImage: {
-        width: 85,
-        height: 85,
+        width: 120,
+        height: 120,
         tintColor: 'white', // Color updated to white
-        opacity: 0.8, // High contrast image opacity
+        opacity: 0.6, // High contrast image opacity
     },
     imageOverlay: {
         ...StyleSheet.absoluteFillObject,

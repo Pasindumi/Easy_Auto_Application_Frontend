@@ -49,7 +49,7 @@ export default function InviteFriend() {
           {/* SMALL LOGO + TAGLINE */}
           <View style={styles.logoSection}>
             <View style={styles.logoCircle}>
-              <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
+              <Image source={require('@/assets/applogonew.png')} style={styles.logo} />
             </View>
             <Text style={styles.brandTag}>Invite friends & earn rewards</Text>
           </View>
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logo: { width: 60, height: 60, resizeMode: 'contain' },
+  logo: { width: 90, height: 90, resizeMode: 'contain' },
   brandTag: { fontSize: 12, color: '#777', marginTop: 8 },
 
   /* STATS */

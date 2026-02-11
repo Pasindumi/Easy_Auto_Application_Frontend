@@ -78,7 +78,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 end={{ x: 1, y: 1 }}
                 style={styles.gradient}
             />
-            
+
             <View style={styles.topRow}>
                 {/* Left: Hamburger Menu */}
                 <TouchableOpacity
@@ -96,7 +96,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 {/* Center: Logo */}
                 <View style={styles.logoContainer}>
                     <Image
-                        source={require("@/assets/images/logo.png")}
+                        source={require("@/assets/applogonew.png")}
                         style={styles.logoImage}
                         contentFit="contain"
                     />
@@ -147,11 +147,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             </View>
 
             <View style={styles.greetingSection}>
-                 <Text style={styles.greetingTitle}>Find Your Dream Car</Text>
-                 <View style={styles.locationWrapper}>
+                <Text style={styles.greetingTitle}>Find Your Dream Car</Text>
+                <View style={styles.locationWrapper}>
                     <Ionicons name="location" size={12} color="rgba(255,255,255,0.7)" />
                     <Text style={styles.locationText}>Colombo, Sri Lanka</Text>
-                 </View>
+                </View>
             </View>
 
             {/* Integrated Search Bar */}
@@ -183,10 +183,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                         }}
                     />
                     <TouchableOpacity
-                         style={styles.filterBtn}
-                         onPress={() => {
-                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                         }}
+                        style={styles.filterBtn}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }}
                     >
                         <Ionicons
                             name="options-outline"
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         marginBottom: 16,
-        height: 48,
+        height: 60,
     },
     menuIconBox: {
         width: 40,
@@ -268,8 +268,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     logoImage: {
-        width: 120, 
-        height: 32, 
+        width: 220,
+        height: 60,
     },
     rightActions: {
         flexDirection: "row",

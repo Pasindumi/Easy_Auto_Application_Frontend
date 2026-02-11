@@ -283,7 +283,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
 
               <View style={styles.sidebarFooter}>
                 <Image
-                  source={require("../assets/images/logo.png")}
+                  source={require("../assets/applogonew.png")}
                   style={styles.footerLogo}
                   contentFit="contain"
                 />
@@ -511,9 +511,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   footerLogo: {
-    width: 100,
-    height: 30,
-    opacity: 0.3,
+    width: 150,
+    height: 50,
+    opacity: 0.8,
   },
   versionText: {
     fontSize: 12,
