@@ -17,7 +17,7 @@ const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '
 
 export const unstable_settings = {
   // Start with the landing page first
-  initialRouteName: "(tabs)",
+  initialRouteName: "landing",
 };
 
 export default function RootLayout() {
@@ -35,6 +35,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
               <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
+              <Stack.Screen name="landing" options={{ headerShown: false, animation: 'fade' }} />
 
               <Stack.Screen name="admin" options={{ headerShown: false }} />
               <Stack.Screen

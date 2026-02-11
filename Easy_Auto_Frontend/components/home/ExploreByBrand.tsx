@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
-        backgroundColor: COLORS.secondary,
+        backgroundColor: COLORS.primaryLight,
         marginRight: 4,
     },
     tabActive: {
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     tabText: {
         fontSize: 14,
         fontWeight: "600",
-        color: COLORS.text.secondary,
+        color: COLORS.primary,
     },
     tabTextActive: {
         color: COLORS.white,

@@ -51,7 +51,7 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
 
                         <View style={styles.paymentRight}>
                             <View style={styles.paymentAmountContainer}>
-                                <Text style={styles.paymentPrice}>{item.amount || "$0.00"}</Text>
+                                <Text style={styles.paymentPrice}>{item.amount || "LKR 0.00"}</Text>
                                 <View style={[styles.statusBadge, {
                                     backgroundColor: item.status === 'CANCELLED' ? '#FEE2E2' : '#ECFDF5'
                                 }]}>
