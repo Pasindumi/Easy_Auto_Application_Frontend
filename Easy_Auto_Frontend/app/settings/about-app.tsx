@@ -43,7 +43,7 @@ export default function AboutApp() {
           <View style={styles.appCard}>
 
             <Image
-              source={require('@/assets/images/logo.png')}
+              source={require('@/assets/applogonew.png')}
               style={styles.logo}
             />
 
@@ -229,10 +229,10 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 150,
-    height: 150,
+    width: 220,
+    height: 120,
     resizeMode: 'contain',
-    marginBottom: -40,
+    marginBottom: -10,
   },
 
   version: {

@@ -55,7 +55,7 @@ export default function Header({ showBack = true, title }: Props) {
               <Text style={styles.title}>{title}</Text>
             ) : (
               <Image
-                source={require("../assets/images/logo.png")}
+                source={require("../assets/applogonew.png")}
                 resizeMode="contain"
                 style={styles.logoImg}
               />
@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logoImg: {
-    width: 240,
-    height: 70,
+    width: 280,
+    height: 80,
     marginRight: -10, // Pull it closer to the edge
   },
   title: {
