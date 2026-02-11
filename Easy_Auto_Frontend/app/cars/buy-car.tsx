@@ -94,10 +94,10 @@ export default function BuyCarScreen() {
 
           // If brandId is present, try to find 'Car' category and select it
           if (brandId) {
-             const carType = mapped.find((t: any) => t.label.toLowerCase().includes('car'));
-             if (carType) {
-                 setSelectedCategory(carType.key);
-             }
+            const carType = mapped.find((t: any) => t.label.toLowerCase().includes('car'));
+            if (carType) {
+              setSelectedCategory(carType.key);
+            }
           }
         }
       } catch (error) {
@@ -174,9 +174,9 @@ export default function BuyCarScreen() {
       if (selectedBrand) {
         const brandObj = brands.find(b => b.value === selectedBrand);
         if (brandObj) {
-            endpoint += `&brand=${encodeURIComponent(brandObj.label)}`;
+          endpoint += `&brand=${encodeURIComponent(brandObj.label)}`;
         } else if (brandName && String(brandId) === selectedBrand) {
-            endpoint += `&brand=${encodeURIComponent(String(brandName))}`;
+          endpoint += `&brand=${encodeURIComponent(String(brandName))}`;
         }
       }
       if (selectedModel) {
@@ -395,13 +395,8 @@ export default function BuyCarScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
+      <Header showBack={true} title={t('buy_car_screen.find_vehicle')} />
       {renderFilterModal()}
-
-      <View style={styles.topicWrap}>
-        <Ionicons name="car-sport" size={24} color="#235CF8" style={{ marginRight: 8 }} />
-        <Text style={styles.topicTitle}>{t('buy_car_screen.find_vehicle')}</Text>
-      </View>
 
       <SafeAreaView style={styles.safe} edges={['bottom']}>
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -477,8 +472,6 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F9FAFB' },
   scrollView: { flex: 1 },
   scrollContent: { paddingBottom: 40 },
-  topicWrap: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#fff' },
-  topicTitle: { fontSize: 22, fontWeight: '700', color: '#111827' },
   searchSection: { padding: 16 },
   searchContainer: {
     flexDirection: 'row',

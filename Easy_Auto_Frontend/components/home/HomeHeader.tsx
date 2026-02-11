@@ -72,13 +72,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 },
             ]}
         >
-            <LinearGradient
-                colors={[COLORS.primary, '#1E40AF']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.gradient}
-            />
-
             <View style={styles.topRow}>
                 {/* Left: Hamburger Menu */}
                 <TouchableOpacity
@@ -239,8 +232,8 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.primary,
         paddingHorizontal: 16,
         paddingBottom: 24,
-        borderBottomLeftRadius: 36,
-        borderBottomRightRadius: 36,
+        borderBottomLeftRadius: 40, // Synced with premium main header
+        borderBottomRightRadius: 40,
         zIndex: 100,
         position: 'relative',
         overflow: 'hidden',
@@ -252,8 +245,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: 16,
-        height: 60,
+        marginBottom: 12, // Reduced from 16
+        height: 54, // Reduced from 60
     },
     menuIconBox: {
         width: 40,
@@ -268,8 +261,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     logoImage: {
-        width: 220,
-        height: 60,
+        width: 200, // Reduced from 220
+        height: 56, // Reduced from 60
     },
     rightActions: {
         flexDirection: "row",
@@ -306,11 +299,11 @@ const styles = StyleSheet.create({
         fontWeight: "800",
     },
     greetingSection: {
-        marginBottom: 20,
+        marginBottom: 16, // Reduced from 20
         paddingLeft: 4,
     },
     greetingTitle: {
-        fontSize: 22,
+        fontSize: 21, // Slightly smaller for compact look
         fontWeight: "800",
         color: COLORS.white,
         letterSpacing: -0.5,
@@ -319,7 +312,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        marginTop: 4,
+        marginTop: 2, // Reduced from 4
     },
     locationText: {
         fontSize: 12,

@@ -1,4 +1,5 @@
-import ProfileHeader from "@/components/ProfileHeader";
+import Header from "@/components/Header";
+import { Ionicons } from "@expo/vector-icons";
 import COLORS from "@/constants/Colors";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -6,6 +7,7 @@ import {
   Alert,
   FlatList,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import SelectCarsHeader from "../../components/cars/buy/SelectCarsHeader";
@@ -47,8 +49,7 @@ export default function CompareScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="Compare Cars" showProfileCard={false} />
+      <Header showBack={true} title="Compare Cars" />
 
       <FlatList
         data={SAMPLE_COMPARISONS}
@@ -81,10 +82,18 @@ export default function CompareScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background
+    backgroundColor: '#F9FAFB'
   },
+  topicWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  topicTitle: { fontSize: 22, fontWeight: '700', color: '#111827' },
   listContent: {
-    paddingTop: 80,
     paddingBottom: 100
   },
 });
