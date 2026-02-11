@@ -21,14 +21,16 @@ interface AdCardProps {
 export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
   const router = useRouter();
 
-  const mapStatus: 'active' | 'draft' | 'paused' | 'expired' =
+  const mapStatus: 'active' | 'draft' | 'paused' | 'expired' | 'banned' =
     ad.status === 'active'
       ? 'active'
       : ad.status === 'draft'
         ? 'draft'
         : ad.status === 'paused'
           ? 'paused'
-          : 'expired';
+          : ad.status === 'banned'
+            ? 'banned'
+            : 'expired';
 
   return (
     <View style={styles.card}>
@@ -110,6 +112,16 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
               <Text style={styles.statText}> {ad.messages}</Text>
             </View>
           </View>
+
+          {/* Ban Info */}
+          {ad.status === 'banned' && (
+            <View style={styles.banInfoBox}>
+              <Ionicons name="alert-circle-outline" size={12} color="#000" />
+              <Text style={styles.banReasonText} numberOfLines={2}>
+                Reason: {ad.ban_reason || 'N/A'}
+              </Text>
+            </View>
+          )}
 
         </View>
       </View>
@@ -268,5 +280,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     color: '#2563EB',
+  },
+  banInfoBox: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 6,
+    padding: 6,
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  banReasonText: {
+    fontSize: 10,
+    color: '#000',
+    fontWeight: '600',
+    flex: 1,
   },
 });

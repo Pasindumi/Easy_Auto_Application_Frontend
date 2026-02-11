@@ -53,20 +53,28 @@ interface PromoBannerProps {
 
 const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const router = useRouter();
-    const [banners, setBanners] = useState<any[]>(STATIC_BANNERS);
+    const [banners, setBanners] = useState<any[]>([]);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
-        fetchBoostedAds();
+        fetchAllBanners();
     }, []);
 
-    const fetchBoostedAds = async () => {
+    const fetchAllBanners = async () => {
         try {
-            const response = await api.get<{ success: boolean; data: any[] }>('/api/cars?isHomepageBanner=true&limit=5');
-            if (response.success && response.data.length > 0) {
-                const boostedBanners = response.data.map((ad: any) => ({
+            // Fetch both boosted ads and announcements in parallel
+            const [adsRes, announcementsRes] = await Promise.all([
+                api.get<{ success: boolean; data: any[] }>('/api/cars?isHomepageBanner=true&limit=5'),
+                api.get<{ success: boolean; data: any[] }>('/api/announcements/active')
+            ]);
+
+            let combinedBanners: any[] = [];
+
+            // Add Boosted Ads
+            if (adsRes.success && adsRes.data.length > 0) {
+                const boostedBanners = adsRes.data.map((ad: any) => ({
                     id: `ad-${ad.id}`,
                     title: ad.title,
                     subtitle: `LKR ${Number(ad.price).toLocaleString()}`,
@@ -75,14 +83,45 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     adId: ad.id
                 }));
                 setBanners([...boostedBanners, ...STATIC_BANNERS]);
+                combinedBanners = [...combinedBanners, ...boostedBanners];
             }
+
+            // Add Announcements
+            if (announcementsRes.data && announcementsRes.data.length > 0) {
+                const announcements = announcementsRes.data.map((ann: any) => ({
+                    id: `ann-${ann.id}`,
+                    title: ann.title,
+                    subtitle: ann.content || '',
+                    image: ann.image_url || "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80",
+                    isAd: false,
+                    link: ann.link
+                }));
+                combinedBanners = [...combinedBanners, ...announcements];
+            }
+
+            // If no banners at all, maybe add a default one or leave empty
+            if (combinedBanners.length === 0) {
+                combinedBanners = [
+                    {
+                        id: 'default-1',
+                        title: "Welcome to Easy Auto",
+                        subtitle: "Your premium marketplace for vehicles",
+                        image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=400&fit=crop",
+                        isAd: false
+                    }
+                ];
+            }
+
+            setBanners(combinedBanners);
         } catch (error) {
-            console.error("Error fetching banner ads:", error);
+            console.error("Error fetching banner data:", error);
         }
     };
 
     // Auto-play functionality
     useEffect(() => {
+        if (banners.length <= 1) return;
+
         autoPlayTimer.current = setInterval(() => {
             setCurrentBannerIndex((prevIndex) => {
                 const nextIndex = (prevIndex + 1) % banners.length;
@@ -100,6 +139,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             }
         };
     }, [banners.length]);
+    }, [banners]);
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
@@ -125,6 +165,11 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const handleBannerPress = (banner: any) => {
         if (banner.isAd && banner.adId) {
             router.push(`/cars/${banner.adId}` as any);
+            router.push(`/cars/${banner.adId}`);
+        } else if (banner.link) {
+            // Handle external or internal link if needed
+            // For now just navigate to search if no link
+            console.log("Announcement link:", banner.link);
         } else {
             router.push('/(tabs)/search');
         }
