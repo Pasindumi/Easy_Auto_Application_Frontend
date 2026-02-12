@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import api from "@/utils/api";
+import AppReviewsSection from "@/components/AppReviewsSection";
 
 const COMPLAINT_CATEGORIES = [
     "Service",
@@ -121,6 +122,9 @@ export default function ContactUsScreen() {
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
                 >
+                    {/* App Reviews Section */}
+                    <AppReviewsSection />
+
                     {/* Intro Banner Area */}
                     <View style={styles.introBanner}>
                         <Text style={styles.introTitle}>How can we help?</Text>

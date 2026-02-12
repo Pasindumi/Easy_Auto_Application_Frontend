@@ -141,10 +141,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
             <View style={styles.greetingSection}>
                 <Text style={styles.greetingTitle}>Find Your Dream Car</Text>
-                <View style={styles.locationWrapper}>
-                    <Ionicons name="location" size={12} color="rgba(255,255,255,0.7)" />
-                    <Text style={styles.locationText}>Colombo, Sri Lanka</Text>
-                </View>
+                <Text style={styles.subtitleText}>
+                    The trusted way to buy & sell cars in Sri Lanka
+                </Text>
             </View>
 
             {/* Integrated Search Bar */}
@@ -317,7 +316,12 @@ const styles = StyleSheet.create({
     locationText: {
         fontSize: 12,
         color: 'rgba(255, 255, 255, 0.7)',
+    subtitleText: {
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.85)',
         fontWeight: "500",
+        marginTop: 6,
+        letterSpacing: 0.2,
     },
     searchContainerOuter: {
         zIndex: 110,

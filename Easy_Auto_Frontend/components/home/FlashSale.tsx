@@ -105,7 +105,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
                     </View>
                     <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
                     <Text style={styles.discountValue}>
-                        {item.discount_type === 'PERCENTAGE' ? `${item.value}% OFF` : `$${item.value} OFF`}
+                        {item.discount_type === 'PERCENTAGE' ? `${item.value}% OFF` : `LKR ${item.value} OFF`}
                     </Text>
                     {(item.start_date || item.end_date) && (
                         <View style={styles.validityContainer}>
