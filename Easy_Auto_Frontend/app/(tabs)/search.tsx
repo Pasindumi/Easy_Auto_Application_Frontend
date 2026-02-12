@@ -68,7 +68,7 @@ const YEAR_RANGES = [
 
 export default function SearchScreen() {
   const router = useRouter();
-  
+
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -81,13 +81,13 @@ export default function SearchScreen() {
   const [selectedFuelType, setSelectedFuelType] = useState('');
   const [selectedTransmission, setSelectedTransmission] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
-  
+
   // UI States
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Data States
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [vehicleTypes, setVehicleTypes] = useState<any[]>([]);
@@ -95,7 +95,7 @@ export default function SearchScreen() {
   const [models, setModels] = useState<any[]>([]);
   const [conditions, setConditions] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  
+
   // Animation
   const filterSlideAnim = React.useRef(new Animated.Value(0)).current;
 
@@ -183,7 +183,7 @@ export default function SearchScreen() {
     setIsSearching(true);
     try {
       const params: any = {};
-      
+
       if (searchQuery) params.search = searchQuery;
       if (selectedCategory !== 'all') params.vehicle_type_id = selectedCategory;
       if (selectedBrand) params.brand_id = selectedBrand;
@@ -192,22 +192,22 @@ export default function SearchScreen() {
       if (selectedFuelType) params.fuel_type = selectedFuelType;
       if (selectedTransmission) params.transmission = selectedTransmission;
       if (locationFilter) params.location = locationFilter;
-      
+
       const priceRange = PRICE_RANGES[selectedPriceRange];
       if (priceRange.min) params.min_price = priceRange.min;
       if (priceRange.max) params.max_price = priceRange.max;
-      
+
       const yearRange = YEAR_RANGES[selectedYearRange];
       if (yearRange.min) params.min_year = yearRange.min;
       if (yearRange.max) params.max_year = yearRange.max;
-      
+
       if (selectedSort !== 'relevance') params.sort = selectedSort;
 
       const queryString = new URLSearchParams(params).toString();
       const response = await api.get<{ success: boolean; data: any[] }>(
         `/api/cars${queryString ? `?${queryString}` : ''}`
       );
-      
+
       if (response.success) {
         setSearchResults(response.data);
       }
@@ -217,9 +217,9 @@ export default function SearchScreen() {
       setIsSearching(false);
       setRefreshing(false);
     }
-  }, [searchQuery, selectedCategory, selectedBrand, selectedModel, selectedCondition, 
-      selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange, 
-      selectedYearRange, selectedSort]);
+  }, [searchQuery, selectedCategory, selectedBrand, selectedModel, selectedCondition,
+    selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange,
+    selectedYearRange, selectedSort]);
 
   // Auto-search on filter changes
   useEffect(() => {
@@ -242,8 +242,8 @@ export default function SearchScreen() {
     if (selectedPriceRange > 0) count++;
     if (selectedYearRange > 0) count++;
     setActiveFilterCount(count);
-  }, [selectedCategory, selectedBrand, selectedModel, selectedCondition, 
-      selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange, selectedYearRange]);
+  }, [selectedCategory, selectedBrand, selectedModel, selectedCondition,
+    selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange, selectedYearRange]);
 
   // Toggle filters
   const toggleFilters = () => {
@@ -294,8 +294,8 @@ export default function SearchScreen() {
 
   // Render search result card
   const renderSearchCard = ({ item }: { item: any }) => {
-    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url || 
-                      item.AdImage?.[0]?.image_url;
+    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
+      item.AdImage?.[0]?.image_url;
     const details = item.CarDetails?.[0] || item.CarDetails || {};
     const formattedPrice = new Intl.NumberFormat('en-LK', {
       style: 'currency',
@@ -343,13 +343,13 @@ export default function SearchScreen() {
             </View>
           )}
         </View>
-        
+
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle} numberOfLines={1}>
             {item.title}
           </Text>
           <Text style={styles.cardPrice}>{formattedPrice}</Text>
-          
+
           <View style={styles.cardMeta}>
             <View style={styles.metaItem}>
               <Ionicons name="calendar-outline" size={12} color={COLORS.text.muted} />
@@ -362,7 +362,7 @@ export default function SearchScreen() {
               </Text>
             </View>
           </View>
-          
+
           <View style={styles.cardLocation}>
             <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
             <Text style={styles.locationText} numberOfLines={1}>
@@ -377,14 +377,11 @@ export default function SearchScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={false} title="Search" />
+      <Header showBack={true} title="Search" />
 
-      {/* Search Bar */}
+      {/* Search Bar section - cleaned up without redundant gradient */}
       <View style={styles.searchSection}>
-        <LinearGradient
-          colors={[COLORS.primary, '#1E40AF']}
-          style={styles.searchGradient}
-        >
+        <View style={styles.searchBarContainer}>
           <View style={styles.searchBar}>
             <Ionicons name="search" size={20} color={COLORS.text.muted} />
             <TextInput
@@ -402,7 +399,7 @@ export default function SearchScreen() {
               </TouchableOpacity>
             )}
           </View>
-        </LinearGradient>
+        </View>
 
         {/* Quick Filters */}
         <ScrollView
@@ -592,7 +589,7 @@ export default function SearchScreen() {
                   <SelectField
                     label="Brand"
                     value={selectedBrand}
-                    onChange={setSelectedBrand}
+                    onSelect={setSelectedBrand}
                     options={[{ label: 'All Brands', value: '' }, ...brands]}
                   />
                 </View>
@@ -604,7 +601,7 @@ export default function SearchScreen() {
                   <SelectField
                     label="Model"
                     value={selectedModel}
-                    onChange={setSelectedModel}
+                    onSelect={setSelectedModel}
                     options={[{ label: 'All Models', value: '' }, ...models]}
                   />
                 </View>
@@ -616,7 +613,7 @@ export default function SearchScreen() {
                   <SelectField
                     label="Condition"
                     value={selectedCondition}
-                    onChange={setSelectedCondition}
+                    onSelect={setSelectedCondition}
                     options={[{ label: 'Any Condition', value: '' }, ...conditions]}
                   />
                 </View>
@@ -627,7 +624,7 @@ export default function SearchScreen() {
                 <SelectField
                   label="Fuel Type"
                   value={selectedFuelType}
-                  onChange={setSelectedFuelType}
+                  onSelect={setSelectedFuelType}
                   options={[
                     { label: 'Any Fuel Type', value: '' },
                     { label: 'Petrol', value: 'Petrol' },
@@ -643,7 +640,7 @@ export default function SearchScreen() {
                 <SelectField
                   label="Transmission"
                   value={selectedTransmission}
-                  onChange={setSelectedTransmission}
+                  onSelect={setSelectedTransmission}
                   options={[
                     { label: 'Any Transmission', value: '' },
                     { label: 'Automatic', value: 'Automatic' },
@@ -684,30 +681,25 @@ const styles = StyleSheet.create({
   },
   searchSection: {
     backgroundColor: COLORS.white,
-    paddingBottom: 12,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
-  searchGradient: {
+  searchBarContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 14,
+    backgroundColor: COLORS.white,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+    backgroundColor: '#F3F4F6', // Light gray background for the bar
+    borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   searchInput: {
     flex: 1,

@@ -10,10 +10,12 @@ import {
     Platform,
     Image,
     ActivityIndicator,
-    SafeAreaView,
     Modal,
-    Alert
+    Alert,
+    Platform as RNPlatform,
+    StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -316,35 +318,64 @@ export default function ChatRoomScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Stack.Screen
-                options={{
-                    headerTitle: () => (
-                        <View style={styles.headerTitleContainer}>
-                            <Text style={styles.headerName}>{otherUser?.name || 'Loading...'}</Text>
-                            {isTyping && <Text style={styles.typingText}>typing...</Text>}
+        <View style={styles.container}>
+            <Stack.Screen options={{ headerShown: false }} />
+
+            {/* Custom Header */}
+            <View style={styles.customHeader}>
+                <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
+                    <View style={styles.headerContent}>
+                        <TouchableOpacity
+                            onPress={() => router.back()}
+                            style={styles.backButton}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons name="arrow-back" size={24} color="#fff" />
+                        </TouchableOpacity>
+
+                        <View style={styles.headerUserInfo}>
+                            <View style={styles.avatarContainer}>
+                                {otherUser?.avatar ? (
+                                    <Image source={{ uri: otherUser.avatar }} style={styles.avatarImage} />
+                                ) : (
+                                    <View style={styles.avatarPlaceholder}>
+                                        <Text style={styles.avatarInitial}>
+                                            {otherUser?.name?.charAt(0) || 'U'}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                            <View style={styles.headerTextContainer}>
+                                <Text style={styles.headerName} numberOfLines={1}>
+                                    {otherUser?.name || 'Loading...'}
+                                </Text>
+                                {isTyping ? (
+                                    <Text style={styles.typingText}>typing...</Text>
+                                ) : (
+                                    <Text style={styles.statusText}>Online</Text>
+                                )}
+                            </View>
                         </View>
-                    ),
-                    headerRight: () => (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
+
+                        <View style={styles.headerActions}>
                             <TouchableOpacity
-                                style={{ marginRight: 15 }}
+                                style={styles.headerActionBtn}
                                 onPress={() => setShowNegotiationModal(true)}
                             >
-                                <MaterialCommunityIcons name="handshake-outline" size={24} color="#235CF8" />
+                                <MaterialCommunityIcons name="handshake-outline" size={24} color="#fff" />
                             </TouchableOpacity>
-                            <TouchableOpacity>
-                                <Ionicons name="call-outline" size={22} color="#235CF8" />
+                            <TouchableOpacity style={styles.headerActionBtn}>
+                                <Ionicons name="call-outline" size={22} color="#fff" />
                             </TouchableOpacity>
                         </View>
-                    )
-                }}
-            />
+                    </View>
+                </SafeAreaView>
+            </View>
 
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+                behavior={RNPlatform.OS === 'ios' ? 'padding' : undefined}
+                keyboardVerticalOffset={RNPlatform.OS === 'ios' ? 0 : 0}
             >
                 <FlatList
                     ref={flatListRef}
@@ -393,6 +424,8 @@ export default function ChatRoomScreen() {
                 </View>
             </KeyboardAvoidingView>
 
+
+
             <Modal
                 visible={showNegotiationModal}
                 transparent
@@ -427,15 +460,112 @@ export default function ChatRoomScreen() {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </View >
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F8F9FA',
     },
+    // Custom Header Styles
+    customHeader: {
+        backgroundColor: COLORS.primary,
+        width: "100%",
+        paddingBottom: 20,
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        zIndex: 100,
+    },
+    headerSafeArea: {
+        width: '100%',
+    },
+    headerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        gap: 12,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+    },
+    headerUserInfo: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    avatarContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.3)',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
+    },
+    avatarPlaceholder: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLORS.secondary,
+    },
+    avatarInitial: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    headerTextContainer: {
+        flex: 1,
+    },
+    headerName: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#fff',
+        marginBottom: 2,
+    },
+    statusText: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.7)',
+    },
+    typingText: {
+        fontSize: 11,
+        color: '#4ADE80',
+        fontWeight: '600',
+    },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    headerActionBtn: {
+        width: 36,
+        height: 36,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderRadius: 12,
+    },
+    // End Custom Header Styles
+
     adContextBanner: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -519,16 +649,6 @@ const styles = StyleSheet.create({
     },
     headerTitleContainer: {
         alignItems: 'center',
-    },
-    headerName: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#111827',
-    },
-    typingText: {
-        fontSize: 12,
-        color: '#22C55E',
-        fontWeight: '500',
     },
     listContent: {
         padding: 15,
@@ -628,7 +748,7 @@ const styles = StyleSheet.create({
         color: '#1E293B',
     },
     sendBtn: {
-        backgroundColor: '#235CF8',
+        backgroundColor: COLORS.primary,
         width: 40,
         height: 40,
         borderRadius: 20,

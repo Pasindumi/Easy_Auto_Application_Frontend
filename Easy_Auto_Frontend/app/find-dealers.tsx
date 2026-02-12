@@ -109,83 +109,81 @@ export default function FindDealersScreen() {
   return (
     <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header />
+      <Header title="Find Dealers" />
 
-      {/* Unified Sub-Header */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
-          <Ionicons name="map-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Find Dealers</Text>
-        </View>
-      </View>
+      <View style={styles.contentContainer}>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Search Bar */}
-        <View style={styles.searchSection}>
-          <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={20} color={COLORS.text.muted} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search dealers..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor={COLORS.text.muted}
-            />
-            <TouchableOpacity>
-              <Ionicons name="options-outline" size={20} color={COLORS.primary} />
-            </TouchableOpacity>
+        {/* Unified Sub-Header */}
+
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Search Bar */}
+          <View style={styles.searchSection}>
+            <View style={styles.searchContainer}>
+              <Ionicons name="search-outline" size={20} color={COLORS.text.muted} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search dealers..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholderTextColor={COLORS.text.muted}
+              />
+              <TouchableOpacity>
+                <Ionicons name="options-outline" size={20} color={COLORS.primary} />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        {/* Filters */}
-        <View style={styles.filtersSection}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersContainer}
-          >
-            {['All', 'Nearby', 'Top Rated', 'Most Listings'].map(
-              (filter) => (
-                <TouchableOpacity
-                  key={filter}
-                  style={[
-                    styles.filterChip,
-                    selectedFilter === filter.toLowerCase().replace(' ', '-') &&
-                    styles.filterChipActive,
-                  ]}
-                  onPress={() =>
-                    setSelectedFilter(
-                      filter.toLowerCase().replace(' ', '-')
-                    )
-                  }
-                >
-                  <Text
+          {/* Filters */}
+          <View style={styles.filtersSection}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filtersContainer}
+            >
+              {['All', 'Nearby', 'Top Rated', 'Most Listings'].map(
+                (filter) => (
+                  <TouchableOpacity
+                    key={filter}
                     style={[
-                      styles.filterText,
+                      styles.filterChip,
                       selectedFilter === filter.toLowerCase().replace(' ', '-') &&
-                      styles.filterTextActive,
+                      styles.filterChipActive,
                     ]}
+                    onPress={() =>
+                      setSelectedFilter(
+                        filter.toLowerCase().replace(' ', '-')
+                      )
+                    }
                   >
-                    {filter}
-                  </Text>
-                </TouchableOpacity>
-              )
-            )}
-          </ScrollView>
-        </View>
+                    <Text
+                      style={[
+                        styles.filterText,
+                        selectedFilter === filter.toLowerCase().replace(' ', '-') &&
+                        styles.filterTextActive,
+                      ]}
+                    >
+                      {filter}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              )}
+            </ScrollView>
+          </View>
 
-        {/* Dealers List */}
-        <View style={styles.dealersSection}>
-          <Text style={styles.sectionTitle}>
-            {DEALERS.length} Dealers Found
-          </Text>
-          {DEALERS.map((item) => renderDealerCard({ item }))}
-        </View>
-      </ScrollView>
+          {/* Dealers List */}
+          <View style={styles.dealersSection}>
+            <Text style={styles.sectionTitle}>
+              {DEALERS.length} Dealers Found
+            </Text>
+            {DEALERS.map((item) => renderDealerCard({ item }))}
+          </View>
+        </ScrollView>
+      </View>
     </View>
   );
 }
@@ -195,19 +193,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  subHeaderWrap: {
-    backgroundColor: COLORS.background
-  },
-  subHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  subHeaderTitle: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: '600'
+  contentContainer: {
+    flex: 1,
+    marginTop: 10,
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
+    backgroundColor: COLORS.background,
+    overflow: 'hidden',
   },
   scrollView: {
     flex: 1,
