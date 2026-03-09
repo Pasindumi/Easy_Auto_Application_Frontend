@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -19,270 +19,246 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
+const DRAWER_W = width * 0.88;
 
 interface WishlistDrawerProps {
   visible: boolean;
   onClose: () => void;
 }
 
-export default function WishlistDrawer({
-  visible,
-  onClose,
-}: WishlistDrawerProps) {
-  const drawerWidth = width * 0.85;
-  const slideAnim = React.useRef(new Animated.Value(drawerWidth)).current;
-  const backdropOpacity = React.useRef(new Animated.Value(0)).current;
-  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+export default function WishlistDrawer({ visible, onClose }: WishlistDrawerProps) {
+  const insets      = useSafeAreaInsets();
+  const router      = useRouter();
+  const slideAnim   = useRef(new Animated.Value(DRAWER_W)).current;
+  const bgOpacity   = useRef(new Animated.Value(0)).current;
+  const [items, setItems]     = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
       fetchWishlist();
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 350,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(backdropOpacity, {
-          toValue: 1,
-          duration: 350,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
+        Animated.timing(slideAnim, { toValue: 0,        duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(bgOpacity,  { toValue: 1,        duration: 300, useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: drawerWidth,
-          duration: 300,
-          easing: Easing.in(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(backdropOpacity, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.in(Easing.ease),
-          useNativeDriver: true,
-        }),
+        Animated.timing(slideAnim, { toValue: DRAWER_W, duration: 280, easing: Easing.in(Easing.cubic),  useNativeDriver: true }),
+        Animated.timing(bgOpacity,  { toValue: 0,        duration: 260, useNativeDriver: true }),
       ]).start();
     }
-  }, [visible, drawerWidth, slideAnim, backdropOpacity]);
+  }, [visible]);
 
   const fetchWishlist = async () => {
     try {
       setLoading(true);
-      const response = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
-      if (response.success) {
-        setWishlistItems(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching wishlist:", error);
-    } finally {
-      setLoading(false);
-    }
+      const res = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
+      if (res.success) setItems(res.data);
+    } catch { /* silent */ }
+    finally { setLoading(false); }
   };
 
-  const removeFromWishlist = (id: number) => {
+  const removeItem = (id: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert(
-      "Remove",
-      "Remove this vehicle from your wishlist?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const response = await api.post<{ success: boolean; isFavorite: boolean }>("/api/favorites/toggle", {
-                ad_id: id
-              });
-              if (response.success && !response.isFavorite) {
-                setWishlistItems(wishlistItems.filter((item) => item.id !== id));
-              }
-            } catch (error) {
-              console.error("Error removing from wishlist:", error);
-              Alert.alert("Error", "Failed to remove item.");
-            }
-          },
+    Alert.alert("Remove from Wishlist", "Are you sure you want to remove this car?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const res = await api.post<{ success: boolean; isFavorite: boolean }>("/api/favorites/toggle", { ad_id: id });
+            if (res.success && !res.isFavorite) setItems((prev) => prev.filter((i) => i.id !== id));
+          } catch {
+            Alert.alert("Error", "Could not remove item. Please try again.");
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
-  const handleShare = (item: any) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Alert.alert("Share", `Sharing ${item.title}...`);
-  };
-
-  const handleViewDetails = (item: any) => {
+  const viewCar = (item: any) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
-    router.push(`/cars/${item.id}` as any);
+    setTimeout(() => router.push(`/cars/${item.id}` as any), 260);
   };
 
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 }).format(price);
+
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
-        <Animated.View
-          style={[
-            styles.drawer,
-            {
-              width: drawerWidth,
-              transform: [{ translateX: slideAnim }],
-            },
-          ]}
-        >
-          <SafeAreaView style={styles.drawerContent} edges={["top", "bottom"]}>
-            <LinearGradient
-                colors={[COLORS.primary, '#1E40AF']}
-                style={styles.header}
-            >
-                <View style={styles.headerTitleRow}>
-                    <Text style={styles.title}>Wishlist</Text>
-                    <View style={styles.countBadge}>
-                        <Text style={styles.countText}>{wishlistItems.length}</Text>
-                    </View>
-                </View>
-                <Text style={styles.subtitle}>Your saved dream cars</Text>
-            </LinearGradient>
-
-            <ScrollView
-              style={styles.scrollView}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              {loading ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color={COLORS.primary} />
-                </View>
-              ) : wishlistItems.length > 0 ? (
-                <View style={styles.container}>
-                  {wishlistItems.map((item) => {
-                    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
-                      item.AdImage?.[0]?.image_url;
-                    const details = item.CarDetails?.[0] || item.CarDetails || {};
-                    const formattedPrice = new Intl.NumberFormat('en-LK', {
-                      style: 'currency',
-                      currency: 'LKR',
-                      maximumFractionDigits: 0
-                    }).format(item.price);
-
-                    return (
-                      <View key={item.id} style={styles.card}>
-                        <TouchableOpacity
-                          style={styles.cardContent}
-                          activeOpacity={0.9}
-                          onPress={() => handleViewDetails(item)}
-                        >
-                          <View style={styles.imageContainer}>
-                            {mainImage ? (
-                              <Image
-                                source={{ uri: mainImage }}
-                                style={styles.image}
-                                contentFit="cover"
-                                transition={200}
-                              />
-                            ) : (
-                              <View style={styles.imagePlaceholder}>
-                                <Ionicons name="car-outline" size={40} color={COLORS.border} />
-                              </View>
-                            )}
-                            <TouchableOpacity
-                                style={styles.favBtn}
-                                onPress={() => removeFromWishlist(item.id)}
-                            >
-                                <Ionicons name="heart" size={20} color="#EF4444" />
-                            </TouchableOpacity>
-                          </View>
-
-                          <View style={styles.info}>
-                            <View style={styles.cardHeader}>
-                              <Text style={styles.carName} numberOfLines={1}>
-                                {item.title}
-                              </Text>
-                              <View style={styles.yearBadge}>
-                                <Text style={styles.yearText}>{details.year || 'N/A'}</Text>
-                              </View>
-                            </View>
-
-                            <Text style={styles.price}>{formattedPrice}</Text>
-
-                            <View style={styles.metaRow}>
-                              <View style={styles.metaItem}>
-                                <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
-                                <Text style={styles.metaText} numberOfLines={1}>{item.location}</Text>
-                              </View>
-                              <View style={styles.metaItem}>
-                                <Ionicons name="speedometer-outline" size={12} color={COLORS.text.muted} />
-                                <Text style={styles.metaText}>{details.mileage || 'N/A'} km</Text>
-                              </View>
-                            </View>
-                          </View>
-                        </TouchableOpacity>
-
-                        <View style={styles.actions}>
-                          <TouchableOpacity
-                            style={styles.actionBtn}
-                            onPress={() => handleViewDetails(item)}
-                          >
-                            <Ionicons name="eye-outline" size={18} color={COLORS.primary} />
-                            <Text style={styles.actionText}>View</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={styles.actionBtn}
-                            onPress={() => handleShare(item)}
-                          >
-                            <Ionicons name="share-social-outline" size={18} color={COLORS.primary} />
-                            <Text style={styles.actionText}>Share</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={styles.compareBtn}
-                          >
-                            <Ionicons name="git-compare-outline" size={18} color={COLORS.primary} />
-                            <Text style={styles.actionText}>Compare</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                <View style={styles.empty}>
-                  <View style={styles.emptyCircle}>
-                    <Ionicons name="heart-dislike-outline" size={48} color={COLORS.border} />
-                  </View>
-                  <Text style={styles.emptyTitle}>Wishlist Empty</Text>
-                  <Text style={styles.emptyText}>Tap the heart icon on any car to save it here for later.</Text>
-                  <TouchableOpacity 
-                    style={styles.browseBtn}
-                    onPress={() => { onClose(); router.push('/cars/buy-car'); }}
-                  >
-                    <Text style={styles.browseText}>Browse Cars</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </ScrollView>
-          </SafeAreaView>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
+      <View style={styles.root}>
+        {/* ── Backdrop ─────────────────────────────────────── */}
+        <Animated.View style={[styles.backdrop, { opacity: bgOpacity }]} pointerEvents={visible ? "auto" : "none"}>
+          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onClose} />
         </Animated.View>
 
-        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-          <TouchableOpacity
-            style={styles.backdropTouchable}
-            activeOpacity={1}
-            onPress={onClose}
-          />
+        {/* ── Drawer (slides from right) ────────────────────── */}
+        <Animated.View style={[styles.drawer, { transform: [{ translateX: slideAnim }] }]}>
+
+          {/* ── Header ──────────────────────────────────────── */}
+          <LinearGradient
+            colors={["#235CF8", "#1346C8", "#0D3AAD"]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1.2 }}
+            style={[styles.header, { paddingTop: insets.top + 16 }]}
+          >
+            {/* Decorative blobs */}
+            <View style={styles.blob1} />
+            <View style={styles.blob2} />
+
+            {/* Close */}
+            <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+              <Ionicons name="close" size={20} color="rgba(255,255,255,0.85)" />
+            </TouchableOpacity>
+
+            {/* Heart icon */}
+            <View style={styles.headerIcon}>
+              <Ionicons name="heart" size={28} color="#EF4444" />
+            </View>
+
+            {/* Title row */}
+            <View style={styles.headerTitleRow}>
+              <View>
+                <Text style={styles.headerTitle}>Wishlist</Text>
+                <Text style={styles.headerSub}>Your saved dream cars</Text>
+              </View>
+              {items.length > 0 && (
+                <View style={styles.countPill}>
+                  <Text style={styles.countTxt}>{items.length}</Text>
+                </View>
+              )}
+            </View>
+          </LinearGradient>
+
+          {/* ── Content ─────────────────────────────────────── */}
+          <ScrollView
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 32 }]}
+          >
+            {loading ? (
+              <View style={styles.centerBox}>
+                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Text style={styles.loadingTxt}>Loading your wishlist...</Text>
+              </View>
+            ) : items.length === 0 ? (
+              /* Empty state */
+              <View style={styles.emptyState}>
+                <View style={styles.emptyCircle}>
+                  <Ionicons name="heart-dislike-outline" size={44} color="#CBD5E1" />
+                </View>
+                <Text style={styles.emptyTitle}>Nothing saved yet</Text>
+                <Text style={styles.emptyBody}>
+                  Tap the heart ♥ on any car listing to save it here for quick access.
+                </Text>
+                <TouchableOpacity
+                  style={styles.browseBtn}
+                  onPress={() => { onClose(); router.push("/cars/buy-car"); }}
+                >
+                  <Ionicons name="search" size={16} color="#fff" />
+                  <Text style={styles.browseTxt}>Browse Cars</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              /* Car cards */
+              items.map((item) => {
+                const img = item.AdImage?.find((i: any) => i.is_main)?.image_url || item.AdImage?.[0]?.image_url;
+                const details = item.CarDetails?.[0] || item.CarDetails || {};
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.card}
+                    activeOpacity={0.93}
+                    onPress={() => viewCar(item)}
+                  >
+                    {/* Image */}
+                    <View style={styles.imageWrap}>
+                      {img ? (
+                        <Image source={{ uri: img }} style={styles.image} contentFit="cover" transition={300} />
+                      ) : (
+                        <View style={styles.imagePlaceholder}>
+                          <Ionicons name="car-outline" size={36} color="#CBD5E1" />
+                        </View>
+                      )}
+
+                      {/* Overlay gradient */}
+                      <LinearGradient
+                        colors={["transparent", "rgba(0,0,0,0.5)"]}
+                        style={StyleSheet.absoluteFillObject}
+                      />
+
+                      {/* Year badge */}
+                      {details.year && (
+                        <View style={styles.yearBadge}>
+                          <Text style={styles.yearTxt}>{details.year}</Text>
+                        </View>
+                      )}
+
+                      {/* Remove button */}
+                      <TouchableOpacity style={styles.removeBtn} onPress={() => removeItem(item.id)}>
+                        <Ionicons name="heart" size={18} color="#EF4444" />
+                      </TouchableOpacity>
+
+                      {/* Price overlay */}
+                      <View style={styles.priceOverlay}>
+                        <Text style={styles.priceOverlayTxt}>{formatPrice(item.price)}</Text>
+                      </View>
+                    </View>
+
+                    {/* Info */}
+                    <View style={styles.cardInfo}>
+                      <Text style={styles.carTitle} numberOfLines={1}>{item.title}</Text>
+
+                      {/* Specs row */}
+                      <View style={styles.specsRow}>
+                        {[
+                          { icon: "location-outline",    val: item.location || "—" },
+                          { icon: "speedometer-outline", val: details.mileage ? `${Number(details.mileage).toLocaleString()} km` : "—" },
+                          { icon: "color-palette-outline",val: details.color || "—" },
+                        ].map((s, i) => (
+                          <View key={i} style={styles.specChip}>
+                            <Ionicons name={s.icon as any} size={11} color="#64748B" />
+                            <Text style={styles.specTxt} numberOfLines={1}>{s.val}</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      {/* Actions */}
+                      <View style={styles.actionBar}>
+                        <TouchableOpacity style={styles.primaryAction} onPress={() => viewCar(item)}>
+                          <Ionicons name="eye-outline" size={16} color="#fff" />
+                          <Text style={styles.primaryActionTxt}>View Details</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.secondaryAction}
+                          onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            Alert.alert("Share", `Sharing ${item.title}...`);
+                          }}
+                        >
+                          <Ionicons name="share-social-outline" size={16} color={COLORS.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.secondaryAction}
+                          onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            onClose();
+                            setTimeout(() => router.push("/(tabs)/compare"), 260);
+                          }}
+                        >
+                          <Ionicons name="git-compare-outline" size={16} color={COLORS.primary} />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })
+            )}
+          </ScrollView>
         </Animated.View>
       </View>
     </Modal>
@@ -290,247 +266,146 @@ export default function WishlistDrawer({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    flexDirection: "row-reverse",
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-  },
-  backdropTouchable: {
-    flex: 1,
-  },
+  root:    { flex: 1, flexDirection: "row-reverse" },
+  backdrop: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15,23,42,0.55)" },
+
   drawer: {
-    backgroundColor: COLORS.background,
+    width: DRAWER_W,
+    backgroundColor: "#F8FAFF",
     height: "100%",
     shadowColor: "#000",
-    shadowOffset: { width: -10, height: 0 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: -6, height: 0 },
+    shadowOpacity: 0.14,
     shadowRadius: 20,
-    elevation: 20,
+    elevation: 24,
   },
-  drawerContent: {
-    flex: 1,
-  },
+
+  // ── Header ──────────────────────────────────────────
   header: {
-    padding: 24,
-    paddingTop: 32,
-    borderBottomLeftRadius: 32,
-  },
-  headerTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: COLORS.white,
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontWeight: "500",
-  },
-  countBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    minWidth: 36,
-    alignItems: "center",
-  },
-  countText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: COLORS.white,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    paddingTop: 100,
-    alignItems: "center",
-  },
-  container: {
-    gap: 16,
-  },
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
   },
-  cardContent: {
-    width: "100%",
+  blob1: {
+    position: "absolute", width: 180, height: 180, borderRadius: 90,
+    backgroundColor: "rgba(255,255,255,0.06)", top: -70, right: -50,
   },
-  imageContainer: {
-    position: "relative",
-    height: 160,
-    width: "100%",
+  blob2: {
+    position: "absolute", width: 100, height: 100, borderRadius: 50,
+    backgroundColor: "rgba(255,255,255,0.04)", bottom: -20, left: 10,
   },
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-  imagePlaceholder: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: COLORS.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  favBtn: {
-    position: "absolute",
-    top: 12,
-    right: 12,
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  info: {
-    padding: 16,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  carName: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.text.primary,
-    letterSpacing: -0.3,
-  },
-  yearBadge: {
-    backgroundColor: '#EEF4FF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  yearText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: COLORS.primary,
-  },
-  price: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: COLORS.primary,
+  closeBtn: {
+    alignSelf: "flex-end",
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center", justifyContent: "center",
     marginBottom: 12,
   },
-  metaRow: {
-    flexDirection: "row",
-    gap: 16,
+  headerIcon: {
+    width: 52, height: 52, borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center", justifyContent: "center",
+    marginBottom: 14,
   },
-  metaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
+  headerTitleRow: {
+    flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between",
   },
-  metaText: {
-    fontSize: 12,
-    color: COLORS.text.muted,
-    fontWeight: "500",
+  headerTitle: { fontSize: 24, fontWeight: "800", color: "#fff", letterSpacing: -0.5 },
+  headerSub:   { fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 3 },
+  countPill: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20,
   },
-  actions: {
-    flexDirection: "row",
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    backgroundColor: '#FAFBFD',
-  },
-  actionBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingVertical: 8,
-  },
-  compareBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingVertical: 8,
-    borderLeftWidth: 1,
-    borderLeftColor: COLORS.border,
-  },
-  actionText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: COLORS.text.primary,
-  },
-  empty: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 80,
-    paddingHorizontal: 32,
-  },
+  countTxt: { color: "#fff", fontWeight: "800", fontSize: 16 },
+
+  // ── Scroll ──────────────────────────────────────────
+  scrollContent: { padding: 16, gap: 14 },
+
+  // ── Loading ─────────────────────────────────────────
+  centerBox: { flex: 1, paddingTop: 100, alignItems: "center", gap: 16 },
+  loadingTxt: { fontSize: 14, color: "#94A3B8", fontWeight: "500" },
+
+  // ── Empty ───────────────────────────────────────────
+  emptyState: { flex: 1, paddingTop: 64, alignItems: "center", paddingHorizontal: 28 },
   emptyCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: COLORS.background,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
+    width: 96, height: 96, borderRadius: 48,
+    backgroundColor: "#F1F5F9",
+    alignItems: "center", justifyContent: "center",
+    marginBottom: 20,
   },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: COLORS.text.primary,
-    marginBottom: 8,
-    letterSpacing: -0.5,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: COLORS.text.muted,
-    textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 24,
-  },
+  emptyTitle: { fontSize: 22, fontWeight: "800", color: "#1E293B", letterSpacing: -0.5, marginBottom: 10 },
+  emptyBody:  { fontSize: 14, color: "#64748B", textAlign: "center", lineHeight: 22, marginBottom: 28 },
   browseBtn: {
-      backgroundColor: COLORS.primary,
-      paddingVertical: 12,
-      paddingHorizontal: 24,
-      borderRadius: 16,
-      shadowColor: COLORS.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-      elevation: 4,
+    flexDirection: "row", alignItems: "center", gap: 8,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 28, paddingVertical: 14, borderRadius: 16,
+    shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.28, shadowRadius: 12, elevation: 6,
   },
-  browseText: {
-      color: COLORS.white,
-      fontWeight: "700",
-      fontSize: 15,
-  }
+  browseTxt: { color: "#fff", fontWeight: "700", fontSize: 15 },
+
+  // ── Card ────────────────────────────────────────────
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  imageWrap: { width: "100%", height: 170, position: "relative" },
+  image:     { width: "100%", height: "100%" },
+  imagePlaceholder: {
+    width: "100%", height: "100%", backgroundColor: "#F1F5F9",
+    alignItems: "center", justifyContent: "center",
+  },
+  yearBadge: {
+    position: "absolute", top: 10, left: 10,
+    backgroundColor: COLORS.primary, borderRadius: 8,
+    paddingHorizontal: 10, paddingVertical: 4,
+  },
+  yearTxt: { color: "#fff", fontSize: 11, fontWeight: "800" },
+  removeBtn: {
+    position: "absolute", top: 10, right: 10,
+    width: 36, height: 36, borderRadius: 12,
+    backgroundColor: "#fff",
+    alignItems: "center", justifyContent: "center",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3,
+  },
+  priceOverlay: {
+    position: "absolute", bottom: 10, left: 10,
+  },
+  priceOverlayTxt: {
+    fontSize: 17, fontWeight: "800", color: "#fff",
+    textShadowColor: "rgba(0,0,0,0.3)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4,
+  },
+
+  // Card info
+  cardInfo: { padding: 14 },
+  carTitle: { fontSize: 16, fontWeight: "700", color: "#1E293B", letterSpacing: -0.3, marginBottom: 10 },
+
+  specsRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 14 },
+  specChip: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: "#F8FAFF",
+    paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
+    borderWidth: 1, borderColor: "#EDF2FF",
+  },
+  specTxt: { fontSize: 11, color: "#64748B", fontWeight: "500", maxWidth: 70 },
+
+  actionBar: { flexDirection: "row", gap: 8, alignItems: "center" },
+  primaryAction: {
+    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 6, backgroundColor: COLORS.primary,
+    paddingVertical: 10, borderRadius: 12,
+  },
+  primaryActionTxt: { color: "#fff", fontWeight: "700", fontSize: 13 },
+  secondaryAction: {
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: "#EEF2FF",
+    alignItems: "center", justifyContent: "center",
+  },
 });

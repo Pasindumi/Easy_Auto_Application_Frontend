@@ -1,387 +1,239 @@
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState, useEffect } from "react";
 import {
     Animated,
+    Dimensions,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
+    ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
+import COLORS from "@/constants/Colors";
+import SectionHeader from "./SectionHeader";
+
+const { width } = Dimensions.get("window");
+const CARD_W = width * 0.72;
 
 interface TrendingCarsProps {
     fadeAnim: Animated.Value;
     slideAnim: Animated.Value;
-    trendingCategory: string;
-    setTrendingCategory: (category: string) => void;
 }
 
-import { CATEGORIES } from "@/constants/dummydata/homedummydata";
-import COLORS from "@/constants/Colors";
+const formatPrice = (p: any) =>
+    new Intl.NumberFormat("en-LK", {
+        style: "currency",
+        currency: "LKR",
+        maximumFractionDigits: 0,
+        notation: "compact",
+        compactDisplay: "short",
+    }).format(Number(p) || 0);
 
 const TrendingCars: React.FC<TrendingCarsProps> = ({
     fadeAnim,
     slideAnim,
-    trendingCategory,
-    setTrendingCategory,
 }) => {
-    const router = useRouter(); // Use router for navigation
-    const [trendingAds, setTrendingAds] = useState<any[]>([]);
+    const router = useRouter();
+    const [ads, setAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchTrendingAds();
+        fetchTrending();
     }, []);
 
-    const fetchTrendingAds = async () => {
+    const fetchTrending = async () => {
         try {
             setLoading(true);
-            const response: any = await api.get('/api/cars/trending');
-            if (response.success && Array.isArray(response.data)) {
-                setTrendingAds(response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching trending ads:", error);
+            const res: any = await api.get("/api/cars/trending");
+            if (res.success && Array.isArray(res.data)) setAds(res.data);
+        } catch (e) {
+            console.error("Trending fetch error:", e);
         } finally {
             setLoading(false);
         }
     };
 
-    // Use dummy data if no API data or while loading (optional, or just show skeleton)
-    // For now, let's prefer API data, fall back to empty if none
-    const displayAds = trendingAds.length > 0 ? trendingAds : [];
-
-    if (!loading && displayAds.length === 0) {
-        return null; // Hide section if no trending ads
-    }
+    if (!loading && ads.length === 0) return null;
 
     return (
         <Animated.View
-            style={[
-                styles.container,
-                {
-                    opacity: fadeAnim,
-                    transform: [{ translateY: slideAnim }],
-                },
-            ]}
+            style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
-            <View style={styles.header}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Trending Ads</Text>
-                    <Text style={styles.subtitle}>Most popular this week</Text>
+            <SectionHeader
+                title="🔥 Trending Now"
+                subtitle="Most viewed listings this week"
+                onViewAll={() => router.push("/(tabs)/search" as any)}
+            />
+
+            {loading ? (
+                <View style={styles.loader}>
+                    <ActivityIndicator color={COLORS.primary} />
                 </View>
-                {/* 
-                <TouchableOpacity
-                    style={styles.viewAllButton}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        // Navigate to all ads or filtered view
-                        router.push('/(tabs)/explore');
-                    }}
+            ) : (
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                    decelerationRate="fast"
+                    snapToInterval={CARD_W + 16}
                 >
-                    <Text style={styles.viewAllText}>View All</Text>
-                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
-                </TouchableOpacity>
-                */}
-            </View>
+                    {ads.map((ad, i) => {
+                        const imageUrl = ad.AdImage?.[0]?.image_url;
+                        const year = ad.CarDetails?.manufacture_year || ad.CarDetails?.year || "";
+                        const mileage = ad.CarDetails?.mileage
+                            ? `${(Number(ad.CarDetails.mileage) / 1000).toFixed(0)}k km`
+                            : null;
+                        const fuel = ad.CarDetails?.fuel_type || null;
 
-            {/* Category Tabs - Optional: Keep or Remove? User asked to "Update Trending Cars section to Trending Ads". 
-                If the backend doesn't support category filtering for trending yet, maybe hide tabs or keep them if we want to filter CLIENT SIDE.
-                For now, I will comment them out as the requirement implies a specific "Trending Ads" list based on reviews.
-            */}
-            {/* 
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.tabsScroll}
-                contentContainerStyle={styles.tabsContainer}
-            >
-                {CATEGORIES.map((category) => (
-                    <TouchableOpacity
-                        key={`category-${category.name}`}
-                        style={[
-                            styles.tab,
-                            trendingCategory === category.name && styles.tabActive,
-                        ]}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            setTrendingCategory(category.name);
-                        }}
-                    >
-                        <Text
-                            style={[
-                                styles.tabText,
-                                trendingCategory === category.name && styles.tabTextActive,
-                            ]}
-                        >
-                            {category.name}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-            */}
-
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardsContainer}
-                decelerationRate="fast"
-                snapToInterval={240}
-            >
-                {displayAds.map((ad, index) => (
-                    <TouchableOpacity
-                        key={`trending-${ad.id}-${index}`}
-                        style={styles.card}
-                        activeOpacity={0.9}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.push(`/cars/${ad.id}`);
-                        }}
-                    >
-                        <View style={styles.imageContainer}>
-                            <Image
-                                source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
-                                style={styles.image}
-                                contentFit="cover"
-                                transition={300}
-                                cachePolicy="memory-disk"
-                            />
-
-                            {/* Status Badge from Backend Logic if needed, or just Review Count badge */}
-                            <View style={styles.reviewBadge}>
-                                <Ionicons name="star" size={10} color="#FFD700" />
-                                <Text style={styles.reviewText}>
-                                    {ad.review_count || 0} Reviews
-                                </Text>
-                            </View>
-
-                            <View style={styles.priceTag}>
-                                <Text style={styles.priceText}>
-                                    {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price)}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle} numberOfLines={1}>
-                                {ad.title}
-                            </Text>
-                            <Text style={styles.cardSubTitle} numberOfLines={1}>
-                                {ad.CarDetails?.model} {ad.CarDetails?.year}
-                            </Text>
-
-                            <View style={styles.detailsRow}>
-                                <View style={styles.locationRow}>
-                                    <Ionicons name="location-outline" size={14} color={COLORS.text.muted} />
-                                    <Text style={styles.locationText} numberOfLines={1}>
-                                        {ad.location?.split(",")[0] || "Unknown"}
-                                    </Text>
+                        return (
+                            <TouchableOpacity
+                                key={`trending-${ad.id}-${i}`}
+                                style={styles.card}
+                                activeOpacity={0.9}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    router.push(`/cars/${ad.id}` as any);
+                                }}
+                            >
+                                <View style={styles.imageWrap}>
+                                    <Image
+                                        source={imageUrl ? { uri: imageUrl } : require("@/assets/images/car.jpg")}
+                                        style={styles.image}
+                                        contentFit="cover"
+                                        transition={300}
+                                    />
+                                    <LinearGradient
+                                        colors={["transparent", "rgba(2,14,39,0.5)"]}
+                                        style={StyleSheet.absoluteFillObject}
+                                    />
+                                    <View style={styles.priceBadge}>
+                                        <Text style={styles.priceText}>{formatPrice(ad.price)}</Text>
+                                    </View>
+                                    <TouchableOpacity style={styles.heartBtn}>
+                                        <Ionicons name="heart-outline" size={16} color="#fff" />
+                                    </TouchableOpacity>
                                 </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+
+                                <View style={styles.content}>
+                                    <Text style={styles.title} numberOfLines={1}>
+                                        {ad.title || `${ad.CarDetails?.brand} ${ad.CarDetails?.model}`}
+                                    </Text>
+
+                                    <View style={styles.specsRow}>
+                                        {year ? (
+                                            <View style={styles.specTag}>
+                                                <Ionicons name="calendar-outline" size={11} color="#64748B" />
+                                                <Text style={styles.specText}>{year}</Text>
+                                            </View>
+                                        ) : null}
+                                        {mileage ? (
+                                            <View style={styles.specTag}>
+                                                <Ionicons name="speedometer-outline" size={11} color="#64748B" />
+                                                <Text style={styles.specText}>{mileage}</Text>
+                                            </View>
+                                        ) : null}
+                                        {fuel ? (
+                                            <View style={styles.specTag}>
+                                                <Ionicons name="flask-outline" size={11} color="#64748B" />
+                                                <Text style={styles.specText}>{fuel}</Text>
+                                            </View>
+                                        ) : null}
+                                    </View>
+
+                                    <View style={styles.footer}>
+                                        <View style={styles.locRow}>
+                                            <Ionicons name="location-outline" size={12} color="#94A3B8" />
+                                            <Text style={styles.locText} numberOfLines={1}>
+                                                {ad.location?.split(",")[0] || "Sri Lanka"}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.ratingBox}>
+                                            <Ionicons name="star" size={11} color="#F59E0B" />
+                                            <Text style={styles.ratingText}>4.5</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </ScrollView>
+            )}
         </Animated.View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        marginTop: 8,
-        marginBottom: 24,
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: 20,
-        marginBottom: 16,
-    },
-    titleContainer: {
-        flex: 1,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: COLORS.text.primary,
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontSize: 13,
-        color: COLORS.text.muted,
-        marginTop: 2,
-        fontWeight: "500",
-    },
-    viewAllButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 4,
-        padding: 4,
-    },
-    viewAllText: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: COLORS.primary,
-    },
-    tabsScroll: {
-        marginBottom: 20,
-    },
-    tabsContainer: {
-        paddingHorizontal: 20,
-        gap: 10,
-    },
-    tab: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 20, // Full rounded
-        backgroundColor: COLORS.secondary,
-        gap: 8,
-    },
-    tabActive: {
-        backgroundColor: COLORS.primary,
-    },
-    tabText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: COLORS.text.secondary,
-    },
-    tabTextActive: {
-        color: COLORS.white,
-    },
-    badge: {
-        backgroundColor: "rgba(0,0,0,0.05)",
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 8,
-    },
-    badgeActive: {
-        backgroundColor: "rgba(255,255,255,0.2)",
-    },
-    badgeText: {
-        fontSize: 10,
-        fontWeight: "700",
-        color: COLORS.text.muted,
-    },
-    badgeTextActive: {
-        color: COLORS.white,
-    },
-    cardsContainer: {
-        paddingHorizontal: 20,
-        gap: 16,
-    },
+    container: { backgroundColor: "#F8FAFF", paddingBottom: 4 },
+    loader: { height: 260, justifyContent: "center", alignItems: "center" },
+    scrollContent: { paddingHorizontal: 20, gap: 16, paddingBottom: 4 },
     card: {
-        width: 230,
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.12,
-        shadowRadius: 16,
-        elevation: 6,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    imageContainer: {
-        height: 140,
-        width: "100%",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        width: CARD_W,
+        backgroundColor: "#fff",
+        borderRadius: 24,
         overflow: "hidden",
-        position: 'relative',
+        shadowColor: "#235CF8",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 16,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: "#E8EEFF",
     },
-    image: {
-        width: "100%",
-        height: "100%",
+    imageWrap: { height: 160, width: "100%", position: "relative" },
+    image: { width: "100%", height: "100%" },
+    priceBadge: {
+        position: "absolute",
+        bottom: 12,
+        left: 12,
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
     },
-    statusBadge: {
+    priceText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+    heartBtn: {
         position: "absolute",
         top: 10,
-        right: 10,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        backdropFilter: 'blur(10px)', // doesn't work on RN, but just logic
+        right: 12,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: "rgba(0,0,0,0.35)",
+        alignItems: "center",
+        justifyContent: "center",
     },
-    statusHot: { backgroundColor: COLORS.status.danger },
-    statusCertified: { backgroundColor: COLORS.status.success },
-    statusNew: { backgroundColor: COLORS.primary },
-    statusText: {
-        fontSize: 10,
-        fontWeight: "700",
-        color: COLORS.white,
-        textTransform: 'uppercase',
-    },
-    priceTag: {
-        position: 'absolute',
-        bottom: 10,
-        left: 10,
-        backgroundColor: 'rgba(0,0,0,0.75)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
-    },
-    priceText: {
-        color: COLORS.white,
-        fontWeight: "700",
-        fontSize: 12,
-    },
-    cardContent: {
-        padding: 14,
-    },
-    cardTitle: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: COLORS.text.primary,
-        marginBottom: 8,
-    },
-    detailsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    content: { padding: 14 },
+    title: { fontSize: 15, fontWeight: "700", color: "#0F172A", marginBottom: 10 },
+    specsRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 },
+    specTag: {
+        flexDirection: "row",
+        alignItems: "center",
         gap: 4,
-    },
-    locationText: {
-        fontSize: 12,
-        color: COLORS.text.muted,
-        fontWeight: "500",
-    },
-    reviewBadge: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        backgroundColor: "#F1F5F9",
+        borderRadius: 20,
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backdropFilter: 'blur(10px)',
     },
-    reviewText: {
-        color: '#fff',
-        fontSize: 10,
-        fontWeight: 'bold',
+    specText: { fontSize: 11, color: "#64748B", fontWeight: "600" },
+    footer: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    locRow: { flexDirection: "row", alignItems: "center", gap: 4, flex: 1 },
+    locText: { fontSize: 12, color: "#94A3B8", fontWeight: "500", flex: 1 },
+    ratingBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 3,
+        backgroundColor: "#FFFBEB",
+        borderRadius: 20,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
     },
-    cardSubTitle: {
-        fontSize: 12,
-        color: COLORS.text.muted,
-        marginTop: 2,
-    },
+    ratingText: { fontSize: 11, fontWeight: "700", color: "#92400E" },
 });
 
 export default TrendingCars;

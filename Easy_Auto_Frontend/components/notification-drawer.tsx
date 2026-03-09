@@ -1,6 +1,8 @@
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useRef, useEffect, useState } from "react";
 import {
   Alert,
   Animated,
@@ -13,445 +15,407 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
+const DRAWER_W = width * 0.88;
+
+interface NotificationItem {
+  id: number;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  type: "car" | "price" | "message" | "alert" | "promo" | "system";
+}
 
 interface NotificationDrawerProps {
   visible: boolean;
   onClose: () => void;
 }
 
-export default function NotificationDrawer({
-  visible,
-  onClose,
-}: NotificationDrawerProps) {
-  const drawerWidth = width * 0.8;
-  const slideAnim = React.useRef(new Animated.Value(drawerWidth)).current;
-  const backdropOpacity = React.useRef(new Animated.Value(0)).current;
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "New Car Listing",
-      message: "A new car matching your preferences has been added",
-      time: "2 hours ago",
-      read: false,
-      type: "car",
-    },
-    {
-      id: 2,
-      title: "Price Drop Alert",
-      message: "The price of your saved car has been reduced by LKR 500,000",
-      time: "5 hours ago",
-      read: false,
-      type: "price",
-    },
-    {
-      id: 3,
-      title: "Dealer Response",
-      message: "A dealer has responded to your inquiry about the Nissan GTR",
-      time: "1 day ago",
-      read: true,
-      type: "message",
-    },
-    {
-      id: 4,
-      title: "Subscription Reminder",
-      message: "Your premium subscription will expire in 3 days",
-      time: "2 days ago",
-      read: true,
-      type: "alert",
-    },
-  ]);
+// ── Type metadata ─────────────────────────────────────────────────────────────
+const TYPE_META: Record<string, { icon: any; color: string; bg: string; label: string }> = {
+  car:     { icon: "car-sport",              color: "#235CF8", bg: "#EEF2FF", label: "New Listing"   },
+  price:   { icon: "pricetag",               color: "#10B981", bg: "#ECFDF5", label: "Price Drop"    },
+  message: { icon: "chatbubble-ellipses",    color: "#7C3AED", bg: "#F5F3FF", label: "Message"       },
+  alert:   { icon: "alert-circle",           color: "#EF4444", bg: "#FEF2F2", label: "Alert"         },
+  promo:   { icon: "gift",                    color: "#F59E0B", bg: "#FFFBEB", label: "Promotion"     },
+  system:  { icon: "settings",              color: "#64748B", bg: "#F8FAFC", label: "System"         },
+};
 
-  React.useEffect(() => {
+// ── Initial data ──────────────────────────────────────────────────────────────
+const INITIAL: NotificationItem[] = [
+  { id: 1, type: "car",     title: "New Listing Match",          message: "A 2022 Toyota Corolla matching your search was just listed in Colombo.",       time: "Just now",    read: false },
+  { id: 2, type: "price",   title: "Price Drop Alert 🎉",        message: "Your saved BMW 3 Series dropped by LKR 500,000. Check it out now!",            time: "2 hrs ago",   read: false },
+  { id: 3, type: "message", title: "Dealer Replied",             message: "Auto Lanka Motors responded to your inquiry about the Nissan GTR 2021.",        time: "5 hrs ago",   read: false },
+  { id: 4, type: "alert",   title: "Subscription Expiring",      message: "Your Premium plan expires in 3 days. Renew to keep your ads boosted.",          time: "1 day ago",   read: true  },
+  { id: 5, type: "promo",   title: "Weekend Special Offer",      message: "Get 30% off on Premium listings this weekend. Limited time deal!",              time: "2 days ago",  read: true  },
+  { id: 6, type: "system",  title: "Profile Verified ✅",        message: "Your account has been verified. You can now post unlimited ads.",               time: "3 days ago",  read: true  },
+];
+
+export default function NotificationDrawer({ visible, onClose }: NotificationDrawerProps) {
+  const insets    = useSafeAreaInsets();
+  const slideAnim = useRef(new Animated.Value(DRAWER_W)).current;
+  const bgOpacity = useRef(new Animated.Value(0)).current;
+  const [items, setItems] = useState<NotificationItem[]>(INITIAL);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+
+  useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 350,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(backdropOpacity, {
-          toValue: 1,
-          duration: 350,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
+        Animated.timing(slideAnim, { toValue: 0,        duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(bgOpacity,  { toValue: 1,        duration: 300, useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: drawerWidth,
-          duration: 300,
-          easing: Easing.in(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(backdropOpacity, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.in(Easing.ease),
-          useNativeDriver: true,
-        }),
+        Animated.timing(slideAnim, { toValue: DRAWER_W, duration: 280, easing: Easing.in(Easing.cubic),  useNativeDriver: true }),
+        Animated.timing(bgOpacity,  { toValue: 0,        duration: 260, useNativeDriver: true }),
       ]).start();
     }
-  }, [visible, drawerWidth, slideAnim, backdropOpacity]);
+  }, [visible]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = items.filter((n) => !n.read).length;
+  const displayed   = filter === "unread" ? items.filter((n) => !n.read) : items;
 
-  const markAsRead = (id: number) => {
+  const read = (id: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
-  const markAllAsRead = () => {
+  const readAll = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setNotifications(notifications.map((n) => ({ ...n, read: true })));
+    setItems((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
-  const deleteNotification = (id: number) => {
+  const remove = (id: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert(
-      "Remove",
-      "Delete this notification?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setNotifications(notifications.filter((n) => n.id !== id));
-          },
-        },
-      ]
-    );
+    Alert.alert("Delete Notification", "Remove this notification?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete",  style: "destructive", onPress: () => setItems((prev) => prev.filter((n) => n.id !== id)) },
+    ]);
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "price": return "pricetag";
-      case "message": return "chatbubble-ellipses";
-      case "alert": return "alert-circle";
-      case "car": return "car-sport";
-      default: return "notifications";
-    }
+  const clearAll = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Alert.alert("Clear All", "Remove all notifications?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Clear All", style: "destructive", onPress: () => setItems([]) },
+    ]);
   };
-
-  const getIconBgColor = (type: string, read: boolean) => {
-      if (read) return '#F3F4F6';
-      switch (type) {
-          case "price": return 'rgba(16, 185, 129, 0.1)';
-          case "alert": return 'rgba(239, 68, 68, 0.1)';
-          case "message": return 'rgba(35, 92, 248, 0.1)';
-          default: return 'rgba(35, 92, 248, 0.1)';
-      }
-  }
-
-  const getIconColor = (type: string, read: boolean) => {
-    if (read) return COLORS.text.muted;
-    switch (type) {
-        case "price": return '#10B981';
-        case "alert": return '#EF4444';
-        case "message": return COLORS.primary;
-        default: return COLORS.primary;
-    }
-}
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
-        <Animated.View
-          style={[
-            styles.drawer,
-            {
-              width: drawerWidth,
-              transform: [{ translateX: slideAnim }],
-            },
-          ]}
-        >
-          <SafeAreaView style={styles.drawerContent} edges={["top", "bottom"]}>
-            <LinearGradient
-                colors={[COLORS.primary, '#1E40AF']}
-                style={styles.header}
-            >
-                <View style={styles.headerTitleRow}>
-                    <Text style={styles.title}>Notifications</Text>
-                    <View style={styles.countBadge}>
-                        <Text style={styles.countText}>{unreadCount}</Text>
-                    </View>
-                </View>
-                {unreadCount > 0 && (
-                    <TouchableOpacity onPress={markAllAsRead} style={styles.markAllBtn}>
-                        <Text style={styles.markAllText}>Clear All Unread</Text>
-                    </TouchableOpacity>
-                )}
-            </LinearGradient>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
+      <View style={styles.root}>
 
-            <ScrollView
-              style={styles.scrollView}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              {notifications.length > 0 ? (
-                <View style={styles.container}>
-                  {notifications.map((n) => (
-                    <TouchableOpacity
-                      key={n.id}
-                      style={[
-                        styles.card,
-                        !n.read && styles.unreadCard,
-                      ]}
-                      onPress={() => markAsRead(n.id)}
-                      activeOpacity={0.8}
-                    >
-                      <View
-                        style={[
-                          styles.iconContainer,
-                          { backgroundColor: getIconBgColor(n.type, n.read) }
-                        ]}
-                      >
-                        <Ionicons
-                          name={getNotificationIcon(n.type) as any}
-                          size={20}
-                          color={getIconColor(n.type, n.read)}
-                        />
-                      </View>
-
-                      <View style={styles.content}>
-                        <View style={styles.cardHeader}>
-                          <Text
-                            style={[
-                              styles.cardTitle,
-                              !n.read && styles.unreadTitle,
-                            ]}
-                            numberOfLines={1}
-                          >
-                            {n.title}
-                          </Text>
-                          {!n.read && <View style={styles.unreadDot} />}
-                        </View>
-                        
-                        <Text style={styles.message} numberOfLines={2}>
-                          {n.message}
-                        </Text>
-                        
-                        <View style={styles.cardFooter}>
-                          <Text style={styles.time}>{n.time}</Text>
-                          <TouchableOpacity
-                            style={styles.deleteBtn}
-                            onPress={() => deleteNotification(n.id)}
-                          >
-                            <Ionicons name="trash-outline" size={16} color={COLORS.text.muted} />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ) : (
-                <View style={styles.empty}>
-                  <View style={styles.emptyCircle}>
-                    <Ionicons name="notifications-off-outline" size={48} color={COLORS.border} />
-                  </View>
-                  <Text style={styles.emptyTitle}>All Clear!</Text>
-                  <Text style={styles.emptyText}>You have no new notifications at the moment.</Text>
-                </View>
-              )}
-            </ScrollView>
-          </SafeAreaView>
+        {/* ── Backdrop ──────────────────────────────────────────────────── */}
+        <Animated.View style={[styles.backdrop, { opacity: bgOpacity }]} pointerEvents={visible ? "auto" : "none"}>
+          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onClose} />
         </Animated.View>
 
-        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-          <TouchableOpacity
-            style={styles.backdropTouchable}
-            activeOpacity={1}
-            onPress={onClose}
-          />
+        {/* ── Drawer ────────────────────────────────────────────────────── */}
+        <Animated.View style={[styles.drawer, { transform: [{ translateX: slideAnim }] }]}>
+
+          {/* ── Header ──────────────────────────────────────────────────── */}
+          <LinearGradient
+            colors={["#235CF8", "#1346C8", "#0D3AAD"]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1.4 }}
+            style={[styles.header, { paddingTop: insets.top + 14 }]}
+          >
+            {/* Decorative blobs */}
+            <View style={styles.blob1} />
+            <View style={styles.blob2} />
+
+            {/* Close + clear all */}
+            <View style={styles.headerTopRow}>
+              <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+                <Ionicons name="close" size={20} color="rgba(255,255,255,0.85)" />
+              </TouchableOpacity>
+              {items.length > 0 && (
+                <TouchableOpacity style={styles.clearBtn} onPress={clearAll}>
+                  <Ionicons name="trash-outline" size={14} color="rgba(255,255,255,0.75)" />
+                  <Text style={styles.clearBtnTxt}>Clear all</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Bell icon */}
+            <View style={styles.bellWrap}>
+              <Ionicons name="notifications" size={28} color="#FCD34D" />
+              {unreadCount > 0 && (
+                <View style={styles.bellBadge}>
+                  <Text style={styles.bellBadgeTxt}>{unreadCount}</Text>
+                </View>
+              )}
+            </View>
+
+            {/* Title row */}
+            <View style={styles.headerTitleRow}>
+              <View>
+                <Text style={styles.headerTitle}>Notifications</Text>
+                <Text style={styles.headerSub}>
+                  {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}` : "You're all caught up 🎉"}
+                </Text>
+              </View>
+              {unreadCount > 0 && (
+                <TouchableOpacity style={styles.markAllBtn} onPress={readAll}>
+                  <Ionicons name="checkmark-done" size={14} color="#fff" />
+                  <Text style={styles.markAllTxt}>Mark all read</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Filter tabs */}
+            <View style={styles.filterRow}>
+              {(["all", "unread"] as const).map((f) => (
+                <TouchableOpacity
+                  key={f}
+                  style={[styles.filterTab, filter === f && styles.filterTabActive]}
+                  onPress={() => { Haptics.selectionAsync(); setFilter(f); }}
+                >
+                  <Text style={[styles.filterTabTxt, filter === f && styles.filterTabTxtActive]}>
+                    {f === "all" ? `All (${items.length})` : `Unread (${unreadCount})`}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </LinearGradient>
+
+          {/* ── List ──────────────────────────────────────────────────── */}
+          <ScrollView
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 32 }]}
+          >
+            {displayed.length === 0 ? (
+              <View style={styles.emptyState}>
+                <View style={styles.emptyCircle}>
+                  <Ionicons name="notifications-off-outline" size={44} color="#CBD5E1" />
+                </View>
+                <Text style={styles.emptyTitle}>
+                  {filter === "unread" ? "No Unread Notifications" : "All Clear!"}
+                </Text>
+                <Text style={styles.emptyBody}>
+                  {filter === "unread"
+                    ? "You've read all your notifications. Great job!"
+                    : "You have no notifications at the moment. Check back later."}
+                </Text>
+              </View>
+            ) : (
+              displayed.map((n, i) => {
+                const meta = TYPE_META[n.type] || TYPE_META.system;
+                return (
+                  <TouchableOpacity
+                    key={n.id}
+                    style={[styles.card, !n.read && styles.cardUnread]}
+                    onPress={() => read(n.id)}
+                    activeOpacity={0.82}
+                  >
+                    {/* Unread left bar */}
+                    {!n.read && <View style={styles.unreadBar} />}
+
+                    {/* Icon */}
+                    <View style={[styles.iconBox, { backgroundColor: meta.bg }]}>
+                      <Ionicons name={meta.icon} size={20} color={meta.color} />
+                    </View>
+
+                    {/* Content */}
+                    <View style={styles.cardContent}>
+                      {/* Type label + unread dot */}
+                      <View style={styles.cardTopRow}>
+                        <View style={[styles.typePill, { backgroundColor: meta.bg }]}>
+                          <Text style={[styles.typePillTxt, { color: meta.color }]}>{meta.label}</Text>
+                        </View>
+                        {!n.read && <View style={styles.unreadDot} />}
+                      </View>
+
+                      <Text style={[styles.cardTitle, !n.read && { color: "#0F172A" }]} numberOfLines={1}>
+                        {n.title}
+                      </Text>
+                      <Text style={styles.cardMsg} numberOfLines={2}>{n.message}</Text>
+
+                      {/* Footer */}
+                      <View style={styles.cardFooter}>
+                        <View style={styles.timeRow}>
+                          <Ionicons name="time-outline" size={11} color="#94A3B8" />
+                          <Text style={styles.timeTxt}>{n.time}</Text>
+                        </View>
+                        <TouchableOpacity style={styles.deleteBtn} onPress={() => remove(n.id)}>
+                          <Ionicons name="trash-outline" size={15} color="#CBD5E1" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })
+            )}
+          </ScrollView>
         </Animated.View>
       </View>
     </Modal>
   );
 }
 
+// ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    flexDirection: "row-reverse",
-  },
+  root:    { flex: 1, flexDirection: "row-reverse" },
   backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(15,23,42,0.55)",
   },
-  backdropTouchable: {
-    flex: 1,
-  },
+
   drawer: {
-    backgroundColor: COLORS.background,
+    width: DRAWER_W,
     height: "100%",
+    backgroundColor: "#F8FAFF",
     shadowColor: "#000",
-    shadowOffset: { width: -10, height: 0 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: -6, height: 0 },
+    shadowOpacity: 0.14,
     shadowRadius: 20,
-    elevation: 20,
+    elevation: 24,
   },
-  drawerContent: {
-    flex: 1,
-  },
+
+  // ── Header ──────────────────────────────────────────
   header: {
-    padding: 24,
-    paddingTop: 32,
-    borderBottomLeftRadius: 32,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    overflow: "hidden",
   },
+  blob1: {
+    position: "absolute", width: 200, height: 200, borderRadius: 100,
+    backgroundColor: "rgba(255,255,255,0.05)", top: -80, right: -60,
+  },
+  blob2: {
+    position: "absolute", width: 120, height: 120, borderRadius: 60,
+    backgroundColor: "rgba(255,255,255,0.04)", bottom: -30, left: 0,
+  },
+  headerTopRow: {
+    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+    marginBottom: 16,
+  },
+  closeBtn: {
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center", justifyContent: "center",
+  },
+  clearBtn: {
+    flexDirection: "row", alignItems: "center", gap: 5,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
+  },
+  clearBtnTxt: { color: "rgba(255,255,255,0.75)", fontSize: 12, fontWeight: "600" },
+
+  bellWrap: {
+    width: 56, height: 56, borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center", justifyContent: "center",
+    marginBottom: 14, position: "relative",
+  },
+  bellBadge: {
+    position: "absolute", top: -4, right: -4,
+    backgroundColor: "#EF4444",
+    minWidth: 20, height: 20, borderRadius: 10,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 2, borderColor: "#235CF8",
+    paddingHorizontal: 4,
+  },
+  bellBadgeTxt: { color: "#fff", fontSize: 10, fontWeight: "800" },
+
   headerTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
+    flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between",
+    marginBottom: 16,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: COLORS.white,
-    letterSpacing: -0.5,
-  },
-  countBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    minWidth: 36,
-    alignItems: "center",
-  },
-  countText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: COLORS.white,
-  },
+  headerTitle: { fontSize: 24, fontWeight: "800", color: "#fff", letterSpacing: -0.5 },
+  headerSub:   { fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 3 },
+
   markAllBtn: {
-      alignSelf: 'flex-start',
+    flexDirection: "row", alignItems: "center", gap: 5,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20,
+    marginTop: 4,
   },
-  markAllText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: 'rgba(255, 255, 255, 0.8)',
+  markAllTxt: { color: "#fff", fontSize: 12, fontWeight: "700" },
+
+  filterRow: { flexDirection: "row", gap: 8 },
+  filterTab: {
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
-  scrollView: {
-    flex: 1,
+  filterTabActive: { backgroundColor: "#fff" },
+  filterTabTxt:   { color: "rgba(255,255,255,0.75)", fontSize: 13, fontWeight: "600" },
+  filterTabTxtActive: { color: COLORS.primary, fontWeight: "700" },
+
+  // ── Scroll ──────────────────────────────────────────
+  scrollContent: { padding: 16, gap: 10 },
+
+  // ── Empty ───────────────────────────────────────────
+  emptyState: { paddingTop: 64, alignItems: "center", paddingHorizontal: 28 },
+  emptyCircle: {
+    width: 96, height: 96, borderRadius: 48,
+    backgroundColor: "#F1F5F9",
+    alignItems: "center", justifyContent: "center", marginBottom: 20,
   },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  container: {
-    gap: 12,
-  },
+  emptyTitle: { fontSize: 20, fontWeight: "800", color: "#1E293B", letterSpacing: -0.4, marginBottom: 10 },
+  emptyBody:  { fontSize: 14, color: "#64748B", textAlign: "center", lineHeight: 22 },
+
+  // ── Card ────────────────────────────────────────────
   card: {
     flexDirection: "row",
-    backgroundColor: COLORS.white,
-    borderRadius: 24,
-    padding: 16,
+    alignItems: "flex-start",
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 14,
+    gap: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
+    borderColor: "#F1F5F9",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 10,
+    shadowRadius: 8,
     elevation: 2,
+    overflow: "hidden",
+    position: "relative",
   },
-  unreadCard: {
-    borderColor: COLORS.primary,
-    backgroundColor: '#F0F4FF',
+  cardUnread: {
+    backgroundColor: "#FAFBFF",
+    borderColor: "#E0E8FF",
   },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
+  unreadBar: {
+    position: "absolute", left: 0, top: 0, bottom: 0,
+    width: 3, backgroundColor: COLORS.primary, borderRadius: 2,
   },
-  content: {
-    flex: 1,
+  iconBox: {
+    width: 44, height: 44, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    flexShrink: 0,
   },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  cardContent: { flex: 1 },
+  cardTopRow: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     marginBottom: 4,
   },
-  cardTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.text.primary,
-    letterSpacing: -0.3,
+  typePill: {
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8,
   },
-  unreadTitle: {
-    color: COLORS.primary,
-  },
+  typePillTxt: { fontSize: 10, fontWeight: "800", letterSpacing: 0.3 },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.primary,
-    marginLeft: 8,
+    width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.primary,
   },
-  message: {
-    fontSize: 14,
-    color: COLORS.text.secondary,
-    lineHeight: 20,
-    marginBottom: 8,
+  cardTitle: {
+    fontSize: 14, fontWeight: "700", color: "#334155",
+    letterSpacing: -0.2, marginBottom: 4,
+  },
+  cardMsg: {
+    fontSize: 13, color: "#64748B", lineHeight: 19, marginBottom: 8,
   },
   cardFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
   },
-  time: {
-    fontSize: 12,
-    color: COLORS.text.muted,
-    fontWeight: "500",
-  },
+  timeRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  timeTxt: { fontSize: 11, color: "#94A3B8", fontWeight: "500" },
   deleteBtn: {
-    padding: 4,
-  },
-  empty: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 80,
-    paddingHorizontal: 32,
-  },
-  emptyCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: COLORS.background,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: COLORS.text.primary,
-    marginBottom: 8,
-    letterSpacing: -0.5,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: COLORS.text.muted,
-    textAlign: "center",
-    lineHeight: 22,
+    width: 28, height: 28, borderRadius: 8,
+    backgroundColor: "#F8FAFC",
+    alignItems: "center", justifyContent: "center",
   },
 });

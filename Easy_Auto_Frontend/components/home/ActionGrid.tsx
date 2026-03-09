@@ -1,18 +1,19 @@
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import {
     Animated,
-    Easing,
-    ScrollView,
+    Dimensions,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
-import { useAuth } from "../../contexts/AuthContext";
 import COLORS from "@/constants/Colors";
+
+const { width } = Dimensions.get("window");
+const CELL_W = (width - 40 - 12) / 3;
 
 interface ActionGridProps {
     fadeAnim: Animated.Value;
@@ -21,268 +22,111 @@ interface ActionGridProps {
     newListingsCount: number;
 }
 
-// Modern Pressable Card
-const ActionCard = ({
-    children,
-    onPress,
-    delay = 0,
-}: {
-    children: React.ReactNode;
-    onPress?: () => void;
-    delay?: number;
-}) => {
-    const scaleAnim = useRef(new Animated.Value(1)).current;
-    const opacityAnim = useRef(new Animated.Value(0)).current;
+const ACTIONS = [
+    { id: "buy",      label: "Buy",      sub: "Browse cars",    icon: "car-sport"    as const, color: "#235CF8", bg: "#EEF2FF", route: "/cars/buy-car" },
+    { id: "sell",     label: "Sell",     sub: "Post free ad",   icon: "cash"         as const, color: "#10B981", bg: "#ECFDF5", route: "/cars/select-type" },
+    { id: "rent",     label: "Rent",     sub: "Short hire",     icon: "key"          as const, color: "#F59E0B", bg: "#FFFBEB", route: "/cars/rent-car" },
+    { id: "compare",  label: "Compare",  sub: "Side by side",   icon: "git-compare"  as const, color: "#7C3AED", bg: "#F5F3FF", route: "/(tabs)/compare" },
+    { id: "dealers",  label: "Dealers",  sub: "Find nearby",    icon: "storefront"   as const, color: "#EF4444", bg: "#FEF2F2", route: "/find-dealers" },
+    { id: "packages", label: "Boost",    sub: "Promote ad",     icon: "rocket"       as const, color: "#0891B2", bg: "#ECFEFF", route: "/packages/packages" },
+];
 
-    useEffect(() => {
-        Animated.parallel([
-            Animated.timing(scaleAnim, {
-                toValue: 1,
-                duration: 500,
-                delay,
-                easing: Easing.out(Easing.back(1.5)),
-                useNativeDriver: true,
-            }),
-            Animated.timing(opacityAnim, {
-                toValue: 1,
-                duration: 500,
-                delay,
-                easing: Easing.out(Easing.ease),
-                useNativeDriver: true,
-            }),
-        ]).start();
-    }, [delay]);
-
-    const handlePressIn = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 0.92,
-            useNativeDriver: true,
-            tension: 400,
-            friction: 12,
-        }).start();
-    };
-
-    const handlePressOut = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 1,
-            useNativeDriver: true,
-            tension: 400,
-            friction: 12,
-        }).start();
-    };
-
-    return (
-        <Animated.View
-            style={{
-                opacity: opacityAnim,
-                transform: [{ scale: scaleAnim }],
-            }}
-        >
-            <TouchableOpacity
-                onPress={onPress}
-                onPressIn={handlePressIn}
-                onPressOut={handlePressOut}
-                activeOpacity={1}
-                style={styles.cardContainer}
-            >
-                {children}
-            </TouchableOpacity>
-        </Animated.View>
-    );
-};
-
-const ActionGrid: React.FC<ActionGridProps> = ({
-    fadeAnim,
-    slideAnim,
-    compareCount,
-    newListingsCount,
-}) => {
+const ActionGrid: React.FC<ActionGridProps> = ({ fadeAnim, slideAnim }) => {
     const router = useRouter();
-    const { isAuthenticated } = useAuth();
-
-    const actions = [
-        {
-            label: "Buy a Car",
-            desc: "Find your dream ride",
-            icon: "car-sport",
-            iconFamily: Ionicons,
-            color: "#235CF8",
-            bgColor: "#EEF3FF",
-            route: "/cars/buy-car",
-        },
-        {
-            label: "Sell Car",
-            desc: "Get instant quotes",
-            icon: "cash-outline",
-            iconFamily: Ionicons,
-            color: "#059669",
-            bgColor: "#ECFDF5",
-             onPress: () => {
-                if (isAuthenticated) {
-                    router.push("/cars/select-type");
-                } else {
-                    router.push("/cars/select-type"); // Protected route handles redirect
-                }
-            }
-        },
-        {
-            label: "Rentals",
-            desc: "Flexible options",
-            icon: "key-outline",
-            iconFamily: Ionicons,
-            color: "#D97706",
-            bgColor: "#FFFBEB",
-            route: "/cars/rent-car",
-        },
-        {
-            label: "Compare",
-            desc: "Side by side",
-            icon: "git-compare-outline",
-            iconFamily: Ionicons,
-            color: "#7C3AED",
-            bgColor: "#F5F3FF",
-            route: "/(tabs)/compare",
-            badge: compareCount > 0 ? (compareCount > 9 ? "9+" : compareCount) : null,
-            badgeColor: COLORS.status.danger
-        },
-        {
-            label: "Dealers",
-            desc: `${newListingsCount}+ Listings`,
-            icon: "storefront-outline",
-            iconFamily: Ionicons,
-            color: "#DC2626",
-            bgColor: "#FEF2F2",
-            route: "/find-dealers",
-        },
-         {
-            label: "Packages",
-            desc: "Boost ads",
-            icon: "rocket-outline",
-            iconFamily: Ionicons,
-            color: "#0891B2",
-            bgColor: "#ECFEFF",
-            route: "/packages/packages",
-        },
-    ];
 
     return (
-        <Animated.View
-            style={[
-                styles.container,
-                {
-                    opacity: fadeAnim,
-                    transform: [{ translateY: slideAnim }],
-                },
-            ]}
-        >
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-                decelerationRate="fast"
-                snapToInterval={110} 
-            >
-                {actions.map((action, index) => (
-                    <ActionCard
-                        key={index}
-                        delay={100 + index * 50}
+        <Animated.View style={[styles.wrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            {/* Section header */}
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.title}>Explore EasyAuto</Text>
+                    <Text style={styles.sub}>Everything you need in one place</Text>
+                </View>
+            </View>
+
+            {/* Grid */}
+            <View style={styles.grid}>
+                {ACTIONS.map((a) => (
+                    <TouchableOpacity
+                        key={a.id}
+                        style={styles.cell}
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            if (action.onPress) {
-                                action.onPress();
-                            } else if (action.route) {
-                                router.push(action.route as any);
-                            }
+                            router.push(a.route as any);
                         }}
+                        activeOpacity={0.75}
                     >
-                        <View style={styles.cardContent}>
-                            <View style={[styles.iconBox, { backgroundColor: action.bgColor }]}>
-                                <action.iconFamily name={action.icon as any} size={26} color={action.color} />
-                            </View>
-                            
-                            {action.badge && (
-                                <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>
-                                    <Text style={styles.badgeText}>{action.badge}</Text>
-                                </View>
-                            )}
-
-                            <Text style={styles.label}>{action.label}</Text>
-                            <Text style={styles.desc}>{action.desc}</Text>
+                        <View style={[styles.iconCircle, { backgroundColor: a.bg }]}>
+                            <Ionicons name={a.icon} size={22} color={a.color} />
                         </View>
-                    </ActionCard>
+                        <Text style={styles.cellLabel}>{a.label}</Text>
+                        <Text style={styles.cellSub}>{a.sub}</Text>
+                    </TouchableOpacity>
                 ))}
-            </ScrollView>
+            </View>
         </Animated.View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        marginBottom: 8,
-        backgroundColor: COLORS.white,
+    wrap: {
+        backgroundColor: "#fff",
+        paddingVertical: 20,
+        marginHorizontal: 0,
+        borderBottomWidth: 1,
+        borderBottomColor: "#F1F5F9",
     },
-    scrollContent: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        gap: 12,
+    header: {
+        paddingHorizontal: 20,
+        marginBottom: 16,
     },
-    cardContainer: {
-        width: 105, 
-        height: 130,
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 3,
+    title: {
+        fontSize: 18,
+        fontWeight: "800",
+        color: "#0F172A",
+        letterSpacing: -0.4,
+    },
+    sub: {
+        fontSize: 13,
+        color: "#94A3B8",
+        fontWeight: "500",
+        marginTop: 2,
+    },
+    grid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        paddingHorizontal: 14,
+        gap: 8,
+    },
+    cell: {
+        width: CELL_W,
+        backgroundColor: "#F8FAFF",
+        borderRadius: 16,
+        alignItems: "center",
+        paddingVertical: 16,
+        paddingHorizontal: 8,
         borderWidth: 1,
-        borderColor: COLORS.divider,
+        borderColor: "#F1F5F9",
     },
-    cardContent: {
-        flex: 1,
+    iconCircle: {
+        width: 48,
+        height: 48,
+        borderRadius: 14,
         alignItems: "center",
         justifyContent: "center",
-        padding: 8,
+        marginBottom: 10,
     },
-    iconBox: {
-        width: 52,
-        height: 52,
-        borderRadius: 18,
-        alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 12,
-    },
-    label: {
+    cellLabel: {
         fontSize: 13,
         fontWeight: "700",
-        color: COLORS.text.primary,
-        marginBottom: 4,
-        textAlign: 'center',
+        color: "#1E293B",
+        marginBottom: 2,
     },
-    desc: {
+    cellSub: {
         fontSize: 10,
-        color: COLORS.text.muted,
-        textAlign: 'center',
-        lineHeight: 12,
-    },
-    badge: {
-        position: 'absolute',
-        top: 8,
-        right: 8,
-        height: 18,
-        minWidth: 18,
-        borderRadius: 9,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 4,
-        borderWidth: 1.5,
-        borderColor: COLORS.white,
-    },
-    badgeText: {
-        color: COLORS.white,
-        fontSize: 9,
-        fontWeight: 'bold',
+        color: "#94A3B8",
+        fontWeight: "500",
+        textAlign: "center",
     },
 });
 
