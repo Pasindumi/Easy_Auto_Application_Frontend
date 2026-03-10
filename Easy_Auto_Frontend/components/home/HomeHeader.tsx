@@ -316,6 +316,7 @@ const styles = StyleSheet.create({
     locationText: {
         fontSize: 12,
         color: 'rgba(255, 255, 255, 0.7)',
+    },
     subtitleText: {
         fontSize: 14,
         color: 'rgba(255, 255, 255, 0.85)',
