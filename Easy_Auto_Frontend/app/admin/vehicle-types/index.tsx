@@ -129,7 +129,7 @@ export default function VehicleTypesManagement() {
                 style={styles.deleteButton}
                 onPress={() => handleDelete(item.id, item.type_name)}
             >
-                <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                <Ionicons name="trash-outline" size={20} color={COLORS.admin.primary} />
             </TouchableOpacity>
         </View>
     );
@@ -220,7 +220,7 @@ export default function VehicleTypesManagement() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.background,
+        backgroundColor: COLORS.admin.background,
     },
     content: {
         flex: 1,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     },
     addButton: {
         flexDirection: 'row',
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.admin.primary,
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 8,
@@ -286,12 +286,14 @@ const styles = StyleSheet.create({
     typeName: {
         fontSize: 16,
         fontWeight: '600',
-        color: COLORS.text.primary,
+        color: COLORS.admin.text,
     },
     deleteButton: {
         padding: 10,
-        backgroundColor: '#FEF2F2',
+        backgroundColor: COLORS.admin.background,
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: COLORS.admin.border,
     },
     emptyContainer: {
         alignItems: 'center',

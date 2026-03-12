@@ -2,13 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { User } from "../data/adminUsers";
+import COLORS from "@/constants/Colors";
 
 interface UserCardProps {
   user: User;
@@ -34,22 +35,22 @@ export default function UserCard({
   const getRoleConfig = () => {
     switch (user.role) {
       case "admin":
-        return { color: "#8B5CF6", bg: "#F3E8FF", label: "ADMIN" };
+        return { color: COLORS.admin.primary, bg: COLORS.admin.background, label: "ADMIN" };
       case "premium":
-        return { color: "#F59E0B", bg: "#FEF3C7", label: "PREMIUM" };
+        return { color: COLORS.admin.secondary, bg: COLORS.admin.background, label: "PREMIUM" };
       default:
-        return { color: "#3B82F6", bg: "#DBEAFE", label: "USER" };
+        return { color: COLORS.admin.accent, bg: COLORS.admin.background, label: "USER" };
     }
   };
 
   const getStatusConfig = () => {
     switch (user.status) {
       case "active":
-        return { color: "#10B981", label: "Active" };
+        return { color: COLORS.admin.primary, label: "Active" };
       case "suspended":
-        return { color: "#EF4444", label: "Suspended" };
+        return { color: COLORS.admin.accent, label: "Suspended" };
       default:
-        return { color: "#F59E0B", label: "Pending" };
+        return { color: COLORS.admin.secondary, label: "Pending" };
     }
   };
 
@@ -77,7 +78,7 @@ export default function UserCard({
           <Ionicons
             name={isSelected ? "checkbox" : "square-outline"}
             size={24}
-            color={isSelected ? "#235CF8" : "#CBD5E1"}
+            color={isSelected ? COLORS.admin.primary : COLORS.admin.border}
           />
         </TouchableOpacity>
 
@@ -96,7 +97,7 @@ export default function UserCard({
               <View style={styles.avatarWrapper}>
                 {imageError ? (
                   <View style={[styles.avatar, styles.avatarError]}>
-                    <Ionicons name="person" size={24} color="#94A3B8" />
+                    <Ionicons name="person" size={24} color={COLORS.admin.accent} />
                   </View>
                 ) : (
                   <Image
@@ -125,7 +126,7 @@ export default function UserCard({
                     {user.name}
                   </Text>
                   <View
-                    style={[styles.rolePill, { backgroundColor: roleConfig.bg }]}
+                    style={[styles.rolePill, { backgroundColor: roleConfig.bg, borderWidth: 1, borderColor: roleConfig.color + '20' }]}
                   >
                     <Text
                       style={[styles.roleLabel, { color: roleConfig.color }]}
@@ -139,7 +140,7 @@ export default function UserCard({
                 </Text>
                 <View style={styles.quickInfo}>
                   <View style={styles.quickInfoItem}>
-                    <Ionicons name="location" size={11} color="#94A3B8" />
+                    <Ionicons name="location" size={11} color={COLORS.admin.accent} />
                     <Text style={styles.quickInfoText} numberOfLines={1}>
                       {user.location}
                     </Text>
@@ -154,7 +155,7 @@ export default function UserCard({
             <View style={styles.statsSection}>
               <View style={styles.statColumn}>
                 <View style={styles.statIcon}>
-                  <Ionicons name="car" size={14} color="#64748B" />
+                  <Ionicons name="car" size={14} color={COLORS.admin.primary} />
                 </View>
                 <View style={styles.statDetails}>
                   <Text style={styles.statValue}>{user.adsPosted}</Text>
@@ -163,7 +164,7 @@ export default function UserCard({
               </View>
               <View style={styles.statColumn}>
                 <View style={styles.statIcon}>
-                  <Ionicons name="cash" size={14} color="#64748B" />
+                  <Ionicons name="cash" size={14} color={COLORS.admin.primary} />
                 </View>
                 <View style={styles.statDetails}>
                   <Text style={styles.statValue}>
@@ -185,7 +186,7 @@ export default function UserCard({
                   }}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="ban" size={15} color="#DC2626" />
+                  <Ionicons name="ban" size={15} color={COLORS.admin.primary} />
                   <Text style={styles.suspendText}>Suspend</Text>
                 </TouchableOpacity>
               ) : (
@@ -197,7 +198,7 @@ export default function UserCard({
                   }}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="checkmark-circle" size={15} color="#059669" />
+                  <Ionicons name="checkmark-circle" size={15} color={COLORS.admin.primary} />
                   <Text style={styles.activateText}>Activate</Text>
                 </TouchableOpacity>
               )}
@@ -209,7 +210,7 @@ export default function UserCard({
                 }}
                 activeOpacity={0.8}
               >
-                <Ionicons name="trash" size={15} color="#DC2626" />
+                <Ionicons name="trash" size={15} color={COLORS.admin.primary} />
                 <Text style={styles.deleteText}>Delete</Text>
               </TouchableOpacity>
             </View>
@@ -225,20 +226,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.admin.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#000",
+    borderColor: COLORS.admin.border,
+    shadowColor: COLORS.admin.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
   cardSelected: {
-    borderColor: "#3B82F6",
+    borderColor: COLORS.admin.primary,
     borderWidth: 2,
-    backgroundColor: "#F0F9FF",
+    backgroundColor: COLORS.admin.background,
   },
   checkboxBtn: {
     position: "absolute",
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#F1F5F9",
+    backgroundColor: COLORS.admin.background,
   },
   avatarError: {
     justifyContent: "center",
@@ -275,7 +276,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: "#3B82F6",
+    backgroundColor: COLORS.admin.primary,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
@@ -302,7 +303,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#0F172A",
+    color: COLORS.admin.text,
     flex: 1,
     marginRight: 8,
   },
@@ -318,7 +319,8 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 12,
-    color: "#64748B",
+    color: COLORS.admin.text,
+    opacity: 0.6,
     marginBottom: 6,
   },
   quickInfo: {
@@ -333,23 +335,24 @@ const styles = StyleSheet.create({
   },
   quickInfoText: {
     fontSize: 11,
-    color: "#94A3B8",
+    color: COLORS.admin.text,
+    opacity: 0.4,
     marginLeft: 3,
   },
   quickInfoDot: {
     width: 3,
     height: 3,
     borderRadius: 1.5,
-    backgroundColor: "#CBD5E1",
+    backgroundColor: COLORS.admin.border,
     marginHorizontal: 6,
   },
   statsSection: {
     flexDirection: "row",
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    borderTopColor: COLORS.admin.border,
     borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
+    borderBottomColor: COLORS.admin.border,
     marginBottom: 10,
   },
   statColumn: {
@@ -361,7 +364,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.admin.background,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 8,
@@ -372,12 +375,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#0F172A",
+    color: COLORS.admin.text,
     marginBottom: 1,
   },
   statLabel: {
     fontSize: 10,
-    color: "#94A3B8",
+    color: COLORS.admin.text,
+    opacity: 0.5,
   },
   actionsSection: {
     flexDirection: "row",
@@ -391,35 +395,32 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     borderRadius: 9,
     gap: 5,
+    backgroundColor: "transparent",
+    borderWidth: 1.5,
+    borderColor: COLORS.admin.border,
   },
   suspendBtn: {
-    backgroundColor: "#FEF2F2",
-    borderWidth: 1,
-    borderColor: "#FEE2E2",
+    borderColor: COLORS.admin.border,
   },
   activateBtn: {
-    backgroundColor: "#F0FDF4",
-    borderWidth: 1,
-    borderColor: "#DCFCE7",
+    borderColor: COLORS.admin.border,
   },
   deleteBtn: {
-    backgroundColor: "#FEF2F2",
-    borderWidth: 1,
-    borderColor: "#FEE2E2",
+    borderColor: COLORS.admin.border,
   },
   suspendText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#DC2626",
+    color: COLORS.admin.primary,
   },
   activateText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#059669",
+    color: COLORS.admin.primary,
   },
   deleteText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#DC2626",
+    color: COLORS.admin.primary,
   },
 });

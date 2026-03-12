@@ -102,7 +102,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
 
     const actions = [
         {
-            label: "Buy a Car",
+            label: "Buy Vehicle",
             desc: "Find your dream ride",
             icon: "car-sport",
             iconFamily: Ionicons,
@@ -111,13 +111,13 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             route: "/cars/buy-car",
         },
         {
-            label: "Sell Car",
+            label: "Sell Vehicle",
             desc: "Get instant quotes",
             icon: "cash-outline",
             iconFamily: Ionicons,
             color: "#059669",
             bgColor: "#ECFDF5",
-             onPress: () => {
+            onPress: () => {
                 if (isAuthenticated) {
                     router.push("/cars/select-type");
                 } else {
@@ -154,7 +154,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             bgColor: "#FEF2F2",
             route: "/find-dealers",
         },
-         {
+        {
             label: "Packages",
             desc: "Boost ads",
             icon: "rocket-outline",
@@ -180,7 +180,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
                 decelerationRate="fast"
-                snapToInterval={110} 
+                snapToInterval={110}
             >
                 {actions.map((action, index) => (
                     <ActionCard
@@ -199,7 +199,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                             <View style={[styles.iconBox, { backgroundColor: action.bgColor }]}>
                                 <action.iconFamily name={action.icon as any} size={26} color={action.color} />
                             </View>
-                            
+
                             {action.badge && (
                                 <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>
                                     <Text style={styles.badgeText}>{action.badge}</Text>
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     cardContainer: {
-        width: 105, 
+        width: 105,
         height: 130,
         backgroundColor: COLORS.white,
         borderRadius: 20,

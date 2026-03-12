@@ -100,7 +100,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
                     decelerationRate="fast"
-                    snapToInterval={240}
+                    snapToInterval={230 + 16}
                 >
                     {ads.map((car, index) => {
                         const imageUrl = car.AdImage?.[0]?.image_url;

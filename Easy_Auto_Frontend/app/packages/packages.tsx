@@ -52,7 +52,7 @@ export default function PackagesScreen() {
 
     const price = parseFloat(rule.price);
     const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
-    const perDay = duration > 0 ? `$${(price / duration).toFixed(2)}/day` : "";
+    const perDay = duration > 0 ? `Rs. ${(price / duration).toFixed(2)}/day` : "";
 
     return { price, perDay };
   };

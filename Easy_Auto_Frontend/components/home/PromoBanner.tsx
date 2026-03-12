@@ -97,7 +97,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     title: discount.name,
                     subtitle: discount.discount_type === 'PERCENTAGE'
                         ? `${discount.value}% OFF`
-                        : `$${discount.value} OFF`,
+                        : `Rs. ${discount.value} OFF`,
                     image: discount.offer_image_url || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=400&fit=crop", // Default offer image
                     isDiscount: true,
                     discountId: discount.id,
@@ -158,7 +158,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             setCurrentBannerIndex((prevIndex) => {
                 const nextIndex = (prevIndex + 1) % banners.length;
                 scrollViewRef.current?.scrollTo({
-                    x: nextIndex * (width - 32), // Adjusted for margin
+                    x: nextIndex * (width - 24), // Updated for margin (32-8=24)
                     animated: true,
                 });
                 return nextIndex;
@@ -174,7 +174,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
-        const bannerWidth = width - 32;
+        const bannerWidth = width - 24;
         const index = Math.round(scrollPosition / bannerWidth);
         if (
             index !== currentBannerIndex &&
@@ -188,7 +188,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const handleDotPress = (index: number) => {
         setCurrentBannerIndex(index);
         scrollViewRef.current?.scrollTo({
-            x: index * (width - 32),
+            x: index * (width - 24),
             animated: true,
         });
     };
@@ -225,7 +225,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 scrollEventThrottle={16}
                 contentContainerStyle={styles.scrollContent}
                 decelerationRate="fast"
-                snapToInterval={width - 32}
+                snapToInterval={width - 24}
             >
                 {banners.map((banner, index) => (
                     <View key={`banner-${banner.id}-${index}`} style={styles.bannerWrapper}>
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     bannerWrapper: {
         width: width - 32,
         height: 200,
-        marginRight: 0,
+        marginRight: 10,
     },
     bannerCard: {
         flex: 1,

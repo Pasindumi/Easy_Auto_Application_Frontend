@@ -131,7 +131,7 @@ export const RECENT_ACTIVITIES: RecentActivity[] = [
     title: "Ad Approved",
     description: "Mercedes-Benz C-Class approved",
     time: "5 min ago",
-    color: "#235CF8",
+    color: "#3B82F6",
   },
   {
     id: "2",
@@ -139,7 +139,7 @@ export const RECENT_ACTIVITIES: RecentActivity[] = [
     title: "New Listing Added",
     description: "BMW X5 posted by Jane Smith",
     time: "15 min ago",
-    color: "#10B981",
+    color: "#60A5FA",
   },
   {
     id: "3",
@@ -147,7 +147,7 @@ export const RECENT_ACTIVITIES: RecentActivity[] = [
     title: "Payment Received",
     description: "Rs. 15,000 from Premium subscription",
     time: "1 hour ago",
-    color: "#F59E0B",
+    color: "#93C5FD",
   },
   {
     id: "4",
@@ -155,7 +155,7 @@ export const RECENT_ACTIVITIES: RecentActivity[] = [
     title: "Reported Listing",
     description: "Listing ID #1234 needs review",
     time: "2 hours ago",
-    color: "#EF4444",
+    color: "#2563EB",
   },
 ];
 
@@ -167,7 +167,7 @@ export const NOTIFICATIONS: Notification[] = [
     time: "2 min ago",
     unread: true,
     icon: "person-add",
-    color: "#235CF8",
+    color: "#3B82F6",
   },
   {
     id: "2",
@@ -175,7 +175,7 @@ export const NOTIFICATIONS: Notification[] = [
     time: "15 min ago",
     unread: true,
     icon: "cash",
-    color: "#10B981",
+    color: "#60A5FA",
   },
   {
     id: "3",
@@ -183,7 +183,7 @@ export const NOTIFICATIONS: Notification[] = [
     time: "1 hour ago",
     unread: false,
     icon: "alert-circle",
-    color: "#F59E0B",
+    color: "#93C5FD",
   },
 ];
 
