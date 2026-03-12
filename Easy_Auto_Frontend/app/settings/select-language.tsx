@@ -12,10 +12,29 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
+import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from "expo-haptics";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
+import COLORS from "@/constants/Colors";
 
 export default function SelectLanguage() {
   const [selected, setSelected] = useState("en");
   const router = useRouter();
+
+  const saveScale = useSharedValue(1);
+
+  const saveButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: saveScale.value }],
+  }));
+
+  const onPressIn = (sv: any) => {
+    sv.value = withSpring(0.96);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const onPressOut = (sv: any) => {
+    sv.value = withSpring(1);
+  };
 
   const languages = [
     {
@@ -42,7 +61,7 @@ export default function SelectLanguage() {
   ];
 
   const handleSave = () => {
-    // Navigate to home page after selection
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     router.push('/(tabs)');
   };
 
@@ -50,68 +69,83 @@ export default function SelectLanguage() {
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
-      <Header />
-      <View style={headerSectionStyles.headerWrap}>
-        <View style={headerSectionStyles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={headerSectionStyles.headerLeft}>
-            {/* Added back functionality to header */}
-            <Ionicons name="arrow-back" size={24} color="#235CF8" style={{ marginRight: 10 }} />
-            <Ionicons name="language-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-            <Text style={headerSectionStyles.headerTitle}>Select Language</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Header title="Select Language" showBack={true} />
+
+      <View style={styles.headerSpacer} />
 
       <View style={styles.content}>
-        <Text style={styles.topText}>
-          Choose your preferred language
-        </Text>
+        <Text style={styles.sectionHeader}>PREFERENCE</Text>
 
-        {languages.map((lang) => (
+        <View style={styles.panel}>
+          {languages.map((lang, index) => {
+            const rowScale = useSharedValue(1);
+            const rowStyle = useAnimatedStyle(() => ({
+              transform: [{ scale: rowScale.value }],
+              backgroundColor: selected === lang.code ? '#F9FAFB' : COLORS.white,
+            }));
+
+            return (
+              <Animated.View key={lang.code} style={rowStyle}>
+                <TouchableOpacity
+                  style={[
+                    styles.langRow,
+                    index === languages.length - 1 && { borderBottomWidth: 0 }
+                  ]}
+                  onPressIn={() => onPressIn(rowScale)}
+                  onPressOut={() => onPressOut(rowScale)}
+                  onPress={() => setSelected(lang.code)}
+                  activeOpacity={1}
+                >
+                  <View
+                    style={[
+                      styles.iconWrapper,
+                      { backgroundColor: lang.color + "15" },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name={lang.icon as any}
+                      size={24}
+                      color={lang.color}
+                    />
+                  </View>
+
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.langName}>{lang.name}</Text>
+                    <Text style={styles.langNative}>{lang.native}</Text>
+                  </View>
+
+                  {selected === lang.code && (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={24}
+                      color={COLORS.primary}
+                    />
+                  )}
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
+        </View>
+
+        <Animated.View style={[styles.actionWrapper, saveButtonStyle]}>
           <TouchableOpacity
-            key={lang.code}
-            style={[
-              styles.langCard,
-              selected === lang.code && {
-                borderColor: "#2563EB",
-                backgroundColor: "#EFF6FF",
-              },
-            ]}
-            onPress={() => setSelected(lang.code)}
+            style={styles.saveBtn}
+            onPressIn={() => onPressIn(saveScale)}
+            onPressOut={() => onPressOut(saveScale)}
+            onPress={handleSave}
+            activeOpacity={0.9}
           >
-            <View
-              style={[
-                styles.iconWrapper,
-                { backgroundColor: lang.color + "20" },
-              ]}
+            <LinearGradient
+              colors={[COLORS.primary, '#1e3a8a']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.buttonGradient}
             >
-              <MaterialCommunityIcons
-                name={lang.icon as any}
-                size={28}
-                color={lang.color}
-              />
-            </View>
-
-            <View style={{ flex: 1 }}>
-              <Text style={styles.langName}>{lang.name}</Text>
-              <Text style={styles.langNative}>{lang.native}</Text>
-            </View>
-
-            {selected === lang.code && (
-              <Ionicons
-                name="checkmark-circle"
-                size={26}
-                color="#2563EB"
-              />
-            )}
+              <Ionicons name="save" size={20} color="#fff" />
+              <Text style={styles.saveText}>Confirm Language</Text>
+            </LinearGradient>
           </TouchableOpacity>
-        ))}
-
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-          <Ionicons name="save-outline" size={20} color="#fff" />
-          <Text style={styles.saveText}>Save Language</Text>
-        </TouchableOpacity>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );
@@ -120,54 +154,47 @@ export default function SelectLanguage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: COLORS.white,
   },
-  header: {
-    height: 110,
-    backgroundColor: "#2563EB",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-
-  },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "700",
+  headerSpacer: {
+    height: 20,
+    backgroundColor: '#F9FAFB',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
   content: {
-    padding: 20,
+    flex: 1,
   },
-  topText: {
-    fontSize: 16,
-    color: "#374151",
-    marginBottom: 20,
-    fontWeight: "600",
+  sectionHeader: {
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 16,
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#9CA3AF',
+    letterSpacing: 1.5,
   },
-  langCard: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 16,
+  panel: {
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  langRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOpacity: 0.03,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 2,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
   iconWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 14,
+    marginRight: 16,
   },
   langName: {
     fontSize: 16,
@@ -175,23 +202,36 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
   langNative: {
-    fontSize: 14,
-    color: "#6B7280",
+    fontSize: 13,
+    color: "#9CA3AF",
     marginTop: 2,
+    fontWeight: '600',
+  },
+  actionWrapper: {
+    paddingHorizontal: 24,
+    marginTop: 60,
   },
   saveBtn: {
-    backgroundColor: "#2563EB",
     borderRadius: 16,
-    paddingVertical: 16,
-    marginTop: 20,
+    height: 56,
+    overflow: 'hidden',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  buttonGradient: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
   },
   saveText: {
     color: "#fff",
-    fontWeight: "700",
+    fontWeight: "900",
     fontSize: 16,
+    letterSpacing: 0.5,
   },
 });

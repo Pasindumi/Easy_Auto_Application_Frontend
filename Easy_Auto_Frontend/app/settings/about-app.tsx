@@ -1,7 +1,4 @@
-// app/about-app.tsx
-import Header from "../../components/Header";
-
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -12,353 +9,444 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, type SharedValue } from 'react-native-reanimated';
+import Header from "../../components/Header";
+import COLORS from "../../constants/Colors";
+
+const { width } = Dimensions.get('window');
+
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function AboutApp() {
   const router = useRouter();
 
+  const scale = useSharedValue(1);
+  const backBtnScale = useSharedValue(1);
+
+  const buttonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const backButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: backBtnScale.value }],
+  }));
+
+  const onPressIn = (sv: SharedValue<number>) => {
+    sv.value = withSpring(0.95);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const onPressOut = (sv: SharedValue<number>) => {
+    sv.value = withSpring(1);
+  };
+
+  const renderSocialIcon = (name: any, color: string, url: string) => {
+    const iconScale = useSharedValue(1);
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: iconScale.value }],
+    }));
+
+    return (
+      <AnimatedTouchableOpacity
+        style={[styles.socialIconWrapper, animatedStyle]}
+        onPressIn={() => onPressIn(iconScale)}
+        onPressOut={() => onPressOut(iconScale)}
+        onPress={() => Linking.openURL(url)}
+        activeOpacity={0.8}
+      >
+        <Ionicons name={name} size={24} color={color} />
+      </AnimatedTouchableOpacity>
+    );
+  };
+
   return (
-    <>
+    <SafeAreaView style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header title="About Application" showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
-        <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.topSpacer} />
 
-          {/* ---------- HEADER ---------- */}
-          {/* ---------- HEADER ---------- */}
-          <Header />
-          <View style={headerSectionStyles.headerWrap}>
-            <View style={headerSectionStyles.header}>
-              <View style={headerSectionStyles.headerLeft}>
-                <Ionicons name="information-circle-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-                <Text style={headerSectionStyles.headerTitle}>About App</Text>
-              </View>
-            </View>
-          </View>
-
-
-          {/* ---------- APP CARD ---------- */}
-          <View style={styles.appCard}>
-
+        {/* ---------- BRANDING SECTION ---------- */}
+        <LinearGradient
+          colors={[COLORS.primary, '#1E40AF']}
+          style={styles.brandingCard}
+        >
+          <View style={styles.logoContainer}>
+            <View style={styles.logoGlow} />
             <Image
               source={require('@/assets/applogonew.png')}
               style={styles.logo}
             />
-
-            <Text style={styles.version}>Version 1.0.0</Text>
-
-            <Text style={styles.description}>
-              EasyAuto is a powerful and simple vehicle marketplace designed
-              to help users buy, sell, and manage vehicles with ease.
-              Discover thousands of vehicles and connect with sellers instantly.
-            </Text>
-
-            {/* STATS */}
-            <View style={styles.statsRow}>
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>10K+</Text>
-                <Text style={styles.statLabel}>Cars</Text>
-              </View>
-
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>5K+</Text>
-                <Text style={styles.statLabel}>Users</Text>
-              </View>
-
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>4.9★</Text>
-                <Text style={styles.statLabel}>Rating</Text>
-              </View>
-            </View>
+          </View>
+          <Text style={styles.appNameText}>Easy Auto Marketplace</Text>
+          <View style={styles.versionBadge}>
+            <Text style={styles.versionText}>VERSION 1.0.0</Text>
           </View>
 
+          <Text style={styles.brandingDescription}>
+            The ultimate platform for vehicle enthusiasts. Buy, sell, and discover thousands
+            of verified vehicles with professional confidence.
+          </Text>
 
-          {/* ---------- FEATURES ---------- */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Main Features</Text>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="car-sport" size={20} color="#235CF8" />
-              <Text style={styles.featureText}>Buy & Sell Vehicles Easily</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>10K+</Text>
+              <Text style={styles.statLabel}>Cars</Text>
             </View>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="heart" size={20} color="#235CF8" />
-              <Text style={styles.featureText}>Save Favorite Vehicles</Text>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>5K+</Text>
+              <Text style={styles.statLabel}>Users</Text>
             </View>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="chatbubble-ellipses" size={20} color="#235CF8" />
-              <Text style={styles.featureText}>Chat With Sellers</Text>
-            </View>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="card" size={20} color="#235CF8" />
-              <Text style={styles.featureText}>Fast & Secure Payments</Text>
-            </View>
-
-            <View style={styles.featureItem}>
-              <Ionicons name="stats-chart" size={20} color="#235CF8" />
-              <Text style={styles.featureText}>Live Market Insights</Text>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>4.9★</Text>
+              <Text style={styles.statLabel}>Rating</Text>
             </View>
           </View>
+        </LinearGradient>
 
+        {/* ---------- MISSION SECTION ---------- */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Our Mission</Text>
+          <Text style={styles.normalText}>
+            To provide a transparent, secure, and luxury-grade car buying experience for everyone in Sri Lanka.
+            We ensure every transaction is backed by quality and trust.
+          </Text>
+        </View>
 
-          {/* ---------- WHY EASYAUTO ---------- */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Why Choose EasyAuto?</Text>
-
-            <Text style={styles.bulletText}>• Simple & clean interface</Text>
-            <Text style={styles.bulletText}>• Thousands of verified sellers</Text>
-            <Text style={styles.bulletText}>• Instant messaging support</Text>
-            <Text style={styles.bulletText}>• Secure transactions</Text>
-            <Text style={styles.bulletText}>• Works smoothly on all devices</Text>
+        {/* ---------- KEY FEATURES ---------- */}
+        <View style={styles.featureGrid}>
+          <View style={[styles.featureCard, { borderRightWidth: 1, borderRightColor: '#F3F4F6' }]}>
+            <View style={styles.featureIconBox}>
+              <MaterialCommunityIcons name="check-decagram" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.featureTitle}>Verified</Text>
+            <Text style={styles.featureDesc}>All vehicles checked</Text>
           </View>
-
-
-          {/* ---------- DEVELOPER ---------- */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Developer Information</Text>
-
-            <View style={styles.devRow}>
-              <Ionicons name="person" size={20} color="#235CF8" />
-              <Text style={styles.devText}>Code Mates</Text>
+          <View style={styles.featureCard}>
+            <View style={styles.featureIconBox}>
+              <MaterialCommunityIcons name="shield-lock" size={24} color={COLORS.primary} />
             </View>
-
-            <View style={styles.devRow}>
-              <Ionicons name="mail" size={20} color="#235CF8" />
-              <Text style={styles.devText}>codemates@gmail.com</Text>
-            </View>
-
-            <View style={styles.devRow}>
-              <Ionicons name="globe" size={20} color="#235CF8" />
-              <Text style={styles.devText}>www.codemates.lk</Text>
-            </View>
+            <Text style={styles.featureTitle}>Secure</Text>
+            <Text style={styles.featureDesc}>Safe transactions</Text>
           </View>
+        </View>
 
+        {/* ---------- DEVELOPER INFO ---------- */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Support & Development</Text>
 
-          {/* ---------- SOCIAL MEDIA ---------- */}
-          <View style={styles.socialSection}>
-            <Text style={styles.sectionTitle}>Follow Us On</Text>
-
-            <View style={styles.socialRow}>
-              <TouchableOpacity onPress={() => Linking.openURL('https://facebook.com')}>
-                <Ionicons name="logo-facebook" size={26} color="#235CF8" />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => Linking.openURL('https://instagram.com')}>
-                <Ionicons name="logo-instagram" size={26} color="#E1306C" />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => Linking.openURL('https://twitter.com')}>
-                <Ionicons name="logo-twitter" size={26} color="#1DA1F2" />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => Linking.openURL('https://wa.me/94700000000')}>
-                <Ionicons name="logo-whatsapp" size={26} color="#25D366" />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => Linking.openURL('https://tiktok.com')}>
-                <Ionicons name="logo-tiktok" size={26} color="#000" />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => Linking.openURL('https://youtube.com')}>
-                <Ionicons name="logo-youtube" size={26} color="red" />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => Linking.openURL('https://linkedin.com')}>
-                <Ionicons name="logo-linkedin" size={26} color="#0A66C2" />
-              </TouchableOpacity>
+          <TouchableOpacity style={styles.infoRow} onPress={() => Linking.openURL('https://codemates.lk')}>
+            <View style={styles.infoIconBox}>
+              <Ionicons name="globe-outline" size={20} color={COLORS.primary} />
             </View>
-          </View>
-
-
-          {/* ---------- BUTTON ---------- */}
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={18} color="#fff" />
-            <Text style={styles.backText}>Go Back</Text>
+            <View>
+              <Text style={styles.infoLabel}>Website</Text>
+              <Text style={styles.infoValue}>www.codemates.lk</Text>
+            </View>
           </TouchableOpacity>
 
-        </ScrollView>
-      </SafeAreaView>
-    </>
+          <View style={styles.miniDivider} />
+
+          <TouchableOpacity style={styles.infoRow} onPress={() => Linking.openURL('mailto:support@codemates.lk')}>
+            <View style={styles.infoIconBox}>
+              <Ionicons name="mail-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View>
+              <Text style={styles.infoLabel}>Support Email</Text>
+              <Text style={styles.infoValue}>support@codemates.lk</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* ---------- SOCIAL CONNECT ---------- */}
+        <View style={styles.socialCard}>
+          <Text style={styles.sectionTitleCenter}>Connect With Us</Text>
+          <View style={styles.socialGrid}>
+            {renderSocialIcon('logo-facebook', '#1877F2', 'https://facebook.com')}
+            {renderSocialIcon('logo-instagram', '#E4405F', 'https://instagram.com')}
+            {renderSocialIcon('logo-twitter', '#1DA1F2', 'https://twitter.com')}
+            {renderSocialIcon('logo-whatsapp', '#25D366', 'https://wa.me/94700000000')}
+          </View>
+        </View>
+
+        {/* ---------- BACK BUTTON ---------- */}
+        <Animated.View style={[styles.bottomButtonContainer, backButtonStyle]}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPressIn={() => onPressIn(backBtnScale)}
+            onPressOut={() => onPressOut(backBtnScale)}
+            onPress={() => router.back()}
+            activeOpacity={0.9}
+          >
+            <LinearGradient
+              colors={[COLORS.primary, '#1E3A8A']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.buttonGradient}
+            >
+              <Ionicons name="arrow-back" size={20} color={COLORS.white} />
+              <Text style={styles.backButtonText}>Return to Settings</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Text style={styles.copyrightText}>© 2024 Easy Auto. All rights reserved.</Text>
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.white, // Advanced professional: white background
   },
-
   container: {
-    paddingBottom: 40,
-  },
-
-  /* HEADER */
-  header: {
-    backgroundColor: '#235CF8',
-    paddingHorizontal: 16,
-    paddingTop: 50,
     paddingBottom: 20,
-    flexDirection: 'row',
+  },
+  brandingCard: {
+    padding: 32,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    borderRadius: 24,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 10,
   },
-
-  headerTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-
-  /* APP CARD */
-  appCard: {
-    margin: 16,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
+  logoContainer: {
+    position: 'relative',
     alignItems: 'center',
-    elevation: 3,
+    justifyContent: 'center',
+    marginBottom: 10,
   },
-
+  logoGlow: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
   logo: {
-    width: 220,
-    height: 120,
+    width: 200,
+    height: 100,
     resizeMode: 'contain',
-    marginBottom: -10,
   },
-
-  version: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 3,
+  appNameText: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: COLORS.white,
+    letterSpacing: -0.5,
+    marginTop: 10,
   },
-
-  description: {
-    fontSize: 13,
+  versionBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  versionText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.white,
+    letterSpacing: 1,
+  },
+  brandingDescription: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.85)',
     textAlign: 'center',
-    color: '#444',
-    marginTop: 15,
-    lineHeight: 21,
+    lineHeight: 22,
+    marginTop: 20,
+    fontWeight: '500',
+    paddingHorizontal: 10,
   },
-
-  /* STATS */
   statsRow: {
     flexDirection: 'row',
-    marginTop: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 32,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
+    paddingVertical: 16,
+    width: '100%',
   },
-
-  statBox: {
-    backgroundColor: '#F1F4FF',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginHorizontal: 5,
+  statItem: {
+    flex: 1,
     alignItems: 'center',
   },
-
   statValue: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#235CF8',
+    fontSize: 18,
+    fontWeight: '900',
+    color: COLORS.white,
   },
-
   statLabel: {
-    fontSize: 11,
-    color: '#555',
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.7)',
+    fontWeight: '700',
+    textTransform: 'uppercase',
     marginTop: 2,
   },
-
-  /* SECTIONS */
-  sectionContainer: {
-    marginHorizontal: 16,
-    marginTop: 5,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+  statDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
-
+  topSpacer: {
+    height: 16,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  sectionCard: {
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#111',
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 16,
+    letterSpacing: -0.3,
   },
-
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+  sectionTitleCenter: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 24,
+    letterSpacing: -0.3,
+    textAlign: 'center',
   },
-
-  featureText: {
-    fontSize: 13,
-    marginLeft: 10,
-    color: '#333',
-    fontWeight: '600',
-  },
-
-  bulletText: {
-    fontSize: 13,
-    color: '#333',
-    marginBottom: 6,
+  normalText: {
+    fontSize: 15,
+    color: '#4B5563',
+    lineHeight: 24,
     fontWeight: '500',
   },
-
-  devRow: {
+  featureGrid: {
     flexDirection: 'row',
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  featureCard: {
+    flex: 1,
+    paddingVertical: 32,
     alignItems: 'center',
-    marginBottom: 10,
   },
-
-  devText: {
-    marginLeft: 10,
-    fontSize: 13,
-    color: '#333',
-    fontWeight: '600',
-  },
-
-  /* SOCIAL */
-  socialSection: {
-    marginHorizontal: 16,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
+  featureIconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    backgroundColor: '#F3F7FF',
     alignItems: 'center',
-    marginBottom: 15,
-  },
-
-  socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '90%',
-  },
-
-  /* BUTTON */
-  backBtn: {
-    backgroundColor: '#235CF8',
-    paddingVertical: 14,
     justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 28,
-    flexDirection: 'row',
-    marginHorizontal: 60,
-    marginTop: 20,
-    elevation: 4,
+    marginBottom: 16,
   },
-
-  backText: {
-    marginLeft: 6,
-    color: '#fff',
+  featureTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  featureDesc: {
+    fontSize: 12,
+    color: '#6B7280',
+    textAlign: 'center',
     fontWeight: '600',
-    fontSize: 13,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  infoIconBox: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  infoLabel: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  infoValue: {
+    fontSize: 15,
+    color: '#111827',
+    fontWeight: '700',
+    marginTop: 1,
+  },
+  miniDivider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginVertical: 16,
+  },
+  socialCard: {
+    backgroundColor: COLORS.white,
+    paddingVertical: 40,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  socialGrid: {
+    flexDirection: 'row',
+    gap: 32,
+  },
+  socialIconWrapper: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomButtonContainer: {
+    padding: 24,
+  },
+  backButton: {
+    borderRadius: 16,
+    height: 56,
+    overflow: 'hidden',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  buttonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: COLORS.white,
+    letterSpacing: 0.5,
+  },
+  copyrightText: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: '600',
+    paddingBottom: 40,
   },
 });

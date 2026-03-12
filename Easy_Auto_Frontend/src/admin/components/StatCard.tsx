@@ -3,13 +3,14 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-    Animated,
-    Easing,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import COLORS from "@/constants/Colors";
 
 interface StatCardProps {
   delay: number;
@@ -17,7 +18,7 @@ interface StatCardProps {
   value: string;
   label: string;
   iconName: any;
-  iconColor: string;
+  iconColor?: string; // Optional now as we use theme colors
   trend?: "up" | "down" | "neutral";
   trendValue?: string;
   onPress?: () => void;
@@ -38,6 +39,9 @@ export default function StatCard({
   const slideAnim = React.useRef(new Animated.Value(30)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
   const pressScale = React.useRef(new Animated.Value(1)).current;
+
+  // Use admin theme primary if iconColor not provided
+  const themeColor = iconColor || COLORS.admin.primary;
 
   React.useEffect(() => {
     Animated.parallel([
@@ -93,12 +97,12 @@ export default function StatCard({
           {title}
         </Text>
         <LinearGradient
-          colors={[`${iconColor}35`, `${iconColor}20`]}
+          colors={[COLORS.admin.border, COLORS.admin.background]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.iconContainer}
         >
-          <Ionicons name={iconName} size={22} color={iconColor} />
+          <Ionicons name={iconName} size={22} color={COLORS.admin.primary} />
         </LinearGradient>
       </View>
       <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
@@ -115,23 +119,16 @@ export default function StatCard({
                 trend === "up"
                   ? "trending-up"
                   : trend === "down"
-                  ? "trending-down"
-                  : "remove"
+                    ? "trending-down"
+                    : "remove"
               }
               size={12}
-              color={
-                trend === "up"
-                  ? "#10B981"
-                  : trend === "down"
-                  ? "#EF4444"
-                  : "#6B7280"
-              }
+              color={COLORS.admin.primary}
             />
             <Text
               style={[
                 styles.trendText,
-                trend === "up" && styles.trendTextUp,
-                trend === "down" && styles.trendTextDown,
+                { color: COLORS.admin.primary }
               ]}
               numberOfLines={1}
             >
@@ -164,12 +161,7 @@ export default function StatCard({
             },
           ]}
         >
-          <LinearGradient
-            colors={[iconColor, iconColor]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.gradientOverlay}
-          />
+          <View style={styles.gradientOverlay} />
           {CardContent}
         </Animated.View>
       </TouchableOpacity>
@@ -186,12 +178,7 @@ export default function StatCard({
         },
       ]}
     >
-      <LinearGradient
-        colors={[iconColor, iconColor]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradientOverlay}
-      />
+      <View style={styles.gradientOverlay} />
       {CardContent}
     </Animated.View>
   );
@@ -200,16 +187,17 @@ export default function StatCard({
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.admin.surface,
     borderRadius: 20,
-    shadowColor: "#000",
+    shadowColor: COLORS.admin.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 4,
     overflow: "hidden",
     width: "48%",
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   gradientOverlay: {
     position: "absolute",
@@ -217,7 +205,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.04,
+    backgroundColor: COLORS.admin.primary,
+    opacity: 0.02,
   },
   content: {
     padding: 22,
@@ -233,7 +222,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#4B5563",
+    color: COLORS.admin.text,
+    opacity: 0.7,
     flex: 1,
     flexShrink: 1,
     lineHeight: 18,
@@ -246,11 +236,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexShrink: 0,
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   value: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.admin.text,
     marginBottom: 8,
     flexShrink: 1,
     lineHeight: 34,
@@ -265,7 +257,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: COLORS.admin.text,
+    opacity: 0.5,
     fontWeight: "500",
     flex: 1,
     flexShrink: 1,
@@ -278,15 +271,13 @@ const styles = StyleSheet.create({
     gap: 4,
     flexShrink: 0,
     minWidth: 50,
+    backgroundColor: COLORS.admin.background,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
   },
   trendText: {
     fontSize: 11,
     fontWeight: "600",
-  },
-  trendTextUp: {
-    color: "#10B981",
-  },
-  trendTextDown: {
-    color: "#EF4444",
   },
 });

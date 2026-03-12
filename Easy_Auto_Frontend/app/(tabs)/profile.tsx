@@ -22,7 +22,7 @@ import { api } from '@/utils/api';
 
 export default function ProfileScreen() {
   useProtectedRoute();
-  
+
   const router = useRouter();
   const { user, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
@@ -175,13 +175,13 @@ export default function ProfileScreen() {
             icon="heart"
             value={loading ? '...' : stats.saved}
             label="Saved"
-            color="#EF4444"
+            color="#3B82F6"
           />
           <StatCard
             icon="eye"
             value={loading ? '...' : stats.views}
             label="Profile Views"
-            color="#10B981"
+            color="#60A5FA"
           />
         </View>
 
@@ -209,7 +209,7 @@ export default function ProfileScreen() {
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={['#8B5CF6', '#7C3AED']}
+                colors={['#60A5FA', '#3B82F6']}
                 style={styles.quickActionGradient}
               >
                 <Ionicons name="ribbon" size={28} color={COLORS.white} />
@@ -223,7 +223,7 @@ export default function ProfileScreen() {
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={['#10B981', '#059669']}
+                colors={['#3B82F6', '#2563EB']}
                 style={styles.quickActionGradient}
               >
                 <Ionicons name="wallet" size={28} color={COLORS.white} />
@@ -237,7 +237,7 @@ export default function ProfileScreen() {
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={['#F59E0B', '#D97706']}
+                colors={['#2563EB', '#1D4ED8']}
                 style={styles.quickActionGradient}
               >
                 <Ionicons name="star" size={28} color={COLORS.white} />
@@ -264,15 +264,15 @@ export default function ProfileScreen() {
               title="Address"
               subtitle="Manage your saved addresses"
               onPress={() => handleMenuItemPress('/profile/address')}
-              color="#10B981"
+              color="#3B82F6"
             />
             <View style={styles.divider} />
             <SettingItem
               icon="shield-checkmark-outline"
               title="Verification"
               subtitle="Verify your account"
-              onPress={() => {}}
-              color="#8B5CF6"
+              onPress={() => { }}
+              color="#60A5FA"
             />
           </View>
         </View>
@@ -286,7 +286,7 @@ export default function ProfileScreen() {
               title="Notifications"
               subtitle="Manage alerts and updates"
               onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
-              color="#F59E0B"
+              color="#3B82F6"
             />
             <View style={styles.divider} />
             <SettingItem
@@ -294,7 +294,7 @@ export default function ProfileScreen() {
               title="Payment Methods"
               subtitle="Manage your payment options"
               onPress={() => handleMenuItemPress('/payments/payment-methods')}
-              color="#10B981"
+              color="#60A5FA"
             />
             <View style={styles.divider} />
             <SettingItem
@@ -302,7 +302,7 @@ export default function ProfileScreen() {
               title="Privacy & Security"
               subtitle="Control your data and privacy"
               onPress={() => handleMenuItemPress('/settings/privacy-policy')}
-              color="#EF4444"
+              color="#93C5FD"
             />
             <View style={styles.divider} />
             <SettingItem
@@ -351,7 +351,7 @@ export default function ProfileScreen() {
               title="Contact Us"
               subtitle="Reach out to our team"
               onPress={() => handleMenuItemPress('/support/contact-us')}
-              color="#10B981"
+              color="#3B82F6"
             />
             <View style={styles.divider} />
             <SettingItem
@@ -359,7 +359,7 @@ export default function ProfileScreen() {
               title="About EasyAuto"
               subtitle="Learn more about us"
               onPress={() => handleMenuItemPress('/settings/about-app')}
-              color="#8B5CF6"
+              color="#60A5FA"
             />
             <View style={styles.divider} />
             <SettingItem
@@ -367,7 +367,7 @@ export default function ProfileScreen() {
               title="Invite Friends"
               subtitle="Share and earn rewards"
               onPress={() => handleMenuItemPress('/support/invite-friend')}
-              color="#F59E0B"
+              color="#93C5FD"
             />
             <View style={styles.divider} />
             <SettingItem

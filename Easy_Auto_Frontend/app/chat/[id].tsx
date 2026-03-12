@@ -22,6 +22,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../utils/api';
 import { ENDPOINTS } from '../../constants/API';
+import * as Haptics from 'expo-haptics';
 import socketService from '../../utils/socket';
 import COLORS from '@/constants/Colors';
 
@@ -174,7 +175,7 @@ export default function ChatRoomScreen() {
         if (!proposedPrice.trim()) return;
 
         const amount = proposedPrice.trim();
-        const content = `Proposing a price of $${amount}`;
+        const content = `Proposing a price of Rs. ${amount}`;
         const metadata = {
             negotiation: {
                 amount,
@@ -229,13 +230,50 @@ export default function ChatRoomScreen() {
         }
     };
 
+    const handleDeleteMessage = async (messageId: string) => {
+        Alert.alert(
+            "Delete Message",
+            "Are you sure you want to delete this message?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            const response = await api.delete<{ success: boolean; message: string }>(
+                                `${ENDPOINTS.CHAT}/messages/${messageId}`
+                            );
+                            if (response.success) {
+                                setMessages(prev => prev.filter(m => m.id !== messageId));
+                                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                            } else {
+                                Alert.alert("Error", response.message || "Failed to delete message");
+                            }
+                        } catch (error) {
+                            console.error('Delete Message Error:', error);
+                            Alert.alert("Error", "An error occurred while deleting the message");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const renderMessage = ({ item }: { item: Message }) => {
         const isMe = item.sender_id === user?.id;
         const metadata = item.metadata;
 
         return (
             <View style={[styles.messageWrapper, isMe ? styles.myMessageWrapper : styles.otherMessageWrapper]}>
-                <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.otherBubble]}>
+                <TouchableOpacity
+                    activeOpacity={0.9}
+                    onLongPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                        handleDeleteMessage(item.id);
+                    }}
+                    style={[styles.messageBubble, isMe ? styles.myBubble : styles.otherBubble]}
+                >
                     {metadata?.ad && (
                         <TouchableOpacity
                             style={styles.quotedAdContainer}
@@ -261,7 +299,7 @@ export default function ChatRoomScreen() {
                                 <MaterialCommunityIcons name="handshake" size={24} color="#235CF8" />
                                 <Text style={styles.negotiationTitle}>Price Proposal</Text>
                             </View>
-                            <Text style={styles.negotiationAmount}>${metadata.negotiation.amount}</Text>
+                            <Text style={styles.negotiationAmount}>Rs. {metadata.negotiation.amount}</Text>
                             {!isMe && metadata.negotiation.status === 'pending' && (
                                 <View style={styles.negotiationActions}>
                                     <TouchableOpacity
@@ -294,7 +332,7 @@ export default function ChatRoomScreen() {
                         </View>
                     )}
 
-                    {(!metadata?.negotiation || item.content !== `Proposing a price of $${metadata.negotiation.amount}`) && (
+                    {(!metadata?.negotiation || item.content !== `Proposing a price of Rs. ${metadata.negotiation.amount}`) && (
                         <Text style={[styles.messageText, isMe ? styles.myMessageText : styles.otherMessageText]}>
                             {item.content}
                         </Text>
@@ -312,7 +350,7 @@ export default function ChatRoomScreen() {
                             />
                         )}
                     </View>
-                </View>
+                </TouchableOpacity>
             </View>
         );
     };
@@ -474,14 +512,14 @@ const styles = StyleSheet.create({
     customHeader: {
         backgroundColor: COLORS.primary,
         width: "100%",
-        paddingBottom: 20,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        elevation: 8,
+        paddingBottom: 24,
+        borderBottomLeftRadius: 36,
+        borderBottomRightRadius: 36,
+        elevation: 10,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.15,
-        shadowRadius: 10,
+        shadowRadius: 12,
         zIndex: 100,
     },
     headerSafeArea: {
@@ -665,24 +703,24 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     messageBubble: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 18,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 22,
         elevation: 1,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
-        shadowRadius: 2,
+        shadowRadius: 3,
     },
     myBubble: {
-        backgroundColor: '#235CF8',
-        borderBottomRightRadius: 5,
+        backgroundColor: COLORS.primary,
+        borderBottomRightRadius: 6,
     },
     otherBubble: {
         backgroundColor: '#fff',
-        borderBottomLeftRadius: 5,
+        borderBottomLeftRadius: 6,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: '#F1F5F9',
     },
     messageText: {
         fontSize: 15,
@@ -728,32 +766,41 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         backgroundColor: '#fff',
         borderTopWidth: 1,
         borderTopColor: '#F1F5F9',
+        paddingBottom: Platform.OS === 'ios' ? 24 : 12, // Better padding for modern screens
     },
     attachBtn: {
         padding: 5,
     },
     input: {
         flex: 1,
-        backgroundColor: '#F1F5F9',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        marginHorizontal: 10,
-        maxHeight: 100,
-        fontSize: 15,
-        color: '#1E293B',
+        backgroundColor: '#F8FAFC',
+        borderRadius: 24,
+        paddingHorizontal: 18,
+        paddingVertical: 10,
+        marginHorizontal: 12,
+        maxHeight: 120,
+        fontSize: 16,
+        color: '#0F172A',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
     },
     sendBtn: {
         backgroundColor: COLORS.primary,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         alignItems: 'center',
         justifyContent: 'center',
+        elevation: 4,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
     },
     sendBtnDisabled: {
         backgroundColor: '#CBD5E1',

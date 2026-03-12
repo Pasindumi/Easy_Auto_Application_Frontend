@@ -3,13 +3,14 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-    Animated,
-    Easing,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import COLORS from "@/constants/Colors";
 
 interface QuickAction {
   id: string;
@@ -75,13 +76,9 @@ const QuickActionItem = ({
     }).start();
   };
 
-  // Get color based on icon type
+  // Get color based on icon type - unified to theme blues
   const getIconColor = () => {
-    if (icon.includes("car")) return "#10B981";
-    if (icon.includes("people")) return "#3B82F6";
-    if (icon.includes("document")) return "#F59E0B";
-    if (icon.includes("stats")) return "#8B5CF6";
-    return "#6B7280";
+    return COLORS.admin.primary;
   };
 
   const iconColor = getIconColor();
@@ -101,7 +98,7 @@ const QuickActionItem = ({
         activeOpacity={0.9}
       >
         <LinearGradient
-          colors={[`${iconColor}15`, `${iconColor}08`]}
+          colors={[COLORS.admin.background, COLORS.admin.border]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.iconWrapper}
@@ -122,7 +119,7 @@ const QuickActionItem = ({
               </Text>
             </View>
           )}
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          <Ionicons name="chevron-forward" size={20} color={COLORS.admin.accent} />
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -160,7 +157,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "800",
-    color: "#0F172A",
+    color: COLORS.admin.text,
     marginBottom: 20,
     letterSpacing: -0.5,
     lineHeight: 30,
@@ -168,17 +165,17 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.admin.surface,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
-    shadowColor: "#000",
+    shadowColor: COLORS.admin.primary,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.admin.border,
     gap: 12,
     minHeight: 72,
   },
@@ -189,6 +186,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 12,
     flexShrink: 0,
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   content: {
     flex: 1,
@@ -197,14 +196,15 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1F2937",
+    color: COLORS.admin.text,
     marginBottom: 4,
     lineHeight: 20,
     letterSpacing: -0.2,
   },
   description: {
     fontSize: 12,
-    color: "#6B7280",
+    color: COLORS.admin.text,
+    opacity: 0.6,
     fontWeight: "400",
     lineHeight: 16,
   },
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   badge: {
-    backgroundColor: "#EF4444",
+    backgroundColor: COLORS.admin.primary,
     borderRadius: 12,
     minWidth: 24,
     height: 24,
