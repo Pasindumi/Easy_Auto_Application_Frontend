@@ -307,6 +307,16 @@ const styles = StyleSheet.create({
         color: COLORS.white,
         letterSpacing: -0.5,
     },
+    locationWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2, // Reduced from 4
+    },
+    locationText: {
+        fontSize: 12,
+        color: 'rgba(255, 255, 255, 0.7)',
+    },
     subtitleText: {
         fontSize: 14,
         color: 'rgba(255, 255, 255, 0.85)',
