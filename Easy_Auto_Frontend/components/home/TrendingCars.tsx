@@ -130,7 +130,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.cardsContainer}
                 decelerationRate="fast"
-                snapToInterval={240}
+                snapToInterval={230 + 16}
             >
                 {displayAds.map((ad, index) => (
                     <TouchableOpacity

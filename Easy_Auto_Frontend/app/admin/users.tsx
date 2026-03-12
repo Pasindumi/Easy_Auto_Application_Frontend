@@ -17,10 +17,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AdminBottomNav from "@/src/admin/components/AdminBottomNav";
 import UserCard from "@/src/admin/components/UserCard";
 import { ADMIN_USERS_DATA, User, USER_STATS, UserRole, UserStatus } from "@/src/admin/data/adminUsers";
+import COLORS from "@/constants/Colors";
 
 type SortOption = "date" | "ads" | "revenue" | "name";
 
-export default function AdminUsersScreen() {
+export default function AdminDashboard() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -347,23 +348,25 @@ export default function AdminUsersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.admin.background,
   },
   statsOverview: {
     flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
   },
   statCard: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.admin.surface,
     borderRadius: 12,
     gap: 10,
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   statIcon: {
     width: 40,
@@ -371,6 +374,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: COLORS.admin.background,
   },
   statInfo: {
     flex: 1,
@@ -378,12 +382,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#0F172A",
+    color: COLORS.admin.text,
     marginBottom: 2,
   },
   statLabel: {
     fontSize: 11,
-    color: "#64748B",
+    color: COLORS.admin.text,
+    opacity: 0.6,
     fontWeight: "500",
   },
   searchSection: {
@@ -391,36 +396,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 10,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
+    backgroundColor: "transparent",
   },
   searchBar: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.admin.surface,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     gap: 10,
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: "#0F172A",
+    color: COLORS.admin.text,
     fontWeight: "500",
   },
   sortBtn: {
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: COLORS.admin.surface,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   filterSection: {
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     paddingHorizontal: 16,
     paddingBottom: 12,
     gap: 10,
@@ -433,37 +440,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.admin.surface,
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   filterTabActive: {
-    backgroundColor: "#3B82F6",
+    backgroundColor: COLORS.admin.primary,
+    borderColor: COLORS.admin.primary,
   },
   filterTabText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#64748B",
+    color: COLORS.admin.text,
+    opacity: 0.6,
   },
   filterTabTextActive: {
-    color: "#fff",
+    color: COLORS.admin.surface,
+    opacity: 1,
   },
   filterChip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: COLORS.admin.border,
+    backgroundColor: COLORS.admin.surface,
   },
   filterChipActive: {
-    backgroundColor: "#F0F9FF",
-    borderColor: "#3B82F6",
+    backgroundColor: COLORS.admin.background,
+    borderColor: COLORS.admin.primary,
   },
   filterChipText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#94A3B8",
+    color: COLORS.admin.text,
+    opacity: 0.4,
   },
   filterChipTextActive: {
-    color: "#3B82F6",
+    color: COLORS.admin.primary,
+    opacity: 1,
   },
   bulkBar: {
     flexDirection: "row",
@@ -471,9 +486,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: COLORS.admin.background,
     borderBottomWidth: 1,
-    borderBottomColor: "#DBEAFE",
+    borderBottomColor: COLORS.admin.border,
   },
   bulkSelectAll: {
     flexDirection: "row",
@@ -483,7 +498,7 @@ const styles = StyleSheet.create({
   bulkText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#3B82F6",
+    color: COLORS.admin.primary,
   },
   bulkActions: {
     flexDirection: "row",
@@ -493,9 +508,11 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.admin.surface,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
   resultsInfo: {
     paddingHorizontal: 16,
@@ -503,7 +520,8 @@ const styles = StyleSheet.create({
   },
   resultsText: {
     fontSize: 13,
-    color: "#64748B",
+    color: COLORS.admin.text,
+    opacity: 0.6,
     fontWeight: "500",
   },
   listContent: {
@@ -516,12 +534,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#475569",
+    color: COLORS.admin.text,
     marginTop: 16,
     marginBottom: 6,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: "#94A3B8",
+    color: COLORS.admin.text,
+    opacity: 0.5,
   },
 });

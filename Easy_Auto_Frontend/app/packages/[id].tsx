@@ -152,7 +152,7 @@ export default function PackageDetailScreen() {
 
   const price = getPrice();
   const duration = getDuration();
-  const perDay = duration > 0 ? `$${(price / duration).toFixed(2)}/day` : '';
+  const perDay = duration > 0 ? `Rs. ${(price / duration).toFixed(2)}/day` : '';
 
   return (
     <View style={styles.safe}>
@@ -172,7 +172,7 @@ export default function PackageDetailScreen() {
           <Text style={styles.cardSubtitle}>{pkg.code}</Text>
 
           <View style={styles.priceRow}>
-            <Text style={styles.price}>${price}</Text>
+            <Text style={styles.price}>Rs. {price}</Text>
             <Text style={styles.perDay}>{perDay}</Text>
           </View>
 
@@ -181,17 +181,18 @@ export default function PackageDetailScreen() {
           {isCurrentPlan ? (
             <View>
               <View
-                style={[styles.buyButton, { backgroundColor: '#10B981', opacity: 1, marginBottom: 10 }]}
+                style={[styles.buyButton, styles.transparentButton, { marginBottom: 10 }]}
               >
-                <Ionicons name="checkmark-circle" size={18} color="#fff" style={{ marginRight: 8 }} />
-                <Text style={styles.buyText}>Active Current Plan</Text>
+                <Ionicons name="checkmark-circle" size={18} color="#3B82F6" style={{ marginRight: 8 }} />
+                <Text style={[styles.buyText, { color: '#3B82F6' }]}>Active Current Plan</Text>
               </View>
 
               <TouchableOpacity
-                style={[styles.buyButton, { backgroundColor: '#EF4444', marginTop: 0 }]}
+                style={[styles.buyButton, styles.transparentButton, { marginTop: 0 }]}
                 onPress={handleUnsubscribe}
               >
-                <Text style={styles.buyText}>Unsubscribe</Text>
+                <Ionicons name="close-circle-outline" size={18} color="#3B82F6" style={{ marginRight: 8 }} />
+                <Text style={[styles.buyText, { color: '#3B82F6' }]}>Unsubscribe</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -360,6 +361,14 @@ const styles = StyleSheet.create({
   durationText: { marginTop: 8, color: '#555', fontSize: 13 },
   buyButton: { marginTop: 14, paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
   buyText: { color: '#fff', fontWeight: '800' },
+  transparentButton: {
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    borderWidth: 1,
+    borderColor: '#3B82F6',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   section: { marginTop: 8, padding: 14, backgroundColor: '#fff', borderRadius: 12 },
   sectionTitle: { fontSize: 15, fontWeight: '800', marginBottom: 8 },
   featureRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },

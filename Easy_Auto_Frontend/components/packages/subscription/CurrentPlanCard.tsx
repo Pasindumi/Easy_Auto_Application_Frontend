@@ -23,7 +23,7 @@ const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
     onUnsubscribe,
     planName = "Premium Plan",
     expiryDate = "Active Until Nov 30, 2025",
-    price = "$29.99"
+    price = "Rs. 29.99"
 }) => {
     return (
         <View style={styles.planCard}>
@@ -71,23 +71,23 @@ const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
             <View style={{ marginTop: 16, gap: 10 }}>
                 {/* Manage Plan Button */}
                 <TouchableOpacity
-                    style={styles.manageButton}
+                    style={[styles.manageButton, styles.transparentButton]}
                     onPress={onManagePlan}
                     activeOpacity={0.8}
                 >
-                    <Ionicons name="settings-outline" size={18} color="#fff" />
-                    <Text style={styles.manageText}>Manage Plan</Text>
+                    <Ionicons name="settings-outline" size={18} color="#3B82F6" />
+                    <Text style={[styles.manageText, { color: '#3B82F6' }]}>Manage Plan</Text>
                 </TouchableOpacity>
 
                 {/* Unsubscribe Button */}
                 {onUnsubscribe && (
                     <TouchableOpacity
-                        style={[styles.manageButton, { backgroundColor: '#FEE2E2', shadowColor: '#EF4444' }]}
+                        style={[styles.manageButton, styles.transparentButton]}
                         onPress={onUnsubscribe}
                         activeOpacity={0.8}
                     >
-                        <Ionicons name="close-circle-outline" size={18} color="#EF4444" />
-                        <Text style={[styles.manageText, { color: '#EF4444' }]}>Unsubscribe</Text>
+                        <Ionicons name="close-circle-outline" size={18} color="#3B82F6" />
+                        <Text style={[styles.manageText, { color: '#3B82F6' }]}>Unsubscribe</Text>
                     </TouchableOpacity>
                 )}
             </View>
@@ -194,18 +194,25 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     manageButton: {
-        backgroundColor: '#235CF8',
+        backgroundColor: '#3B82F6',
         paddingVertical: 14,
         borderRadius: 12,
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 8,
-        shadowColor: '#235CF8',
+        shadowColor: '#3B82F6',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.1,
         shadowRadius: 8,
-        elevation: 6,
+        elevation: 3,
+    },
+    transparentButton: {
+        backgroundColor: 'rgba(59, 130, 246, 0.08)',
+        borderWidth: 1,
+        borderColor: '#3B82F6',
+        shadowColor: 'transparent',
+        elevation: 0,
     },
     manageText: {
         color: '#fff',

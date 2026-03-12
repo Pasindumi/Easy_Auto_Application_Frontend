@@ -42,7 +42,7 @@ export default function MyAdsScreen() {
         const mappedAds = response.data.map((ad: any) => ({
           ...ad,
           // Format price
-          price: ad.price ? `$${Number(ad.price).toLocaleString()}` : "Contact for Price",
+          price: ad.price ? `Rs. ${Number(ad.price).toLocaleString('en-LK')}` : "Contact for Price",
           // Map status to lowercase for frontend logic
           status: ad.status ? ad.status.toLowerCase() : "draft",
           ban_reason: ad.ban_reason,
