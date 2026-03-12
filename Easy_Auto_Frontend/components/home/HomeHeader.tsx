@@ -19,15 +19,11 @@ interface HomeHeaderProps {
     notificationCount: number;
     wishlistCount: number;
     setSidebarVisible: (v: boolean) => void;
-    setNotificationDrawerVisible: (v: boolean) => void;
-    setWishlistDrawerVisible: (v: boolean) => void;
     searchFocused: boolean;
     setSearchFocused: (v: boolean) => void;
     showSearchSuggestions: boolean;
     setShowSearchSuggestions: (v: boolean) => void;
 }
-
-const QUICK_FILTERS = ["Sedan", "SUV", "Pickup", "Van", "Electric"];
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
     initialHeaderOpacity,
@@ -35,8 +31,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     notificationCount,
     wishlistCount,
     setSidebarVisible,
-    setNotificationDrawerVisible,
-    setWishlistDrawerVisible,
     searchFocused,
     setSearchFocused,
 }) => {
@@ -52,8 +46,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     const tap = (type: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         if (type === "menu")  setSidebarVisible(true);
-        if (type === "notif") setNotificationDrawerVisible(true);
-        if (type === "wish")  setWishlistDrawerVisible(true);
+        if (type === "notif") router.push("/notifications/notifications" as any);
+        if (type === "wish")  router.push("/wishlist/wishlist" as any);
     };
 
     return (
@@ -103,22 +97,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     </View>
                 </TouchableOpacity>
 
-                {/* ── Quick filter pills ── */}
-                <View style={styles.pillsRow}>
-                    {QUICK_FILTERS.map((f) => (
-                        <TouchableOpacity
-                            key={f}
-                            style={styles.pill}
-                            onPress={() => {
-                                Haptics.selectionAsync();
-                                router.push(`/(tabs)/search` as any);
-                            }}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={styles.pillTxt}>{f}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
+
             </View>
         </Animated.View>
     );
@@ -211,24 +190,7 @@ const styles = StyleSheet.create({
         color: COLORS.primary,
     },
 
-    // Quick filter pills
-    pillsRow: {
-        flexDirection: "row",
-        gap: 8,
-    },
-    pill: {
-        backgroundColor: "rgba(255,255,255,0.18)",
-        paddingHorizontal: 12,
-        paddingVertical: 5,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: "rgba(255,255,255,0.25)",
-    },
-    pillTxt: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: "#fff",
-    },
+
 });
 
 export default HomeHeader;

@@ -1,12 +1,12 @@
 import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
+import { useToast } from '@/contexts/ToastContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -32,6 +32,7 @@ export default function SellCarScreen() {
   useProtectedRoute();
 
   const router = useRouter();
+  const { showToast } = useToast();
   const isFocused = useIsFocused();
   const params = useLocalSearchParams();
   const initialVehicleType = params.vehicleType as string || 'Car';
@@ -250,47 +251,32 @@ export default function SellCarScreen() {
       const adId = params.id as string;
       if (!adId || !params.edit) return;
 
-      // Wait for config to be loaded before populating form
-      // We need brands, models etc to be available to strict match values
-      if (brands.length === 0 && activeVehicleTypeId) {
-        // If config isn't loaded yet but we have an ID, we might need to wait or rely on the next render
-        // However, since fetching config depends on ID, let's proceed and try to match if possible
-      }
-
       try {
         setLoading(true);
-        const response = await fetch(`${ENDPOINTS.CARS}/${adId}`); // Using fetch directly here for GET is fine, or switch to api.get
+        const response = await fetch(`${ENDPOINTS.CARS}/${adId}`);
         const data = await response.json();
 
         if (data.success) {
           const ad = data.data;
           const details = ad.CarDetails?.[0] || ad.CarDetails || {};
 
-          // Update active type ID to trigger config fetch
           if (ad.vehicle_type_id && ad.vehicle_type_id !== activeVehicleTypeId) {
             setActiveVehicleTypeId(ad.vehicle_type_id);
           }
           if (ad.vehicle_type?.type_name) setVehicleType(ad.vehicle_type.type_name);
 
-          // NORMALIZE VALUES TO MATCH DROPDOWN OPTIONS EXACTLY
-
-          // 1. Normalize Brand
           let normalizedBrand = details.brand || '';
           if (normalizedBrand && brands.length > 0) {
             const matchedBrand = brands.find(b => String(b.brand_name).toLowerCase().trim() === String(normalizedBrand).toLowerCase().trim());
             if (matchedBrand) normalizedBrand = matchedBrand.brand_name;
           }
 
-          // 2. Normalize Model
           let normalizedModel = details.model || '';
-          // Note: models array might not be filtered by brand yet in state, but it contains all models for the type?
-          // Actually models fetching depends on vehicleTypeId, so it should have all models for that type.
           if (normalizedModel && models.length > 0) {
             const matchedModel = models.find(m => String(m.model_name).toLowerCase().trim() === String(normalizedModel).toLowerCase().trim());
             if (matchedModel) normalizedModel = matchedModel.model_name;
           }
 
-          // 3. Normalize Condition
           let normalizedCondition = details.condition || '';
           if (normalizedCondition && conditions.length > 0) {
             const matchedCondition = conditions.find(c => String(c.condition_name).toLowerCase().trim() === String(normalizedCondition).toLowerCase().trim());
@@ -301,12 +287,12 @@ export default function SellCarScreen() {
             title: ad.title || '',
             brand: normalizedBrand,
             model: normalizedModel,
-            year: String(details.year || ''), // Ensure string
+            year: String(details.year || ''),
             condition: normalizedCondition,
-            mileage: String(details.mileage || ''), // Ensure string
+            mileage: String(details.mileage || ''),
             fuelType: details.fuel_type || '',
             transmission: details.transmission || '',
-            engineCapacity: String(details.engine_capacity || ''), // Ensure string
+            engineCapacity: String(details.engine_capacity || ''),
             bodyType: details.body_type || '',
             price: ad.price?.toString() || '',
             description: ad.description || '',
@@ -318,7 +304,7 @@ export default function SellCarScreen() {
             vehicle_type_id: ad.vehicle_type_id || initialVehicleTypeId,
             dynamicAttributes: ad.attributes?.map((attr: any) => ({
               attribute_id: attr.attribute?.id,
-              value: String(attr.value) // Ensure value is string
+              value: String(attr.value)
             })) || [],
             status: ad.status
           });
@@ -329,14 +315,14 @@ export default function SellCarScreen() {
         }
       } catch (error) {
         console.error("Error fetching ad for edit:", error);
-        Alert.alert("Error", "Failed to load existing ad details.");
+        showToast({ message: "Failed to load existing ad details.", type: "error" });
       } finally {
         setLoading(false);
       }
     };
 
     fetchExistingAd();
-  }, [params.id, params.edit, brands.length, models.length, conditions.length]); // Add dependencies to re-run when config loads!
+  }, [params.id, params.edit, brands.length, models.length, conditions.length]);
 
   const handleInputChange = (field: string, value: any) => {
     setCarDetails(prev => ({
@@ -365,7 +351,7 @@ export default function SellCarScreen() {
   const pickImage = async () => {
     // Strict limit check
     if (selectedImages.length >= freeImageCount) {
-      Alert.alert("Limit Reached", `You can only upload up to ${freeImageCount} images with your current package.`);
+      showToast({ message: `Limit Reached: You can only upload up to ${freeImageCount} images.`, type: "info" });
       return;
     }
 
@@ -394,7 +380,7 @@ export default function SellCarScreen() {
     try {
       // Validate Inputs
       if (!carDetails.title || !carDetails.price || !carDetails.brand) {
-        Alert.alert("Missing Fields", "Please fill in all required fields (Title, Brand, Price).");
+        showToast({ title: "Incomplete Form", message: "Missing Fields: Please fill in Title, Brand, and Price.", type: "error" });
         setLoading(false);
         return;
       }
@@ -406,7 +392,7 @@ export default function SellCarScreen() {
       });
 
       if (missingRequired) {
-        Alert.alert("Missing Fields", `Please fill in ${missingRequired.attribute_name}`);
+        showToast({ title: "Missing Detail", message: `Please fill in ${missingRequired.attribute_name}`, type: "error" });
         setLoading(false);
         return;
       }
@@ -470,19 +456,23 @@ export default function SellCarScreen() {
       }
 
       if (response.success) {
-        Alert.alert("Success", isEdit ? "Your ad has been updated!" : "Your ad has been saved as a draft!");
+        showToast({ 
+          title: isEdit ? "Update Successful" : "Ad Saved", 
+          message: isEdit ? "Your ad has been updated successfully!" : "Your ad has been saved as a draft!", 
+          type: "success" 
+        });
         const adId = isEdit ? params.id : response.data.id;
         router.replace({
           pathname: '/cars/review',
           params: { id: adId }
         });
       } else {
-        Alert.alert("Error", response.message || "Failed to submit ad");
+        showToast({ title: "Submission Failed", message: response.message || "Failed to submit ad", type: "error" });
       }
 
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Failed to submit ad. Please try again.");
+      showToast({ title: "Error", message: "Failed to submit ad. Please try again.", type: "error" });
     } finally {
       setLoading(false);
     }

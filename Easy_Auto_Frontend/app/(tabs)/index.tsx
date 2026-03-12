@@ -1,16 +1,12 @@
 import ActionGrid from "@/components/home/ActionGrid";
-import BudgetRangeSection from "@/components/home/BudgetRangeSection";
 import CarComparison from "@/components/home/CarComparison";
 import ExploreByBrand from "@/components/home/ExploreByBrand";
-import FlashSale from "@/components/home/FlashSale";
 import { BackToTop } from "@/components/home/HomeCommon";
 import HomeDrawers from "@/components/home/HomeDrawers";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeReviewsSlider from "@/components/home/HomeReviewsSlider";
-import LoanCalculatorTeaser from "@/components/home/LoanCalculatorTeaser";
 import MarketInsightsBanner from "@/components/home/MarketInsightsBanner";
 import PromoBanner from "@/components/home/PromoBanner";
-import QuickSellBanner from "@/components/home/QuickSellBanner";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 import RecommendedCars from "@/components/home/RecommendedCars";
 import TrendingCars from "@/components/home/TrendingCars";
@@ -39,16 +35,12 @@ export default function HomeScreen() {
     const { isAuthenticated } = useAuth();
 
     const [sidebarVisible, setSidebarVisible] = useState(false);
-    const [notificationDrawerVisible, setNotificationDrawerVisible] = useState(false);
-    const [wishlistDrawerVisible, setWishlistDrawerVisible] = useState(false);
     const [searchFocused, setSearchFocused] = useState(false);
     const [notificationCount, setNotificationCount] = useState(3);
     const [wishlistCount, setWishlistCount] = useState(0);
     const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [showBackToTop, setShowBackToTop] = useState(false);
-    const [showNotificationPreview, setShowNotificationPreview] = useState(false);
-    const [showWishlistPreview, setShowWishlistPreview] = useState(false);
     const scrollRef = useRef<ScrollView>(null);
 
     const onRefresh = React.useCallback(() => {
@@ -94,8 +86,6 @@ export default function HomeScreen() {
             <BoostPopup />
             <HomeDrawers
                 sidebarVisible={sidebarVisible} setSidebarVisible={setSidebarVisible}
-                notificationDrawerVisible={notificationDrawerVisible} setNotificationDrawerVisible={setNotificationDrawerVisible}
-                wishlistDrawerVisible={wishlistDrawerVisible} setWishlistDrawerVisible={setWishlistDrawerVisible}
             />
 
             <HomeHeader
@@ -104,8 +94,6 @@ export default function HomeScreen() {
                 notificationCount={notificationCount}
                 wishlistCount={wishlistCount}
                 setSidebarVisible={setSidebarVisible}
-                setNotificationDrawerVisible={setNotificationDrawerVisible}
-                setWishlistDrawerVisible={setWishlistDrawerVisible}
                 searchFocused={searchFocused}
                 setSearchFocused={setSearchFocused}
                 showSearchSuggestions={showSearchSuggestions}
@@ -125,72 +113,55 @@ export default function HomeScreen() {
                 }
             >
                 <View style={styles.inner}>
-                    {/* 1. Quick Actions */}
+                    {/* 1. Explore Easyauto */}
                     <View style={styles.section}>
                         <ActionGrid fadeAnim={fadeAnim} slideAnim={slideAnim} compareCount={0} newListingsCount={0} />
                     </View>
 
-                    {/* 2. Sell Your Car CTA */}
-                    <View style={styles.section}>
-                        <QuickSellBanner fadeAnim={fadeAnim} />
-                    </View>
-
-                    {/* 3. Hero Promo Banners */}
-                    <View style={styles.section}>
-                        <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
-                    </View>
-
-                    {/* 5. Flash Deals */}
-                    <View style={styles.section}>
-                        <FlashSale fadeAnim={fadeAnim} slideAnim={slideAnim} />
-                    </View>
-
-                    {/* 4. Platform Stats + Reviews (listings, dealers, ratings, users) */}
-                    <View style={styles.section}>
-                        <ValueProps fadeAnim={fadeAnim} slideAnim={slideAnim} />
-                    </View>
-
-                    {/* 5. User Testimonials */}
-                    <View style={styles.section}>
-                        <HomeReviewsSlider />
-                    </View>
-
-                    {/* 6. Trending Section */}
+                    {/* 2. Trending Now */}
                     <View style={styles.section}>
                         <TrendingCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 7. Budget Browse */}
-                    <View style={styles.section}>
-                        <BudgetRangeSection fadeAnim={fadeAnim} slideAnim={slideAnim} />
-                    </View>
-
-                    {/* 8. Recommended Section */}
+                    {/* 3. Recommended for you */}
                     <View style={styles.section}>
                         <RecommendedCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 9. Explore Brands */}
+                    {/* 4. Advertisement section */}
                     <View style={styles.section}>
-                        <ExploreByBrand fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                        <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
                     </View>
 
-                    {/* 10. Recently Added */}
+                    {/* 5. New Arrivals */}
                     <View style={styles.section}>
                         <RecentlyViewed fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 11. Car Comparison Tool */}
+                    {/* 6. Compare Cars */}
                     <View style={styles.section}>
                         <CarComparison fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 12. Trust Banner */}
-                    <View style={[styles.section, { paddingVertical: 20 }]}>
+                    {/* 7. Easy Auto by Numbers */}
+                    <View style={styles.section}>
+                        <ValueProps fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 8. Explore by Brand */}
+                    <View style={styles.section}>
+                        <ExploreByBrand fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 9. Why EasyAuto Section */}
+                    <View style={styles.section}>
                         <MarketInsightsBanner fadeAnim={fadeAnim} />
                     </View>
 
-                    <View style={{ height: 40 }} />
+                    {/* 10. User Testimonials */}
+                    <View style={[styles.section, { marginBottom: 20 }]}>
+                        <HomeReviewsSlider />
+                    </View>
                 </View>
             </ScrollView>
 
@@ -200,9 +171,17 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: "#fff" },
+    root: { flex: 1, backgroundColor: "#F8FAFF" },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 110 },
-    inner: { backgroundColor: "#fff" },
-    section: { backgroundColor: "#fff" },
+    inner: { 
+        backgroundColor: "#F8FAFF",
+        gap: 32, // Consistent space between sections
+    },
+    section: { 
+        backgroundColor: "#fff",
+        // Optional: Add shadow or border to sections if they need more definition
+        // borderBottomWidth: 1,
+        // borderBottomColor: "#F1F5F9",
+    },
 });

@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import COLORS from "@/constants/Colors";
+import { useToast } from "@/contexts/ToastContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
@@ -12,7 +13,6 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -25,10 +25,15 @@ import * as Haptics from "expo-haptics";
 export default function EditProfileScreen() {
   const router = useRouter();
   const { user, accessToken, updateUser } = useAuth();
+  const { showToast } = useToast();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [bio, setBio] = useState("");
+  const [location, setLocation] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthday, setBirthday] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,6 +53,10 @@ export default function EditProfileScreen() {
       setName(user.name || '');
       setEmail(user.email || '');
       setPhone(user.phone || '');
+      setBio(user.bio || '');
+      setLocation(user.location || '');
+      setGender(user.gender || '');
+      setBirthday(user.birthday || '');
       
     } catch (error) {
       console.error('[EditProfile] Error loading user data:', error);
@@ -55,6 +64,10 @@ export default function EditProfileScreen() {
         setName(user.name || '');
         setEmail(user.email || '');
         setPhone(user.phone || '');
+        setBio(user.bio || '');
+        setLocation(user.location || '');
+        setGender(user.gender || '');
+        setBirthday(user.birthday || '');
       }
     } finally {
       setLoading(false);
@@ -76,13 +89,13 @@ export default function EditProfileScreen() {
       }
     } catch (error) {
       console.error('[EditProfile] Error picking image:', error);
-      Alert.alert('Error', 'Failed to select image');
+      showToast({ message: 'Failed to select image', type: 'error' });
     }
   };
 
   const handleSaveChanges = async () => {
     if (!name.trim() || !email.trim()) {
-      Alert.alert('Validation Error', 'Please fill in name and email fields');
+      showToast({ message: 'Please fill in name and email fields', type: 'error' });
       return;
     }
 
@@ -92,7 +105,7 @@ export default function EditProfileScreen() {
       setSaving(true);
 
       if (!accessToken || !user) {
-        Alert.alert('Error', 'User not authenticated');
+        showToast({ message: 'User not authenticated', type: 'error' });
         return;
       }
 
@@ -102,6 +115,10 @@ export default function EditProfileScreen() {
         if (name.trim()) formData.append('name', name.trim());
         if (email.trim()) formData.append('email', email.trim());
         if (phone.trim()) formData.append('phone', phone.trim());
+        if (bio.trim()) formData.append('bio', bio.trim());
+        if (location.trim()) formData.append('location', location.trim());
+        if (gender) formData.append('gender', gender);
+        if (birthday) formData.append('birthday', birthday);
 
         const filename = profilePhoto.split('/').pop() || 'profile.jpg';
         const match = /\.(\w+)$/.exec(filename);
@@ -126,23 +143,30 @@ export default function EditProfileScreen() {
               email: response.data.email,
               phone: response.data.phone,
               avatar: response.data.avatar,
+              bio: response.data.bio,
+              location: response.data.location,
+              gender: response.data.gender,
+              birthday: response.data.birthday,
             });
           }
-          Alert.alert('Success', 'Profile updated successfully!', [
-            { text: 'OK', onPress: () => router.back() }
-          ]);
+          showToast({ message: 'Profile updated successfully!', type: 'success' });
+          router.back();
           setProfilePhoto(null);
         } else {
-          Alert.alert('Error', response.message || 'Failed to update profile');
+          showToast({ message: response.message || 'Failed to update profile', type: 'error' });
         }
       } else {
         const userData: any = {};
         if (name.trim()) userData.name = name.trim();
         if (email.trim()) userData.email = email.trim();
         if (phone.trim()) userData.phone = phone.trim();
+        if (bio.trim()) userData.bio = bio.trim();
+        if (location.trim()) userData.location = location.trim();
+        if (gender) userData.gender = gender;
+        if (birthday) userData.birthday = birthday;
 
         if (Object.keys(userData).length === 0) {
-          Alert.alert('Error', 'Please provide at least one field to update');
+          showToast({ message: 'Please provide at least one field to update', type: 'error' });
           setSaving(false);
           return;
         }
@@ -158,18 +182,21 @@ export default function EditProfileScreen() {
               name: response.data.name,
               email: response.data.email,
               phone: response.data.phone,
+              bio: response.data.bio,
+              location: response.data.location,
+              gender: response.data.gender,
+              birthday: response.data.birthday,
             });
           }
-          Alert.alert('Success', 'Profile updated successfully!', [
-            { text: 'OK', onPress: () => router.back() }
-          ]);
+          showToast({ message: 'Profile updated successfully!', type: 'success' });
+          router.back();
         } else {
-          Alert.alert('Error', response.message || 'Failed to update profile');
+          showToast({ message: response.message || 'Failed to update profile', type: 'error' });
         }
       }
     } catch (error) {
       console.error('[EditProfile] Error saving profile:', error);
-      Alert.alert('Error', 'An error occurred while saving the profile');
+      showToast({ message: 'An error occurred while saving the profile', type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -194,91 +221,141 @@ export default function EditProfileScreen() {
             contentContainerStyle={styles.scrollContent} 
             showsVerticalScrollIndicator={false}
           >
-            {/* Profile Image Section */}
-            <View style={styles.photoSection}>
+            {/* Premium Photo Uploader */}
+            <View style={styles.photoCanvas}>
               <LinearGradient
-                colors={[COLORS.primary + '10', COLORS.primary + '05']}
-                style={styles.photoBackground}
+                colors={['#F1F5F9', '#F8FAFC']}
+                style={styles.photoPlate}
               >
-                <View style={styles.imageWrapper}>
+                <View style={styles.avatarMaster}>
                   <Image
                     source={
-                      profilePhoto 
-                        ? { uri: profilePhoto }
-                        : user?.avatar
-                        ? { uri: user.avatar }
-                        : require("@/assets/images/user.jpeg")
+                      profilePhoto ? { uri: profilePhoto }
+                      : user?.avatar ? { uri: user.avatar }
+                      : require("@/assets/images/user.jpeg")
                     }
-                    style={styles.profilePhoto}
+                    style={styles.masterImg}
                   />
-                  <TouchableOpacity 
-                    style={styles.cameraButton} 
-                    onPress={pickImage}
-                    activeOpacity={0.8}
-                  >
-                    <LinearGradient
-                      colors={[COLORS.primary, '#1E40AF']}
-                      style={styles.cameraGradient}
-                    >
-                      <Ionicons name="camera" size={20} color={COLORS.white} />
+                  <TouchableOpacity style={styles.camPill} onPress={pickImage}>
+                    <LinearGradient colors={[COLORS.primary, '#1E40AF']} style={styles.camGrad}>
+                      <Ionicons name="camera" size={18} color="#fff" />
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
-
-                <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
-                  <Text style={styles.changePhotoText}>Change Profile Photo</Text>
-                </TouchableOpacity>
+                <Text style={styles.photoHint}>High-resolution PNG or JPG preferred</Text>
               </LinearGradient>
             </View>
 
-            {/* Form Section */}
-            <View style={styles.formSection}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Full Name *</Text>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="person-outline" size={20} color={COLORS.text.muted} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    value={name}
-                    onChangeText={setName}
-                    placeholder="Enter your full name"
-                    placeholderTextColor={COLORS.text.placeholder}
-                  />
+            {/* Form Sections */}
+            <View style={styles.formFlow}>
+              
+              <View style={styles.formSection}>
+                <Text style={styles.sectionSlug}>Identity & Bio</Text>
+                
+                <View style={styles.fieldItem}>
+                  <Text style={styles.fieldLabel}>Display Name</Text>
+                  <View style={styles.fieldBox}>
+                    <Ionicons name="person-outline" size={18} color="#64748B" />
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={name}
+                      onChangeText={setName}
+                      placeholder="Your full name"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.fieldItem}>
+                  <View style={styles.labelRow}>
+                    <Text style={styles.fieldLabel}>Tell us about yourself</Text>
+                    <Text style={styles.charCount}>{bio.length}/150</Text>
+                  </View>
+                  <View style={[styles.fieldBox, styles.bioBox]}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.bioInput]}
+                      value={bio}
+                      onChangeText={setBio}
+                      placeholder="Write a short bio..."
+                      multiline
+                      maxLength={150}
+                    />
+                  </View>
                 </View>
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email Address *</Text>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="mail-outline" size={20} color={COLORS.text.muted} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder="Enter your email"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    placeholderTextColor={COLORS.text.placeholder}
-                  />
+              <View style={styles.formSection}>
+                <Text style={styles.sectionSlug}>Contact Details</Text>
+
+                <View style={styles.fieldItem}>
+                  <Text style={styles.fieldLabel}>Email Address</Text>
+                  <View style={styles.fieldBox}>
+                    <Ionicons name="mail-outline" size={18} color="#64748B" />
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={email}
+                      onChangeText={setEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.fieldItem}>
+                  <Text style={styles.fieldLabel}>Phone Number</Text>
+                  <View style={styles.fieldBox}>
+                    <Ionicons name="call-outline" size={18} color="#64748B" />
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={phone}
+                      onChangeText={setPhone}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
                 </View>
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Phone Number</Text>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="call-outline" size={20} color={COLORS.text.muted} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    value={phone}
-                    onChangeText={setPhone}
-                    placeholder="Enter your phone number"
-                    keyboardType="phone-pad"
-                    placeholderTextColor={COLORS.text.placeholder}
-                  />
+              <View style={styles.formSection}>
+                <Text style={styles.sectionSlug}>Regional & Preferences</Text>
+
+                <View style={styles.fieldItem}>
+                  <Text style={styles.fieldLabel}>Home/Office Location</Text>
+                  <View style={styles.fieldBox}>
+                    <Ionicons name="location-outline" size={18} color="#64748B" />
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={location}
+                      onChangeText={setLocation}
+                      placeholder="Colombo, Sri Lanka"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.rowFieldContainer}>
+                  <View style={[styles.fieldItem, { flex: 1 }]}>
+                    <Text style={styles.fieldLabel}>Gender</Text>
+                    <View style={styles.fieldBox}>
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={gender}
+                        onChangeText={setGender}
+                        placeholder="e.g. Male"
+                      />
+                    </View>
+                  </View>
+                  <View style={[styles.fieldItem, { flex: 1 }]}>
+                    <Text style={styles.fieldLabel}>Birthday</Text>
+                    <View style={styles.fieldBox}>
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={birthday}
+                        onChangeText={setBirthday}
+                        placeholder="YYYY-MM-DD"
+                      />
+                    </View>
+                  </View>
                 </View>
               </View>
 
-              <Text style={styles.helperText}>* Required fields</Text>
             </View>
 
             {/* Action Buttons */}
@@ -328,7 +405,7 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F8FAFC',
   },
   loadingContainer: {
     flex: 1,
@@ -337,146 +414,160 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    color: COLORS.text.muted,
+    color: '#64748B',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
-  photoSection: {
-    marginTop: 20,
-    marginBottom: 32,
+  photoCanvas: {
+    padding: 20,
+    marginTop: 8,
   },
-  photoBackground: {
-    paddingVertical: 32,
+  photoPlate: {
+    borderRadius: 24,
+    padding: 24,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  imageWrapper: {
+  avatarMaster: {
     position: 'relative',
     marginBottom: 16,
   },
-  profilePhoto: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+  masterImg: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     borderWidth: 4,
-    borderColor: COLORS.white,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
+    borderColor: '#fff',
+    backgroundColor: '#fff',
   },
-  cameraButton: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    borderRadius: 20,
-    elevation: 6,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+  camPill: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
   },
-  cameraGradient: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: COLORS.white,
-  },
-  changePhotoText: {
-    color: COLORS.primary,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  formSection: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
-  },
-  inputGroup: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
-    color: COLORS.text.primary,
-    fontWeight: "700",
-    marginBottom: 10,
-    letterSpacing: 0.2,
-  },
-  inputContainer: {
-    flexDirection: 'row',
+  camGrad: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: COLORS.divider,
-    paddingHorizontal: 16,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    borderWidth: 3,
+    borderColor: '#fff',
   },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 16,
-    fontSize: 15,
-    color: COLORS.text.primary,
+  photoHint: {
+    fontSize: 12,
+    color: '#94A3B8',
     fontWeight: '500',
   },
-  helperText: {
-    fontSize: 12,
-    color: COLORS.text.muted,
-    fontStyle: 'italic',
-    marginTop: -8,
+  formFlow: {
+    paddingHorizontal: 20,
+  },
+  formSection: {
+    marginBottom: 28,
+  },
+  sectionSlug: {
+    fontSize: 11,
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '800',
+    marginBottom: 16,
+    marginLeft: 4,
+  },
+  fieldItem: {
+    marginBottom: 18,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    color: '#1E293B',
+    fontWeight: '700',
+    marginBottom: 8,
+    marginLeft: 2,
+  },
+  fieldBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    borderWidth: 1.5,
+    borderColor: '#F1F5F9',
+    height: 54,
+  },
+  fieldInput: {
+    flex: 1,
+    paddingLeft: 12,
+    fontSize: 14,
+    color: '#0F172A',
+    fontWeight: '600',
+  },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  charCount: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+  bioBox: {
+    height: 100,
+    alignItems: 'flex-start',
+    paddingTop: 12,
+  },
+  bioInput: {
+    height: '100%',
+    paddingTop: 0,
+    textAlignVertical: 'top',
+  },
+  rowFieldContainer: {
+    flexDirection: 'row',
+    gap: 16,
   },
   actionSection: {
     paddingHorizontal: 20,
-    gap: 12,
+    marginTop: 10,
   },
   saveButton: {
-    borderRadius: 14,
+    borderRadius: 18,
     overflow: 'hidden',
     elevation: 4,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
   saveButtonDisabled: {
     opacity: 0.7,
-    elevation: 2,
   },
   saveGradient: {
-    paddingVertical: 18,
+    height: 58,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   saveButtonText: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 0.3,
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
   },
   cancelButton: {
-    paddingVertical: 16,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: COLORS.divider,
+    marginTop: 12,
+    height: 54,
+    borderRadius: 18,
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    justifyContent: 'center',
   },
   cancelButtonText: {
-    color: COLORS.text.secondary,
-    fontSize: 16,
-    fontWeight: "600",
+    color: '#64748B',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });

@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/contexts/ToastContext";
 import { useClerkOAuth } from "@/hooks/useClerkOAuth";
 import { ENDPOINTS } from "@/constants/API";
 import {
@@ -15,16 +16,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image } from "expo-image";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import Footer from "../../components/Footer";
-import Header from "../../components/Header";
 import InputField from "../../components/InputField";
 import Button from "../../components/ui/button/Button";
 import SocialButton from "../../components/ui/button/SocialButton";
 
 export default function SignupScreen() {
   const router = useRouter();
+  const { showToast } = useToast();
+  const insets = useSafeAreaInsets();
   const { loginWithBackend } = useAuth();
   const { signInWithGoogle, signInWithApple, signInWithFacebook } = useClerkOAuth();
+  
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -36,10 +42,9 @@ export default function SignupScreen() {
   const [lastClickTime, setLastClickTime] = useState(0);
 
   const handleSocialSignIn = async (provider: 'google' | 'apple' | 'facebook') => {
-    // Prevent rapid clicks (debounce)
     const now = Date.now();
     if (now - lastClickTime < 2000) {
-      Alert.alert('Please Wait', 'Please wait a moment before trying again');
+      showToast({ message: 'Please wait a moment before trying again', type: 'info' });
       return;
     }
     setLastClickTime(now);
@@ -56,39 +61,40 @@ export default function SignupScreen() {
       }
 
       if (!result.success && result.error) {
-        Alert.alert('Sign In Failed', result.error);
+        showToast({ message: result.error, type: 'error' });
+      } else if (result.success) {
+        showToast({ message: 'Social sign-in successful!', type: 'success' });
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || `Failed to sign in with ${provider}`);
+      showToast({ message: error.message || `Failed to sign in with ${provider}`, type: 'error' });
     } finally {
       setSocialLoading(null);
     }
   };
 
   const handleSignup = async () => {
-    // Validate inputs
     if (!fullName.trim()) {
-      Alert.alert('Error', 'Please enter your full name');
+      showToast({ message: 'Please enter your full name', type: 'error' });
       return;
     }
     if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Error', 'Please enter a valid email address');
+      showToast({ message: 'Please enter a valid email address', type: 'error' });
       return;
     }
     if (!phone.trim() || phone.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
+      showToast({ message: 'Please enter a valid phone number', type: 'error' });
       return;
     }
     if (!password || password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      showToast({ message: 'Password must be at least 6 characters', type: 'error' });
       return;
     }
     if (password !== confirm) {
-      Alert.alert('Error', 'Passwords do not match');
+      showToast({ message: 'Passwords do not match', type: 'error' });
       return;
     }
     if (!agree) {
-      Alert.alert('Error', 'Please agree to the Terms & Conditions');
+      showToast({ message: 'Please agree to the Terms & Conditions', type: 'error' });
       return;
     }
 
@@ -114,22 +120,13 @@ export default function SignupScreen() {
         throw new Error(data.error || 'Signup failed');
       }
 
-      // Update AuthContext state and store tokens
-      await loginWithBackend(data.accessToken, data.refreshToken, data.user);
+      // Changed to redirect to login after signup
 
-      Alert.alert(
-        'Success',
-        'Account created successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/(tabs)'),
-          },
-        ]
-      );
+      showToast({ title: 'Success', message: 'Account created! Please login to continue.', type: 'success' });
+      router.replace('/auth/login');
     } catch (error: any) {
       console.error('Signup Error:', error);
-      Alert.alert('Signup Failed', error.message || 'Failed to create account');
+      showToast({ title: 'Account Creation Failed', message: error.message || 'Failed to create account', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -138,26 +135,55 @@ export default function SignupScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title="Sign Up" />
-
+      
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
-          {/* Toggle */}
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity style={[styles.toggleBtn, styles.activeTab]}>
-              <Text style={[styles.toggleText, styles.whiteText]}>Signup</Text>
+          {/* Compressed Header Image */}
+          <View style={[styles.headerImageContainer, { height: 160 + insets.top }]}>
+            <Image
+              source={{ uri: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1983&auto=format&fit=crop" }}
+              style={StyleSheet.absoluteFillObject}
+              contentFit="cover"
+            />
+            <LinearGradient
+              colors={['rgba(15,23,42,0.8)', 'transparent', '#fff']}
+              style={StyleSheet.absoluteFillObject}
+            />
+            
+            <TouchableOpacity 
+              style={[styles.backButton, { top: insets.top + 10 }]} 
+              onPress={() => router.replace('/(tabs)')}
+            >
+              <Ionicons name="chevron-back" size={24} color="#fff" />
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.toggleBtn} onPress={() => router.push("/auth/login")}>
-              <Text style={[styles.toggleText, styles.blueText]}>Login</Text>
+            
+            <TouchableOpacity 
+              style={[styles.logoContainer, { marginTop: insets.top + 15 }]}
+              onPress={() => router.replace('/(tabs)')}
+              activeOpacity={0.7}
+            >
+              <Image
+                source={require("@/assets/logoHome.png")}
+                style={styles.logoImg}
+                contentFit="contain"
+              />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.form}>
+          {/* Custom Auth Form Area */}
+          <View style={styles.authContainer}>
+
+            <View style={styles.formHeader}>
+              <Text style={styles.welcomeText}>Create Account</Text>
+              <Text style={styles.subtitleText}>Join EasyAuto today</Text>
+            </View>
+
+            {/* Input Fields */}
             <InputField icon="person-outline" placeholder="Full Name" value={fullName} onChange={setFullName} />
             <InputField icon="mail-outline" placeholder="Email" value={email} onChange={setEmail} keyboardType="email-address" />
             <InputField icon="call-outline" placeholder="Phone Number" value={phone} onChange={setPhone} keyboardType="phone-pad" />
@@ -178,39 +204,41 @@ export default function SignupScreen() {
             />
 
             <View style={styles.orRow}>
-              <View style={styles.line} />
-              <Text style={styles.or}>OR</Text>
-              <View style={styles.line} />
+              <View style={styles.orLine} />
+              <Text style={styles.orText}>OR Continue With</Text>
+              <View style={styles.orLine} />
             </View>
 
-            <SocialButton
-              icon="logo-apple"
-              text={socialLoading === 'apple' ? "Signing in..." : "Sign in With Apple"}
-              onPress={() => handleSocialSignIn('apple')}
-              disabled={socialLoading !== null}
-            />
-            <SocialButton
-              icon="logo-google"
-              text={socialLoading === 'google' ? "Signing in..." : "Sign in With Google"}
-              iconColor="#DB4437"
-              onPress={() => handleSocialSignIn('google')}
-              disabled={socialLoading !== null}
-            />
-            <SocialButton
-              icon="logo-facebook"
-              text={socialLoading === 'facebook' ? "Signing in..." : "Sign in With Facebook"}
-              iconColor="#1877F2"
-              onPress={() => handleSocialSignIn('facebook')}
-              disabled={socialLoading !== null}
-            />
+            {/* Social login grid */}
+            <View style={styles.socialRow}>
+              <SocialButton
+                icon="logo-google"
+                iconColor="#DB4437"
+                onPress={() => handleSocialSignIn('google')}
+                disabled={socialLoading !== null}
+              />
+              <SocialButton
+                icon="logo-apple"
+                iconColor="#000"
+                onPress={() => handleSocialSignIn('apple')}
+                disabled={socialLoading !== null}
+              />
+              <SocialButton
+                icon="logo-facebook"
+                iconColor="#1877F2"
+                onPress={() => handleSocialSignIn('facebook')}
+                disabled={socialLoading !== null}
+              />
+            </View>
 
-            <View style={styles.bottomRow}>
-              <Text style={styles.small}>Already have an account?</Text>
-              <TouchableOpacity onPress={() => router.push("/auth/login")}>
-                <Text style={styles.loginLink}> Login</Text>
+            <View style={styles.bottomLinkRow}>
+              <Text style={styles.bottomLinkText}>Already have an account?</Text>
+              <TouchableOpacity onPress={() => router.replace("/auth/login")}>
+                <Text style={styles.bottomLinkAction}> Login</Text>
               </TouchableOpacity>
             </View>
           </View>
+          
           <Footer />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -221,40 +249,124 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background
+    backgroundColor: '#F8FAFF',
   },
-  scrollContent: { padding: 16, flexGrow: 1 },
-
-  toggleContainer: {
-    flexDirection: "row",
-    alignSelf: "center",
-    borderRadius: 28,
-    overflow: "hidden",
-    marginTop: 20,
-    width: '70%',
+  headerImageContainer: {
+    width: '100%',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
     borderWidth: 1,
-    borderColor: COLORS.divider,
-    backgroundColor: COLORS.white,
-    padding: 4,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
-  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center", backgroundColor: COLORS.white },
-  activeTab: { backgroundColor: COLORS.primary },
-  toggleText: { fontWeight: "700", fontSize: 14 },
-  whiteText: { color: COLORS.white },
-  blueText: { color: COLORS.primary },
-
-  form: { marginTop: 18 },
-
-  termRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-  checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: COLORS.divider, marginRight: 8, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.white },
-  checkboxChecked: { borderColor: COLORS.primary },
-  termText: { color: COLORS.text.muted },
-
-  orRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
-  line: { flex: 1, height: 1, backgroundColor: COLORS.divider },
-  or: { marginHorizontal: 12, fontWeight: "700", color: COLORS.text.muted },
-
-  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 24, marginBottom: 32 },
-  small: { color: COLORS.text.muted },
-  loginLink: { color: COLORS.primary, fontWeight: "700" },
+  logoContainer: {
+    alignItems: 'center',
+    width: '100%',
+    position: 'absolute',
+    zIndex: 5,
+  },
+  logoImg: {
+    width: 130,
+    height: 38,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    backgroundColor: '#fff',
+  },
+  authContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 40,
+  },
+  formHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: '#0F172A',
+    letterSpacing: -0.8,
+    marginBottom: 4,
+  },
+  subtitleText: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  termRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    marginTop: 4,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    marginRight: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: '#F8FAFC',
+  },
+  checkboxChecked: {
+    borderColor: COLORS.primary,
+    backgroundColor: '#EEF2FF',
+  },
+  termText: {
+    color: '#475569',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  orRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 16,
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
+  },
+  orText: {
+    marginHorizontal: 16,
+    color: '#94A3B8',
+    fontWeight: "600",
+    fontSize: 13,
+    textTransform: 'uppercase',
+  },
+  socialRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20,
+  },
+  bottomLinkRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  bottomLinkText: {
+    color: '#64748B',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  bottomLinkAction: {
+    color: COLORS.primary,
+    fontWeight: "800",
+    fontSize: 14,
+  },
 });

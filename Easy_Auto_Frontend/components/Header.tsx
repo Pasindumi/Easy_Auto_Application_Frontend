@@ -35,17 +35,17 @@ export default function Header({ showBack = true, title, iconName, rightElement 
 
       <SafeAreaView edges={["top"]} style={styles.safeArea}>
         <View style={styles.headerRow}>
-          {/* Left Side: Back Button + Title Pill */}
+          {/* Left: Back Button & Title */}
           <View style={styles.leftContent}>
             <TouchableOpacity
               onPress={() => {
-                router.replace("/"); // Always navigate to home on back press
+                router.back(); // Changed to standard back to prevent accidental home-only routing
               }}
               style={styles.backButton}
               activeOpacity={0.7}
             >
               {showBack ? (
-                <Ionicons name="arrow-back" size={26} color="#fff" />
+                <Ionicons name="chevron-back" size={26} color="#fff" />
               ) : (
                 <View style={{ width: 0 }} />
               )}
@@ -58,18 +58,24 @@ export default function Header({ showBack = true, title, iconName, rightElement 
             )}
           </View>
 
-          {/* Right Side: Logo + Optional Element */}
-          <View style={styles.rightContent}>
-            {rightElement && (
-              <View style={styles.rightElementContainer}>
-                {rightElement}
-              </View>
-            )}
+          {/* Center: Logo (Absolute Centered) */}
+          <View pointerEvents="none" style={styles.centerLogoContainer}>
             <Image
-              source={require("../assets/applogonew.png")}
+              source={require("@/assets/logoHome.png")}
               resizeMode="contain"
               style={styles.logoImg}
             />
+          </View>
+
+          {/* Right: Right Element (Optional) */}
+          <View style={styles.rightContent}>
+            {rightElement ? (
+              <View style={styles.rightElementContainer}>
+                {rightElement}
+              </View>
+            ) : (
+              <View style={{ width: 44 }} /> // Placeholder to maintain balance
+            )}
           </View>
         </View>
       </SafeAreaView>
@@ -81,19 +87,18 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.primary,
     width: "100%",
-    height: HEADER_HEIGHT,
+    height: 105, // More compact but enough to avoid overlap
     overflow: "hidden",
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
   safeArea: {
     flex: 1,
-    paddingTop: 8, // More compact padding for the shorter height
     justifyContent: 'center',
   },
   headerRow: {
@@ -101,50 +106,46 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
+    height: 60,
   },
   leftContent: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1.4, // More space for the title pill
+    zIndex: 10,
+    flex: 1,
+  },
+  centerLogoContainer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 5,
   },
   rightContent: {
     alignItems: "flex-end",
     justifyContent: "center",
-    flex: 1.6, // Balanced with the massive logo
+    zIndex: 10,
+    flex: 1,
   },
   backButton: {
-    width: 38,
-    height: 44,
-    justifyContent: "center",
-    alignItems: "flex-start",
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   logoImg: {
-    width: 200, // Slightly reduced to fit the shorter height better
-    height: 60,
-    marginRight: -25, // Moved further to the right edge
+    width: 110,
+    height: 24,
   },
   rightElementContainer: {
-    marginRight: 8,
     justifyContent: 'center',
   },
   title: {
     color: "#fff",
-    fontSize: 14, // Slightly smaller to guarantee fit
-    fontWeight: "700",
-    letterSpacing: -0.2,
+    fontSize: 16,
+    fontWeight: "800",
+    letterSpacing: -0.4,
   },
   titleContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    paddingHorizontal: 14, // Tighter padding to save space
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    marginLeft: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    marginLeft: 4,
   },
-  headerWrap: { backgroundColor: '#F9FAFB' },
 });

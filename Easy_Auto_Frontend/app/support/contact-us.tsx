@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import InputField from "@/components/InputField";
 import COLORS from "@/constants/Colors";
+import { useToast } from "@/contexts/ToastContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,7 +14,6 @@ import {
     Text,
     TouchableOpacity,
     View,
-    Alert,
     ActivityIndicator,
 } from "react-native";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
@@ -31,6 +31,7 @@ const COMPLAINT_CATEGORIES = [
 
 export default function ContactUsScreen() {
     const router = useRouter();
+    const { showToast } = useToast();
     const [mode, setMode] = useState<"INQUIRY" | "COMPLAINT">("INQUIRY");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -41,7 +42,7 @@ export default function ContactUsScreen() {
 
     const handleSubmit = async () => {
         if (!message.trim()) {
-            Alert.alert("Error", "Please provide a message");
+            showToast({ message: "Please provide a message", type: "error" });
             return;
         }
 
@@ -50,7 +51,7 @@ export default function ContactUsScreen() {
             if (mode === "INQUIRY") {
                 // For now, inquiries are logged to console as before or you might have an endpoint
                 console.log("Submitted Inquiry:", { name, email, subject, message });
-                Alert.alert("Success", "Your message has been sent successfully!");
+                showToast({ message: "Your message has been sent successfully!", type: "success" });
                 router.back();
             } else {
                 // Submit Complaint to backend
@@ -60,7 +61,7 @@ export default function ContactUsScreen() {
                 });
 
                 if (response.success) {
-                    Alert.alert("Success", "Your complaint has been submitted. We will review it shortly.");
+                    showToast({ message: "Your complaint has been submitted. We will review it shortly.", type: "success" });
                     router.back();
                 } else {
                     throw new Error(response.message || "Failed to submit complaint");
@@ -68,7 +69,7 @@ export default function ContactUsScreen() {
             }
         } catch (error: any) {
             console.error("Submission error:", error);
-            Alert.alert("Error", error.message || "Something went wrong. Please try again.");
+            showToast({ message: error.message || "Something went wrong. Please try again.", type: "error" });
         } finally {
             setLoading(false);
         }

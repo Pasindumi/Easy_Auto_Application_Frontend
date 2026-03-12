@@ -19,39 +19,38 @@ interface StatusConfig {
 const STATUS_CONFIG: Record<StatusType, StatusConfig> = {
   active: {
     label: 'Active',
-    icon: 'checkmark-circle',
-    color: '#10B981',
+    icon: 'checkmark-circle-outline',
+    color: '#059669',
     bgColor: '#ECFDF5',
     borderColor: '#D1FAE5',
   },
   draft: {
     label: 'Draft',
-    icon: 'document-text',
-    color: '#FBBF24',
-    bgColor: '#fff2beff',
-    borderColor: '#ffe88dff',
+    icon: 'document-outline',
+    color: '#D97706',
+    bgColor: '#FFFBEB',
+    borderColor: '#FEF3C7',
   },
   paused: {
     label: 'Paused',
-    // icon: 'alert-circle',
-    icon: 'pause-circle',
-    color: '#EF4444',
-    bgColor: '#fff2f2ff',
-    borderColor: '#FECACA',
+    icon: 'pause-circle-outline',
+    color: '#DC2626',
+    bgColor: '#FEF2F2',
+    borderColor: '#FEE2E2',
   },
   expired: {
     label: 'Paused',
-    icon: 'pause-circle',
-    color: '#EF4444',
-    bgColor: '#fff1f1ff',
-    borderColor: '#ffbcbcff',
+    icon: 'pause-circle-outline',
+    color: '#DC2626',
+    bgColor: '#FEF2F2',
+    borderColor: '#FEE2E2',
   },
   banned: {
     label: 'Banned',
-    icon: 'close-circle',
-    color: '#000000',
-    bgColor: '#e5e7eb',
-    borderColor: '#9ca3af',
+    icon: 'close-circle-outline',
+    color: '#111827',
+    bgColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
   },
 };
 
@@ -68,15 +67,12 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
         },
       ]}
     >
-      {/* Status icon */}
       <Ionicons
         name={cfg.icon}
-        size={14}
+        size={13}
         color={cfg.color}
         style={styles.icon}
       />
-
-      {/* Status text */}
       <Text style={[styles.text, { color: cfg.color }]}>{cfg.label}</Text>
     </View>
   );
@@ -86,17 +82,18 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
     borderWidth: 1,
   },
   icon: {
-    marginRight: 6,
+    marginRight: 4,
   },
   text: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.2,
   },
 });

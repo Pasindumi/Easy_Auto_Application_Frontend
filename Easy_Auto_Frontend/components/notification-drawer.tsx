@@ -34,17 +34,15 @@ interface NotificationDrawerProps {
   onClose: () => void;
 }
 
-// ── Type metadata ─────────────────────────────────────────────────────────────
 const TYPE_META: Record<string, { icon: any; color: string; bg: string; label: string }> = {
-  car:     { icon: "car-sport",              color: "#235CF8", bg: "#EEF2FF", label: "New Listing"   },
-  price:   { icon: "pricetag",               color: "#10B981", bg: "#ECFDF5", label: "Price Drop"    },
-  message: { icon: "chatbubble-ellipses",    color: "#7C3AED", bg: "#F5F3FF", label: "Message"       },
-  alert:   { icon: "alert-circle",           color: "#EF4444", bg: "#FEF2F2", label: "Alert"         },
-  promo:   { icon: "gift",                    color: "#F59E0B", bg: "#FFFBEB", label: "Promotion"     },
-  system:  { icon: "settings",              color: "#64748B", bg: "#F8FAFC", label: "System"         },
+  car:     { icon: "car",                   color: "#235CF8", bg: "#EEF2FF", label: "Listing"    },
+  price:   { icon: "trending-down",         color: "#10B981", bg: "#ECFDF5", label: "Price Drop" },
+  message: { icon: "chatbubbles",           color: "#7C3AED", bg: "#F5F3FF", label: "Message"    },
+  alert:   { icon: "warning",               color: "#F59E0B", bg: "#FFFBEB", label: "Alert"      },
+  promo:   { icon: "star",                  color: "#DB2777", bg: "#FDF2F8", label: "Promo"      },
+  system:  { icon: "construct",             color: "#64748B", bg: "#F1F5F9", label: "System"     },
 };
 
-// ── Initial data ──────────────────────────────────────────────────────────────
 const INITIAL: NotificationItem[] = [
   { id: 1, type: "car",     title: "New Listing Match",          message: "A 2022 Toyota Corolla matching your search was just listed in Colombo.",       time: "Just now",    read: false },
   { id: 2, type: "price",   title: "Price Drop Alert 🎉",        message: "Your saved BMW 3 Series dropped by LKR 500,000. Check it out now!",            time: "2 hrs ago",   read: false },
@@ -64,12 +62,12 @@ export default function NotificationDrawer({ visible, onClose }: NotificationDra
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(slideAnim, { toValue: 0,        duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0,        duration: 380, easing: Easing.out(Easing.bezier(0.25, 0.1, 0.25, 1)), useNativeDriver: true }),
         Animated.timing(bgOpacity,  { toValue: 1,        duration: 300, useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(slideAnim, { toValue: DRAWER_W, duration: 280, easing: Easing.in(Easing.cubic),  useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: DRAWER_W, duration: 300, easing: Easing.in(Easing.ease),  useNativeDriver: true }),
         Animated.timing(bgOpacity,  { toValue: 0,        duration: 260, useNativeDriver: true }),
       ]).start();
     }
@@ -90,14 +88,11 @@ export default function NotificationDrawer({ visible, onClose }: NotificationDra
 
   const remove = (id: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert("Delete Notification", "Remove this notification?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete",  style: "destructive", onPress: () => setItems((prev) => prev.filter((n) => n.id !== id)) },
-    ]);
+    setItems((prev) => prev.filter((n) => n.id !== id));
   };
 
   const clearAll = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert("Clear All", "Remove all notifications?", [
       { text: "Cancel", style: "cancel" },
       { text: "Clear All", style: "destructive", onPress: () => setItems([]) },
@@ -107,144 +102,92 @@ export default function NotificationDrawer({ visible, onClose }: NotificationDra
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <View style={styles.root}>
-
-        {/* ── Backdrop ──────────────────────────────────────────────────── */}
         <Animated.View style={[styles.backdrop, { opacity: bgOpacity }]} pointerEvents={visible ? "auto" : "none"}>
           <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onClose} />
         </Animated.View>
 
-        {/* ── Drawer ────────────────────────────────────────────────────── */}
         <Animated.View style={[styles.drawer, { transform: [{ translateX: slideAnim }] }]}>
-
-          {/* ── Header ──────────────────────────────────────────────────── */}
-          <LinearGradient
-            colors={["#235CF8", "#1346C8", "#0D3AAD"]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1.4 }}
-            style={[styles.header, { paddingTop: insets.top + 14 }]}
-          >
-            {/* Decorative blobs */}
-            <View style={styles.blob1} />
-            <View style={styles.blob2} />
-
-            {/* Close + clear all */}
-            <View style={styles.headerTopRow}>
-              <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                <Ionicons name="close" size={20} color="rgba(255,255,255,0.85)" />
-              </TouchableOpacity>
-              {items.length > 0 && (
-                <TouchableOpacity style={styles.clearBtn} onPress={clearAll}>
-                  <Ionicons name="trash-outline" size={14} color="rgba(255,255,255,0.75)" />
-                  <Text style={styles.clearBtnTxt}>Clear all</Text>
+          {/* Header Area */}
+          <View style={styles.aestheticHeader}>
+            <LinearGradient
+              colors={["#235CF8", "#0D3AAD"]}
+              style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
+            >
+              <View style={styles.headerTop}>
+                <TouchableOpacity onPress={onClose} style={styles.backBtn}>
+                  <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
-              )}
-            </View>
-
-            {/* Bell icon */}
-            <View style={styles.bellWrap}>
-              <Ionicons name="notifications" size={28} color="#FCD34D" />
-              {unreadCount > 0 && (
-                <View style={styles.bellBadge}>
-                  <Text style={styles.bellBadgeTxt}>{unreadCount}</Text>
-                </View>
-              )}
-            </View>
-
-            {/* Title row */}
-            <View style={styles.headerTitleRow}>
-              <View>
-                <Text style={styles.headerTitle}>Notifications</Text>
-                <Text style={styles.headerSub}>
-                  {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}` : "You're all caught up 🎉"}
-                </Text>
+                <Text style={styles.headerTitleText}>Notifications</Text>
+                <TouchableOpacity onPress={clearAll} style={styles.iconCircleBtn}>
+                  <Ionicons name="trash-outline" size={18} color="#FFFFFF" />
+                </TouchableOpacity>
               </View>
-              {unreadCount > 0 && (
-                <TouchableOpacity style={styles.markAllBtn} onPress={readAll}>
-                  <Ionicons name="checkmark-done" size={14} color="#fff" />
-                  <Text style={styles.markAllTxt}>Mark all read</Text>
-                </TouchableOpacity>
-              )}
-            </View>
 
-            {/* Filter tabs */}
-            <View style={styles.filterRow}>
-              {(["all", "unread"] as const).map((f) => (
-                <TouchableOpacity
-                  key={f}
-                  style={[styles.filterTab, filter === f && styles.filterTabActive]}
-                  onPress={() => { Haptics.selectionAsync(); setFilter(f); }}
+              <View style={styles.statsRow}>
+                <View style={styles.unreadBadge}>
+                  <Text style={styles.unreadCountText}>{unreadCount} New</Text>
+                </View>
+                {unreadCount > 0 && (
+                  <TouchableOpacity onPress={readAll} style={styles.textBtn}>
+                    <Text style={styles.textBtnText}>Mark all as read</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Sub-tabs */}
+              <View style={styles.tabsContainer}>
+                <TouchableOpacity 
+                  onPress={() => { Haptics.selectionAsync(); setFilter("all"); }}
+                  style={[styles.tab, filter === "all" && styles.tabActive]}
                 >
-                  <Text style={[styles.filterTabTxt, filter === f && styles.filterTabTxtActive]}>
-                    {f === "all" ? `All (${items.length})` : `Unread (${unreadCount})`}
-                  </Text>
+                  <Text style={[styles.tabText, filter === "all" && styles.tabTextActive]}>All</Text>
                 </TouchableOpacity>
-              ))}
-            </View>
-          </LinearGradient>
+                <TouchableOpacity 
+                  onPress={() => { Haptics.selectionAsync(); setFilter("unread"); }}
+                  style={[styles.tab, filter === "unread" && styles.tabActive]}
+                >
+                  <Text style={[styles.tabText, filter === "unread" && styles.tabTextActive]}>Unread</Text>
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
 
-          {/* ── List ──────────────────────────────────────────────────── */}
-          <ScrollView
-            style={{ flex: 1 }}
+          <ScrollView 
+            style={styles.list} 
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 32 }]}
+            contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40 }}
           >
             {displayed.length === 0 ? (
-              <View style={styles.emptyState}>
-                <View style={styles.emptyCircle}>
-                  <Ionicons name="notifications-off-outline" size={44} color="#CBD5E1" />
-                </View>
-                <Text style={styles.emptyTitle}>
-                  {filter === "unread" ? "No Unread Notifications" : "All Clear!"}
-                </Text>
-                <Text style={styles.emptyBody}>
-                  {filter === "unread"
-                    ? "You've read all your notifications. Great job!"
-                    : "You have no notifications at the moment. Check back later."}
-                </Text>
-              </View>
+               <View style={styles.modernEmpty}>
+                 <Ionicons name="notifications-off-outline" size={48} color="#CBD5E1" />
+                 <Text style={styles.emptyH}>Nothing to show</Text>
+                 <Text style={styles.emptyS}>You're all caught up! New updates will appear here.</Text>
+               </View>
             ) : (
-              displayed.map((n, i) => {
+              displayed.map((n) => {
                 const meta = TYPE_META[n.type] || TYPE_META.system;
                 return (
                   <TouchableOpacity
                     key={n.id}
-                    style={[styles.card, !n.read && styles.cardUnread]}
                     onPress={() => read(n.id)}
-                    activeOpacity={0.82}
+                    activeOpacity={0.7}
+                    style={[styles.aestheticCard, !n.read && styles.unreadCard]}
                   >
-                    {/* Unread left bar */}
-                    {!n.read && <View style={styles.unreadBar} />}
-
-                    {/* Icon */}
-                    <View style={[styles.iconBox, { backgroundColor: meta.bg }]}>
-                      <Ionicons name={meta.icon} size={20} color={meta.color} />
+                    {!n.read && <View style={styles.aestheticUnreadDot} />}
+                    <View style={[styles.aestheticIconBox, { backgroundColor: meta.bg }]}>
+                      <Ionicons name={meta.icon} size={18} color={meta.color} />
                     </View>
-
-                    {/* Content */}
-                    <View style={styles.cardContent}>
-                      {/* Type label + unread dot */}
-                      <View style={styles.cardTopRow}>
-                        <View style={[styles.typePill, { backgroundColor: meta.bg }]}>
-                          <Text style={[styles.typePillTxt, { color: meta.color }]}>{meta.label}</Text>
-                        </View>
-                        {!n.read && <View style={styles.unreadDot} />}
+                    <View style={styles.aestheticCardInfo}>
+                      <View style={styles.metaLabelRow}>
+                        <Text style={[styles.metaLabel, { color: meta.color }]}>{meta.label}</Text>
+                        <Text style={styles.aestheticTime}>{n.time}</Text>
                       </View>
-
-                      <Text style={[styles.cardTitle, !n.read && { color: "#0F172A" }]} numberOfLines={1}>
-                        {n.title}
-                      </Text>
-                      <Text style={styles.cardMsg} numberOfLines={2}>{n.message}</Text>
-
-                      {/* Footer */}
-                      <View style={styles.cardFooter}>
-                        <View style={styles.timeRow}>
-                          <Ionicons name="time-outline" size={11} color="#94A3B8" />
-                          <Text style={styles.timeTxt}>{n.time}</Text>
-                        </View>
-                        <TouchableOpacity style={styles.deleteBtn} onPress={() => remove(n.id)}>
-                          <Ionicons name="trash-outline" size={15} color="#CBD5E1" />
-                        </TouchableOpacity>
-                      </View>
+                      <Text style={[styles.aestheticCardTitle, !n.read && styles.boldText]}>{n.title}</Text>
+                      <Text style={styles.aestheticCardMsg} numberOfLines={2}>{n.message}</Text>
                     </View>
+                    <TouchableOpacity onPress={() => remove(n.id)} style={styles.itemClose}>
+                       <Ionicons name="close" size={14} color="#94A3B8" />
+                    </TouchableOpacity>
                   </TouchableOpacity>
                 );
               })
@@ -256,166 +199,202 @@ export default function NotificationDrawer({ visible, onClose }: NotificationDra
   );
 }
 
-// ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  root:    { flex: 1, flexDirection: "row-reverse" },
+  root: { flex: 1, flexDirection: "row-reverse" },
   backdrop: {
-    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: "rgba(15,23,42,0.55)",
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
-
   drawer: {
     width: DRAWER_W,
     height: "100%",
-    backgroundColor: "#F8FAFF",
+    backgroundColor: "#FDFDFD",
     shadowColor: "#000",
-    shadowOffset: { width: -6, height: 0 },
-    shadowOpacity: 0.14,
-    shadowRadius: 20,
+    shadowOffset: { width: -10, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
     elevation: 24,
   },
-
-  // ── Header ──────────────────────────────────────────
-  header: {
+  aestheticHeader: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 0,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     overflow: "hidden",
   },
-  blob1: {
-    position: "absolute", width: 200, height: 200, borderRadius: 100,
-    backgroundColor: "rgba(255,255,255,0.05)", top: -80, right: -60,
+  headerGradient: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 4,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
-  blob2: {
-    position: "absolute", width: 120, height: 120, borderRadius: 60,
-    backgroundColor: "rgba(255,255,255,0.04)", bottom: -30, left: 0,
-  },
-  headerTopRow: {
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-    marginBottom: 16,
-  },
-  closeBtn: {
-    width: 34, height: 34, borderRadius: 17,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    alignItems: "center", justifyContent: "center",
-  },
-  clearBtn: {
-    flexDirection: "row", alignItems: "center", gap: 5,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
-  },
-  clearBtnTxt: { color: "rgba(255,255,255,0.75)", fontSize: 12, fontWeight: "600" },
-
-  bellWrap: {
-    width: 56, height: 56, borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    alignItems: "center", justifyContent: "center",
-    marginBottom: 14, position: "relative",
-  },
-  bellBadge: {
-    position: "absolute", top: -4, right: -4,
-    backgroundColor: "#EF4444",
-    minWidth: 20, height: 20, borderRadius: 10,
-    alignItems: "center", justifyContent: "center",
-    borderWidth: 2, borderColor: "#235CF8",
-    paddingHorizontal: 4,
-  },
-  bellBadgeTxt: { color: "#fff", fontSize: 10, fontWeight: "800" },
-
-  headerTitleRow: {
-    flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  headerTitle: { fontSize: 24, fontWeight: "800", color: "#fff", letterSpacing: -0.5 },
-  headerSub:   { fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 3 },
-
-  markAllBtn: {
-    flexDirection: "row", alignItems: "center", gap: 5,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20,
-    marginTop: 4,
-  },
-  markAllTxt: { color: "#fff", fontSize: 12, fontWeight: "700" },
-
-  filterRow: { flexDirection: "row", gap: 8 },
-  filterTab: {
-    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
-  filterTabActive: { backgroundColor: "#fff" },
-  filterTabTxt:   { color: "rgba(255,255,255,0.75)", fontSize: 13, fontWeight: "600" },
-  filterTabTxtActive: { color: COLORS.primary, fontWeight: "700" },
-
-  // ── Scroll ──────────────────────────────────────────
-  scrollContent: { padding: 16, gap: 10 },
-
-  // ── Empty ───────────────────────────────────────────
-  emptyState: { paddingTop: 64, alignItems: "center", paddingHorizontal: 28 },
-  emptyCircle: {
-    width: 96, height: 96, borderRadius: 48,
-    backgroundColor: "#F1F5F9",
-    alignItems: "center", justifyContent: "center", marginBottom: 20,
-  },
-  emptyTitle: { fontSize: 20, fontWeight: "800", color: "#1E293B", letterSpacing: -0.4, marginBottom: 10 },
-  emptyBody:  { fontSize: 14, color: "#64748B", textAlign: "center", lineHeight: 22 },
-
-  // ── Card ────────────────────────────────────────────
-  card: {
+  headerTop: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 14,
-    gap: 12,
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 48,
+  },
+  backBtn: {
+    width: 32,
+    height: 32,
+    justifyContent: "center",
+  },
+  headerTitleText: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -0.5,
+  },
+  iconCircleBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+  unreadBadge: {
+    backgroundColor: "#FCD34D", // Amber-400 for contrast
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  unreadCountText: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#92400E",
+  },
+  textBtn: {
+    paddingVertical: 4,
+  },
+  textBtnText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    textDecorationLine: "underline",
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    marginTop: 18,
+    gap: 24,
+  },
+  tab: {
+    paddingBottom: 10,
+    borderBottomWidth: 3,
+    borderBottomColor: "transparent",
+  },
+  tabActive: {
+    borderBottomColor: "#FFFFFF",
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.6)",
+  },
+  tabTextActive: {
+    color: "#FFFFFF",
+  },
+  list: { flex: 1 },
+  modernEmpty: {
+    marginTop: 80,
+    alignItems: "center",
+    paddingHorizontal: 40,
+  },
+  emptyH: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyS: {
+    fontSize: 14,
+    color: "#64748B",
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  aestheticCard: {
+    flexDirection: "row",
+    padding: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#F1F5F9",
+    position: "relative",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-    overflow: "hidden",
-    position: "relative",
+    shadowOpacity: 0.02,
+    shadowRadius: 10,
+    elevation: 1,
   },
-  cardUnread: {
-    backgroundColor: "#FAFBFF",
-    borderColor: "#E0E8FF",
+  unreadCard: {
+    backgroundColor: "#F8FAFF",
+    borderColor: "#E0E7FF",
   },
-  unreadBar: {
-    position: "absolute", left: 0, top: 0, bottom: 0,
-    width: 3, backgroundColor: COLORS.primary, borderRadius: 2,
+  aestheticUnreadDot: {
+    position: "absolute",
+    top: 18,
+    right: 18,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#235CF8",
   },
-  iconBox: {
-    width: 44, height: 44, borderRadius: 14,
-    alignItems: "center", justifyContent: "center",
-    flexShrink: 0,
+  aestheticIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
   },
-  cardContent: { flex: 1 },
-  cardTopRow: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+  aestheticCardInfo: {
+    flex: 1,
+  },
+  metaLabelRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 4,
   },
-  typePill: {
-    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8,
+  metaLabel: {
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-  typePillTxt: { fontSize: 10, fontWeight: "800", letterSpacing: 0.3 },
-  unreadDot: {
-    width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.primary,
+  aestheticTime: {
+    fontSize: 11,
+    color: "#94A3B8",
+    marginRight: 20,
   },
-  cardTitle: {
-    fontSize: 14, fontWeight: "700", color: "#334155",
-    letterSpacing: -0.2, marginBottom: 4,
+  aestheticCardTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#334155",
+    marginBottom: 4,
   },
-  cardMsg: {
-    fontSize: 13, color: "#64748B", lineHeight: 19, marginBottom: 8,
+  aestheticCardMsg: {
+    fontSize: 13,
+    color: "#64748B",
+    lineHeight: 18,
   },
-  cardFooter: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+  boldText: {
+    fontWeight: "700",
+    color: "#0F172A",
   },
-  timeRow: { flexDirection: "row", alignItems: "center", gap: 4 },
-  timeTxt: { fontSize: 11, color: "#94A3B8", fontWeight: "500" },
-  deleteBtn: {
-    width: 28, height: 28, borderRadius: 8,
-    backgroundColor: "#F8FAFC",
-    alignItems: "center", justifyContent: "center",
+  itemClose: {
+    position: "absolute",
+    bottom: 12,
+    right: 12,
+    padding: 4,
   },
 });
