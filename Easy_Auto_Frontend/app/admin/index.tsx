@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Dimensions,
@@ -13,12 +13,13 @@ import AdminBottomNav from "@/src/admin/components/AdminBottomNav";
 import QuickActions from "@/src/admin/components/QuickActions";
 import RecentActivity from "@/src/admin/components/RecentActivity";
 import StatCard from "@/src/admin/components/StatCard";
-import { ADMIN_DASHBOARD_DATA } from "@/src/admin/data/adminDashboard";
+import { DASHBOARD_STATS, QUICK_ACTIONS, RECENT_ACTIVITIES } from "@/src/admin/data/adminDashboard";
 import COLORS from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
 
 export default function AdminDashboard() {
+    const router = useRouter();
     const insets = useSafeAreaInsets();
     const [refreshing, setRefreshing] = useState(false);
 
@@ -50,16 +51,55 @@ export default function AdminDashboard() {
             >
                 {/* Statistics Cards */}
                 <View style={styles.statsGrid}>
-                    {ADMIN_DASHBOARD_DATA.stats.map((stat, index) => (
-                        <StatCard key={index} {...stat} delay={index * 100} />
-                    ))}
+                    <StatCard
+                        delay={0}
+                        title="Active Listings"
+                        value={DASHBOARD_STATS.totalAds.value}
+                        label={DASHBOARD_STATS.totalAds.label}
+                        iconName="car"
+                        trend={DASHBOARD_STATS.totalAds.trend}
+                        trendValue={DASHBOARD_STATS.totalAds.trendValue}
+                    />
+                    <StatCard
+                        delay={100}
+                        title="Total Income"
+                        value={DASHBOARD_STATS.totalIncome.value}
+                        label={DASHBOARD_STATS.totalIncome.label}
+                        iconName="cash"
+                        trend={DASHBOARD_STATS.totalIncome.trend}
+                        trendValue={DASHBOARD_STATS.totalIncome.trendValue}
+                    />
+                    <StatCard
+                        delay={200}
+                        title="Users"
+                        value={DASHBOARD_STATS.totalUsers.value}
+                        label={DASHBOARD_STATS.totalUsers.label}
+                        iconName="people"
+                        trend={DASHBOARD_STATS.totalUsers.trend}
+                        trendValue={DASHBOARD_STATS.totalUsers.trendValue}
+                    />
+                    <StatCard
+                        delay={300}
+                        title="Reports"
+                        value={DASHBOARD_STATS.reports.value}
+                        label={DASHBOARD_STATS.reports.label}
+                        iconName="alert-circle"
+                        trend={DASHBOARD_STATS.reports.trend}
+                        trendValue={DASHBOARD_STATS.reports.trendValue}
+                    />
                 </View>
 
                 {/* Quick Actions */}
-                <QuickActions />
+                <QuickActions
+                    actions={QUICK_ACTIONS}
+                    onActionPress={(action) => router.push(action as any)}
+                />
 
                 {/* Recent Activity */}
-                <RecentActivity activities={ADMIN_DASHBOARD_DATA.recentActivities} />
+                <RecentActivity
+                    activities={RECENT_ACTIVITIES}
+                    onViewAll={() => console.log("View All")}
+                />
             </ScrollView>
 
             {/* Admin Bottom Nav */}
@@ -71,7 +111,7 @@ export default function AdminDashboard() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F8FAFC",
+        backgroundColor: COLORS.admin.background,
     },
     scrollView: {
         flex: 1,

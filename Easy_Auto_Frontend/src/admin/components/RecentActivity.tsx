@@ -3,13 +3,14 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-    Animated,
-    Easing,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import COLORS from "@/constants/Colors";
 
 interface Activity {
   id: string;
@@ -55,12 +56,9 @@ const ActivityItem = ({
     ]).start();
   }, [fadeAnim, slideAnim, delay]);
 
-  // Determine border color based on activity type
+  // Determine border color based on activity type - unified to theme blues
   const getBorderColor = () => {
-    if (icon.includes("checkmark")) return "#10B981";
-    if (icon.includes("alert")) return "#EF4444";
-    if (icon.includes("cash")) return "#F59E0B";
-    return "#3B82F6";
+    return color || COLORS.admin.primary;
   };
 
   return (
@@ -140,29 +138,29 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "800",
-    color: "#0F172A",
+    color: COLORS.admin.text,
     letterSpacing: -0.5,
     lineHeight: 30,
   },
   viewAllText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#235CF8",
+    color: COLORS.admin.primary,
   },
   activityItem: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.admin.surface,
     borderRadius: 18,
     padding: 20,
     marginBottom: 14,
-    shadowColor: "#000",
+    shadowColor: COLORS.admin.primary,
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 3,
     borderLeftWidth: 3,
-    borderLeftColor: "transparent",
+    borderLeftColor: COLORS.admin.primary,
     overflow: "hidden",
   },
   activityItemGradient: {
@@ -188,14 +186,15 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.admin.text,
     marginBottom: 4,
     lineHeight: 20,
     letterSpacing: -0.2,
   },
   activityDescription: {
     fontSize: 13,
-    color: "#6B7280",
+    color: COLORS.admin.text,
+    opacity: 0.7,
     marginBottom: 4,
     lineHeight: 18,
   },

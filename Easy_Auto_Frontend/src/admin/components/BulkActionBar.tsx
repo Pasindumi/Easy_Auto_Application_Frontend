@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import COLORS from "@/constants/Colors";
 
 interface BulkActionBarProps {
   selectedCount: number;
@@ -35,7 +36,7 @@ export default function BulkActionBar({
           <Ionicons
             name={allSelected ? "checkbox" : "square-outline"}
             size={20}
-            color="#235CF8"
+            color={COLORS.admin.primary}
           />
           <Text style={styles.text}>{selectedCount} selected</Text>
         </TouchableOpacity>
@@ -51,7 +52,7 @@ export default function BulkActionBar({
           <Ionicons
             name="checkmark-circle-outline"
             size={20}
-            color="#10B981"
+            color={COLORS.admin.primary}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -61,7 +62,7 @@ export default function BulkActionBar({
             onReject();
           }}
         >
-          <Ionicons name="close-circle-outline" size={20} color="#F59E0B" />
+          <Ionicons name="close-circle-outline" size={20} color={COLORS.admin.primary} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionButton}
@@ -70,7 +71,7 @@ export default function BulkActionBar({
             onDelete();
           }}
         >
-          <Ionicons name="trash-outline" size={20} color="#EF4444" />
+          <Ionicons name="trash-outline" size={20} color={COLORS.admin.primary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -84,9 +85,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: "#EEF2FF",
+    backgroundColor: COLORS.admin.background,
     borderBottomWidth: 1,
-    borderBottomColor: "#DBEAFE",
+    borderBottomColor: COLORS.admin.border,
   },
   left: {
     flexDirection: "row",
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#235CF8",
+    color: COLORS.admin.primary,
   },
   right: {
     flexDirection: "row",
@@ -110,8 +111,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.admin.surface,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.admin.border,
   },
 });

@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { usePathname, useRouter } from "expo-router";
 import React from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import COLORS from "@/constants/Colors";
 
 type NavTab = "Dashboard" | "Ads" | "Users" | "Analytics" | "Settings";
 
@@ -96,7 +97,7 @@ export default function AdminBottomNav({
   return (
     <View style={[styles.container, { paddingBottom: insetBottom }]}>
       <LinearGradient
-        colors={["#FFFFFF", "#FAFBFC"]}
+        colors={[COLORS.admin.surface, COLORS.admin.background]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -126,7 +127,7 @@ export default function AdminBottomNav({
           >
             {active && !isDisabled && (
               <LinearGradient
-                colors={["rgba(35, 92, 248, 0.12)", "rgba(35, 92, 248, 0.06)"]}
+                colors={[`${COLORS.admin.primary}15`, `${COLORS.admin.primary}05`]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
                 style={StyleSheet.absoluteFill}
@@ -136,7 +137,7 @@ export default function AdminBottomNav({
               name={(active ? item.icon : item.outline) as any}
               size={22}
               color={
-                isDisabled ? "#D1D5DB" : active ? "#235CF8" : "#9CA3AF"
+                isDisabled ? "#D1D5DB" : active ? COLORS.admin.primary : "#9CA3AF"
               }
             />
             <Text
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   labelActive: {
-    color: "#235CF8",
+    color: COLORS.admin.primary,
     fontWeight: "600",
   },
   labelDisabled: {

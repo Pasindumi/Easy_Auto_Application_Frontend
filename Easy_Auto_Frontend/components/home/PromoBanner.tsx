@@ -1,4 +1,4 @@
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
@@ -18,32 +18,31 @@ import { useRouter } from "expo-router";
 import COLORS from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
-const CARD_W = width - 40;
 
 const STATIC_BANNERS = [
     {
-        id: "s1",
-        title: "Experience Luxury on Every Drive",
-        subtitle: "Premium collection of certified vehicles.",
-        image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1000&h=600&fit=crop",
-        label: "LATEST ARRIVALS",
-        color: "#235CF8"
+        id: 'static-1',
+        title: "Find Your Dream Car",
+        subtitle: "Browse thousands of verified listings",
+        image:
+            "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=400&fit=crop",
+        isAd: false
     },
     {
-        id: "s2",
-        title: "Sell Your Car with Full Confidence",
-        subtitle: "The fastest way to reach verified buyers.",
-        image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1000&h=600&fit=crop",
-        label: "SELL FASTER",
-        color: "#10B981"
+        id: 'static-2',
+        title: "Sell Your Car Fast",
+        subtitle: "Get instant quotes from verified dealers",
+        image:
+            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=400&fit=crop",
+        isAd: false
     },
     {
-        id: "s3",
-        title: "Exclusive Deals for Active Buyers",
-        subtitle: "Unlock special offers on your favorite brands.",
-        image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1000&h=600&fit=crop",
-        label: "PROMOTION",
-        color: "#F59E0B"
+        id: 'static-3',
+        title: "Best Market Deals",
+        subtitle: "Compare prices and find the perfect match",
+        image:
+            "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&h=400&fit=crop",
+        isAd: false
     },
 ];
 
@@ -55,64 +54,170 @@ interface PromoBannerProps {
 const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const router = useRouter();
     const [banners, setBanners] = useState<any[]>([]);
-    const [idx, setIdx] = useState(0);
-    const scrollRef = useRef<ScrollView>(null);
-    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+    const scrollViewRef = useRef<ScrollView>(null);
+    const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    useEffect(() => { fetchBanners(); }, []);
+    useEffect(() => {
+        fetchAllBanners();
+    }, []);
 
-    const fetchBanners = async () => {
+    const fetchAllBanners = async () => {
         try {
-            const [adsRes, discRes] = await Promise.all([
-                api.get<any>("/api/cars?isHomepageBanner=true&limit=5"),
-                api.get<any>("/api/discounts/active"),
+            // Fetch boosted ads, announcements, and active discounts in parallel
+            const [adsRes, announcementsRes, discountsRes] = await Promise.all([
+                api.get<{ success: boolean; data: any[] }>('/api/cars?isHomepageBanner=true&limit=5'),
+                api.get<{ success: boolean; data: any[] }>('/api/announcements/active'),
+                api.get<{ success: boolean; data: any[] }>('/api/discounts/active')
             ]);
-            let all: any[] = [];
-            if (adsRes.success && adsRes.data?.length)
-                all.push(...adsRes.data.map((d: any) => ({
-                    id: `ad-${d.id}`, title: d.title,
-                    subtitle: `Price starting from LKR ${Number(d.price).toLocaleString()}`,
-                    image: d.AdImage?.[0]?.image_url || STATIC_BANNERS[0].image,
-                    isAd: true, adId: d.id,
-                    label: "FEATURED", color: "#235CF8"
-                })));
-            if (discRes.data?.length)
-                all.push(...discRes.data.map((d: any) => ({
-                    id: `disc-${d.id}`, title: d.name,
-                    subtitle: d.discount_type === "PERCENTAGE" ? `${d.value}% EXTRA SAVINGS` : `SAVE LKR ${d.value} TODAY`,
-                    image: d.offer_image_url || STATIC_BANNERS[2].image,
+
+            let combinedBanners: any[] = [];
+
+            // Add Boosted Ads
+            if (adsRes.success && adsRes.data.length > 0) {
+                const boostedBanners = adsRes.data.map((ad: any) => ({
+                    id: `ad-${ad.id}`,
+                    title: ad.title,
+                    subtitle: `LKR ${Number(ad.price).toLocaleString()}`,
+                    image: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80",
+                    isAd: true,
+                    adId: ad.id
+                }));
+                // Interleave or just append? Let's append for now, or maybe prioritize ads?
+                // existing logic was ads + static.
+                combinedBanners = [...combinedBanners, ...boostedBanners];
+            }
+
+            // Add Discounts (Offers)
+            // The user specifically asked for "Offers" to be displayed.
+            // We map them to the banner structure.
+            if (discountsRes.data && discountsRes.data.length > 0) {
+                const discountBanners = discountsRes.data.map((discount: any) => ({
+                    id: `discount-${discount.id}`,
+                    title: discount.name,
+                    subtitle: discount.discount_type === 'PERCENTAGE'
+                        ? `${discount.value}% OFF`
+                        : `Rs. ${discount.value} OFF`,
+                    image: discount.offer_image_url || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=400&fit=crop", // Default offer image
                     isDiscount: true,
-                    label: "SPECIAL OFFER", color: "#F59E0B"
-                })));
-            
-            if (all.length < 3) all = [...all, ...STATIC_BANNERS];
-            setBanners(all.length ? all : STATIC_BANNERS);
-        } catch {
+                    discountId: discount.id,
+                    link: null // Discounts navigate via discountId
+                }));
+                combinedBanners = [...combinedBanners, ...discountBanners];
+            }
+
+            // Add Announcements
+            if (announcementsRes.data && announcementsRes.data.length > 0) {
+                const announcements = announcementsRes.data.map((ann: any) => ({
+                    id: `ann-${ann.id}`,
+                    title: ann.title,
+                    subtitle: ann.content || '',
+                    image: ann.image_url || "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80",
+                    isAd: false,
+                    isDiscount: false, // Explicitly false
+                    link: ann.link
+                }));
+                combinedBanners = [...combinedBanners, ...announcements];
+            }
+
+            // Add Static Banners if we don't have enough content (optional, but good for filling space)
+            // or just always add them at the end? 
+            // The original code did: setBanners([...boostedBanners, ...STATIC_BANNERS]); 
+            // Let's keep a few static ones if the total is low, or just append them to ensure there's always something.
+            // If combinedBanners is empty, we definitely need defaults.
+            if (combinedBanners.length < 3) {
+                combinedBanners = [...combinedBanners, ...STATIC_BANNERS];
+            }
+
+            // If still empty (shouldn't happen with static banners, but good safety)
+            if (combinedBanners.length === 0) {
+                combinedBanners = [
+                    {
+                        id: 'default-1',
+                        title: "Welcome to Easy Auto",
+                        subtitle: "Your premium marketplace for vehicles",
+                        image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=400&fit=crop",
+                        isAd: false
+                    }
+                ];
+            }
+
+            setBanners(combinedBanners);
+        } catch (error) {
+            console.error("Error fetching banner data:", error);
+            // Fallback to static banners on error
             setBanners(STATIC_BANNERS);
         }
     };
 
+    // Auto-play functionality
     useEffect(() => {
         if (banners.length <= 1) return;
-        timerRef.current = setInterval(() => {
-            setIdx((prev) => {
-                const next = (prev + 1) % banners.length;
-                scrollRef.current?.scrollTo({ x: next * CARD_W, animated: true });
-                return next;
+
+        autoPlayTimer.current = setInterval(() => {
+            setCurrentBannerIndex((prevIndex) => {
+                const nextIndex = (prevIndex + 1) % banners.length;
+                scrollViewRef.current?.scrollTo({
+                    x: nextIndex * (width - 24), // Updated for margin (32-8=24)
+                    animated: true,
+                });
+                return nextIndex;
             });
         }, 5000);
-        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+
+        return () => {
+            if (autoPlayTimer.current) {
+                clearInterval(autoPlayTimer.current);
+            }
+        };
     }, [banners.length]);
 
-    const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const i = Math.round(e.nativeEvent.contentOffset.x / CARD_W);
-        if (i !== idx && i >= 0 && i < banners.length) setIdx(i);
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const scrollPosition = event.nativeEvent.contentOffset.x;
+        const bannerWidth = width - 24;
+        const index = Math.round(scrollPosition / bannerWidth);
+        if (
+            index !== currentBannerIndex &&
+            index >= 0 &&
+            index < banners.length
+        ) {
+            setCurrentBannerIndex(index);
+        }
+    };
+
+    const handleDotPress = (index: number) => {
+        setCurrentBannerIndex(index);
+        scrollViewRef.current?.scrollTo({
+            x: index * (width - 24),
+            animated: true,
+        });
+    };
+
+    const handleBannerPress = (banner: any) => {
+        if (banner.isAd && banner.adId) {
+            router.push(`/cars/${banner.adId}` as any);
+            router.push(`/cars/${banner.adId}`);
+        } else if (banner.link) {
+            // Handle external or internal link if needed
+            // For now just navigate to search if no link
+            console.log("Announcement link:", banner.link);
+        } else {
+            router.push('/(tabs)/search');
+        }
     };
 
     return (
-        <Animated.View style={[styles.wrap, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View
+            style={[
+                styles.container,
+                {
+                    opacity: fadeAnim,
+                    transform: [{ scale: scaleAnim }],
+                },
+            ]}
+        >
             <ScrollView
-                ref={scrollRef}
+                ref={scrollViewRef}
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
@@ -120,46 +225,56 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 scrollEventThrottle={16}
                 contentContainerStyle={styles.scrollContent}
                 decelerationRate="fast"
-                snapToInterval={CARD_W}
+                snapToInterval={width - 24}
             >
-                {banners.map((b, i) => (
-                    <TouchableOpacity
-                        key={`${b.id}-${i}`}
-                        style={styles.card}
-                        activeOpacity={0.97}
-                        onPress={() => {
-                            if (b.isAd && b.adId) router.push(`/cars/${b.adId}` as any);
-                            else router.push("/(tabs)/search");
-                        }}
-                    >
-                        <Image source={b.image} style={styles.img} contentFit="cover" transition={800} />
-                        <LinearGradient
-                            colors={["rgba(12,36,97,0.1)", "rgba(12,36,97,0.4)", "rgba(12,36,97,0.9)"]}
-                            style={StyleSheet.absoluteFillObject}
-                        />
-                        <View style={styles.content}>
-                            <View style={[styles.labelBadge, { backgroundColor: b.color }]}>
-                                <Text style={styles.labelText}>{b.label}</Text>
-                            </View>
-                            <Text style={styles.title} numberOfLines={2}>{b.title}</Text>
-                            <Text style={styles.subtitle} numberOfLines={1}>{b.subtitle}</Text>
-                            
-                            <View style={styles.ctaRow}>
-                                <View style={styles.primaryCta}>
-                                    <Text style={styles.primaryCtaText}>{b.isAd ? "Check Details" : "Learn More"}</Text>
-                                    <Ionicons name="chevron-forward" size={16} color={COLORS.primary} />
+                {banners.map((banner, index) => (
+                    <View key={`banner-${banner.id}-${index}`} style={styles.bannerWrapper}>
+                        <TouchableOpacity
+                            activeOpacity={0.9}
+                            onPress={() => handleBannerPress(banner)}
+                            style={styles.bannerCard}
+                        >
+                            <Image
+                                source={banner.image}
+                                style={styles.bannerImage}
+                                contentFit="cover"
+                                transition={500}
+                            />
+
+                            {/* Premium Gradient Overlay */}
+                            <LinearGradient
+                                colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
+                                style={styles.gradient}
+                            />
+
+                            <View style={styles.contentContainer}>
+                                {banner.isAd && (
+                                    <View style={styles.adBadge}>
+                                        <Text style={styles.adBadgeText}>Featured</Text>
+                                    </View>
+                                )}
+                                <Text style={styles.title} numberOfLines={2}>{banner.title}</Text>
+                                <Text style={styles.subtitle} numberOfLines={1}>{banner.subtitle}</Text>
+
+                                <View style={styles.ctaButton}>
+                                    <Text style={styles.ctaText}>{banner.isAd ? "View Details" : "Explore"}</Text>
+                                    <MaterialIcons name="arrow-forward" size={16} color={COLORS.white} />
                                 </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
+                    </View>
                 ))}
             </ScrollView>
 
-            <View style={styles.dots}>
-                {banners.map((_, i) => (
-                    <View
-                        key={i}
-                        style={[styles.dot, i === idx ? styles.dotActive : styles.dotInactive]}
+            {/* Pagination Dots */}
+            <View style={styles.pagination}>
+                {banners.map((_, index) => (
+                    <Animated.View
+                        key={`dot-${index}`}
+                        style={[
+                            styles.dot,
+                            index === currentBannerIndex ? styles.dotActive : styles.dotInactive
+                        ]}
                     />
                 ))}
             </View>
@@ -168,104 +283,113 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 };
 
 const styles = StyleSheet.create({
-    wrap: {
-        backgroundColor: "#F8FAFF",
+    container: {
+        marginTop: 16,
+        marginBottom: 24,
     },
     scrollContent: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 16,
     },
-    card: {
-        width: CARD_W,
-        height: 240, // Slightly taller for more presence
-        borderRadius: 24,
-        overflow: "hidden",
-        backgroundColor: COLORS.primary,
-        shadowColor: "#000",
+    bannerWrapper: {
+        width: width - 32,
+        height: 200,
+        marginRight: 10,
+    },
+    bannerCard: {
+        flex: 1,
+        borderRadius: 20,
+        overflow: 'hidden',
+        backgroundColor: COLORS.secondary,
+        position: 'relative',
+        shadowColor: COLORS.shadow,
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 16,
-        elevation: 10,
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 8,
     },
-    img: {
-        ...StyleSheet.absoluteFillObject,
+    bannerImage: {
+        width: '100%',
+        height: '100%',
     },
-    content: {
-        position: "absolute",
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '100%',
+    },
+    contentContainer: {
+        position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        padding: 24,
+        padding: 20,
     },
-    labelBadge: {
-        alignSelf: "flex-start",
-        paddingHorizontal: 10,
+    adBadge: {
+        backgroundColor: COLORS.accent,
+        paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 6,
-        marginBottom: 10,
+        alignSelf: 'flex-start',
+        marginBottom: 8,
     },
-    labelText: {
-        color: "#fff",
+    adBadgeText: {
+        color: COLORS.white,
         fontSize: 10,
-        fontWeight: "800",
-        letterSpacing: 1,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
     },
     title: {
-        fontSize: 24,
-        fontWeight: "800",
-        color: "#fff",
-        letterSpacing: -0.6,
-        lineHeight: 28,
-        marginBottom: 6,
-        textShadowColor: "rgba(0,0,0,0.2)",
+        fontSize: 22,
+        fontWeight: '800',
+        color: COLORS.white,
+        marginBottom: 4,
+        letterSpacing: -0.5,
+        textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 4,
     },
     subtitle: {
         fontSize: 14,
-        color: "rgba(255,255,255,0.85)",
-        fontWeight: "500",
+        color: 'rgba(255,255,255,0.9)',
         marginBottom: 16,
+        fontWeight: '500',
     },
-    ctaRow: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    primaryCta: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#fff",
-        paddingHorizontal: 18,
-        paddingVertical: 10,
+    ctaButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
         borderRadius: 12,
+        alignSelf: 'flex-start',
         gap: 6,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
-        elevation: 3,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.3)',
     },
-    primaryCtaText: {
-        color: COLORS.primary,
+    ctaText: {
+        color: COLORS.white,
         fontSize: 13,
-        fontWeight: "800",
+        fontWeight: '600',
     },
-    dots: {
-        flexDirection: "row",
-        justifyContent: "center",
+    pagination: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 16,
         gap: 6,
-        marginTop: 14,
     },
     dot: {
-        height: 4,
-        borderRadius: 2,
+        height: 6,
+        borderRadius: 3,
     },
     dotActive: {
-        width: 20,
+        width: 24,
         backgroundColor: COLORS.primary,
     },
     dotInactive: {
-        width: 8,
-        backgroundColor: "#E2E8F0",
+        width: 6,
+        backgroundColor: COLORS.border,
     },
 });
 

@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState, useCallback } from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, RefreshControl, Platform, StatusBar as RNStatusBar } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, RefreshControl, Platform, Alert, StatusBar as RNStatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../utils/api';
 import { ENDPOINTS } from '../../constants/API';
 import socketService from '../../utils/socket';
 import UserSearch from '../../components/chat/UserSearch';
+import * as Haptics from 'expo-haptics';
 import Header from '@/components/Header';
 import COLORS from '@/constants/Colors';
 
@@ -36,6 +37,7 @@ export default function ChatScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (user?.id && accessToken) {
@@ -70,6 +72,36 @@ export default function ChatScreen() {
       setLoading(false);
       setRefreshing(false);
     }
+  };
+
+  const handleDeleteConversation = async (conversationId: string, otherUserName: string) => {
+    Alert.alert(
+      "Delete Conversation",
+      `Are you sure you want to delete the conversation with ${otherUserName}? This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await api.delete<{ success: boolean; message: string }>(
+                `${ENDPOINTS.CHAT}/conversations/${conversationId}`
+              );
+              if (response.success) {
+                setConversations(prev => prev.filter(c => c.id !== conversationId));
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              } else {
+                Alert.alert("Error", response.message || "Failed to delete conversation");
+              }
+            } catch (error) {
+              console.error('Delete Conversation Error:', error);
+              Alert.alert("Error", "An error occurred while deleting the conversation");
+            }
+          }
+        }
+      ]
+    );
   };
 
   const onRefresh = useCallback(() => {
@@ -111,6 +143,11 @@ export default function ChatScreen() {
     }
   };
 
+  const filteredConversations = conversations.filter(conv =>
+    conv.other_user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conv.last_message?.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderItem = ({ item }: { item: Conversation }) => (
     <TouchableOpacity
       style={styles.chatItem}
@@ -122,6 +159,10 @@ export default function ChatScreen() {
         );
         setConversations(updatedConversations);
         router.push(`/chat/${item.id}` as any);
+      }}
+      onLongPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        handleDeleteConversation(item.id, item.other_user.name);
       }}
     >
       <View style={styles.avatarContainer}>
@@ -175,13 +216,31 @@ export default function ChatScreen() {
       />
 
       <View style={styles.listContainer}>
+        <View style={styles.searchBarWrapper}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search-outline" size={20} color="#94A3B8" style={{ marginRight: 10 }} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search conversations..."
+              placeholderTextColor="#94A3B8"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={18} color="#CBD5E1" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
         {loading ? (
           <View style={styles.centerContainer}>
             <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
         ) : (
           <FlatList
-            data={conversations}
+            data={filteredConversations}
             renderItem={renderItem}
             keyExtractor={item => item.id}
             contentContainerStyle={styles.listContent}
@@ -193,7 +252,9 @@ export default function ChatScreen() {
               <View style={styles.emptyContainer}>
                 <Ionicons name="chatbubbles-outline" size={80} color="#CBD5E1" />
                 <Text style={styles.emptyTitle}>No messages yet</Text>
-                <Text style={styles.emptySubtitle}>Start a conversation with a buyer or seller!</Text>
+                <Text style={styles.emptySubtitle}>
+                  {searchQuery ? "No conversations match your search" : "Start a conversation with a buyer or seller!"}
+                </Text>
                 <TouchableOpacity
                   style={[styles.startBtn, { backgroundColor: COLORS.primary }]}
                   onPress={() => setSearchVisible(true)}
@@ -202,7 +263,7 @@ export default function ChatScreen() {
                 </TouchableOpacity>
               </View>
             )}
-            ListHeaderComponent={() => <View style={{ height: 15 }} />}
+            ListHeaderComponent={() => <View style={{ height: 10 }} />}
           />
         )}
       </View>
@@ -245,21 +306,42 @@ const styles = StyleSheet.create({
 
   listContainer: {
     flex: 1,
-    marginTop: 10, // Adjusted to prevent covering the header
-    borderTopLeftRadius: 36,
-    borderTopRightRadius: 36,
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 16,
-    paddingTop: 24,
+    marginTop: -20, // Overlap the header slightly for a cleaner look
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    backgroundColor: '#fff',
+    paddingTop: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -8 },
-    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.08,
     shadowRadius: 20,
-    elevation: 15,
-    overflow: 'hidden', // Contain the list items
+    elevation: 20,
+  },
+  searchBarWrapper: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 52,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#0F172A',
+    fontWeight: '500',
   },
   listContent: {
     paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 120,
   },
 

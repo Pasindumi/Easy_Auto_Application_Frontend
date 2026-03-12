@@ -59,7 +59,7 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
             <Text style={styles.daysText}>{days} days boost</Text>
 
             <View style={styles.priceRow}>
-                <Text style={styles.price}>${price}</Text>
+                <Text style={styles.price}>Rs. {price}</Text>
                 <Text style={styles.perDay}>{perDay}</Text>
             </View>
 

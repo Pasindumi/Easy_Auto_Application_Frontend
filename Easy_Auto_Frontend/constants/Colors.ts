@@ -64,6 +64,18 @@ export const COLORS = {
     // Brand specific blues from various places
     skyBlue: "#9BCBFF",      // From components/theme.ts
     legacyBlue: "#1E60FF",   // Old header blue (being phased out)
+
+    // Admin Dashboard Theme (Light Blue)
+    admin: {
+        background: "#F0F9FF",  // Sky 50
+        primary: "#3B82F6",     // Blue 500
+        secondary: "#60A5FA",   // Blue 400
+        accent: "#93C5FD",      // Blue 300
+        surface: "#FFFFFF",
+        text: "#1E3A8A",        // Blue 900
+        border: "#DBEAFE",      // Blue 100
+        buttonShadow: "rgba(59, 130, 246, 0.1)",
+    },
 };
 
 export default COLORS;
