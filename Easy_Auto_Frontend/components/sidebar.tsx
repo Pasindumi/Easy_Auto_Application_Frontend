@@ -34,9 +34,9 @@ const USER_ITEMS = [
   { icon: "megaphone-outline",          label: "My Ads",          sub: "Manage your listings",    route: "/ads/my-ads",                color: COLORS.primary, bg: "#EEF2FF" },
   { icon: "wallet-outline",             label: "Payments",         sub: "Transaction history",     route: "/payments/payment-history",  color: "#F59E0B", bg: "#FFFBEB" },
   { icon: "ribbon-outline",             label: "Subscriptions",    sub: "Your active plans",       route: "/packages/subscriptions",    color: "#7C3AED", bg: "#F5F3FF" },
-  { icon: "rocket-outline",             label: "Boost an Ad",      sub: "Get more visibility",     route: "/packages/packages",         color: "#0891B2", bg: "#ECFEFF" },
-  { icon: "help-circle-outline",        label: "Help Centre",      sub: "FAQs & guides",           route: "/support/contact-us",        color: "#64748B", bg: "#F8FAFC" },
-  { icon: "shield-checkmark-outline",   label: "Privacy & Policy", sub: "Data & terms",            route: "/support/about",             color: "#64748B", bg: "#F8FAFC" },
+  { icon: "rocket-outline",             label: "Boost an Ad",      sub: "Get more visibility",     route: "/packages/boost-ad",         color: "#0891B2", bg: "#ECFEFF" },
+  { icon: "help-circle-outline",        label: "Help Centre",      sub: "FAQs & guides",           route: "/support/help-center",        color: "#64748B", bg: "#F8FAFC" },
+  { icon: "shield-checkmark-outline",   label: "Privacy & Policy", sub: "Data & terms",            route: "/support/privacy-policy",     color: "#64748B", bg: "#F8FAFC" },
 ];
 
 const GUEST_ITEMS = [

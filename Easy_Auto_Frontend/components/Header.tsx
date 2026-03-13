@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.primary,
     width: "100%",
-    height: 105, // More compact but enough to avoid overlap
+    height: 105,
     overflow: "hidden",
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
@@ -112,40 +112,41 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     zIndex: 10,
-    flex: 1,
+    maxWidth: '35%', // Limit title width to avoid center overlap
   },
   centerLogoContainer: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 5,
+    marginLeft: 20, // Shift logo slightly right to avoid long title overlap
   },
   rightContent: {
     alignItems: "flex-end",
     justifyContent: "center",
     zIndex: 10,
-    flex: 1,
+    maxWidth: '25%',
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: 32,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
   logoImg: {
-    width: 110,
-    height: 24,
+    width: 100, // Slightly smaller for better fit
+    height: 22,
   },
   rightElementContainer: {
     justifyContent: 'center',
   },
   title: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14, // Slightly smaller for better fit
     fontWeight: "800",
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
   titleContainer: {
-    marginLeft: 4,
+    marginLeft: 2,
   },
 });

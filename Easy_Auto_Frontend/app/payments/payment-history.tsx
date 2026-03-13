@@ -8,15 +8,15 @@ import {
   View,
   ActivityIndicator,
   Alert,
-  TouchableOpacity
+  TouchableOpacity,
+  SafeAreaView,
+  Platform
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants/Colors';
 
 import Header from "../../components/Header";
 import PaymentCard from '../../components/payments/history/PaymentCard';
 import PaymentSearch from '../../components/payments/history/PaymentSearch';
-import PaymentSummary from '../../components/payments/history/PaymentSummary';
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { Payment, PaymentSummaryData } from '../../types/payment.types';
 import { api } from '@/utils/api';
 
@@ -34,21 +34,19 @@ export default function PaymentHistoryScreen() {
     try {
       const res: any = await api.get('/api/payment/my-history');
       if (res.success && Array.isArray(res.data)) {
-        // Map backend data to frontend type
         const mapped: Payment[] = res.data.map((p: any) => ({
           id: p.id,
           date: p.date,
           plan: p.plan,
-          type: 'Package', // Default or derive from logic
+          type: 'Ad Post',
           amount: p.amount,
           status: p.status === 'SUCCESS' ? 'Successful' : p.status === 'FAILED' ? 'Failed' : p.status,
-          card: 'PayHere' // Default
+          card: 'PayHere'
         }));
         setPayments(mapped);
       }
     } catch (error) {
       console.error("Failed to fetch payment history:", error);
-      // Alert.alert("Error", "Could not load payment history.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +55,7 @@ export default function PaymentHistoryScreen() {
   const handleClearHistory = () => {
     Alert.alert(
       "Clear History",
-      "Are you sure you want to clear your payment history? This cannot be undone.",
+      "Are you sure you want to clear your payment history?",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -66,7 +64,6 @@ export default function PaymentHistoryScreen() {
           onPress: async () => {
             try {
               setLoading(true);
-              // Assuming backend supports DELETE on this endpoint
               await api.delete('/api/payment/my-history');
               setPayments([]);
               Alert.alert("Success", "Payment history cleared.");
@@ -87,8 +84,6 @@ export default function PaymentHistoryScreen() {
     const failed = payments.filter(p => p.status === 'Failed');
     const refunded = payments.filter(p => p.status === 'Refunded');
 
-    // Parse amount string "$29.99" -> 29.99
-    // Backend returns "LKR 1000.00", assume we parse it
     const totalVal = successful.reduce((acc, curr) => {
       const val = parseFloat(curr.amount.replace(/[^0-9.]/g, ''));
       return acc + (isNaN(val) ? 0 : val);
@@ -99,7 +94,7 @@ export default function PaymentHistoryScreen() {
       successful: successful.length,
       failed: failed.length,
       refunded: refunded.length,
-      totalSpent: `LKR ${totalVal.toFixed(2)}`,
+      totalSpent: `LKR ${totalVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     };
   };
 
@@ -128,52 +123,165 @@ export default function PaymentHistoryScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#235CF8" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Fetching history...</Text>
       </View>
     );
   }
 
   return (
-    <>
+    <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header 
+        showBack={true} 
+        title="Payment History" 
+      />
 
       <SafeAreaView style={styles.safe}>
-        {/* HEADER */}
-        <Header />
-        <View style={headerSectionStyles.headerWrap}>
-          <View style={headerSectionStyles.header}>
-            <View style={headerSectionStyles.headerLeft}>
-              <Ionicons name="time-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-              <Text style={headerSectionStyles.headerTitle}>Payment History</Text>
+        <View style={styles.totalInvestmentBar}>
+            <View style={styles.investmentInfo}>
+                <Text style={styles.investmentLabel}>Total Lifetime Investment</Text>
+                <Text style={styles.investmentValue}>{summaryData.totalSpent}</Text>
             </View>
-            <TouchableOpacity onPress={handleClearHistory} style={{ padding: 8 }}>
-              <Ionicons name="trash-outline" size={20} color="#EF4444" />
-            </TouchableOpacity>
-          </View>
+            <View style={styles.investmentBadge}>
+                <Ionicons name="trending-up" size={16} color={COLORS.primary} />
+            </View>
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-          {/* SEARCH */}
+        <ScrollView 
+            style={styles.container} 
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Transactions</Text>
+            <View style={styles.badgeContainer}>
+                <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
+            </View>
+          </View>
+
           <PaymentSearch value={searchText} onChangeText={setSearchText} />
 
-          {/* PAYMENT LIST */}
-          {filteredPayments.length > 0 ? (
-            filteredPayments.map((item) => (
-              <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
-            ))
-          ) : (
-            <Text style={{ textAlign: 'center', marginTop: 20, color: '#666' }}>No payment history found.</Text>
-          )}
-
-          {/* SUMMARY */}
-          <PaymentSummary data={summaryData} />
+          <View style={styles.listContainer}>
+            {filteredPayments.length > 0 ? (
+              filteredPayments.map((item) => (
+                <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
+              ))
+            ) : (
+                <View style={styles.emptyContainer}>
+                    <Ionicons name="receipt-outline" size={48} color={COLORS.text.placeholder} />
+                    <Text style={styles.emptyText}>No transactions found</Text>
+                </View>
+            )}
+          </View>
         </ScrollView>
       </SafeAreaView>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F9FAFB' },
-});
+  outerContainer: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  safe: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  totalInvestmentBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    margin: 16,
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  investmentInfo: {
+    flex: 1,
+  },
+  investmentLabel: {
+    fontSize: 12,
+    color: COLORS.text.muted,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  investmentValue: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#1e293b',
+  },
+  investmentBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#eff6ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 40,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    gap: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1e293b',
+  },
+  badgeContainer: {
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  sectionBadge: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  listContainer: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 12,
+    color: COLORS.text.secondary,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    gap: 12,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.text.muted,
+    fontWeight: '600',
+  },
+});

@@ -40,10 +40,28 @@ export default function RootLayout() {
                 <Stack>
                   <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                   <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
-                  <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
+                   <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
+                  <Stack.Screen name="packages/boost-ad" options={{ headerShown: false }} />
+                  <Stack.Screen name="packages/packages" options={{ headerShown: false }} />
                   <Stack.Screen name="landing" options={{ headerShown: false, animation: 'fade' }} />
 
                   <Stack.Screen name="admin" options={{ headerShown: false }} />
+                  
+                  {/* Payments Section */}
+                  <Stack.Screen name="payments/payment-history" options={{ headerShown: false }} />
+                  <Stack.Screen name="payments/payment" options={{ headerShown: false }} />
+                  <Stack.Screen name="payments/invoice" options={{ headerShown: false }} />
+                  <Stack.Screen name="payments/payment-detail" options={{ headerShown: false }} />
+                  <Stack.Screen name="payments/payment-methods" options={{ headerShown: false }} />
+                  <Stack.Screen name="payments/successful-payment" options={{ headerShown: false }} />
+                   <Stack.Screen name="offers" options={{ headerShown: false }} />
+                  <Stack.Screen name="support/about" options={{ headerShown: false }} />
+                  <Stack.Screen name="support/privacy-policy" options={{ headerShown: false }} />
+                  <Stack.Screen name="support/help-center" options={{ headerShown: false }} />
+                  <Stack.Screen name="support/contact-us" options={{ headerShown: false }} />
+                  <Stack.Screen name="support/help-support" options={{ headerShown: false }} />
+                  <Stack.Screen name="cars/compare-cars-detail" options={{ headerShown: false }} />
+
                   <Stack.Screen
                     name="modals/modal"
                     options={{ presentation: "modal", title: "Modal" }}

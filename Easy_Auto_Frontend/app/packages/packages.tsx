@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   View,
+  SafeAreaView
 } from 'react-native';
 
 // Components
@@ -15,10 +16,10 @@ import Header from '../../components/Header';
 import BoostInfoCard from '../../components/packages/packages/BoostInfoCard';
 import PackagePlanCard from '../../components/packages/packages/PackagePlanCard';
 import { ENDPOINTS } from '../../constants/API';
-import COLORS from '../../constants/Colors';
-
+import { COLORS } from '@/constants/Colors';
 
 export default function PackagesScreen() {
+  const { adId } = useLocalSearchParams();
   const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,109 +47,135 @@ export default function PackagesScreen() {
   };
 
   const getPackagePriceInfo = (pkg: any) => {
-    // Find the default rule (all types) or the first one
     const rule = pkg.rules?.[0];
     if (!rule) return { price: 0, perDay: "" };
 
     const price = parseFloat(rule.price);
     const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
-    const perDay = duration > 0 ? `Rs. ${(price / duration).toFixed(2)}/day` : "";
+    const perDay = duration > 0 ? `Rs. ${(price / duration).toFixed(2)} / day` : "";
 
     return { price, perDay };
   };
 
   return (
-    <View style={styles.safe}>
+    <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header title="Packages" />
-      <View style={styles.mainContainer}>
+      <Header title={adId ? "Boost Advertisement" : "Premium Packages"} showBack={true} />
 
+      <SafeAreaView style={styles.safe}>
         <ScrollView
-          contentContainerStyle={styles.container}
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+            <RefreshControl 
+                refreshing={refreshing} 
+                onRefresh={onRefresh} 
+                colors={[COLORS.primary]} 
+                tintColor={COLORS.primary}
+            />
           }
         >
           <BoostInfoCard />
 
-          {loading ? (
+          {loading && !refreshing ? (
             <View style={styles.loaderContainer}>
               <ActivityIndicator size="large" color={COLORS.primary} />
-              <Text style={styles.loaderText}>Loading packages...</Text>
+              <Text style={styles.loaderText}>Curating best deals for you...</Text>
             </View>
           ) : packages.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="alert-circle-outline" size={48} color="#999" />
-              <Text style={styles.emptyText}>No packages available at the moment.</Text>
+              <View style={styles.emptyIconBg}>
+                <Ionicons name="gift-outline" size={40} color="#cbd5e1" />
+              </View>
+              <Text style={styles.emptyTitle}>No Packages Available</Text>
+              <Text style={styles.emptyText}>We're currently updating our offers. Please check back later.</Text>
             </View>
           ) : (
-            packages.map((pkg) => {
-              const { price, perDay } = getPackagePriceInfo(pkg);
-              // Parse duration
-              const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
+            <View style={styles.packagesGrid}>
+                {packages.map((pkg) => {
+                  const { price, perDay } = getPackagePriceInfo(pkg);
+                  const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
+                  const features = pkg.features?.map((f: any) => f.feature_description || f.feature_key) || [];
 
-              // Collect features
-              const features = pkg.features?.map((f: any) => f.feature_description || f.feature_key) || [];
-
-              return (
-                <PackagePlanCard
-                  key={pkg.id}
-                  id={pkg.id}
-                  title={pkg.name}
-                  days={duration}
-                  price={price}
-                  perDay={perDay}
-                  backgroundColor={pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}15` : "#EAF2FF"} // 15 is hex for ~8% opacity
-                  themeColor={pkg.config?.COLOR_THEME || "#235CF8"}
-                  features={features}
-                  isPopular={pkg.code.includes('GOLD') || pkg.code.includes('POPULAR')}
-                />
-              );
-            })
+                  return (
+                    <PackagePlanCard
+                      key={pkg.id}
+                      id={pkg.id}
+                      title={pkg.name}
+                      days={duration}
+                      price={price}
+                      perDay={perDay}
+                      backgroundColor={pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}10` : "#f1f5f9"}
+                      themeColor={pkg.config?.COLOR_THEME || COLORS.primary}
+                      features={features}
+                      adId={adId as string}
+                      isPopular={pkg.code.includes('GOLD') || pkg.code.includes('POPULAR')}
+                    />
+                  );
+                })}
+            </View>
           )}
         </ScrollView>
-      </View>
+      </SafeAreaView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
   safe: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  mainContainer: {
-    flex: 1,
-    marginTop: 10,
-    borderTopLeftRadius: 36,
-    borderTopRightRadius: 36,
-    backgroundColor: '#F9FAFB',
-    overflow: 'hidden',
+    backgroundColor: '#f8fafc',
   },
   container: {
-    padding: 16,
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 20,
     paddingBottom: 40,
   },
   loaderContainer: {
-    padding: 40,
+    paddingVertical: 100,
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 16,
   },
   loaderText: {
-    marginTop: 12,
-    color: '#666',
     fontSize: 14,
+    color: '#64748b',
+    fontWeight: '600',
   },
   emptyContainer: {
-    padding: 40,
+    paddingVertical: 80,
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyIconBg: {
+    width: 80,
+    height: 80,
+    borderRadius: 30,
+    backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 8,
   },
   emptyText: {
-    marginTop: 12,
-    color: '#999',
     fontSize: 14,
+    color: '#64748b',
     textAlign: 'center',
+    lineHeight: 20,
+    fontWeight: '500',
   },
+  packagesGrid: {
+    gap: 4,
+  }
 });

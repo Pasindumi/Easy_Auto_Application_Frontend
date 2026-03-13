@@ -1,19 +1,25 @@
 import Header from "@/components/Header";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "@/constants/Colors";
-import { Stack, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Stack, useRouter, useFocusEffect } from "expo-router";
+import React, { useState, useCallback } from "react";
 import {
   Alert,
   FlatList,
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
+  Image,
+  Dimensions,
 } from "react-native";
-import SelectCarsHeader from "../../components/cars/buy/SelectCarsHeader";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from 'expo-haptics';
 import { SAMPLE_COMPARISONS } from "../../constants/dummydata/compare";
 import CarSelectionModal from "../../components/cars/compare/CarSelectionModal";
 import ComparisonCard from "../../components/cars/compare/ComparisonCard";
+
+const { width } = Dimensions.get('window');
 
 export default function CompareScreen() {
   const router = useRouter();
@@ -22,9 +28,18 @@ export default function CompareScreen() {
   const [selectedCar1, setSelectedCar1] = useState<any>(null);
   const [selectedCar2, setSelectedCar2] = useState<any>(null);
 
+  // Reset selection when screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedCar1(null);
+      setSelectedCar2(null);
+    }, [])
+  );
+
   const openSelection = (slot: 1 | 2) => {
     setActiveSlot(slot);
     setModalVisible(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const handleSelect = (car: any) => {
@@ -37,33 +52,114 @@ export default function CompareScreen() {
 
   const handleCompare = () => {
     if (!selectedCar1 || !selectedCar2) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       Alert.alert("Selection Required", "Please select two cars to compare.");
       return;
     }
-    console.log('Navigating to compare with IDs:', selectedCar1.id, selectedCar2.id);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push({
       pathname: "/cars/compare-cars-detail",
       params: { id1: selectedCar1.id, id2: selectedCar2.id }
     });
   };
 
+  const renderSelectionHeader = () => (
+    <View style={styles.selectionHero}>
+      <Text style={styles.heroTitle}>Compare & Decide</Text>
+      <Text style={styles.heroSub}>Select two vehicles to see a side-by-side comparison of features, performance and value.</Text>
+      
+      <View style={styles.selectorRow}>
+        {/* Slot 1 */}
+        <TouchableOpacity 
+          style={[styles.slot, selectedCar1 && styles.slotActive]} 
+          onPress={() => openSelection(1)}
+        >
+          {selectedCar1 ? (
+            <View style={styles.selectedContainer}>
+               <Image 
+                source={{ uri: selectedCar1.AdImage?.[0]?.image_url }} 
+                style={styles.selectedImg} 
+               />
+               <Text style={styles.selectedName} numberOfLines={1}>{selectedCar1.title}</Text>
+               <View style={styles.changeBadge}>
+                 <Text style={styles.changeText}>Change</Text>
+               </View>
+            </View>
+          ) : (
+            <View style={styles.emptySlot}>
+               <View style={styles.addIconCircle}>
+                 <Ionicons name="add" size={24} color={COLORS.primary} />
+               </View>
+               <Text style={styles.addLabel}>Add Car 1</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        <View style={styles.vsBadgeContainer}>
+            <LinearGradient
+              colors={[COLORS.primary, '#1D4ED8']}
+              style={styles.vsBadge}
+            >
+              <Text style={styles.vsBadgeText}>VS</Text>
+            </LinearGradient>
+        </View>
+
+        {/* Slot 2 */}
+        <TouchableOpacity 
+          style={[styles.slot, selectedCar2 && styles.slotActive]} 
+          onPress={() => openSelection(2)}
+        >
+          {selectedCar2 ? (
+            <View style={styles.selectedContainer}>
+               <Image 
+                source={{ uri: selectedCar2.AdImage?.[0]?.image_url }} 
+                style={styles.selectedImg} 
+               />
+               <Text style={styles.selectedName} numberOfLines={1}>{selectedCar2.title}</Text>
+               <View style={styles.changeBadge}>
+                 <Text style={styles.changeText}>Change</Text>
+               </View>
+            </View>
+          ) : (
+            <View style={styles.emptySlot}>
+               <View style={styles.addIconCircle}>
+                 <Ionicons name="add" size={24} color={COLORS.primary} />
+               </View>
+               <Text style={styles.addLabel}>Add Car 2</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity 
+        style={[styles.compareActionBtn, (!selectedCar1 || !selectedCar2) && styles.compareActionBtnDisabled]} 
+        onPress={handleCompare}
+        disabled={!selectedCar1 || !selectedCar2}
+      >
+        <LinearGradient
+          colors={(!selectedCar1 || !selectedCar2) ? ['#CBD5E1', '#94A3B8'] : ['#4F46E5', '#7C3AED']}
+          style={styles.compareBtnGradient}
+        >
+          <Text style={styles.compareBtnText}>Analyze Comparison</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Header showBack={true} title="Compare Cars" />
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header showBack={true} title="Car Comparison" />
 
       <FlatList
         data={SAMPLE_COMPARISONS}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item: any) => item.id}
         renderItem={({ item }) => <ComparisonCard item={item} />}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListHeaderComponent={
-          <SelectCarsHeader
-            selectedCar1={selectedCar1}
-            selectedCar2={selectedCar2}
-            onSelectCar1={() => openSelection(1)}
-            onSelectCar2={() => openSelection(2)}
-            onCompare={handleCompare}
-          />
+          <>
+            {renderSelectionHeader()}
+            <Text style={styles.sectionHeading}>Popular Comparisons</Text>
+          </>
         }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
@@ -73,7 +169,7 @@ export default function CompareScreen() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSelect={handleSelect}
-        title={activeSlot === 1 ? "Select First Car" : "Select Second Car"}
+        title={activeSlot === 1 ? "Choose First Vehicle" : "Choose Second Vehicle"}
       />
     </View>
   );
@@ -82,18 +178,171 @@ export default function CompareScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB'
+    backgroundColor: '#F8FAFC'
   },
-  topicWrap: {
+  listContent: {
+    paddingBottom: 40
+  },
+  selectionHero: {
+    backgroundColor: '#fff',
+    padding: 24,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 5,
+    marginBottom: 32,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#1E293B',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  heroSub: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+    fontWeight: '500',
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  selectorRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    position: 'relative',
   },
-  topicTitle: { fontSize: 22, fontWeight: '700', color: '#111827' },
-  listContent: {
-    paddingBottom: 100
+  slot: {
+    width: (width - 80) / 2,
+    height: 150,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  slotActive: {
+    borderStyle: 'solid',
+    borderColor: COLORS.primary + '30',
+    backgroundColor: '#fff',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  emptySlot: {
+    alignItems: 'center',
+  },
+  addIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  addLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  selectedContainer: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    padding: 12,
+  },
+  selectedImg: {
+    width: '100%',
+    height: 70,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  selectedName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1E293B',
+    textAlign: 'center',
+  },
+  changeBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  changeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.primary,
+    textTransform: 'uppercase',
+  },
+  vsBadgeContainer: {
+    zIndex: 10,
+    position: 'absolute',
+    left: '50%',
+    marginLeft: -20,
+  },
+  vsBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  vsBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  compareActionBtn: {
+    width: '100%',
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  compareActionBtnDisabled: {
+    shadowColor: '#94A3B8',
+  },
+  compareBtnGradient: {
+    paddingVertical: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compareBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  sectionHeading: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#1E293B',
+    paddingHorizontal: 24,
+    marginBottom: 20,
   },
 });

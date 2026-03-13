@@ -71,7 +71,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
         >
             <View style={styles.header}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Trending Ads</Text>
+                    <Text style={styles.title}>Trending Ads 🔥</Text>
                     <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
                 {/* 

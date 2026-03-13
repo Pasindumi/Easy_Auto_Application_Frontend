@@ -1,15 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '@/constants/Colors';
 
 const BoostInfoCard: React.FC = () => {
     return (
         <View style={styles.infoCard}>
-            <Ionicons name="stats-chart" size={18} color="#235CF8" />
-            <View style={{ marginLeft: 10 }}>
-                <Text style={styles.infoTitle}>Boost Your Visibility</Text>
+            <View style={styles.iconContainer}>
+                <Ionicons name="rocket-outline" size={24} color={COLORS.primary} />
+            </View>
+            <View style={styles.content}>
+                <Text style={styles.infoTitle}>Boost Your Sales ⚡</Text>
                 <Text style={styles.infoText}>
-                    List more vehicles and sell faster with our premium boost packages
+                    Select a premium package to list more vehicles and reach serious buyers instantly.
                 </Text>
             </View>
         </View>
@@ -19,19 +22,42 @@ const BoostInfoCard: React.FC = () => {
 const styles = StyleSheet.create({
     infoCard: {
         flexDirection: 'row',
-        backgroundColor: '#EEF4FF',
-        padding: 14,
-        borderRadius: 12,
-        marginBottom: 16,
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 24,
+        marginBottom: 24,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
+        elevation: 2,
+    },
+    iconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#eff6ff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 16,
+    },
+    content: {
+        flex: 1,
     },
     infoTitle: {
-        fontSize: 14,
-        fontWeight: '700',
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#1e293b',
     },
     infoText: {
-        fontSize: 12,
-        color: '#555',
-        marginTop: 2,
+        fontSize: 13,
+        color: COLORS.text.muted,
+        marginTop: 4,
+        lineHeight: 18,
+        fontWeight: '500',
     },
 });
 

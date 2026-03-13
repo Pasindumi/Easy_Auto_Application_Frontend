@@ -25,6 +25,7 @@ import {
     ScrollView,
     StatusBar,
     StyleSheet,
+    Text,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -41,6 +42,7 @@ export default function HomeScreen() {
     const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [showBackToTop, setShowBackToTop] = useState(false);
+    const [trendingCategory, setTrendingCategory] = useState("All");
     const scrollRef = useRef<ScrollView>(null);
 
     const onRefresh = React.useCallback(() => {
@@ -114,13 +116,21 @@ export default function HomeScreen() {
             >
                 <View style={styles.inner}>
                     {/* 1. Explore Easyauto */}
+                    <View style={styles.sectionHeaderContainer}>
+                        <Text style={styles.sectionTitle}>Explore EasyAuto</Text>
+                    </View>
                     <View style={styles.section}>
                         <ActionGrid fadeAnim={fadeAnim} slideAnim={slideAnim} compareCount={0} newListingsCount={0} />
                     </View>
 
                     {/* 2. Trending Now */}
                     <View style={styles.section}>
-                        <TrendingCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                        <TrendingCars 
+                            fadeAnim={fadeAnim} 
+                            slideAnim={slideAnim} 
+                            trendingCategory={trendingCategory}
+                            setTrendingCategory={setTrendingCategory}
+                        />
                     </View>
 
                     {/* 3. Recommended for you */}
@@ -180,8 +190,16 @@ const styles = StyleSheet.create({
     },
     section: { 
         backgroundColor: "#fff",
-        // Optional: Add shadow or border to sections if they need more definition
-        // borderBottomWidth: 1,
-        // borderBottomColor: "#F1F5F9",
+    },
+    sectionHeaderContainer: {
+        paddingHorizontal: 20,
+        marginBottom: -16,
+        marginTop: 8,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "800",
+        color: "#0F172A",
+        letterSpacing: -0.5,
     },
 });

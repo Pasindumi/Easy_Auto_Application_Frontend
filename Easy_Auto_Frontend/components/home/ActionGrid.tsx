@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import {
     Animated,
+    Dimensions,
     Easing,
     ScrollView,
     StyleSheet,
@@ -175,13 +176,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                 },
             ]}
         >
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-                decelerationRate="fast"
-                snapToInterval={110}
-            >
+            <View style={styles.grid}>
                 {actions.map((action, index) => (
                     <ActionCard
                         key={index}
@@ -207,11 +202,11 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                             )}
 
                             <Text style={styles.label}>{action.label}</Text>
-                            <Text style={styles.desc}>{action.desc}</Text>
+                            <Text style={styles.desc} numberOfLines={1}>{action.desc}</Text>
                         </View>
                     </ActionCard>
                 ))}
-            </ScrollView>
+            </View>
         </Animated.View>
     );
 };
@@ -221,14 +216,17 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         backgroundColor: COLORS.white,
     },
-    scrollContent: {
+    grid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
         paddingHorizontal: 16,
         paddingVertical: 12,
-        gap: 12,
+        justifyContent: 'space-between',
+        gap: 10,
     },
     cardContainer: {
-        width: 105,
-        height: 130,
+        width: (Dimensions.get("window").width - 32 - 20) / 3, // Perfect 3-column width
+        height: 120,
         backgroundColor: COLORS.white,
         borderRadius: 20,
         shadowColor: COLORS.shadow,
@@ -243,36 +241,36 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        padding: 8,
+        padding: 4,
     },
     iconBox: {
-        width: 52,
-        height: 52,
-        borderRadius: 18,
+        width: 48,
+        height: 48,
+        borderRadius: 16,
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 12,
+        marginBottom: 8,
     },
     label: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: "700",
         color: COLORS.text.primary,
-        marginBottom: 4,
+        marginBottom: 2,
         textAlign: 'center',
     },
     desc: {
-        fontSize: 10,
+        fontSize: 9,
         color: COLORS.text.muted,
         textAlign: 'center',
-        lineHeight: 12,
+        lineHeight: 11,
     },
     badge: {
         position: 'absolute',
-        top: 8,
-        right: 8,
-        height: 18,
-        minWidth: 18,
-        borderRadius: 9,
+        top: 6,
+        right: 6,
+        height: 16,
+        minWidth: 16,
+        borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 4,
@@ -281,7 +279,7 @@ const styles = StyleSheet.create({
     },
     badgeText: {
         color: COLORS.white,
-        fontSize: 9,
+        fontSize: 8,
         fontWeight: 'bold',
     },
 });
