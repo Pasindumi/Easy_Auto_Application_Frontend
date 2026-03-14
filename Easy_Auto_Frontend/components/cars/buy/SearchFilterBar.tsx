@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import COLORS from '@/constants/Colors';
 
 interface SearchFilterBarProps {
     searchQuery: string;
@@ -78,27 +79,30 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
 const styles = StyleSheet.create({
     searchSection: {
         paddingHorizontal: 16,
-        paddingTop: 20,
+        paddingTop: 24,
         paddingBottom: 16,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
+        borderRadius: 20,
         paddingHorizontal: 16,
-        paddingVertical: 14,
+        height: 56,
         gap: 12,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 3,
+        shadowColor: COLORS.shadowPremium || '#235CF8',
+        shadowOpacity: 0.08,
+        shadowRadius: 15,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 5,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
     },
     searchInput: {
         flex: 1,
         fontSize: 16,
-        color: '#111827',
+        color: COLORS.text.primary,
+        fontWeight: '600',
         padding: 0,
     },
     filterButton: {
@@ -106,32 +110,44 @@ const styles = StyleSheet.create({
         height: 40,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 10,
-        backgroundColor: '#F0F4FF',
+        borderRadius: 12,
+        backgroundColor: COLORS.primaryLight,
+        borderWidth: 1,
+        borderColor: 'rgba(35, 92, 248, 0.1)',
     },
     filtersSection: {
-        marginBottom: 8,
+        marginBottom: 12,
     },
     filtersContainer: {
         paddingHorizontal: 16,
-        gap: 8,
+        gap: 10,
     },
     filterChip: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingHorizontal: 18,
+        paddingVertical: 10,
+        borderRadius: 15,
         backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderWidth: 1.5,
+        borderColor: '#F3F4F6',
+        shadowColor: '#000',
+        shadowOpacity: 0.02,
+        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 1,
     },
     filterChipActive: {
-        backgroundColor: '#235CF8',
-        borderColor: '#235CF8',
+        backgroundColor: COLORS.primary,
+        borderColor: COLORS.primary,
+        shadowColor: COLORS.primary,
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 4,
     },
     filterChipText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#6B7280',
+        fontSize: 13,
+        fontWeight: '700',
+        color: COLORS.text.muted,
     },
     filterChipTextActive: {
         color: '#FFFFFF',

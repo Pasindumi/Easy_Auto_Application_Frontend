@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CarCategory } from '../../../types/buy-car.types';
+import COLORS from '@/constants/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -36,43 +37,51 @@ const styles = StyleSheet.create({
     categoryCard: {
         width: (SCREEN_WIDTH - 32 - 24) / 3,
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        paddingVertical: 16,
-        paddingHorizontal: 12,
+        borderRadius: 20,
+        paddingVertical: 18,
+        paddingHorizontal: 10,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        borderColor: '#E5E7EB',
-        shadowColor: '#000',
-        shadowOpacity: 0.03,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        borderColor: '#F3F4F6',
+        shadowColor: COLORS.shadowPremium || '#235CF8',
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 3,
     },
     categoryCardActive: {
-        borderColor: '#235CF8',
-        backgroundColor: '#F0F4FF',
+        borderColor: COLORS.primary,
+        backgroundColor: COLORS.white,
+        shadowOpacity: 0.12,
+        shadowRadius: 15,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 8,
     },
     categoryIconContainer: {
-        width: 56,
-        height: 56,
-        borderRadius: 16,
+        width: 52,
+        height: 52,
+        borderRadius: 15,
         backgroundColor: '#F9FAFB',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 8,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
     },
     categoryIconContainerActive: {
-        backgroundColor: '#E3F2FD',
+        backgroundColor: COLORS.primaryLight,
+        borderColor: 'rgba(35, 92, 248, 0.1)',
     },
     categoryLabel: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#6B7280',
+        fontSize: 12,
+        fontWeight: '700',
+        color: COLORS.text.muted,
+        textAlign: 'center',
     },
     categoryLabelActive: {
-        color: '#235CF8',
-        fontWeight: '700',
+        color: COLORS.primary,
+        fontWeight: '800',
     },
 });
 

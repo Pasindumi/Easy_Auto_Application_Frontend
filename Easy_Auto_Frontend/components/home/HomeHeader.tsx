@@ -154,26 +154,32 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                         searchFocused && styles.searchBarFocused,
                     ]}
                 >
+                    <LinearGradient
+                        colors={searchFocused ? ['#FFFFFF', '#F9FAFB'] : ['#FFFFFF', '#FFFFFF']}
+                        style={styles.searchGradient}
+                    />
                     <View style={styles.searchIconBox}>
                         <Ionicons
                             name="search"
-                            size={20}
+                            size={16}
                             color={searchFocused ? COLORS.primary : COLORS.text.muted}
                         />
                     </View>
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Search by brand, model or type..."
+                        placeholder="Search cars..."
                         placeholderTextColor={COLORS.text.placeholder}
                         onFocus={() => {
                             setSearchFocused(true);
                             setShowSearchSuggestions(true);
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                         onBlur={() => {
                             setSearchFocused(false);
                             setTimeout(() => setShowSearchSuggestions(false), 200);
                         }}
                     />
+                    {/* Compact closer layout without the extra Search button */}
                     <TouchableOpacity
                         style={styles.filterBtn}
                         onPress={() => {
@@ -182,7 +188,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     >
                         <Ionicons
                             name="options-outline"
-                            size={20}
+                            size={16}
                             color={COLORS.primary}
                         />
                     </TouchableOpacity>
@@ -328,45 +334,61 @@ const styles = StyleSheet.create({
         zIndex: 110,
     },
     searchBar: {
+        flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: COLORS.white,
-        borderRadius: 18,
-        paddingHorizontal: 8,
-        height: 54,
+        backgroundColor: "rgba(255,255,255,0.7)",
+        borderRadius: 12,
+        paddingLeft: 8,
+        paddingRight: 6,
+        height: 42,
         gap: 8,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.1,
-        shadowRadius: 20,
-        elevation: 10,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 4,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
     },
     searchBarFocused: {
-        borderWidth: 1.5,
-        borderColor: COLORS.white,
-        shadowOpacity: 0.15,
+        borderColor: 'rgba(255,255,255,0.8)',
+        shadowOpacity: 0.1,
+        elevation: 6,
+        backgroundColor: COLORS.white,
+    },
+    searchGradient: {
+        ...StyleSheet.absoluteFillObject,
     },
     searchIconBox: {
-        width: 38,
-        height: 38,
-        borderRadius: 14,
-        backgroundColor: '#F3F4F6',
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        backgroundColor: 'rgba(243, 244, 246, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     searchInput: {
         flex: 1,
-        fontSize: 15,
+        fontSize: 13,
         color: COLORS.text.primary,
         fontWeight: "500",
     },
     filterBtn: {
-        width: 38,
-        height: 38,
-        borderRadius: 14,
-        backgroundColor: 'rgba(35, 92, 248, 0.08)',
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        backgroundColor: COLORS.white,
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 6,
+        elevation: 2,
     },
     suggestionsContainer: {
         position: 'absolute',
