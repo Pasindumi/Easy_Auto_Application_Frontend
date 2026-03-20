@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Footer from "../../components/Footer";
+
 import Header from "../../components/Header";
 import InputField from "../../components/InputField";
 import Button from "../../components/ui/button/Button";
@@ -141,11 +141,7 @@ export default function SignupScreen() {
       <Header showBack={true} title="Sign Up" />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.contentContainer}>
           {/* Toggle */}
           <View style={styles.toggleContainer}>
             <TouchableOpacity style={[styles.toggleBtn, styles.activeTab]}>
@@ -211,8 +207,8 @@ export default function SignupScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          <Footer />
-        </ScrollView>
+
+        </View>
       </KeyboardAvoidingView>
     </View>
   );
@@ -223,38 +219,55 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background
   },
-  scrollContent: { padding: 16, flexGrow: 1 },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    paddingTop: 20, // Added to ensure toggle is visible below header curves
+    justifyContent: 'flex-start' // Changed from space-between
+  },
 
   toggleContainer: {
     flexDirection: "row",
     alignSelf: "center",
-    borderRadius: 28,
+    borderRadius: 20,
     overflow: "hidden",
-    marginTop: 20,
-    width: '70%',
-    borderWidth: 1,
-    borderColor: COLORS.divider,
-    backgroundColor: COLORS.white,
-    padding: 4,
+    marginTop: 8, // Reduced from 10
+    width: '85%',
+    backgroundColor: COLORS.backgroundMuted,
+    padding: 6,
   },
-  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: "center", backgroundColor: COLORS.white },
-  activeTab: { backgroundColor: COLORS.primary },
-  toggleText: { fontWeight: "700", fontSize: 14 },
-  whiteText: { color: COLORS.white },
-  blueText: { color: COLORS.primary },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: 8, // Reduced from 10
+    alignItems: "center",
+    backgroundColor: 'transparent',
+    borderRadius: 16,
+  },
+  activeTab: {
+    backgroundColor: COLORS.white,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  toggleText: { fontWeight: "800", fontSize: 15 },
+  whiteText: { color: COLORS.primary },
+  blueText: { color: COLORS.text.secondary },
 
-  form: { marginTop: 18 },
+  form: { flex: 1, marginTop: 5 }, // Reduced from 10
 
-  termRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
+  termRow: { flexDirection: "row", alignItems: "center", marginBottom: 5 }, // Reduced from 8
   checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: COLORS.divider, marginRight: 8, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.white },
   checkboxChecked: { borderColor: COLORS.primary },
-  termText: { color: COLORS.text.muted },
+  termText: { color: COLORS.text.muted, fontSize: 12 },
 
-  orRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
+  orRow: { flexDirection: "row", alignItems: "center", marginVertical: 6 }, // Reduced from 8
   line: { flex: 1, height: 1, backgroundColor: COLORS.divider },
   or: { marginHorizontal: 12, fontWeight: "700", color: COLORS.text.muted },
 
-  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 24, marginBottom: 32 },
-  small: { color: COLORS.text.muted },
-  loginLink: { color: COLORS.primary, fontWeight: "700" },
+  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 8, marginBottom: 5 },
+  small: { color: COLORS.text.muted, fontSize: 12 },
+  loginLink: { color: COLORS.primary, fontWeight: "700", fontSize: 12 },
 });
