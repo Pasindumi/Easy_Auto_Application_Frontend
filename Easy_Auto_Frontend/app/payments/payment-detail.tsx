@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-import COLORS from '@/constants/Colors';
+import { COLORS } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -9,87 +9,92 @@ import {
     Text,
     View,
     TouchableOpacity,
-    SafeAreaView
+    SafeAreaView,
+    Platform
 } from 'react-native';
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function PaymentDetailScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { id, date, amount, plan, status, card, type } = params;
 
+    const statusConfig: Record<string, { color: string; bg: string; icon: any }> = {
+        Successful: { color: '#059669', bg: '#ecfdf5', icon: 'checkmark-circle' },
+        Failed: { color: '#dc2626', bg: '#fef2f2', icon: 'close-circle' },
+        Refunded: { color: '#d97706', bg: '#fffbeb', icon: 'refresh-circle' },
+    };
+
+    const config = statusConfig[String(status)] || statusConfig.Successful;
+
     return (
-        <View style={styles.safe}>
+        <View style={styles.outerContainer}>
             <Stack.Screen options={{ headerShown: false }} />
-            <SafeAreaView style={{ flex: 1 }}>
-                <Header showBack={true} />
+            <Header showBack={true} title="Payment Detail" />
 
-                <View style={headerSectionStyles.headerWrap}>
-                    <View style={headerSectionStyles.header}>
-                        <View style={headerSectionStyles.headerLeft}>
-                            <Ionicons name="receipt-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-                            <Text style={headerSectionStyles.headerTitle}>Payment Detail</Text>
+            <SafeAreaView style={styles.safe}>
+                <ScrollView 
+                    style={styles.container} 
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.receiptContainer}>
+                        <View style={styles.receiptHeader}>
+                            <View style={[styles.statusIcon, { backgroundColor: config.bg }]}>
+                                <Ionicons name={config.icon} size={32} color={config.color} />
+                            </View>
+                            <Text style={styles.statusLabel}>{status} Payment</Text>
+                            <Text style={styles.amountText}>{amount}</Text>
                         </View>
-                    </View>
-                </View>
 
-                <ScrollView contentContainerStyle={styles.container}>
-                    <View style={styles.card}>
-                        <View style={styles.statusRow}>
-                            <Text style={styles.label}>Status</Text>
-                            <View style={[
-                                styles.statusBadge,
-                                status === 'Successful' ? styles.statusSuccess :
-                                    status === 'Failed' ? styles.statusFailed : styles.statusPending
-                            ]}>
-                                <Text style={[
-                                    styles.statusText,
-                                    status === 'Successful' ? styles.textSuccess :
-                                        status === 'Failed' ? styles.textFailed : styles.textPending
-                                ]}>{status}</Text>
+                        <View style={styles.divider} />
+
+                        <View style={styles.infoSection}>
+                            <View style={styles.infoRow}>
+                                <Text style={styles.label}>Transaction ID</Text>
+                                <Text style={styles.value}>{id}</Text>
+                            </View>
+                            <View style={styles.infoRow}>
+                                <Text style={styles.label}>Payment Date</Text>
+                                <Text style={styles.value}>{date}</Text>
+                            </View>
+                            <View style={styles.infoRow}>
+                                <Text style={styles.label}>Item Purchased</Text>
+                                <Text style={styles.value}>{plan}</Text>
+                            </View>
+                            <View style={styles.infoRow}>
+                                <Text style={styles.label}>Transaction Type</Text>
+                                <Text style={styles.value}>{type}</Text>
+                            </View>
+                            <View style={styles.infoRow}>
+                                <Text style={styles.label}>Payment Method</Text>
+                                <View style={styles.methodRow}>
+                                    <Ionicons name="card-outline" size={16} color={COLORS.text.muted} />
+                                    <Text style={styles.value}>{card}</Text>
+                                </View>
                             </View>
                         </View>
 
                         <View style={styles.divider} />
 
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Transaction ID</Text>
-                            <Text style={styles.value}>{id}</Text>
+                        <View style={styles.footer}>
+                            <Ionicons name="shield-checkmark" size={16} color={COLORS.status.success} />
+                            <Text style={styles.footerText}>Securely processed by PayHere</Text>
                         </View>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Date</Text>
-                            <Text style={styles.value}>{date}</Text>
-                        </View>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Amount</Text>
-                            <Text style={styles.amountValue}>{amount}</Text>
-                        </View>
-
-                        <View style={styles.divider} />
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Plan / Item</Text>
-                            <Text style={styles.value}>{plan}</Text>
-                        </View>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Type</Text>
-                            <Text style={styles.value}>{type}</Text>
-                        </View>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Payment Method</Text>
-                            <Text style={styles.value}>{card}</Text>
-                        </View>
-
                     </View>
 
-                    <TouchableOpacity style={styles.downloadButton} activeOpacity={0.8}>
-                        <Ionicons name="download-outline" size={20} color={COLORS.white} />
-                        <Text style={styles.downloadText}>Download Receipt</Text>
-                    </TouchableOpacity>
+                    <View style={styles.actions}>
+                        <TouchableOpacity style={styles.downloadBtn} activeOpacity={0.8}>
+                            <Ionicons name="download-outline" size={20} color="#fff" />
+                            <Text style={styles.downloadBtnText}>Download Receipt</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity 
+                            style={styles.outlineBtn} 
+                            onPress={() => router.back()}
+                        >
+                            <Text style={styles.outlineBtnText}>Back to History</Text>
+                        </TouchableOpacity>
+                    </View>
                 </ScrollView>
             </SafeAreaView>
         </View>
@@ -97,92 +102,133 @@ export default function PaymentDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+    outerContainer: {
+        flex: 1,
+        backgroundColor: '#f8fafc',
+    },
     safe: {
         flex: 1,
-        backgroundColor: COLORS.background,
+        backgroundColor: '#f8fafc',
     },
     container: {
-        padding: 16,
+        flex: 1,
     },
-    card: {
-        backgroundColor: COLORS.white,
-        borderRadius: 16,
+    contentContainer: {
         padding: 20,
-        borderWidth: 1,
-        borderColor: COLORS.divider,
-        marginBottom: 24,
+        paddingBottom: 40,
     },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    receiptContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 24,
+        padding: 24,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
+        elevation: 5,
+    },
+    receiptHeader: {
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    statusIcon: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
     },
-    statusRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    label: {
+    statusLabel: {
         fontSize: 14,
-        color: COLORS.text.muted,
-        fontWeight: '500',
-    },
-    value: {
-        fontSize: 14,
-        color: COLORS.text.primary,
         fontWeight: '600',
+        color: COLORS.text.muted,
+        marginBottom: 8,
     },
-    amountValue: {
-        fontSize: 18,
-        color: COLORS.primary,
-        fontWeight: '700',
+    amountText: {
+        fontSize: 32,
+        fontWeight: '900',
+        color: '#1e293b',
     },
     divider: {
         height: 1,
-        backgroundColor: COLORS.divider,
-        marginVertical: 16,
+        backgroundColor: '#f1f5f9',
+        marginVertical: 24,
+        borderStyle: 'dashed',
+        borderRadius: 1,
     },
-    statusBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
+    infoSection: {
+        gap: 20,
     },
-    statusSuccess: {
-        backgroundColor: '#DCFCE7',
+    infoRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
     },
-    statusFailed: {
-        backgroundColor: '#FEE2E2',
+    label: {
+        fontSize: 13,
+        color: COLORS.text.muted,
+        fontWeight: '500',
+        flex: 1,
     },
-    statusPending: {
-        backgroundColor: '#FEF3C7',
+    value: {
+        fontSize: 14,
+        color: '#1e293b',
+        fontWeight: '700',
+        flex: 1.5,
+        textAlign: 'right',
     },
-    statusText: {
-        fontSize: 12,
+    methodRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        flex: 1.5,
+        justifyContent: 'flex-end',
+    },
+    footer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        marginTop: 10,
+    },
+    footerText: {
+        fontSize: 11,
+        color: COLORS.text.placeholder,
+        fontWeight: '600',
+    },
+    actions: {
+        marginTop: 24,
+        gap: 12,
+    },
+    downloadBtn: {
+        backgroundColor: COLORS.primary,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        borderRadius: 14,
+        gap: 8,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    downloadBtnText: {
+        color: '#fff',
+        fontSize: 16,
         fontWeight: '700',
     },
-    textSuccess: {
-        color: '#166534',
-    },
-    textFailed: {
-        color: '#991B1B',
-    },
-    textPending: {
-        color: '#92400E',
-    },
-    downloadButton: {
-        flexDirection: 'row',
-        backgroundColor: COLORS.primary,
-        borderRadius: 12,
-        paddingVertical: 14,
-        justifyContent: 'center',
+    outlineBtn: {
+        paddingVertical: 16,
         alignItems: 'center',
-        gap: 8,
     },
-    downloadText: {
-        color: COLORS.white,
+    outlineBtnText: {
+        color: COLORS.text.muted,
+        fontSize: 14,
         fontWeight: '600',
-        fontSize: 15,
     },
 });

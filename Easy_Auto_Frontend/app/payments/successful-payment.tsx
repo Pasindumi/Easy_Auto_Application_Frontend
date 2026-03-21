@@ -1,98 +1,140 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from 'react-native';
 import Header from "../../components/Header";
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
+import { COLORS } from '@/constants/Colors';
 
 export default function SuccessfulPayment() {
   const router = useRouter();
 
   return (
-    <View style={styles.safe}>
+    <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
+      <Header showBack={false} title="Payment Success" />
 
-      {/* Inline Sub-Header Section */}
-      <View style={headerSectionStyles.headerWrap}>
-        <View style={headerSectionStyles.header}>
-          <Ionicons name="checkmark-circle-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={headerSectionStyles.headerTitle}>Payment Successful</Text>
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.container}>
+            <View style={styles.successCard}>
+                <View style={styles.iconContainer}>
+                    <View style={styles.iconBg}>
+                        <Ionicons name="checkmark-circle" size={80} color={COLORS.status.success} />
+                    </View>
+                </View>
+
+                <Text style={styles.title}>Payment Successful!</Text>
+                <Text style={styles.subtitle}>
+                    Your transaction has been processed successfully. Your ad or package is now active.
+                </Text>
+
+                <View style={styles.divider} />
+
+                <TouchableOpacity
+                    style={styles.primaryBtn}
+                    onPress={() => router.push('/payments/payment-history')}
+                >
+                    <Text style={styles.primaryBtnText}>View Payment History</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.outlineBtn}
+                    onPress={() => router.replace('/(tabs)')}
+                >
+                    <Text style={styles.outlineBtnText}>Back to Home</Text>
+                </TouchableOpacity>
+            </View>
         </View>
-      </View>
-
-      <View style={styles.container}>
-        {/* Success icon */}
-        <View style={styles.iconWrap}>
-          <View style={styles.hex} />
-          <Ionicons name="checkmark-circle" size={64} color="#22c55e" style={styles.checkIcon} />
-        </View>
-
-        {/* Texts */}
-        <Text style={styles.title}>Payment Done!</Text>
-        <Text style={styles.subtitle}>You can now enjoy your package benefits.</Text>
-
-        {/* CTA */}
-        <TouchableOpacity
-          style={styles.cta}
-          onPress={() => router.push('/payments/invoice' as any)}
-        >
-          <Text style={styles.ctaText}>View Invoice</Text>
-        </TouchableOpacity>
-      </View>
+      </SafeAreaView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
   safe: {
     flex: 1,
-    backgroundColor: '#F2F3F5',
+    backgroundColor: '#f8fafc',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F2F3F5'
-  },
-  iconWrap: {
     alignItems: 'center',
-    marginTop: 50
+    justifyContent: 'center',
+    padding: 20,
   },
-  hex: {
-    width: 80,
-    height: 80,
+  successCard: {
     backgroundColor: '#fff',
-    borderRadius: 16,
-    transform: [{ rotate: '20deg' }],
+    borderRadius: 32,
+    padding: 32,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
-    shadowRadius: 8
+    shadowRadius: 20,
+    elevation: 8,
   },
-  checkIcon: {
-    position: 'absolute',
-    top: 8
+  iconContainer: {
+    marginBottom: 24,
+  },
+  iconBg: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#ecfdf5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#1e293b',
     textAlign: 'center',
-    fontWeight: '700',
-    fontSize: 16,
-    marginTop: 24
+    marginBottom: 12,
   },
   subtitle: {
+    fontSize: 15,
+    color: COLORS.text.muted,
     textAlign: 'center',
-    color: '#6B7280',
-    fontSize: 12,
-    marginTop: 6
+    lineHeight: 22,
+    marginBottom: 32,
   },
-  cta: {
-    backgroundColor: '#235CF8',
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginHorizontal: 20,
-    marginTop: 16,
-    alignItems: 'center'
+  divider: {
+    height: 1,
+    backgroundColor: '#f1f5f9',
+    width: '100%',
+    marginBottom: 32,
   },
-  ctaText: {
+  primaryBtn: {
+    backgroundColor: COLORS.primary,
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  primaryBtnText: {
     color: '#fff',
-    fontWeight: '700'
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  outlineBtn: {
+    paddingVertical: 16,
+    width: '100%',
+    alignItems: 'center',
+  },
+  outlineBtnText: {
+    color: COLORS.text.muted,
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

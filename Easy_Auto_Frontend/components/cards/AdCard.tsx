@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-import { Ad } from '@/constants/dummydata/ads';
+import COLORS from '@/constants/Colors';
 import StatusBadge from '../status/StatusBadge';
 
 interface AdCardProps {
-  ad: Ad;
+  ad: any;
   selected: boolean;
   toggleSelect: (id: string) => void;
 }
@@ -33,138 +32,120 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
             : 'expired';
 
   return (
-    <View style={styles.card}>
-
-      {/* Top Content Row */}
-      <View style={styles.topRow}>
-
-        {/* Image & Checkbox */}
-        <View>
+    <View style={[styles.card, selected && styles.cardSelected]}>
+      <View style={styles.mainContent}>
+        {/* Image Section */}
+        <View style={styles.imageSection}>
           <Image
             source={typeof ad.image === 'string' ? { uri: ad.image } : ad.image}
             style={styles.image}
           />
-
-
-          {/* Checkbox */}
+          
+          {/* Selection Overlay */}
           <TouchableOpacity
             onPress={() => toggleSelect(ad.id)}
-            style={styles.checkboxWrap}
+            style={[styles.selectionOverlay, selected && styles.selectionOverlayActive]}
           >
-            <View style={[styles.checkbox, selected && styles.checkboxActive]}>
-              {selected && (
-                <Ionicons name="checkmark" color="#fff" size={14} />
-              )}
-            </View>
+            <Ionicons 
+              name={selected ? "checkmark-circle" : "ellipse-outline"} 
+              size={22} 
+              color={selected ? COLORS.primary : "rgba(255,255,255,0.8)"} 
+            />
           </TouchableOpacity>
+
+          {/* Featured/Urgent Badges */}
+          <View style={styles.badgesContainer}>
+            {ad.is_urgent && (
+              <View style={[styles.badge, styles.badgeUrgent]}>
+                <Text style={styles.badgeText}>URGENT</Text>
+              </View>
+            )}
+            {ad.is_featured && (
+              <View style={[styles.badge, styles.badgeFeatured]}>
+                <Text style={styles.badgeText}>FEATURED</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        {/* Right content */}
-        <View style={styles.infoContainer}>
+        {/* Info Section */}
+        <View style={styles.infoSection}>
+          <View style={styles.headerRow}>
+            <Text style={styles.title} numberOfLines={2}>{ad.title}</Text>
+          </View>
 
-          {/* Boost Badges */}
-          {(ad.is_featured || ad.is_urgent) && (
-            <View style={{ flexDirection: 'row', marginBottom: 6, gap: 6 }}>
-              {ad.is_urgent && (
-                <View style={{ backgroundColor: '#EF4444', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
-                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>URGENT</Text>
-                </View>
-              )}
-              {ad.is_featured && (
-                <View style={{ backgroundColor: '#F59E0B', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
-                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>FEATURED</Text>
-                </View>
-              )}
+          <Text style={styles.price}>{ad.price}</Text>
+          
+          <View style={styles.locationRow}>
+            <Ionicons name="location-outline" size={12} color="#94A3B8" />
+            <Text style={styles.locationText} numberOfLines={1}>{ad.location || "Sri Lanka"}</Text>
+          </View>
+
+          <View style={styles.statsRow}>
+            <View style={styles.stat}>
+              <Ionicons name="eye-outline" size={14} color="#64748B" />
+              <Text style={styles.statText}>{ad.views || 0}</Text>
             </View>
-          )}
-
-          {/* Title + Status */}
-          <View style={styles.titleRow}>
-            <Text style={styles.title} numberOfLines={1}>
-              {ad.title}
-            </Text>
-
+            <View style={styles.statDivider} />
+            <View style={styles.stat}>
+              <Ionicons name="heart-outline" size={14} color="#64748B" />
+              <Text style={styles.statText}>{ad.likes || 0}</Text>
+            </View>
+            <View style={styles.statDivider} />
             <StatusBadge status={mapStatus} />
           </View>
-
-          {/* Price */}
-          <Text style={styles.price}>{ad.price}</Text>
-
-          {/* Location */}
-          <Text style={styles.location}>
-            {ad.location}
-          </Text>
-
-          {/* Stats */}
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Ionicons name="eye-outline" size={14} color="#6B7280" />
-              <Text style={styles.statText}> {ad.views}</Text>
-            </View>
-
-            <View style={styles.statItem}>
-              <Ionicons name="heart-outline" size={14} color="#6B7280" />
-              <Text style={styles.statText}> {ad.likes}</Text>
-            </View>
-
-            <View style={styles.statItem}>
-              <Ionicons name="chatbubble-outline" size={14} color="#6B7280" />
-              <Text style={styles.statText}> {ad.messages}</Text>
-            </View>
-          </View>
-
-          {/* Ban Info */}
-          {ad.status === 'banned' && (
-            <View style={styles.banInfoBox}>
-              <Ionicons name="alert-circle-outline" size={12} color="#000" />
-              <Text style={styles.banReasonText} numberOfLines={2}>
-                Reason: {ad.ban_reason || 'N/A'}
-              </Text>
-            </View>
-          )}
-
         </View>
       </View>
 
-      {/* Actions */}
-      <View style={styles.actionRow}>
+      {/* Action Buttons */}
+      <View style={styles.actionSection}>
         <TouchableOpacity
+          style={styles.mainAction}
           onPress={() => router.push(`/cars/review?id=${ad.id}`)}
-          style={styles.actionBtn}
         >
-          <Ionicons name="eye-outline" size={16} color="#2563EB" />
-          <Text style={styles.actionText}>View</Text>
+          <Ionicons name="eye-outline" size={18} color={COLORS.primary} />
+          <Text style={styles.mainActionText}>View Ad</Text>
         </TouchableOpacity>
 
-        {/* Edit Button hidden as per request (available in Review page) */}
-        {/* <TouchableOpacity
-          onPress={() => router.push(`/ads/edit-car?id=${ad.id}`)}
-          style={styles.actionBtn}
-        >
-          <Ionicons name="create-outline" size={16} color="#2563EB" />
-          <Text style={styles.actionText}>Edit</Text>
-        </TouchableOpacity> */}
+        <View style={styles.actionDivider} />
 
-        {mapStatus === 'active' && (
+        {mapStatus === 'active' ? (
           <TouchableOpacity
+            style={styles.mainAction}
             onPress={() => router.push({ pathname: '/ads/boost/[id]', params: { id: ad.id } })}
-            style={styles.actionBtn}
           >
-            <Ionicons name="rocket-outline" size={16} color="#2563EB" />
-            <Text style={styles.actionText}>Boost</Text>
+            <Ionicons name="rocket-outline" size={18} color="#0891B2" />
+            <Text style={[styles.mainActionText, { color: '#0891B2' }]}>Boost</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.mainAction}
+            onPress={() => router.push(`/ads/edit-car?id=${ad.id}`)}
+          >
+            <Ionicons name="create-outline" size={18} color="#64748B" />
+            <Text style={[styles.mainActionText, { color: '#64748B' }]}>Edit</Text>
           </TouchableOpacity>
         )}
 
+        <View style={styles.actionDivider} />
+
         <TouchableOpacity
+          style={styles.deleteAction}
           onPress={() => router.push(`/ads/delete-car?id=${ad.id}`)}
-          style={styles.actionBtn}
         >
-          <Ionicons name="trash-outline" size={16} color="#EF4444" />
-          <Text style={[styles.actionText, { color: '#EF4444' }]}>
-            Delete
-          </Text>
+          <Ionicons name="trash-outline" size={18} color="#EF4444" />
         </TouchableOpacity>
       </View>
+
+      {/* Banned Info */}
+      {ad.status === 'banned' && (
+        <View style={styles.warningBox}>
+          <Ionicons name="alert-circle" size={16} color="#B91C1C" />
+          <Text style={styles.warningText}>
+            Ad Banned: {ad.ban_reason || "Policy violation"}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -172,129 +153,177 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginBottom: 14,
-    padding: 12,
-    borderRadius: 14,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+    overflow: 'hidden',
   },
-
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-
-  image: {
-    width: 100,
-    height: 80,
-    borderRadius: 10,
-  },
-
-  checkboxWrap: {
-    position: 'absolute',
-    top: 4,
-    left: 4,
-  },
-
-  checkbox: {
-    width: 18,
-    height: 18,
+  cardSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: '#FBFCFF',
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
-    borderRadius: 4,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-
-  checkboxActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-
-  infoContainer: {
-    flex: 1,
-    marginLeft: 10,
-  },
-
-  titleRow: {
+  mainContent: {
     flexDirection: 'row',
-    alignItems: 'center',
+    padding: 14,
+  },
+  imageSection: {
+    position: 'relative',
+    width: 120,
+    height: 100,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 18,
+    backgroundColor: '#F1F5F9',
+  },
+  selectionOverlay: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  selectionOverlayActive: {
+    shadowOpacity: 0,
+  },
+  badgesContainer: {
+    position: 'absolute',
+    bottom: 6,
+    left: 6,
+    right: 6,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  badge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  badgeUrgent: {
+    backgroundColor: '#EF4444',
+  },
+  badgeFeatured: {
+    backgroundColor: '#F59E0B',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 8,
+    fontWeight: '900',
+  },
+  infoSection: {
+    flex: 1,
+    marginLeft: 14,
     justifyContent: 'space-between',
   },
-
-  title: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#111827',
-    flex: 1,
-    marginRight: 6,
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-
-  price: {
-    fontSize: 14,
+  title: {
+    fontSize: 15,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0F172A',
+    lineHeight: 20,
+    flex: 1,
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: COLORS.primary,
     marginTop: 4,
   },
-
-  location: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 2,
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
   },
-
+  locationText: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
   statsRow: {
     flexDirection: 'row',
-    marginTop: 6,
-    gap: 12,
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
   },
-
-  statItem: {
+  stat: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
-
   statText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#64748B',
+    fontWeight: '600',
   },
-
-  actionRow: {
-    marginTop: 12,
-    paddingTop: 10,
+  statDivider: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E2E8F0',
+  },
+  actionSection: {
+    flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    borderTopColor: '#F8FAFC',
+    backgroundColor: '#FAFBFF',
+    paddingVertical: 10,
   },
-
-  actionBtn: {
+  mainAction: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    gap: 8,
   },
-
-  actionText: {
+  mainActionText: {
     fontSize: 13,
-    fontWeight: '500',
-    color: '#2563EB',
+    fontWeight: '700',
+    color: COLORS.primary,
   },
-  banInfoBox: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 6,
-    padding: 6,
-    marginTop: 8,
+  deleteAction: {
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: '#E2E8F0',
+    alignSelf: 'center',
+  },
+  warningBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 8,
+    backgroundColor: '#FEF2F2',
+    padding: 10,
+    marginHorizontal: 12,
+    marginBottom: 12,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FEE2E2',
   },
-  banReasonText: {
-    fontSize: 10,
-    color: '#000',
+  warningText: {
+    fontSize: 11,
+    color: '#B91C1C',
     fontWeight: '600',
     flex: 1,
   },

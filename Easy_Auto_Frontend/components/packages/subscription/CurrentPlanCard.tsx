@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { typography } from "../../theme";
+import { StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
+import { COLORS } from '@/constants/Colors';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface CurrentPlanCardProps {
     onManagePlan: () => void;
@@ -13,7 +14,9 @@ interface CurrentPlanCardProps {
 
 const BenefitItem: React.FC<{ text: string }> = ({ text }) => (
     <View style={styles.benefitItem}>
-        <Ionicons name="checkmark" size={16} color="#235CF8" />
+        <View style={styles.checkIconBg}>
+            <Ionicons name="checkmark" size={12} color="#fff" />
+        </View>
         <Text style={styles.benefitText}>{text}</Text>
     </View>
 );
@@ -25,69 +28,70 @@ const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
     expiryDate = "Active Until Nov 30, 2025",
     price = "Rs. 29.99"
 }) => {
+    const isPremium = planName.toLowerCase().includes('premium') || planName.toLowerCase().includes('pro');
+
     return (
-        <View style={styles.planCard}>
-            <View style={styles.topRow}>
-                <View style={styles.activeBadge}>
-                    <View style={styles.activeDot} />
-                    <Text style={styles.activeLabel}>Active</Text>
+        <View style={styles.cardWrapper}>
+            <LinearGradient
+                colors={isPremium ? ['#1e293b', '#0f172a'] : ['#2563eb', '#1d4ed8']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.planCard}
+            >
+                <View style={styles.topRow}>
+                    <View style={styles.activeBadge}>
+                        <View style={styles.activeDot} />
+                        <Text style={styles.activeLabel}>Current Plan</Text>
+                    </View>
+                    <View style={styles.planIconBg}>
+                        <Ionicons name={isPremium ? "diamond" : "flash"} size={20} color={isPremium ? "#fbbf24" : "#fff"} />
+                    </View>
                 </View>
-                <View style={styles.crownIcon}>
-                    <Ionicons name="diamond" size={20} color="#FF9800" />
+
+                <View style={styles.mainInfo}>
+                    <Text style={styles.planTitle}>{planName}</Text>
+                    <View style={styles.priceContainer}>
+                        <Text style={styles.price}>{price}</Text>
+                        <Text style={styles.perPeriod}>/ month</Text>
+                    </View>
                 </View>
-            </View>
 
-            <Text style={styles.planTitle}>{planName}</Text>
-            <View style={styles.expiryContainer}>
-                <Ionicons name="time-outline" size={14} color="#6B7280" />
-                <Text style={styles.planSubtitle}>{expiryDate}</Text>
-            </View>
+                <View style={styles.expiryRow}>
+                    <Ionicons name="calendar-outline" size={14} color="rgba(255,255,255,0.6)" />
+                    <Text style={styles.expiryText}>{expiryDate}</Text>
+                </View>
 
-            <View style={styles.priceRow}>
-                <Text style={styles.price}>{price}</Text>
-                {/* <Text style={styles.perMonth}>/month</Text> */}
-            </View>
+                <View style={styles.divider} />
 
-            {/* Benefits Box */}
-            <View style={styles.benefitsBox}>
-                <Text style={styles.benefitsTitle}>Plan Benefits</Text>
-
-                <View style={styles.benefitsRow}>
-                    <View>
+                <View style={styles.benefitsGrid}>
+                    <View style={styles.benefitCol}>
                         <BenefitItem text="Unlimited Ads" />
-                        <BenefitItem text="Featured Listings" />
-                        <BenefitItem text="Custom Branding" />
+                        <BenefitItem text="Featured Labels" />
+                        <BenefitItem text="Priority Support" />
                     </View>
-
-                    <View>
-                        <BenefitItem text="Priority support" />
-                        <BenefitItem text="Advance analytics" />
-                        <BenefitItem text="Customer Service" />
+                    <View style={styles.benefitCol}>
+                        <BenefitItem text="Advanced Analytics" />
+                        <BenefitItem text="Custom Branding" />
+                        <BenefitItem text="Verified Badge" />
                     </View>
                 </View>
-            </View>
+            </LinearGradient>
 
-            {/* Buttons Row */}
-            <View style={{ marginTop: 16, gap: 10 }}>
-                {/* Manage Plan Button */}
+            <View style={styles.actions}>
                 <TouchableOpacity
-                    style={[styles.manageButton, styles.transparentButton]}
+                    style={styles.primaryAction}
                     onPress={onManagePlan}
-                    activeOpacity={0.8}
                 >
-                    <Ionicons name="settings-outline" size={18} color="#3B82F6" />
-                    <Text style={[styles.manageText, { color: '#3B82F6' }]}>Manage Plan</Text>
+                    <Text style={styles.primaryActionText}>Manage Subscription</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#fff" />
                 </TouchableOpacity>
 
-                {/* Unsubscribe Button */}
                 {onUnsubscribe && (
                     <TouchableOpacity
-                        style={[styles.manageButton, styles.transparentButton]}
+                        style={styles.secondaryAction}
                         onPress={onUnsubscribe}
-                        activeOpacity={0.8}
                     >
-                        <Ionicons name="close-circle-outline" size={18} color="#3B82F6" />
-                        <Text style={[styles.manageText, { color: '#3B82F6' }]}>Unsubscribe</Text>
+                        <Text style={styles.secondaryActionText}>Cancel Subscription</Text>
                     </TouchableOpacity>
                 )}
             </View>
@@ -96,128 +100,156 @@ const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
 };
 
 const styles = StyleSheet.create({
+    cardWrapper: {
+        marginBottom: 24,
+    },
     planCard: {
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 16,
+        borderRadius: 32,
+        padding: 24,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        elevation: 4,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.15,
+        shadowRadius: 24,
+        elevation: 10,
     },
     topRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
     },
     activeBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#ECFDF5',
-        paddingHorizontal: 10,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     activeDot: {
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: '#10B981',
-        marginRight: 6,
+        backgroundColor: '#10b981',
+        marginRight: 8,
     },
     activeLabel: {
         fontSize: 12,
-        fontWeight: '600',
-        color: '#10B981',
+        fontWeight: '700',
+        color: '#fff',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
-    crownIcon: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: '#FFF7ED',
-        alignItems: 'center',
+    planIconBg: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
-    },
-    expiryContainer: {
-        flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 4,
+    },
+    mainInfo: {
+        marginBottom: 12,
     },
     planTitle: {
-        ...typography.heading,
-        fontSize: 20,
-        marginTop: 8,
+        fontSize: 28,
+        fontWeight: '900',
+        color: '#fff',
+        marginBottom: 4,
+        letterSpacing: -0.5,
     },
-    planSubtitle: {
-        ...typography.caption,
-        marginLeft: 6,
-        fontWeight: '500',
-    },
-    priceRow: {
+    priceContainer: {
         flexDirection: 'row',
-        alignItems: 'flex-end',
-        marginTop: 8,
+        alignItems: 'baseline',
     },
     price: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: '800',
-        color: '#235CF8',
+        color: '#fff',
     },
-    perMonth: {
-        color: '#235CF8',
-        marginLeft: 4,
-    },
-    benefitsBox: {
-        backgroundColor: '#F1F6FF',
-        borderRadius: 12,
-        padding: 12,
-        marginTop: 14,
-    },
-    benefitsTitle: {
-        ...typography.subheading,
+    perPeriod: {
         fontSize: 14,
-        color: '#235CF8',
-        marginBottom: 8,
+        color: 'rgba(255,255,255,0.6)',
+        marginLeft: 4,
+        fontWeight: '600',
     },
-    benefitsRow: {
+    expiryRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 24,
+    },
+    expiryText: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.8)',
+        fontWeight: '500',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        marginBottom: 20,
+    },
+    benefitsGrid: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        gap: 12,
+    },
+    benefitCol: {
+        flex: 1,
+        gap: 10,
     },
     benefitItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 6,
+        gap: 8,
+    },
+    checkIconBg: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: '#10b981',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     benefitText: {
-        marginLeft: 6,
         fontSize: 12,
+        color: 'rgba(255,255,255,0.9)',
+        fontWeight: '600',
     },
-    manageButton: {
-        backgroundColor: '#3B82F6',
-        paddingVertical: 14,
-        borderRadius: 12,
-        alignItems: 'center',
+    actions: {
+        marginTop: 20,
+        gap: 12,
+        paddingHorizontal: 4,
+    },
+    primaryAction: {
+        backgroundColor: COLORS.primary,
         flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        shadowColor: '#3B82F6',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
+        paddingVertical: 16,
+        borderRadius: 16,
+        gap: 10,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 6,
     },
-    transparentButton: {
-        backgroundColor: 'rgba(59, 130, 246, 0.08)',
-        borderWidth: 1,
-        borderColor: '#3B82F6',
-        shadowColor: 'transparent',
-        elevation: 0,
-    },
-    manageText: {
+    primaryActionText: {
         color: '#fff',
+        fontSize: 16,
         fontWeight: '700',
-        fontSize: 15,
+    },
+    secondaryAction: {
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    secondaryActionText: {
+        color: '#ef4444',
+        fontSize: 14,
+        fontWeight: '700',
     },
 });
 

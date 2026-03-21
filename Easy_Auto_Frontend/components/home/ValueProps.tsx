@@ -8,136 +8,86 @@ interface ValuePropsProps {
     slideAnim: Animated.Value;
 }
 
-const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
-    return (
-        <Animated.View
-            style={[
-                styles.container,
-                {
-                    opacity: fadeAnim,
-                    transform: [{ translateY: slideAnim }],
-                },
-            ]}
-        >
-            <View style={styles.card}>
-                <View style={styles.row}>
-                    <View style={styles.item}>
-                        <View style={[styles.iconContainer, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
-                            <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-                        </View>
-                        <View style={styles.textContainer}>
-                            <Text style={styles.number}>10k+</Text>
-                            <Text style={styles.label}>Verified Cars</Text>
-                        </View>
-                    </View>
-                    
-                    <View style={styles.divider} />
-                    
-                    <View style={styles.item}>
-                        <View style={[styles.iconContainer, { backgroundColor: 'rgba(35, 92, 248, 0.1)' }]}>
-                            <Ionicons name="business" size={20} color={COLORS.primary} />
-                        </View>
-                        <View style={styles.textContainer}>
-                            <Text style={styles.number}>500+</Text>
-                            <Text style={styles.label}>Trusted Dealers</Text>
-                        </View>
-                    </View>
-                </View>
+const STATS = [
+    { value: "10k+", label: "Listings",  icon: "car-outline"      as const, color: "#235CF8", bg: "#EEF2FF" },
+    { value: "500+", label: "Dealers",   icon: "business-outline" as const, color: "#10B981", bg: "#ECFDF5" },
+    { value: "4.8★", label: "Rating",    icon: "star"             as const, color: "#F59E0B", bg: "#FFFBEB" },
+    { value: "50k+", label: "Users",     icon: "people"           as const, color: "#7C3AED", bg: "#F5F3FF" },
+];
 
-                <View style={styles.horizontalDivider} />
-
-                <View style={styles.row}>
-                    <View style={styles.item}>
-                        <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 215, 0, 0.1)' }]}>
-                            <Ionicons name="star" size={20} color="#EAB308" />
-                        </View>
-                        <View style={styles.textContainer}>
-                            <Text style={styles.number}>4.8/5</Text>
-                            <Text style={styles.label}>User Rating</Text>
-                        </View>
+const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => (
+    <Animated.View style={[styles.wrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <View style={styles.header}>
+            <Text style={styles.title}>EasyAuto by the Numbers</Text>
+            <Text style={styles.sub}>Trusted by thousands across Sri Lanka</Text>
+        </View>
+        <View style={styles.row}>
+            {STATS.map((s, i) => (
+                <View key={i} style={styles.card}>
+                    <View style={[styles.iconWrap, { backgroundColor: s.bg }]}>
+                        <Ionicons name={s.icon} size={20} color={s.color} />
                     </View>
-                    
-                    <View style={styles.divider} />
-                    
-                    <View style={styles.item}>
-                        <View style={[styles.iconContainer, { backgroundColor: 'rgba(249, 115, 22, 0.1)' }]}>
-                            <Ionicons name="people" size={20} color="#F97316" />
-                        </View>
-                        <View style={styles.textContainer}>
-                            <Text style={styles.number}>50k+</Text>
-                            <Text style={styles.label}>Happy Users</Text>
-                        </View>
-                    </View>
+                    <Text style={[styles.val, { color: s.color }]}>{s.value}</Text>
+                    <Text style={styles.lbl}>{s.label}</Text>
                 </View>
-            </View>
-        </Animated.View>
-    );
-};
+            ))}
+        </View>
+    </Animated.View>
+);
 
 const styles = StyleSheet.create({
-    container: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: COLORS.background,
+    wrap: {
+        backgroundColor: "#fff",
+        paddingVertical: 24,
+        paddingHorizontal: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: "#F1F5F9",
     },
-    card: {
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        padding: 16,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 3,
-        borderWidth: 1,
-        borderColor: COLORS.border,
+    header: {
+        marginBottom: 16,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: "800",
+        color: "#0F172A",
+        letterSpacing: -0.4,
+    },
+    sub: {
+        fontSize: 13,
+        color: "#94A3B8",
+        fontWeight: "500",
+        marginTop: 2,
     },
     row: {
         flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
+        gap: 10,
     },
-    item: {
+    card: {
         flex: 1,
-        flexDirection: "row",
+        backgroundColor: "#F8FAFF",
+        borderRadius: 16,
         alignItems: "center",
-        gap: 12,
-        justifyContent: 'center', // Center content in its half
-        paddingVertical: 8,
+        paddingVertical: 16,
+        borderWidth: 1,
+        borderColor: "#F1F5F9",
+        gap: 6,
     },
-    iconContainer: {
+    iconWrap: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: 12,
         alignItems: "center",
         justifyContent: "center",
     },
-    textContainer: {
-        justifyContent: "center",
-    },
-    number: {
+    val: {
         fontSize: 16,
         fontWeight: "800",
-        color: COLORS.text.primary,
         letterSpacing: -0.3,
     },
-    label: {
-        fontSize: 12,
-        fontWeight: "500",
-        color: COLORS.text.muted,
-        marginTop: 2,
-    },
-    divider: {
-        width: 1,
-        height: 32,
-        backgroundColor: COLORS.border,
-        marginHorizontal: 8,
-    },
-    horizontalDivider: {
-        height: 1,
-        backgroundColor: COLORS.border,
-        marginVertical: 12,
-        width: '100%',
+    lbl: {
+        fontSize: 10,
+        fontWeight: "600",
+        color: "#94A3B8",
     },
 });
 

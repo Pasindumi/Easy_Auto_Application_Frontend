@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import InputField from "@/components/InputField";
 import COLORS from "@/constants/Colors";
+import { useToast } from "@/contexts/ToastContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,23 +15,25 @@ import {
     Text,
     TouchableOpacity,
     View,
+    ActivityIndicator,
+    SafeAreaView
     Alert,
 } from "react-native";
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import api from "@/utils/api";
-import AppReviewsSection from "@/components/AppReviewsSection";
+import * as Haptics from 'expo-haptics';
 
 const COMPLAINT_CATEGORIES = [
     "Service",
-    "User / Professionalism",
+    "Professionalism",
     "Technical Issue",
-    "Payments / Billing",
-    "Account / Security",
+    "Billing",
+    "Security",
     "Other"
 ];
 
 export default function ContactUsScreen() {
     const router = useRouter();
+    const { showToast } = useToast();
     const [mode, setMode] = useState<"INQUIRY" | "COMPLAINT">("INQUIRY");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -40,27 +43,26 @@ export default function ContactUsScreen() {
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         if (!message.trim()) {
-            Alert.alert("Error", "Please provide a message");
+            showToast({ message: "Please provide a message", type: "error" });
             return;
         }
 
         setLoading(true);
         try {
             if (mode === "INQUIRY") {
-                // For now, inquiries are logged to console as before or you might have an endpoint
                 console.log("Submitted Inquiry:", { name, email, subject, message });
-                Alert.alert("Success", "Your message has been sent successfully!");
+                showToast({ message: "Your message has been sent successfully!", type: "success" });
                 router.back();
             } else {
-                // Submit Complaint to backend
                 const response: any = await api.post("/api/complaints", {
                     category,
                     message
                 });
 
                 if (response.success) {
-                    Alert.alert("Success", "Your complaint has been submitted. We will review it shortly.");
+                    showToast({ message: "Your complaint has been submitted. We will review it shortly.", type: "success" });
                     router.back();
                 } else {
                     throw new Error(response.message || "Failed to submit complaint");
@@ -68,164 +70,171 @@ export default function ContactUsScreen() {
             }
         } catch (error: any) {
             console.error("Submission error:", error);
-            Alert.alert("Error", error.message || "Something went wrong. Please try again.");
+            showToast({ message: error.message || "Something went wrong. Please try again.", type: "error" });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.outerContainer}>
             <Stack.Screen options={{ headerShown: false }} />
+            <Header title={mode === "INQUIRY" ? "Contact Support" : "Submit Complaint"} showBack={true} />
 
-            {/* Standard Header */}
-            <Header showBack={true} />
-
-            {/* Standard Title Section */}
-            <View style={headerSectionStyles.headerWrap}>
-                <View style={headerSectionStyles.header}>
-                    <View style={headerSectionStyles.headerLeft}>
-                        <Ionicons
-                            name={mode === "INQUIRY" ? "chatbox-ellipses-outline" : "warning-outline"}
-                            size={22}
-                            color={COLORS.primary}
-                            style={{ marginRight: 8 }}
-                        />
-                        <Text style={headerSectionStyles.headerTitle}>
-                            {mode === "INQUIRY" ? "Contact Us" : "Make a Complaint"}
-                        </Text>
-                    </View>
-                </View>
-            </View>
-
-            {/* Mode Toggle */}
-            <View style={styles.toggleContainer}>
-                <TouchableOpacity
-                    style={[styles.toggleButton, mode === "INQUIRY" && styles.toggleButtonActive]}
-                    onPress={() => setMode("INQUIRY")}
+            <SafeAreaView style={styles.safe}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : undefined}
+                    style={{ flex: 1 }}
                 >
-                    <Text style={[styles.toggleText, mode === "INQUIRY" && styles.toggleTextActive]}>Contact Us</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.toggleButton, mode === "COMPLAINT" && styles.toggleButtonActive]}
-                    onPress={() => setMode("COMPLAINT")}
-                >
-                    <Text style={[styles.toggleText, mode === "COMPLAINT" && styles.toggleTextActive]}>Complaint</Text>
-                </TouchableOpacity>
-            </View>
-
-            <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
-                style={{ flex: 1 }}
-            >
-                <ScrollView
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    {/* App Reviews Section */}
-                    <AppReviewsSection />
-
-                    {/* Intro Banner Area */}
-                    <View style={styles.introBanner}>
-                        <Text style={styles.introTitle}>How can we help?</Text>
-                        <Text style={styles.introText}>
-                            We're here to help and answer any question you might have. We look forward to hearing from you.
-                        </Text>
-                    </View>
-                    {/* Contact Cards Row */}
-                    <View style={styles.contactRow}>
-                        <TouchableOpacity style={styles.contactCard} activeOpacity={0.8}>
-                            <View style={[styles.cardIcon, { backgroundColor: '#E3F2FD' }]}>
-                                <Ionicons name="call" size={20} color="#235CF8" />
-                            </View>
-                            <Text style={[styles.cardLabel, { marginBottom: 0, fontSize: 14, color: COLORS.text.primary }]}>Call Us</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.contactCard} activeOpacity={0.8}>
-                            <View style={[styles.cardIcon, { backgroundColor: '#E0F2F1' }]}>
-                                <Ionicons name="mail" size={20} color="#009688" />
-                            </View>
-                            <Text style={[styles.cardLabel, { marginBottom: 0, fontSize: 14, color: COLORS.text.primary }]}>Email Us</Text>
-                        </TouchableOpacity>
-                    </View>
-
-
-
-                    {/* Form Section */}
-                    <View style={styles.formSection}>
-                        <Text style={styles.sectionTitle}>
-                            {mode === "INQUIRY" ? "Send us a Message" : "Complaint Details"}
-                        </Text>
-
-                        {mode === "INQUIRY" ? (
-                            <>
-                                <InputField
-                                    placeholder="Full Name"
-                                    icon="person-outline"
-                                    value={name}
-                                    onChange={setName}
-                                />
-
-                                <InputField
-                                    placeholder="Email Address"
-                                    icon="mail-outline"
-                                    value={email}
-                                    onChange={setEmail}
-                                    keyboardType="email-address"
-                                />
-
-                                <InputField
-                                    placeholder="Subject"
-                                    icon="information-circle-outline"
-                                    value={subject}
-                                    onChange={setSubject}
-                                />
-                            </>
-                        ) : (
-                            <View style={styles.categoryContainer}>
-                                <Text style={styles.label}>Select Category</Text>
-                                <View style={styles.categoriesGrid}>
-                                    {COMPLAINT_CATEGORIES.map((cat) => (
-                                        <TouchableOpacity
-                                            key={cat}
-                                            style={[
-                                                styles.categoryItem,
-                                                category === cat && styles.categoryItemActive
-                                            ]}
-                                            onPress={() => setCategory(cat)}
-                                        >
-                                            <Text style={[
-                                                styles.categoryItemText,
-                                                category === cat && styles.categoryItemTextActive
-                                            ]}>
-                                                {cat}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            </View>
-                        )}
-
-                        <InputField
-                            placeholder={mode === "INQUIRY" ? "Write your message..." : "Describe your complaint..."}
-                            icon="chatbox-outline"
-                            value={message}
-                            onChange={setMessage}
-                            multiline
-                            numberOfLines={4}
-                            inputStyle={{ height: 120 }}
-                        />
-
-                        <TouchableOpacity
-                            style={[styles.submitButton, loading && { opacity: 0.7 }]}
-                            onPress={handleSubmit}
-                            activeOpacity={0.8}
-                            disabled={loading}
-                        >
-                            <LinearGradient
-                                colors={['#235CF8', '#1A4ADB']}
-                                style={styles.gradientButton}
+                    <ScrollView
+                        contentContainerStyle={styles.scrollContent}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        {/* Mode Toggle */}
+                        <View style={styles.toggleContainer}>
+                            <TouchableOpacity
+                                style={[styles.toggleButton, mode === "INQUIRY" && styles.toggleButtonActive]}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setMode("INQUIRY");
+                                }}
                             >
+                                <Ionicons 
+                                    name="chatbox-ellipses-outline" 
+                                    size={16} 
+                                    color={mode === "INQUIRY" ? COLORS.primary : "#6B7280"} 
+                                />
+                                <Text style={[styles.toggleText, mode === "INQUIRY" && styles.toggleTextActive]}>Inquiry</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.toggleButton, mode === "COMPLAINT" && styles.toggleButtonActive]}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setMode("COMPLAINT");
+                                }}
+                            >
+                                <Ionicons 
+                                    name="alert-circle-outline" 
+                                    size={16} 
+                                    color={mode === "COMPLAINT" ? COLORS.primary : "#6B7280"} 
+                                />
+                                <Text style={[styles.toggleText, mode === "COMPLAINT" && styles.toggleTextActive]}>Complaint</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Intro Card */}
+                        <View style={styles.introCard}>
+                            <View style={styles.introHeader}>
+                                <Text style={styles.introTitle}>How can we help?</Text>
+                                <Text style={styles.introSub}>
+                                    Our typical response time is under 12 hours. We're here to assist you with any questions.
+                                </Text>
+                            </View>
+                            <View style={styles.contactChips}>
+                                <TouchableOpacity style={styles.chip}>
+                                    <View style={[styles.chipIcon, { backgroundColor: '#eff6ff' }]}>
+                                        <Ionicons name="call" size={16} color={COLORS.primary} />
+                                    </View>
+                                    <Text style={styles.chipText}>Call Us</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.chip}>
+                                    <View style={[styles.chipIcon, { backgroundColor: '#ecfdf5' }]}>
+                                        <Ionicons name="mail" size={16} color="#10b981" />
+                                    </View>
+                                    <Text style={styles.chipText}>Email Us</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        {/* Form Section */}
+                        <View style={styles.formSection}>
+                            <Text style={styles.sectionTitle}>
+                                {mode === "INQUIRY" ? "Message Details" : "Complaint Feedback"}
+                            </Text>
+
+                            {mode === "INQUIRY" ? (
+                                <>
+                                    <InputField
+                                        placeholder="Full Name"
+                                        icon="person-outline"
+                                        value={name}
+                                        onChange={setName}
+                                    />
+                                    <InputField
+                                        placeholder="Email Address"
+                                        icon="mail-outline"
+                                        value={email}
+                                        onChange={setEmail}
+                                        keyboardType="email-address"
+                                    />
+                                    <InputField
+                                        placeholder="Subject (Optional)"
+                                        icon="information-circle-outline"
+                                        value={subject}
+                                        onChange={setSubject}
+                                    />
+                                </>
+                            ) : (
+                                <View style={styles.categoryContainer}>
+                                    <Text style={styles.label}>What is this regarding?</Text>
+                                    <View style={styles.categoriesGrid}>
+                                        {COMPLAINT_CATEGORIES.map((cat) => (
+                                            <TouchableOpacity
+                                                key={cat}
+                                                style={[
+                                                    styles.categoryItem,
+                                                    category === cat && styles.categoryItemActive
+                                                ]}
+                                                onPress={() => {
+                                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                    setCategory(cat);
+                                                }}
+                                            >
+                                                <Text style={[
+                                                    styles.categoryItemText,
+                                                    category === cat && styles.categoryItemTextActive
+                                                ]}>
+                                                    {cat}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+                            )}
+
+                            <InputField
+                                placeholder={mode === "INQUIRY" ? "Tell us how we can help..." : "Provide as much detail as possible..."}
+                                icon="chatbubble-outline"
+                                value={message}
+                                onChange={setMessage}
+                                multiline
+                                numberOfLines={4}
+                                inputStyle={{ height: 120, textAlignVertical: 'top' }}
+                            />
+
+                            <TouchableOpacity
+                                style={styles.submitButton}
+                                onPress={handleSubmit}
+                                activeOpacity={0.8}
+                                disabled={loading}
+                            >
+                                <LinearGradient
+                                    colors={[COLORS.primary, '#1D4ED8']}
+                                    style={styles.gradientButton}
+                                >
+                                    {loading ? (
+                                        <ActivityIndicator color="#fff" size="small" />
+                                    ) : (
+                                        <>
+                                            <Text style={styles.submitButtonText}>
+                                                {mode === "INQUIRY" ? "Submit Inquiry" : "Send Complaint"}
+                                            </Text>
+                                            <Ionicons name="send" size={16} color="#fff" style={{ marginLeft: 8 }} />
+                                        </>
+                                    )}
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
                                 {loading ? (
                                     <Loading size="small" />
                                 ) : (
@@ -245,74 +254,143 @@ export default function ContactUsScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Bottom Info */}
-                    <View style={{ height: 40 }} />
-                </ScrollView>
-            </KeyboardAvoidingView>
+                        
+                        <View style={{ height: 40 }} />
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </SafeAreaView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    outerContainer: {
         flex: 1,
-        backgroundColor: '#F8F9FB',
+        backgroundColor: '#fff',
+    },
+    safe: {
+        flex: 1,
+        backgroundColor: '#f8fafc',
     },
     scrollContent: {
         padding: 20,
-    },
-    introBanner: {
-        marginBottom: 24,
-    },
-    introTitle: {
-        fontSize: 24,
-        fontWeight: '800',
-        color: COLORS.text.primary,
-        marginBottom: 8,
-    },
-    introText: {
-        fontSize: 14,
-        color: COLORS.text.secondary,
-        lineHeight: 22,
+        paddingTop: 24, // Fix overlap
     },
     toggleContainer: {
         flexDirection: 'row',
-        backgroundColor: '#E5E7EB',
-        borderRadius: 12,
-        padding: 4,
-        marginHorizontal: 20,
-        marginBottom: 20,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 6,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.02,
+        shadowRadius: 10,
+        elevation: 2,
     },
     toggleButton: {
         flex: 1,
-        paddingVertical: 10,
+        paddingVertical: 12,
         alignItems: 'center',
-        borderRadius: 10,
+        justifyContent: 'center',
+        borderRadius: 16,
+        flexDirection: 'row',
+        gap: 8,
     },
     toggleButtonActive: {
-        backgroundColor: '#FFFFFF',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
+        backgroundColor: '#eff6ff',
     },
     toggleText: {
         fontSize: 14,
-        fontWeight: '600',
-        color: '#6B7280',
+        fontWeight: '700',
+        color: '#64748b',
     },
     toggleTextActive: {
         color: COLORS.primary,
+    },
+    introCard: {
+        backgroundColor: '#fff',
+        borderRadius: 28,
+        padding: 24,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.01,
+        shadowRadius: 5,
+    },
+    introHeader: {
+        marginBottom: 20,
+    },
+    introTitle: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: '#1e293b',
+        marginBottom: 6,
+    },
+    introSub: {
+        fontSize: 13,
+        color: '#64748b',
+        lineHeight: 20,
+        fontWeight: '500',
+    },
+    contactChips: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    chip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f8fafc',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        gap: 8,
+    },
+    chipIcon: {
+        width: 28,
+        height: 28,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    chipText: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#1e293b',
+    },
+    formSection: {
+        backgroundColor: '#fff',
+        borderRadius: 28,
+        padding: 24,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.03,
+        shadowRadius: 20,
+        elevation: 5,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#1e293b',
+        marginBottom: 20,
     },
     categoryContainer: {
         marginBottom: 20,
     },
     label: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: COLORS.text.secondary,
-        marginBottom: 10,
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748b',
+        marginBottom: 12,
     },
     categoriesGrid: {
         flexDirection: 'row',
@@ -320,103 +398,41 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     categoryItem: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 8,
-        backgroundColor: '#F3F4F6',
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 10,
+        backgroundColor: '#f8fafc',
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: '#f1f5f9',
     },
     categoryItemActive: {
-        backgroundColor: COLORS.primary + '10',
+        backgroundColor: '#eff6ff',
         borderColor: COLORS.primary,
     },
     categoryItemText: {
         fontSize: 12,
-        color: '#4B5563',
-        fontWeight: '500',
+        color: '#64748b',
+        fontWeight: '600',
     },
     categoryItemTextActive: {
         color: COLORS.primary,
         fontWeight: '700',
     },
-    contactRow: {
-        flexDirection: 'row',
-        gap: 15,
-        marginBottom: 25,
-    },
-    contactCard: {
-        flex: 1,
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 16,
-        alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.03)',
-    },
-    cardIcon: {
-        width: 42,
-        height: 42,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 10,
-    },
-    cardLabel: {
-        fontSize: 12,
-        color: COLORS.text.secondary,
-        marginBottom: 4,
-        fontWeight: '600',
-    },
-    cardValue: {
-        fontSize: 13,
-        color: COLORS.text.primary,
-        fontWeight: '700',
-    },
-
-    formSection: {
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 3,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: COLORS.text.primary,
-        marginBottom: 20,
-    },
-
-
-
     submitButton: {
-        marginTop: 20,
-        borderRadius: 12,
+        marginTop: 10,
+        borderRadius: 16,
         overflow: 'hidden',
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
     },
     gradientButton: {
         paddingVertical: 16,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 4,
     },
     submitButtonText: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '800',
     },
 });

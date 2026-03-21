@@ -12,6 +12,10 @@ interface User {
   phone?: string;
   avatar?: string;
   is_premium?: boolean;
+  bio?: string;
+  location?: string;
+  gender?: string;
+  birthday?: string;
 }
 
 interface AuthContextType {

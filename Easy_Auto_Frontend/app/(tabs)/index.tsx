@@ -3,37 +3,183 @@ import CarComparison from "@/components/home/CarComparison";
 import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
 
 import ExploreByBrand from "@/components/home/ExploreByBrand";
-import FlashSale from "@/components/home/FlashSale";
 import { BackToTop } from "@/components/home/HomeCommon";
 import HomeDrawers from "@/components/home/HomeDrawers";
 import HomeHeader from "@/components/home/HomeHeader";
+import HomeReviewsSlider from "@/components/home/HomeReviewsSlider";
+import MarketInsightsBanner from "@/components/home/MarketInsightsBanner";
 import PromoBanner from "@/components/home/PromoBanner";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 import RecommendedCars from "@/components/home/RecommendedCars";
-import HomeReviewsSlider from "@/components/home/HomeReviewsSlider";
 import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
 import BoostPopup from "@/components/home/BoostPopup";
 import COLORS from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Easing,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-  View
+    Animated,
+    Easing,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+    const insets = useSafeAreaInsets();
+    const { isAuthenticated } = useAuth();
+
+    const [sidebarVisible, setSidebarVisible] = useState(false);
+    const [searchFocused, setSearchFocused] = useState(false);
+    const [notificationCount, setNotificationCount] = useState(3);
+    const [wishlistCount, setWishlistCount] = useState(0);
+    const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [showBackToTop, setShowBackToTop] = useState(false);
+    const [trendingCategory, setTrendingCategory] = useState("All");
+    const scrollRef = useRef<ScrollView>(null);
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => setRefreshing(false), 2000);
+    }, []);
+
+    const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+        setShowBackToTop(e.nativeEvent.contentOffset.y > 400);
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) fetchWishlistCount();
+        else setWishlistCount(0);
+    }, [isAuthenticated]);
+
+    const fetchWishlistCount = async () => {
+        try {
+            const r = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
+            if (r.success) setWishlistCount(r.data.length);
+        } catch { }
+    };
+
+    // Entrance animations
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(30)).current;
+    const scaleAnim = useRef(new Animated.Value(0.97)).current;
+    const headerAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+            Animated.timing(slideAnim, { toValue: 0, duration: 800, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+            Animated.timing(scaleAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+            Animated.timing(headerAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+        ]).start();
+    }, []);
+
+    return (
+        <View style={styles.root}>
+            <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+
+            <BoostPopup />
+            <HomeDrawers
+                sidebarVisible={sidebarVisible} setSidebarVisible={setSidebarVisible}
+            />
+
+            <HomeHeader
+                initialHeaderOpacity={headerAnim}
+                paddingTop={Math.max(insets.top, 10)}
+                notificationCount={notificationCount}
+                wishlistCount={wishlistCount}
+                setSidebarVisible={setSidebarVisible}
+                searchFocused={searchFocused}
+                setSearchFocused={setSearchFocused}
+                showSearchSuggestions={showSearchSuggestions}
+                setShowSearchSuggestions={setShowSearchSuggestions}
+            />
+
+
+            <ScrollView
+                ref={scrollRef}
+                style={styles.scroll}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />
+                }
+            >
+                <View style={styles.inner}>
+                    {/* 1. Explore Easyauto */}
+                    <View style={styles.sectionHeaderContainer}>
+                        <Text style={styles.sectionTitle}>Explore EasyAuto</Text>
+                    </View>
+                    <View style={styles.section}>
+                        <ActionGrid fadeAnim={fadeAnim} slideAnim={slideAnim} compareCount={0} newListingsCount={0} />
+                    </View>
+
+                    {/* 2. Trending Now */}
+                    <View style={styles.section}>
+                        <TrendingCars 
+                            fadeAnim={fadeAnim} 
+                            slideAnim={slideAnim} 
+                            trendingCategory={trendingCategory}
+                            setTrendingCategory={setTrendingCategory}
+                        />
+                    </View>
+
+                    {/* 3. Recommended for you */}
+                    <View style={styles.section}>
+                        <RecommendedCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 4. Advertisement section */}
+                    <View style={styles.section}>
+                        <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
+                    </View>
+
+                    {/* 5. New Arrivals */}
+                    <View style={styles.section}>
+                        <RecentlyViewed fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 6. Compare Cars */}
+                    <View style={styles.section}>
+                        <CarComparison fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 7. Easy Auto by Numbers */}
+                    <View style={styles.section}>
+                        <ValueProps fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 8. Explore by Brand */}
+                    <View style={styles.section}>
+                        <ExploreByBrand fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 9. Why EasyAuto Section */}
+                    <View style={styles.section}>
+                        <MarketInsightsBanner fadeAnim={fadeAnim} />
+                    </View>
+
+                    {/* 10. User Testimonials */}
+                    <View style={[styles.section, { marginBottom: 20 }]}>
+                        <HomeReviewsSlider />
+                    </View>
+                </View>
+            </ScrollView>
+
+            <BackToTop visible={showBackToTop} onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })} />
+        </View>
+    );
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { isAuthenticated } = useAuth(); // Get auth state
@@ -261,31 +407,25 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-  },
-  scrollView: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-  },
-  sectionDivider: {
-    height: 1,
-    backgroundColor: COLORS.divider,
-    marginVertical: 8,
-    marginHorizontal: 20,
-    opacity: 0.5,
-  },
-  spacer: {
-    height: 24,
-  },
-  previewBackdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: COLORS.overlay,
-    zIndex: 999,
-  },
+    root: { flex: 1, backgroundColor: "#F8FAFF" },
+    scroll: { flex: 1 },
+    scrollContent: { paddingBottom: 110 },
+    inner: { 
+        backgroundColor: "#F8FAFF",
+        gap: 32, // Consistent space between sections
+    },
+    section: { 
+        backgroundColor: "#fff",
+    },
+    sectionHeaderContainer: {
+        paddingHorizontal: 20,
+        marginBottom: -16,
+        marginTop: 8,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "800",
+        color: "#0F172A",
+        letterSpacing: -0.5,
+    },
 });

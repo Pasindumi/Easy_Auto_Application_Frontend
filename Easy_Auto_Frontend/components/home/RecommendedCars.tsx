@@ -104,9 +104,11 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                     snapToInterval={230 + 16}
                 >
                     {ads.map((car, index) => {
+                        // CarDetails can be an object (list endpoint) or array (some Supabase versions)
+                        const details = Array.isArray(car.CarDetails) ? car.CarDetails?.[0] : car.CarDetails;
                         const imageUrl = car.AdImage?.[0]?.image_url;
-                        const brand = car.CarDetails?.brand || "";
-                        const model = car.CarDetails?.model || "";
+                        const brand = details?.brand || "";
+                        const model = details?.model || "";
                         const title = car.title || `${brand} ${model}`;
 
                         return (
@@ -143,12 +145,12 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                                     <View style={styles.detailsRow}>
                                         <View style={styles.detailItem}>
                                             <MaterialIcons name="calendar-today" size={12} color={COLORS.text.muted} />
-                                            <Text style={styles.detailText}>{car.CarDetails?.manufacture_year || "N/A"}</Text>
+                                            <Text style={styles.detailText}>{details?.year || "N/A"}</Text>
                                         </View>
                                         <View style={styles.dotSeparator} />
                                         <View style={styles.detailItem}>
                                             <MaterialIcons name="speed" size={12} color={COLORS.text.muted} />
-                                            <Text style={styles.detailText}>{car.CarDetails?.mileage ? `${(Number(car.CarDetails.mileage) / 1000).toFixed(0)}k km` : "N/A"}</Text>
+                                            <Text style={styles.detailText}>{details?.mileage ? `${(Number(details.mileage) / 1000).toFixed(0)}k km` : "N/A"}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.locationRow}>

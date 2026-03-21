@@ -1,21 +1,20 @@
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import COLORS from "@/constants/Colors";
+import api from "@/utils/api";
+import SectionHeader from "./SectionHeader";
 
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import COLORS from '@/constants/Colors';
-import api from '@/utils/api';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.8;
+const { width } = Dimensions.get("window");
+const CARD_W = width * 0.76;
 
 interface Review {
     id: string;
     rating: number;
     comment: string;
-    user: {
-        name: string;
-    };
+    user: { name: string };
 }
 
 const HomeReviewsSlider = () => {
@@ -29,14 +28,12 @@ const HomeReviewsSlider = () => {
 
     const fetchTopReviews = async () => {
         try {
-            // Fetch reviews (ideally filtered by top rating from backend, but doing client side filter for now if needed)
-            const response: any = await api.get('/api/app-reviews?rating=5');
+            const response: any = await api.get("/api/app-reviews?rating=5");
             if (response.success) {
-                // Take top 5 recent 5-star reviews
-                setReviews(response.data.slice(0, 5));
+                setReviews(response.data.slice(0, 6));
             }
         } catch (error) {
-            console.error("Error fetching home reviews:", error);
+            console.error("Error fetching reviews:", error);
         } finally {
             setLoading(false);
         }
@@ -46,40 +43,58 @@ const HomeReviewsSlider = () => {
 
     const renderItem = ({ item }: { item: Review }) => (
         <View style={styles.card}>
-            <View style={styles.quoteIcon}>
-                <Ionicons name="sparkles" size={16} color={COLORS.primary} />
-            </View>
-
             <View style={styles.cardHeader}>
-                <View style={[styles.avatar, { backgroundColor: getRandomColor(item.user?.name) }]}>
-                    <Text style={styles.avatarText}>{item.user?.name?.charAt(0).toUpperCase() || 'U'}</Text>
+                <View style={styles.starsRow}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <Ionicons key={s} name="star" size={12} color="#F59E0B" />
+                    ))}
                 </View>
-                <View>
-                    <Text style={styles.userName} numberOfLines={1}>{item.user?.name || 'Happy User'}</Text>
-                    <View style={styles.ratingRow}>
-                        {[1, 2, 3, 4, 5].map(star => (
-                            <Ionicons key={star} name="star" size={10} color="#FFD700" />
-                        ))}
-                    </View>
+                <View style={styles.quotePill}>
+                    <Ionicons name="chatbubble-ellipses" size={14} color={COLORS.primary} />
                 </View>
             </View>
 
-            <Text style={styles.comment} numberOfLines={3}>
+            <Text style={styles.comment} numberOfLines={4}>
                 "{item.comment}"
             </Text>
+
+            <View style={styles.cardFooter}>
+                <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                        {item.user?.name?.charAt(0).toUpperCase() || "U"}
+                    </Text>
+                </View>
+                <View>
+                    <Text style={styles.userName}>{item.user?.name || "Happy User"}</Text>
+                    <Text style={styles.userMeta}>Verified Buyer</Text>
+                </View>
+            </View>
         </View>
     );
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <View>
-                    <Text style={styles.title}>What Our Users Say</Text>
-                    <Text style={styles.subtitle}>Trusted by thousands of users</Text>
+            <SectionHeader
+                title="⭐ User Testimonials"
+                subtitle="What our community says about us"
+                onViewAll={() => router.push("/reviews" as any)}
+            />
+
+            <View style={styles.summaryBox}>
+                <View style={styles.summaryItem}>
+                    <Text style={styles.summaryMain}>4.9</Text>
+                    <Text style={styles.summarySub}>Rating</Text>
                 </View>
-                <TouchableOpacity onPress={() => router.push('/reviews')}>
-                    <Text style={styles.viewAllText}>View All</Text>
-                </TouchableOpacity>
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryItem}>
+                    <Text style={styles.summaryMain}>2.5k</Text>
+                    <Text style={styles.summarySub}>Reviews</Text>
+                </View>
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryItem}>
+                    <Text style={styles.summaryMain}>98%</Text>
+                    <Text style={styles.summarySub}>Success</Text>
+                </View>
             </View>
 
             <FlatList
@@ -87,104 +102,83 @@ const HomeReviewsSlider = () => {
                 renderItem={renderItem}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                snapToInterval={CARD_WIDTH + 16}
+                snapToInterval={CARD_W + 16}
                 decelerationRate="fast"
-                contentContainerStyle={styles.listContent}
-                keyExtractor={(item, index) => item.id || index.toString()}
+                contentContainerStyle={styles.list}
+                keyExtractor={(item) => item.id}
             />
         </View>
     );
 };
 
-const getRandomColor = (name: string) => {
-    const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#6366F1'];
-    if (!name) return '#9CA3AF';
-    return colors[name.length % colors.length];
-};
-
 const styles = StyleSheet.create({
-    container: {
-        marginVertical: 24,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        marginBottom: 16,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: COLORS.text.primary,
-    },
-    subtitle: {
-        fontSize: 12,
-        color: COLORS.text.secondary,
-        marginTop: 2,
-    },
-    viewAllText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: COLORS.primary,
-    },
-    listContent: {
-        paddingHorizontal: 20,
-        gap: 16,
-    },
-    card: {
-        width: CARD_WIDTH,
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 20,
-        shadowColor: "#000",
+    container: { backgroundColor: "#F8FAFF", paddingBottom: 24, paddingTop: 10 },
+    summaryBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#fff",
+        marginHorizontal: 20,
+        marginBottom: 20,
+        paddingVertical: 18,
+        borderRadius: 24,
+        shadowColor: "#235CF8",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.06,
         shadowRadius: 10,
-        elevation: 3,
+        elevation: 4,
         borderWidth: 1,
-        borderColor: '#F3F4F6',
+        borderColor: "#F0F4FF",
     },
-    quoteIcon: {
-        position: 'absolute',
-        top: 20,
-        right: 20,
-        opacity: 0.5,
+    summaryItem: { flex: 1, alignItems: "center" },
+    summaryDivider: { width: 1, height: 24, backgroundColor: "#E2E8F0" },
+    summaryMain: { fontSize: 20, fontWeight: "800", color: "#0F172A", letterSpacing: -0.5 },
+    summarySub: { fontSize: 11, color: "#94A3B8", fontWeight: "600", marginTop: 2 },
+    list: { paddingHorizontal: 20, gap: 16 },
+    card: {
+        width: CARD_W,
+        backgroundColor: "#fff",
+        borderRadius: 24,
+        padding: 22,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 5,
+        borderWidth: 1,
+        borderColor: "#F1F5F9",
     },
-    cardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
+    cardHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 16 },
+    starsRow: { flexDirection: "row", gap: 3 },
+    quotePill: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: "#EEF3FF",
+        alignItems: "center",
+        justifyContent: "center",
     },
+    comment: {
+        fontSize: 14,
+        color: "#475569",
+        lineHeight: 22,
+        fontWeight: "500",
+        fontStyle: "italic",
+        marginBottom: 18,
+    },
+    cardFooter: { flexDirection: "row", alignItems: "center", gap: 12 },
     avatar: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 12,
+        backgroundColor: COLORS.primaryLight,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 2,
+        borderColor: "#fff",
     },
-    avatarText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    userName: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: COLORS.text.primary,
-        marginBottom: 2,
-    },
-    ratingRow: {
-        flexDirection: 'row',
-        gap: 2,
-    },
-    comment: {
-        fontSize: 14,
-        color: COLORS.text.secondary,
-        lineHeight: 22,
-        fontStyle: 'italic',
-    },
+    avatarText: { color: COLORS.primary, fontWeight: "800", fontSize: 16 },
+    userName: { fontSize: 15, fontWeight: "700", color: "#0F172A" },
+    userMeta: { fontSize: 11, color: "#94A3B8", fontWeight: "600" },
 });
 
 export default HomeReviewsSlider;

@@ -69,7 +69,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
         >
             <View style={styles.header}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Trending Ads</Text>
+                    <Text style={styles.title}>Trending Ads 🔥</Text>
                     <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
                 {/* 
@@ -153,6 +153,35 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                                     transition={300}
                                     cachePolicy="memory-disk"
                                 />
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.cardsContainer}
+                decelerationRate="fast"
+                snapToInterval={230 + 16}
+            >
+                {displayAds.map((ad, index) => {
+                    // CarDetails can be an object (list endpoint) or array (some Supabase versions)
+                    const details = Array.isArray(ad.CarDetails) ? ad.CarDetails?.[0] : ad.CarDetails;
+
+                    return (
+                    <TouchableOpacity
+                        key={`trending-${ad.id}-${index}`}
+                        style={styles.card}
+                        activeOpacity={0.9}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.push(`/cars/${ad.id}`);
+                        }}
+                    >
+                        <View style={styles.imageContainer}>
+                            <Image
+                                source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
+                                style={styles.image}
+                                contentFit="cover"
+                                transition={300}
+                                cachePolicy="memory-disk"
+                            />
 
                                 {/* Status Badge from Backend Logic if needed, or just Review Count badge */}
                                 <View style={styles.reviewBadge}>
@@ -176,6 +205,13 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                                 <Text style={styles.cardSubTitle} numberOfLines={1}>
                                     {ad.CarDetails?.model} {ad.CarDetails?.year}
                                 </Text>
+                        <View style={styles.cardContent}>
+                            <Text style={styles.cardTitle} numberOfLines={1}>
+                                {ad.title}
+                            </Text>
+                            <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                {details?.model} {details?.year}
+                            </Text>
 
                                 <View style={styles.detailsRow}>
                                     <View style={styles.locationRow}>
@@ -190,6 +226,11 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                     ))}
                 </ScrollView>
             )}
+                        </View>
+                    </TouchableOpacity>
+                    );
+                })}
+            </ScrollView>
         </Animated.View>
     );
 };

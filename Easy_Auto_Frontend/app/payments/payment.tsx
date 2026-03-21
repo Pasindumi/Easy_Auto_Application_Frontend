@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator, SafeAreaView, Platform } from 'react-native';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import Loading from '@/components/ui/Loading';
 import { ENDPOINTS } from '../../constants/API';
@@ -11,6 +12,7 @@ import { paymentData } from "../../constants/dummydata/payment";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { OrderItem } from '../../types/payment.types';
 import { api } from '@/utils/api';
+import { COLORS } from '@/constants/Colors';
 
 import ImportantNoteSection from '../../components/payments/payment/ImportantNoteSection';
 import OrderItemsSection from '../../components/payments/payment/OrderItemsSection';
@@ -63,7 +65,6 @@ export default function Payment() {
             const uploadedImagesCount = rentalAdId ? (adData.images?.length || 0) : (adData.AdImage?.length || 0);
 
             // 1. Find the Standard (Global) Advertisement Price for this vehicle type
-            // Based on rules-output.json, the code is 'STD_AD'
             const standardAdRule = rulesData.find((r: any) =>
               r.vehicle_type_id === vehicleTypeId &&
               r.unit === 'PER_AD' &&
@@ -86,7 +87,6 @@ export default function Payment() {
             let isFreeAdLocal = false;
             let packageLimitId = null;
 
-            // 1. Check Global Limits (New)
             if (pkgData && pkgData.global_limit) {
               const gLimit = pkgData.global_limit;
               if (gLimit.is_unlimited || gLimit.total_remaining > 0) {
@@ -94,7 +94,6 @@ export default function Payment() {
               }
             }
 
-            // 2. Check Per-Type Limits (Legacy Fallback)
             if (!isFreeAdLocal && pkgData && pkgData.limits) {
               const limit = pkgData.limits.find((l: any) =>
                 String(l.vehicle_type_id || '').toLowerCase() === String(vehicleTypeId || '').toLowerCase()
@@ -108,7 +107,6 @@ export default function Payment() {
             }
 
             setIsFreeAd(isFreeAdLocal);
-            // Use flattened ID from backend
             setActivePackageId(pkgData?.packageId || null);
 
             if (isFreeAdLocal) {
@@ -117,7 +115,7 @@ export default function Payment() {
                 price: adPrice
               });
               newOrderItems.push({
-                label: `Reduce because of package`,
+                label: `Package Benefit`,
                 price: -adPrice
               });
             } else {
@@ -128,7 +126,6 @@ export default function Payment() {
             }
 
             let extraImageFee = 0;
-            // Determine effective image limit (Max of Rule OR Package Config)
             let effectiveImageLimit = freeImageLimit;
             if (pkgData && pkgData.config?.IMAGE_LIMIT) {
               effectiveImageLimit = Math.max(effectiveImageLimit, parseInt(pkgData.config.IMAGE_LIMIT));
@@ -145,13 +142,12 @@ export default function Payment() {
                 const exImgPrice = parseFloat(exImgRule.price);
                 extraImageFee = extraImages * exImgPrice;
                 newOrderItems.push({
-                  label: `Extra Images (${extraImages} x ${new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(exImgPrice)})`,
+                  label: `Extra Images (${extraImages} images)`,
                   price: extraImageFee
                 });
               }
             }
 
-            // Extra Description Charge
             const ruleDescLimit = finalAdRule?.description_limit || 500;
             let effectiveDescLimit = ruleDescLimit;
 
@@ -164,7 +160,6 @@ export default function Payment() {
             let extraDescFee = 0;
 
             if (descLength > effectiveDescLimit) {
-              // Find rule for EXT_LTR
               const extLtrRule = rulesData.find((r: any) =>
                 (r.vehicle_type_id === vehicleTypeId || !r.vehicle_type_id) &&
                 r.price_items?.code === 'EXT_LTR'
@@ -176,7 +171,7 @@ export default function Payment() {
                   const extraChars = descLength - effectiveDescLimit;
                   extraDescFee = extraChars * extraLetterPrice;
                   newOrderItems.push({
-                    label: `Extra Description (${extraChars} chars x ${new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(extraLetterPrice)})`,
+                    label: `Extra Description (${extraChars} chars)`,
                     price: extraDescFee
                   });
                 }
@@ -250,6 +245,8 @@ export default function Payment() {
     date: formatDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
     payout: getSettleDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
     expiryDate: adDetails.expiry_date ? formatDate(adDetails.expiry_date) : undefined,
+    invoice: `INV-${String(adId).substring(0, 10).toUpperCase()}`,
+    coverImage: adDetails.AdImage?.[0]?.image_url || 'blueLogo.png'
     invoice: `INV-${String(adId || rentalAdId).substring(0, 10)}`,
 
     coverImage: (rentalAdId ? adDetails.images?.[0]?.image_url : adDetails.AdImage?.[0]?.image_url) || 'blueLogo.png'
@@ -289,7 +286,6 @@ export default function Payment() {
       setLoading(true);
 
       if (total === 0 && isFreeAd) {
-        // Handle Free Ad Activation via Package
         const activationResponse = await api.post<{ success: boolean; message: string }>(
           '/api/payment/activate-free-ad',
           {
@@ -312,7 +308,6 @@ export default function Payment() {
 
       const amountFormatted = total.toFixed(2);
       const orderId = displaySummary.invoice;
-      // Clean description for PayHere
       const items = (displaySummary.title || "Advertisement").substring(0, 100).replace(/[^a-zA-Z0-9 ]/g, "");
 
       const paymentObj = {
@@ -320,7 +315,6 @@ export default function Payment() {
         items: items,
         amount: amountFormatted,
         currency: "LKR",
-
         first_name: displaySeller.name ? displaySeller.name.split(' ')[0] : "User",
         last_name: displaySeller.name
           ? displaySeller.name.split(' ')[1] || "User"
@@ -335,22 +329,15 @@ export default function Payment() {
         sandbox: true
       };
 
-      console.log("Initiating Payment with Obj:", JSON.stringify(paymentObj));
-
-      // 1. Fetch the Auto-Submit HTML from Backend
-      // This ensures backend processes the data via AXIOS (reliable) instead of WebView (flaky body)
       const response = await api.post<{ success: boolean; html: string }>(
         '/api/payment/initiate',
         paymentObj
       );
 
-      console.log("Payment Init Response:", response);
-
       if (!response.success || !response.html) {
         throw new Error("Failed to initiate payment. Server returned invalid response.");
       }
 
-      // 2. Navigate to Gateway with HTML content
       router.push({
         pathname: '/payments/payhere-gateway',
         params: { html: response.html },
@@ -364,16 +351,11 @@ export default function Payment() {
     }
   };
 
-  const handleModify = () => {
-    router.back();
-  };
-
-  const handleBuyPackage = () => {
-    router.push('/packages/packages');
-  };
-
   if (loading) {
     return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Preparing your checkout...</Text>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f4f6' }}>
         <Loading />
       </View>
@@ -381,109 +363,177 @@ export default function Payment() {
   }
 
   return (
-    <View style={styles.safe}>
+    <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
+      <Header showBack={true} title="Secure Checkout" />
 
-      <View style={headerSectionStyles.headerWrap}>
-        <View style={headerSectionStyles.header}>
-          <Ionicons name="receipt-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={headerSectionStyles.headerTitle}>Booking Summary (V2)</Text>
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.headerIndicator}>
+            <Ionicons name="shield-checkmark" size={18} color={COLORS.status.success} />
+            <Text style={styles.headerIndicatorText}>Secure Checkout</Text>
         </View>
-      </View>
 
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.card}>
-          <PaymentSummaryHeader summary={displaySummary} />
-          <SellerInfoSection seller={displaySeller} />
-          <OrderItemsSection items={orderItems} total={total} />
-          <ImportantNoteSection note={total === 0 ? "This advertisement is covered by your active package. You won't be charged for this posting." : paymentData.note} />
-          <PromoCodeSection onApply={handleApplyPromo} />
-
-          <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.payHereBtn} onPress={handlePayHere}>
-              <Text style={styles.payHereText}>Pay Now (PayHere)</Text>
-            </TouchableOpacity>
-
-            <View style={styles.secondaryButtons}>
-              <TouchableOpacity style={styles.secondaryBtn} onPress={handleBuyPackage}>
-                <Text style={styles.secondaryBtnText}>Buy Package</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.secondaryBtn, styles.modifyBtn]} onPress={handleModify}>
-                <Text style={[styles.secondaryBtnText, styles.modifyText]}>Modify Booking</Text>
-              </TouchableOpacity>
-            </View>
+        <ScrollView 
+            style={styles.container} 
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.mainContent}>
+            <PaymentSummaryHeader summary={displaySummary} />
+            <SellerInfoSection seller={displaySeller} />
+            <OrderItemsSection items={orderItems} total={total} />
+            <PromoCodeSection onApply={handleApplyPromo} />
+            <ImportantNoteSection note={total === 0 ? "Enjoy your package benefits! This ad is fully covered." : paymentData.note} />
           </View>
+        </ScrollView>
+
+        <View style={styles.bottomActions}>
+            <View style={styles.totalSummary}>
+                <View>
+                    <Text style={styles.totalLabel}>Total to Pay</Text>
+                    <Text style={styles.totalValue}>LKR {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+                </View>
+                <TouchableOpacity style={styles.payBtn} onPress={handlePayHere}>
+                    <Text style={styles.payBtnText}>Confirm & Pay</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                </TouchableOpacity>
+            </View>
+            
+            <View style={styles.secondaryActions}>
+                <TouchableOpacity style={styles.outlineBtn} onPress={() => router.push('/packages/packages')}>
+                    <Ionicons name="cube-outline" size={18} color={COLORS.primary} />
+                    <Text style={styles.outlineBtnText}>View Packages</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.outlineBtn, styles.modifyBtn]} onPress={() => router.back()}>
+                    <Ionicons name="create-outline" size={18} color={COLORS.text.secondary} />
+                    <Text style={[styles.outlineBtnText, styles.modifyBtnText]}>Modify Ad</Text>
+                </TouchableOpacity>
+            </View>
         </View>
-      </ScrollView>
+      </SafeAreaView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
   safe: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f8fafc',
+  },
+  loadingContainer: {
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 12,
+    color: COLORS.text.secondary,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  headerIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+    gap: 6,
+  },
+  headerIndicatorText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.status.success,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6'
   },
   contentContainer: {
-    paddingBottom: 32
+    paddingBottom: 40,
   },
-  card: {
-    margin: 16,
+  mainContent: {
+    padding: 16,
+  },
+  bottomActions: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
+    padding: 20,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    gap: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 10,
   },
-  actionButtons: {
-    marginTop: 20,
-    gap: 12
-  },
-  payHereBtn: {
-    backgroundColor: '#235CF8',
-    borderRadius: 8,
-    paddingVertical: 14,
+  totalSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#235CF8',
-    shadowOffset: { width: 0, height: 2 },
+  },
+  totalLabel: {
+    fontSize: 12,
+    color: COLORS.text.muted,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  totalValue: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1e293b',
+  },
+  payBtn: {
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3
+    shadowRadius: 8,
+    elevation: 4,
   },
-  payHereText: {
+  payBtnText: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16
+    fontWeight: '700',
+    fontSize: 16,
   },
-  secondaryButtons: {
+  secondaryActions: {
     flexDirection: 'row',
     gap: 12,
-    justifyContent: 'space-between'
   },
-  secondaryBtn: {
+  outlineBtn: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#235CF8',
-    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    borderRadius: 10,
     paddingVertical: 12,
-    alignItems: 'center'
+    gap: 8,
   },
-  secondaryBtnText: {
-    color: '#235CF8',
+  outlineBtnText: {
+    color: COLORS.primary,
     fontWeight: '600',
-    fontSize: 14
+    fontSize: 14,
   },
   modifyBtn: {
-    borderColor: '#6b7280'
+    borderColor: '#e2e8f0',
   },
-  modifyText: {
-    color: '#6b7280'
-  }
+  modifyBtnText: {
+    color: COLORS.text.secondary,
+  },
 });

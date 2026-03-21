@@ -17,7 +17,9 @@ import {
   Animated,
   FlatList,
   RefreshControl,
+  Image as RNImage,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
@@ -70,6 +72,7 @@ const YEAR_RANGES = [
 
 export default function SearchScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -203,21 +206,32 @@ export default function SearchScreen() {
       const params: any = {};
 
       if (searchQuery) params.search = searchQuery;
-      if (selectedCategory !== 'all') params.vehicle_type_id = selectedCategory;
-      if (selectedBrand) params.brand_id = selectedBrand;
-      if (selectedModel) params.model_id = selectedModel;
-      if (selectedCondition) params.condition_id = selectedCondition;
-      if (selectedFuelType) params.fuel_type = selectedFuelType;
-      if (selectedTransmission) params.transmission = selectedTransmission;
+      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // ✅ was: vehicle_type_id
       if (locationFilter) params.location = locationFilter;
 
+      // Brand: backend expects brand NAME, not ID — resolve from list
+      if (selectedBrand) {
+        const brandObj = brands.find((b: any) => b.value === selectedBrand);
+        if (brandObj) params.brand = brandObj.label; // ✅ was: brand_id
+      }
+
+      // Model: backend expects model NAME, not ID — resolve from list
+      if (selectedModel) {
+        const modelObj = models.find((m: any) => m.value === selectedModel);
+        if (modelObj) params.model = modelObj.label; // ✅ was: model_id
+      }
+
+      if (selectedCondition) params.condition = selectedCondition; // ✅ was: condition_id
+      if (selectedFuelType) params.fuelType = selectedFuelType;     // ✅ was: fuel_type
+      if (selectedTransmission) params.transmission = selectedTransmission;
+
       const priceRange = PRICE_RANGES[selectedPriceRange];
-      if (priceRange.min) params.min_price = priceRange.min;
-      if (priceRange.max) params.max_price = priceRange.max;
+      if (priceRange.min) params.minPrice = priceRange.min; // ✅ was: min_price
+      if (priceRange.max) params.maxPrice = priceRange.max; // ✅ was: max_price
 
       const yearRange = YEAR_RANGES[selectedYearRange];
-      if (yearRange.min) params.min_year = yearRange.min;
-      if (yearRange.max) params.max_year = yearRange.max;
+      if (yearRange.min) params.minYear = yearRange.min; // ✅ was: min_year
+      if (yearRange.max) params.maxYear = yearRange.max; // ✅ was: max_year
 
       if (selectedSort !== 'relevance') params.sort = selectedSort;
 
@@ -237,15 +251,16 @@ export default function SearchScreen() {
     }
   }, [searchQuery, selectedCategory, selectedBrand, selectedModel, selectedCondition,
     selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange,
-    selectedYearRange, selectedSort]);
+    selectedYearRange, selectedSort, brands, models]);
 
-  // Auto-search on filter changes
+  // Auto-search on ANY filter change (Fix 4: was missing brand/model/condition/fuel/transmission/location)
   useEffect(() => {
     const timer = setTimeout(() => {
       performSearch();
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedCategory, selectedSort, selectedPriceRange, selectedYearRange]);
+  }, [performSearch]); // ✅ performSearch already has all deps via useCallback
+
 
   // Calculate active filters
   useEffect(() => {
@@ -395,8 +410,34 @@ export default function SearchScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title="Search" />
+      {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
+      <LinearGradient
+        colors={[COLORS.primary, COLORS.primaryDark]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
+      >
+        <View style={styles.headerTopRow}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={26} color="white" />
+          </TouchableOpacity>
+          
+          <View pointerEvents="none" style={styles.logoCentre}>
+            <RNImage
+              source={require("@/assets/logoHome.png")}
+              resizeMode="contain"
+              style={styles.logoImg}
+            />
+          </View>
 
+          <View style={styles.headerRightSpacer} />
+        </View>
+
+        <View style={styles.headerSearchArea}>
+           <View style={styles.glassSearch}>
+            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
+            <TextInput
+              style={styles.headerSearchInput}
+              placeholder="Search cars, brands, models..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
       {/* Search Bar section - cleaned up without redundant gradient */}
       <View style={styles.searchSection}>
         <View style={styles.searchBarContainer}>
@@ -426,11 +467,16 @@ export default function SearchScreen() {
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.5)" />
                 <Ionicons name="close-circle" size={16} color={COLORS.text.muted} />
               </TouchableOpacity>
             )}
           </View>
         </View>
+      </LinearGradient>
+
+      {/* Filter and stats section */}
+      <View style={styles.filterStatsSection}>
 
         {/* Quick Filters */}
         <ScrollView
@@ -754,20 +800,56 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  searchSection: {
-    backgroundColor: COLORS.white,
-    paddingBottom: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  searchBarContainer: {
+  header: {
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: COLORS.white,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    elevation: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    zIndex: 100,
   },
-  searchBar: {
+  headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 44,
+    marginBottom: 16,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  logoCentre: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoImg: {
+    width: 100,
+    height: 24,
+  },
+  headerRightSpacer: {
+    width: 40,
+  },
+  headerSearchArea: {
+    width: '100%',
+  },
+  glassSearch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 52,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
     backgroundColor: '#F3F4F6',
     borderRadius: 12,
     paddingHorizontal: 10,
@@ -789,12 +871,19 @@ const styles = StyleSheet.create({
   searchGradient: {
     ...StyleSheet.absoluteFillObject,
   },
-  searchInput: {
+  headerSearchInput: {
     flex: 1,
+    fontSize: 15,
+    color: 'white',
+    marginLeft: 10,
     fontSize: 13,
     color: COLORS.text.primary,
     fontWeight: '500',
     padding: 0,
+  },
+  filterStatsSection: {
+    backgroundColor: COLORS.white,
+    paddingBottom: 4,
   },
   quickFilters: {
     paddingHorizontal: 16,

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { typography } from "../../theme";
+import { COLORS } from '@/constants/Colors';
 
 interface SupportHelpCardProps {
     onContactSupport: () => void;
@@ -11,66 +11,79 @@ const SupportHelpCard: React.FC<SupportHelpCardProps> = ({ onContactSupport }) =
     return (
         <View style={styles.helpCard}>
             <View style={styles.helpIconContainer}>
-                <Ionicons name="help-circle" size={32} color="#235CF8" />
+                <Ionicons name="chatbubble-ellipses-outline" size={32} color={COLORS.primary} />
             </View>
-            <Text style={styles.helpTitle}>Need Help?</Text>
-            <Text style={styles.helpText}>
-                Have questions about billing or subscriptions? Our support team
-                is here to help.
-            </Text>
+            <View style={styles.helpContent}>
+                <Text style={styles.helpTitle}>Need Assistance?</Text>
+                <Text style={styles.helpText}>
+                    Have questions about billing or plans? Our expert support team is ready to help 24/7.
+                </Text>
 
-            <TouchableOpacity
-                style={styles.supportButton}
-                onPress={onContactSupport}
-                activeOpacity={0.8}
-            >
-                <Text style={styles.supportText}>Contact Support</Text>
-                <Ionicons name="arrow-forward" size={18} color="#235CF8" />
-            </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.supportButton}
+                    onPress={onContactSupport}
+                    activeOpacity={0.8}
+                >
+                    <Text style={styles.supportText}>Talk to an Expert</Text>
+                    <Ionicons name="chevron-forward" size={16} color={COLORS.primary} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     helpCard: {
-        backgroundColor: '#F0F7FF',
-        padding: 20,
-        borderRadius: 18,
-        marginBottom: 16,
-        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 24,
+        borderRadius: 24,
+        marginBottom: 40,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 20,
         borderWidth: 1,
-        borderColor: '#DBEAFE',
+        borderColor: '#f1f5f9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
+        elevation: 2,
     },
     helpIconContainer: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: '#DBEAFE',
+        width: 60,
+        height: 60,
+        borderRadius: 20,
+        backgroundColor: '#eff6ff',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 12,
+    },
+    helpContent: {
+        flex: 1,
     },
     helpTitle: {
-        ...typography.subheading,
-        marginBottom: 8,
-        textAlign: 'center',
+        fontSize: 18,
+        fontWeight: '900',
+        color: '#1e293b',
+        marginBottom: 6,
     },
     helpText: {
-        ...typography.body,
+        fontSize: 14,
+        color: COLORS.text.muted,
+        lineHeight: 20,
         marginBottom: 16,
-        textAlign: 'center',
+        fontWeight: '500',
     },
     supportButton: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
     },
     supportText: {
-        color: '#235CF8',
-        fontWeight: '600',
-        fontSize: 15,
+        color: COLORS.primary,
+        fontWeight: '800',
+        fontSize: 14,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
 });
 

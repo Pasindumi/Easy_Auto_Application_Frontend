@@ -1,279 +1,172 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React, { useEffect, useRef } from "react";
-import { Animated, Easing, Platform, View } from "react-native";
+import {
+    Animated,
+    Dimensions,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 
-import { HapticTab } from "@/components/haptic-tab";
+const { width } = Dimensions.get("window");
+const PRIMARY = "#235CF8";
+const INACTIVE = "#94A3B8";
 
-// Modern Minimalist Tab Icon Component
-const ModernTabIcon = ({
-  focused,
-  iconName,
-  iconNameOutline,
-}: {
-  focused: boolean;
-  iconName: string;
-  iconNameOutline: string;
-}) => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const opacityAnim = useRef(new Animated.Value(focused ? 1 : 0.6)).current;
+/**
+ * Custom Floating Glass Tab Bar
+ */
+function CustomTabBar({ state, descriptors, navigation }: any) {
+    const insets = useSafeAreaInsets();
+    
+    // Calculate tab width (excluding margins)
+    const MARGIN_H = 20;
+    const barWidth = width - (MARGIN_H * 2);
+    const tabWidth = barWidth / state.routes.length;
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.spring(scaleAnim, {
-        toValue: focused ? 1.1 : 1,
-        useNativeDriver: true,
-        tension: 300,
-        friction: 20,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: focused ? 1 : 0.5,
-        duration: 200,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [focused, scaleAnim, opacityAnim]);
+    // Animation for active indicator
+    const translateX = useRef(new Animated.Value(0)).current;
 
-  return (
-    <Animated.View
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-        transform: [{ scale: scaleAnim }],
-        opacity: opacityAnim,
-      }}
-    >
-      <Ionicons
-        name={focused ? (iconName as any) : (iconNameOutline as any)}
-        size={22}
-        color={focused ? "#235CF8" : "#9CA3AF"}
-      />
-    </Animated.View>
-  );
-};
+    useEffect(() => {
+        Animated.spring(translateX, {
+            toValue: state.index * tabWidth,
+            useNativeDriver: true,
+            bounciness: 4,
+            speed: 12,
+        }).start();
+    }, [state.index]);
 
-// Elegant Center Compare Button
-const CompareButton = ({ focused }: { focused: boolean }) => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const shadowAnim = useRef(new Animated.Value(focused ? 1 : 0.7)).current;
+    return (
+        <View style={[styles.floatingContainer, { bottom: insets.bottom + 10 }]}>
+            <View style={styles.glassBar}>
+                {/* Active Tab Indicator (Sliding Background) */}
+                <Animated.View 
+                    style={[
+                        styles.indicator, 
+                        { width: tabWidth - 10, transform: [{ translateX: Animated.add(translateX, 5) }] }
+                    ]} 
+                />
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.spring(scaleAnim, {
-        toValue: focused ? 1.05 : 1,
-        useNativeDriver: true,
-        tension: 300,
-        friction: 15,
-      }),
-      Animated.timing(shadowAnim, {
-        toValue: focused ? 1 : 0.7,
-        duration: 200,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, [focused, scaleAnim, shadowAnim]);
+                {state.routes.map((route: any, index: number) => {
+                    const { options } = descriptors[route.key];
+                    const isFocused = state.index === index;
 
-  const shadowOpacity = shadowAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.15, 0.3],
-  });
+                    const onPress = () => {
+                        const event = navigation.emit({
+                            type: 'tabPress',
+                            target: route.key,
+                            canPreventDefault: true,
+                        });
 
-  return (
-    <View
-      style={{
-        width: 56,
-        height: 56,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      {/* Shadow Layer */}
-      <Animated.View
-        style={{
-          position: "absolute",
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: "#235CF8",
-          shadowColor: "#235CF8",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: shadowOpacity,
-          shadowRadius: 12,
-          elevation: focused ? 8 : 6,
-        }}
-      />
-      {/* Button */}
-      <Animated.View
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: "#235CF8",
-          justifyContent: "center",
-          alignItems: "center",
-          transform: [{ scale: scaleAnim }],
-        }}
-      >
-        <Ionicons name="swap-horizontal" size={24} color="#FFFFFF" />
-      </Animated.View>
-    </View>
-  );
-};
+                        if (!isFocused && !event.defaultPrevented) {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            navigation.navigate(route.name);
+                        }
+                    };
+
+                    const getIcon = (focused: boolean) => {
+                        switch (route.name) {
+                            case "index":   return focused ? "home" : "home-outline";
+                            case "search":  return focused ? "search" : "search-outline";
+                            case "compare": return "swap-horizontal";
+                            case "chat":    return focused ? "chatbubbles" : "chatbubbles-outline";
+                            case "profile": return focused ? "person" : "person-outline";
+                            default:        return "square";
+                        }
+                    };
+
+                    return (
+                        <Pressable
+                            key={route.key}
+                            onPress={onPress}
+                            style={styles.tabItem}
+                        >
+                            <Ionicons 
+                                name={getIcon(isFocused) as any} 
+                                size={isFocused ? 22 : 21} 
+                                color={isFocused ? "#FFF" : INACTIVE} 
+                            />
+                            <Text style={[
+                                styles.label, 
+                                { color: isFocused ? "#FFF" : INACTIVE, fontWeight: isFocused ? "800" : "600" }
+                            ]}>
+                                {options.title || route.name}
+                            </Text>
+                        </Pressable>
+                    );
+                })}
+            </View>
+        </View>
+    );
+}
 
 export default function TabLayout() {
-  const insets = useSafeAreaInsets();
-
-  return (
-    <Tabs
-      screenOptions={{
-        // Modern Color Scheme
-        tabBarActiveTintColor: "#235CF8",
-        tabBarInactiveTintColor: "#9CA3AF",
-        headerShown: false,
-
-        // Clean Typography
-        tabBarShowLabel: true,
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: "600",
-          marginTop: 4,
-          marginBottom: 0,
-          letterSpacing: 0.3,
-          opacity: 1,
-          height: "auto",
-        },
-
-        // Icon Styling
-        tabBarIconStyle: {
-          marginTop: 0,
-          marginBottom: 0,
-        },
-
-        // Clean Tab Bar Container
-        tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopWidth: 1,
-          borderTopColor: "#E5E7EB",
-          height: Platform.OS === "ios" ? 68 + insets.bottom : 68,
-          paddingBottom:
-            Platform.OS === "ios" ? Math.max(insets.bottom, 10) : 10,
-          paddingTop: 8,
-          paddingHorizontal: 0,
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          elevation: 20,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.15,
-          shadowRadius: 12,
-        },
-
-        // Tab Item Styling
-        tabBarItemStyle: {
-          paddingVertical: 4,
-          justifyContent: "center",
-          alignItems: "center",
-          flex: 1,
-          height: "100%",
-        },
-      }}
-    >
-      {/* Home Tab */}
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarLabel: "Home",
-          tabBarAccessibilityLabel: "Home tab",
-          tabBarIcon: ({ focused }) => (
-            <ModernTabIcon
-              focused={focused}
-              iconName="grid"
-              iconNameOutline="grid-outline"
-            />
-          ),
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
-
-      {/* Search Tab */}
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: "Search",
-          tabBarLabel: "Search",
-          tabBarAccessibilityLabel: "Search tab",
-          tabBarIcon: ({ focused }) => (
-            <ModernTabIcon
-              focused={focused}
-              iconName="search"
-              iconNameOutline="search-outline"
-            />
-          ),
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
-
-      {/* Compare Tab - Elegant Center Button */}
-      <Tabs.Screen
-        name="compare"
-        options={{
-          title: "Compare",
-          tabBarLabel: "",
-          tabBarAccessibilityLabel: "Compare cars tab",
-          tabBarIcon: ({ focused }) => (
-            <View style={{ marginTop: -12 }}>
-              <CompareButton focused={focused} />
-            </View>
-          ),
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
-
-      {/* Chat Tab */}
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: "Chat",
-          tabBarLabel: "Chat",
-          tabBarAccessibilityLabel: "Chat tab",
-          tabBarIcon: ({ focused }) => (
-            <ModernTabIcon
-              focused={focused}
-              iconName="chatbubbles"
-              iconNameOutline="chatbubbles-outline"
-            />
-          ),
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
-
-      {/* Profile Tab */}
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarLabel: "Profile",
-          tabBarAccessibilityLabel: "Profile tab",
-          tabBarIcon: ({ focused }) => (
-
-            <ModernTabIcon
-              focused={focused}
-              iconName="person-circle"
-              iconNameOutline="person-circle-outline"
-            />
-          ),
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
-
-      {/* Hidden signup route */}
-
-    </Tabs>
-  );
+    return (
+        <Tabs
+            tabBar={(props) => <CustomTabBar {...props} />}
+            screenOptions={{
+                headerShown: false,
+            }}
+        >
+            <Tabs.Screen name="index" options={{ title: "Home" }} />
+            <Tabs.Screen name="search" options={{ title: "Search" }} />
+            <Tabs.Screen name="compare" options={{ title: "Compare" }} />
+            <Tabs.Screen name="chat" options={{ title: "Chat" }} />
+            <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+        </Tabs>
+    );
 }
+
+const styles = StyleSheet.create({
+    floatingContainer: {
+        position: "absolute",
+        left: 20,
+        right: 20,
+        alignItems: "center",
+        zIndex: 1000,
+    },
+    glassBar: {
+        flexDirection: "row",
+        backgroundColor: "rgba(255, 255, 255, 0.92)",
+        borderRadius: 30,
+        height: 64,
+        paddingHorizontal: 5,
+        alignItems: "center",
+        // Precise Border
+        borderWidth: 1.5,
+        borderColor: "rgba(255, 255, 255, 0.5)",
+        // Premium Shadow
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.12,
+        shadowRadius: 20,
+        elevation: 15,
+    },
+    indicator: {
+        position: "absolute",
+        height: 50,
+        backgroundColor: PRIMARY,
+        borderRadius: 22,
+        zIndex: -1,
+        // Indicator Shadow
+        shadowColor: PRIMARY,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+    },
+    tabItem: {
+        flex: 1,
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 2,
+    },
+    label: {
+        fontSize: 10,
+        letterSpacing: -0.2,
+    }
+});
