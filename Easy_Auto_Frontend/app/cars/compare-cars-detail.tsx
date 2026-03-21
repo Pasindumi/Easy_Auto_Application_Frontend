@@ -74,7 +74,7 @@ export default function CompareCars() {
     <View style={styles.loadingContainer}>
        <View style={styles.loaderGraphic}>
           <LinearGradient
-            colors={['#4F46E5', '#7C3AED']}
+            colors={[COLORS.primary, COLORS.primaryDark]}
             style={styles.loaderCircle}
           >
              <Ionicons name="swap-horizontal" size={32} color="#fff" />
@@ -134,7 +134,7 @@ export default function CompareCars() {
         {/* Market Verdict Badge */}
         <View style={styles.verdictSection}>
            <LinearGradient
-             colors={['#1e293b', '#0f172a']}
+             colors={[COLORS.secondary, COLORS.primary]}
              style={styles.verdictCard}
            >
               <View style={styles.verdictIcon}>
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
      borderRadius: 40,
      alignItems: 'center',
      justifyContent: 'center',
-     shadowColor: '#4F46E5',
+     shadowColor: COLORS.primary,
      shadowOffset: { width: 0, height: 10 },
      shadowOpacity: 0.3,
      shadowRadius: 15,

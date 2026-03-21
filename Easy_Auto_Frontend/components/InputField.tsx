@@ -22,7 +22,7 @@ type Props = {
   onIconPress?: () => void;
   multiline?: boolean;
   numberOfLines?: number;
-  inputStyle?: object; // Allow custom styling for the input
+  inputStyle?: object; 
 };
 
 export default function InputField({

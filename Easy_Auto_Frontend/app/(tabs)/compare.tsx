@@ -12,7 +12,9 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  Image as RNImage,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from 'expo-haptics';
 import { SAMPLE_COMPARISONS } from "../../constants/dummydata/compare";
@@ -23,6 +25,7 @@ const { width } = Dimensions.get('window');
 
 export default function CompareScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [activeSlot, setActiveSlot] = useState<1 | 2>(1);
   const [selectedCar1, setSelectedCar1] = useState<any>(null);
@@ -97,7 +100,7 @@ export default function CompareScreen() {
 
         <View style={styles.vsBadgeContainer}>
             <LinearGradient
-              colors={[COLORS.primary, '#1D4ED8']}
+              colors={[COLORS.primary, COLORS.primaryDark]}
               style={styles.vsBadge}
             >
               <Text style={styles.vsBadgeText}>VS</Text>
@@ -137,7 +140,7 @@ export default function CompareScreen() {
         disabled={!selectedCar1 || !selectedCar2}
       >
         <LinearGradient
-          colors={(!selectedCar1 || !selectedCar2) ? ['#CBD5E1', '#94A3B8'] : ['#4F46E5', '#7C3AED']}
+          colors={(!selectedCar1 || !selectedCar2) ? ['#CBD5E1', '#94A3B8'] : [COLORS.primary, COLORS.primaryDark]}
           style={styles.compareBtnGradient}
         >
           <Text style={styles.compareBtnText}>Analyze Comparison</Text>
@@ -149,7 +152,31 @@ export default function CompareScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title="Car Comparison" />
+      {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
+      <LinearGradient
+        colors={[COLORS.primary, COLORS.primaryDark]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
+      >
+        <View style={styles.headerTopRow}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={26} color="white" />
+          </TouchableOpacity>
+          
+          <View pointerEvents="none" style={styles.logoCentre}>
+            <RNImage
+              source={require("@/assets/logoHome.png")}
+              resizeMode="contain"
+              style={styles.logoImg}
+            />
+          </View>
+
+          <View style={styles.headerRightSpacer} />
+        </View>
+
+        <View style={styles.headerTitleArea}>
+          <Text style={styles.headerTitleText}>Car Comparison</Text>
+        </View>
+      </LinearGradient>
 
       <FlatList
         data={SAMPLE_COMPARISONS}
@@ -182,6 +209,54 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 40
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    elevation: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    zIndex: 100,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 44,
+    marginBottom: 8,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  logoCentre: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoImg: {
+    width: 100,
+    height: 24,
+  },
+  headerRightSpacer: {
+    width: 40,
+  },
+  headerTitleArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.5,
   },
   selectionHero: {
     backgroundColor: '#fff',

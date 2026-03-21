@@ -45,7 +45,7 @@ const SimilarComparisonsSection: React.FC<Props> = ({ comparisons }) => {
                             
                             <View style={styles.vsCircleContainer}>
                                 <LinearGradient
-                                    colors={['#1E293B', '#0F172A']}
+                                    colors={[COLORS.primary, COLORS.primaryDark]}
                                     style={styles.vsCircle}
                                 >
                                     <Text style={styles.vsText}>VS</Text>

@@ -50,7 +50,7 @@ export default function ProfileScreen() {
       const response = await api.get<any>('/api/users/stats');
       if (response.success) {
         setStats({
-          listings: response.data.listings || 0,
+          listings: response.data.ads || 0,  // ✅ backend returns `ads`, not `listings`
           saved: response.data.saved || 0,
           views: response.data.views || 0,
         });

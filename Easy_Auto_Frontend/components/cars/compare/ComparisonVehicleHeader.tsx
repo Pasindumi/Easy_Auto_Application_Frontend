@@ -96,14 +96,14 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     yearBadge: {
-        backgroundColor: '#F1F5F9',
+        backgroundColor: COLORS.primaryLight,
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 8,
     },
     yearText: { 
         fontSize: 10, 
-        color: '#64748B',
+        color: COLORS.primary,
         fontWeight: '800',
     },
     vsContainer: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: '#fff',
+        borderColor: COLORS.white,
         marginVertical: 4,
         shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 4 },

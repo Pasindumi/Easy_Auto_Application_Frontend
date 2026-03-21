@@ -14,7 +14,10 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image as RNImage,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useIsFocused } from '@react-navigation/native';
 import BasicInformationSection from '../../components/cars/sell/BasicInformationSection';
 import CarDetailsSection from '../../components/cars/sell/CarDetailsSection';
@@ -32,6 +35,7 @@ export default function SellCarScreen() {
   useProtectedRoute();
 
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { showToast } = useToast();
   const isFocused = useIsFocused();
   const params = useLocalSearchParams();
@@ -516,15 +520,41 @@ export default function SellCarScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
+      {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
+      <LinearGradient
+        colors={[COLORS.primary, COLORS.primaryDark]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
+      >
+        <View style={styles.headerTopRow}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={26} color="white" />
+          </TouchableOpacity>
+          
+          <View pointerEvents="none" style={styles.logoCentre}>
+            <RNImage
+              source={require("@/assets/logoHome.png")}
+              resizeMode="contain"
+              style={styles.logoImg}
+            />
+          </View>
 
-      <View style={headerSectionStyles.headerWrap}>
-        <View style={headerSectionStyles.header}>
-          <Ionicons name="pricetag-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <View style={styles.headerRightSpacer} />
+        </View>
+
+        <View style={styles.headerTitleArea}>
+          <Text style={styles.headerTitleText}>Post Your Ad</Text>
+        </View>
+      </LinearGradient>
+
+      <View style={styles.sellSubHeader}>
+        <View style={styles.sellSubHeaderContent}>
+          <View style={styles.sellSubHeaderIcon}>
+            <Ionicons name="pricetag" size={20} color={COLORS.white} />
+          </View>
           <View>
-            <Text style={headerSectionStyles.headerTitle}>Sell Your {vehicleType}</Text>
+            <Text style={styles.sellSubHeaderTitle}>Sell Your {vehicleType}</Text>
             {activePackageName && (
-              <Text style={{ fontSize: 12, color: COLORS.primary, fontWeight: '600' }}>
+              <Text style={styles.sellSubHeaderPkg}>
                 Active Package: {activePackageName}
               </Text>
             )}
@@ -598,7 +628,86 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 40,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    elevation: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    zIndex: 100,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 44,
+    marginBottom: 8,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  logoCentre: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoImg: {
+    width: 100,
+    height: 24,
+  },
+  headerRightSpacer: {
+    width: 40,
+  },
+  headerTitleArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  sellSubHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  sellSubHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  sellSubHeaderIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sellSubHeaderTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  sellSubHeaderPkg: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '700',
+    marginTop: 2,
   },
   authGuardContainer: {
     flex: 1,
