@@ -2,78 +2,60 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Payment } from '../../../types/payment.types';
+import { COLORS } from '@/constants/Colors';
 
 interface PaymentCardProps {
     item: Payment;
     onPress: (item: Payment) => void;
 }
 
-const statusColors: Record<string, string> = {
-    Successful: '#34C759',
-    Failed: '#FF3B30',
-    Refunded: '#FFCC00',
+const statusConfig: Record<string, { color: string; bg: string; icon: any }> = {
+    Successful: { color: '#059669', bg: '#ecfdf5', icon: 'checkmark-circle' },
+    Failed: { color: '#dc2626', bg: '#fef2f2', icon: 'close-circle' },
+    Refunded: { color: '#d97706', bg: '#fffbeb', icon: 'refresh-circle' },
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = ({ item, onPress }) => {
+    const config = statusConfig[item.status] || statusConfig.Successful;
+
     return (
         <TouchableOpacity
-            activeOpacity={0.9}
+            activeOpacity={0.7}
             onPress={() => onPress(item)}
+            style={styles.container}
         >
             <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Ionicons
-                            name="calendar-outline"
-                            size={16}
-                            color="#666"
-                            style={{ marginRight: 4 }}
-                        />
-                        <Text style={styles.date}>{item.date}</Text>
+                <View style={styles.header}>
+                    <View style={styles.typeBadge}>
+                        <Text style={styles.typeText}>{item.type}</Text>
                     </View>
-
-                    <View
-                        style={[
-                            styles.statusBadge,
-                            { backgroundColor: statusColors[item.status] + '33' },
-                        ]}
-                    >
-                        <Ionicons
-                            name={
-                                item.status === 'Successful'
-                                    ? 'checkmark-circle'
-                                    : item.status === 'Failed'
-                                        ? 'close-circle'
-                                        : 'refresh-circle'
-                            }
-                            size={14}
-                            color={statusColors[item.status]}
-                            style={{ marginRight: 4 }}
-                        />
-                        <Text
-                            style={[
-                                styles.statusText,
-                                { color: statusColors[item.status] },
-                            ]}
-                        >
-                            {item.status}
-                        </Text>
+                    <View style={[styles.statusBadge, { backgroundColor: config.bg }]}>
+                        <Ionicons name={config.icon} size={12} color={config.color} />
+                        <Text style={[styles.statusText, { color: config.color }]}>{item.status}</Text>
                     </View>
                 </View>
 
-                <Text style={styles.plan}>
-                    {item.plan} <Text style={styles.monthly}>({item.type})</Text>
-                </Text>
+                <View style={styles.body}>
+                    <View style={styles.mainInfo}>
+                        <Text style={styles.planName}>{item.plan}</Text>
+                        <View style={styles.dateRow}>
+                            <Ionicons name="calendar-outline" size={14} color={COLORS.text.muted} />
+                            <Text style={styles.dateText}>{item.date}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.priceInfo}>
+                        <Text style={styles.amount}>{item.amount}</Text>
+                    </View>
+                </View>
 
-                <Text style={styles.amount}>{item.amount}</Text>
+                <View style={styles.divider} />
 
-                <View style={styles.cardFooter}>
-                    <Ionicons name="card-outline" size={16} color="#666" />
-                    <Text style={styles.cardNumber}>{item.card}</Text>
-
-                    <TouchableOpacity>
-                        <Ionicons name="download-outline" size={18} color="#111" />
-                    </TouchableOpacity>
+                <View style={styles.footer}>
+                    <View style={styles.methodRow}>
+                        <Ionicons name="card-outline" size={16} color={COLORS.text.muted} />
+                        <Text style={styles.methodText}>{item.card}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color={COLORS.text.placeholder} />
                 </View>
             </View>
         </TouchableOpacity>
@@ -81,37 +63,102 @@ const PaymentCard: React.FC<PaymentCardProps> = ({ item, onPress }) => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        paddingHorizontal: 16,
+        marginBottom: 12,
+    },
     card: {
         backgroundColor: '#fff',
-        marginHorizontal: 16,
-        marginBottom: 18,
-        borderRadius: 14,
+        borderRadius: 16,
         padding: 16,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.03,
+        shadowRadius: 10,
+        elevation: 2,
     },
-    cardHeader: {
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
     },
-    date: { fontSize: 12, color: '#666' },
+    typeBadge: {
+        backgroundColor: '#eff6ff',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+    },
+    typeText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: COLORS.primary,
+        textTransform: 'uppercase',
+    },
     statusBadge: {
         flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: 10,
-        borderRadius: 20,
+        paddingVertical: 5,
+        borderRadius: 12,
+        gap: 4,
+    },
+    statusText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    body: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
     },
-    statusText: { fontSize: 12, fontWeight: '600' },
-    plan: { fontSize: 16, fontWeight: '700', marginTop: 10 },
-    monthly: { fontSize: 12, color: '#666' },
-    amount: { fontSize: 18, fontWeight: '700', marginTop: 6 },
-    cardFooter: {
+    mainInfo: {
+        flex: 1,
+    },
+    planName: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1e293b',
+        marginBottom: 4,
+    },
+    dateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 6,
+        gap: 4,
     },
-    cardNumber: {
-        flex: 1,
-        marginLeft: 8,
-        color: '#666',
+    dateText: {
+        fontSize: 12,
+        color: COLORS.text.muted,
+    },
+    priceInfo: {
+        alignItems: 'flex-end',
+    },
+    amount: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#1e293b',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#f1f5f9',
+        marginVertical: 12,
+    },
+    footer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    methodRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    methodText: {
+        fontSize: 13,
+        color: COLORS.text.secondary,
+        fontWeight: '500',
     },
 });
 

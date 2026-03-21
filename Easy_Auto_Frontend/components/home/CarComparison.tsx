@@ -14,9 +14,11 @@ import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import SectionHeader from "./SectionHeader";
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = width * 0.85;
+const CARD_W = width - 48;
 
 interface CarComparisonProps {
     fadeAnim: Animated.Value;
@@ -28,73 +30,63 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
 
     const handlePress = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        router.push('/compare' as any);
+        router.push("/compare" as any);
     };
 
     return (
-        <Animated.View
-            style={[
-                styles.container,
-                {
-                    opacity: fadeAnim,
-                    transform: [{ translateY: slideAnim }],
-                },
-            ]}
-        >
-            <View style={styles.header}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Compare Cars</Text>
-                    <Text style={styles.subtitle}>Head-to-head comparisons</Text>
-                </View>
-                <TouchableOpacity 
-                    style={styles.viewAllButton} 
-                    onPress={() => router.push('/compare' as any)}
-                >
-                    <Text style={styles.viewAllText}>View All</Text>
-                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
-                </TouchableOpacity>
-            </View>
-
+        <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            <SectionHeader
+                title="Compare Cars"
+                subtitle="Head-to-head spec comparison"
+                onViewAll={() => router.push("/compare" as any)}
+            />
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={styles.scroll}
                 decelerationRate="fast"
-                snapToInterval={CARD_WIDTH + 16}
+                snapToInterval={CARD_W + 14}
             >
-                {COMPARISONS.map((comparison, index) => (
-                    <TouchableOpacity
-                        key={`compare-${index}`}
-                        style={styles.card}
-                        activeOpacity={0.9}
-                        onPress={handlePress}
-                    >
-                        <View style={styles.carContainer}>
-                            <Image
-                                source={{ uri: comparison.car1.image }}
-                                style={styles.image}
-                                contentFit="cover"
-                                transition={300}
-                            />
-                            <Text style={styles.carName} numberOfLines={1}>{comparison.car1.name}</Text>
-                            <Text style={styles.carModel}>{comparison.car1.model}</Text>
+                {COMPARISONS.map((cmp, i) => (
+                    <TouchableOpacity key={i} style={styles.card} activeOpacity={0.9} onPress={handlePress}>
+                        <LinearGradient
+                            colors={["#F8FAFF", "#EEF3FF"]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={StyleSheet.absoluteFillObject}
+                        />
+                        {/* Car 1 */}
+                        <View style={styles.carSide}>
+                            <View style={styles.imgWrap}>
+                                <Image source={{ uri: cmp.car1.image }} style={styles.carImg} contentFit="cover" transition={300} />
+                            </View>
+                            <Text style={styles.carName} numberOfLines={1}>{cmp.car1.name}</Text>
+                            <Text style={styles.carModel}>{cmp.car1.model}</Text>
                         </View>
 
-                        <View style={styles.vsContainer}>
+                        {/* VS */}
+                        <View style={styles.vsWrap}>
                             <View style={styles.vsBadge}>
                                 <Text style={styles.vsText}>VS</Text>
                             </View>
+                            <View style={styles.vsStemTop} />
+                            <View style={styles.vsStemBot} />
                         </View>
 
-                        <View style={styles.carContainer}>
-                            <Image
-                                source={{ uri: comparison.car2.image }}
-                                style={styles.image}
-                                contentFit="cover"
-                                transition={300}
-                            />
-                            <Text style={styles.carName} numberOfLines={1}>{comparison.car2.name}</Text>
-                            <Text style={styles.carModel}>{comparison.car2.model}</Text>
+                        {/* Car 2 */}
+                        <View style={styles.carSide}>
+                            <View style={styles.imgWrap}>
+                                <Image source={{ uri: cmp.car2.image }} style={styles.carImg} contentFit="cover" transition={300} />
+                            </View>
+                            <Text style={styles.carName} numberOfLines={1}>{cmp.car2.name}</Text>
+                            <Text style={styles.carModel}>{cmp.car2.model}</Text>
+                        </View>
+
+                        {/* CTA bar */}
+                        <View style={styles.ctaBar}>
+                            <Ionicons name="git-compare-outline" size={14} color={COLORS.primary} />
+                            <Text style={styles.ctaBarText}>Tap to compare now</Text>
+                            <Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -104,95 +96,43 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
 };
 
 const styles = StyleSheet.create({
-    container: {
-        marginBottom: 24,
-        paddingVertical: 16,
-        backgroundColor: COLORS.background,
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: 20,
-        marginBottom: 16,
-    },
-    titleContainer: {
-        flex: 1,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: COLORS.text.primary,
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontSize: 13,
-        color: COLORS.text.muted,
-        marginTop: 2,
-        fontWeight: "500",
-    },
-    viewAllButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        padding: 4,
-    },
-    viewAllText: {
-        fontSize: 13,
-        color: COLORS.primary,
-        fontWeight: "600",
-    },
-    scrollContent: {
-        paddingHorizontal: 20,
-        gap: 16,
-    },
+    container: { backgroundColor: "#F8FAFF" },
+    scroll: { paddingHorizontal: 20, gap: 14 },
     card: {
-        width: CARD_WIDTH,
+        width: CARD_W,
+        borderRadius: 24,
+        padding: 18,
         flexDirection: "row",
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        padding: 16,
         alignItems: "center",
         justifyContent: "space-between",
-        shadowColor: COLORS.shadow,
+        flexWrap: "wrap",
+        overflow: "hidden",
+        borderWidth: 1,
+        borderColor: "#DDE8FF",
+        shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.1,
-        shadowRadius: 12,
+        shadowRadius: 14,
         elevation: 6,
-        borderWidth: 1,
-        borderColor: COLORS.border,
+        position: "relative",
     },
-    carContainer: {
+    carSide: {
         flex: 1,
         alignItems: "center",
-        maxWidth: '42%',
+        maxWidth: "42%",
     },
-    image: {
-        width: '100%',
-        aspectRatio: 1.5,
-        borderRadius: 12,
-        marginBottom: 12,
-        backgroundColor: COLORS.background,
+    imgWrap: {
+        width: "100%",
+        aspectRatio: 1.6,
+        borderRadius: 14,
+        overflow: "hidden",
+        backgroundColor: "#E8EEFF",
+        marginBottom: 10,
     },
-    carName: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: COLORS.text.primary,
-        textAlign: "center",
-        marginBottom: 2,
-    },
-    carModel: {
-        fontSize: 11,
-        color: COLORS.primary,
-        fontWeight: "600",
-        textAlign: "center",
-    },
-    vsContainer: {
-        width: 40,
-        alignItems: "center",
-        justifyContent: 'center',
-        zIndex: 10,
-    },
+    carImg: { width: "100%", height: "100%" },
+    carName: { fontSize: 13, fontWeight: "700", color: "#0F172A", textAlign: "center", marginBottom: 3 },
+    carModel: { fontSize: 11, color: COLORS.primary, fontWeight: "600", textAlign: "center" },
+    vsWrap: { width: 40, alignItems: "center", zIndex: 1 },
     vsBadge: {
         width: 36,
         height: 36,
@@ -202,18 +142,27 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.35,
         shadowRadius: 8,
-        elevation: 4,
+        elevation: 5,
         borderWidth: 2,
-        borderColor: COLORS.white,
+        borderColor: "#fff",
     },
-    vsText: {
-        color: COLORS.white,
-        fontWeight: "900",
-        fontSize: 12,
-        fontStyle: 'italic',
+    vsStemTop: { width: 1, height: 20, backgroundColor: "#DDE8FF", position: "absolute", top: -22 },
+    vsStemBot: { width: 1, height: 20, backgroundColor: "#DDE8FF", position: "absolute", bottom: -22 },
+    vsText: { color: "#fff", fontWeight: "900", fontSize: 11, fontStyle: "italic" },
+    ctaBar: {
+        width: "100%",
+        marginTop: 14,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        backgroundColor: "#EEF3FF",
+        borderRadius: 12,
+        paddingVertical: 10,
     },
+    ctaBarText: { fontSize: 13, fontWeight: "700", color: COLORS.primary },
 });
 
 export default CarComparison;

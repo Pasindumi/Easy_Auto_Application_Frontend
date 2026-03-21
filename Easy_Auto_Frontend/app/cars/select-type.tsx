@@ -107,7 +107,7 @@ export default function SelectVehicleTypeScreen() {
                 >
                     <View style={styles.iconContainer}>
                         <LinearGradient
-                            colors={['#EFF6FF', '#DBEAFE']}
+                            colors={[COLORS.primaryLight, COLORS.primaryFaint]}
                             style={styles.iconBackground}
                         >
                             <IconLib name={iconData.name as any} size={32} color={COLORS.primary} />

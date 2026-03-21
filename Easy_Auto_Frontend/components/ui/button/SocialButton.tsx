@@ -1,6 +1,8 @@
 // components/SocialButton.tsx
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../theme";
 import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle, Platform, View } from "react-native";
 import COLORS from "@/constants/Colors";
 
@@ -13,12 +15,31 @@ export default function SocialButton({
   loading,
 }: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
-  text: string;
+  text?: string;
   onPress?: () => void;
   iconColor?: string;
   disabled?: boolean;
   loading?: boolean;
 }) {
+  const isIconOnly = !text;
+
+  return (
+    <TouchableOpacity 
+      onPress={onPress} 
+      style={[
+        styles.btn, 
+        isIconOnly ? styles.btnIconOnly : styles.btnWithText,
+        disabled && styles.btnDisabled
+      ]}
+      disabled={disabled}
+    >
+      <Ionicons 
+        name={icon} 
+        size={isIconOnly ? 24 : 18} 
+        color={iconColor ?? "#1e293b"} 
+        style={!isIconOnly && styles.icon} 
+      />
+      {text && <Text style={[styles.text, disabled && styles.textDisabled]}>{text}</Text>}
   const Loading = require("../Loading").default;
 
   return (
@@ -47,6 +68,21 @@ const styles = StyleSheet.create({
   btn: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.divider,
+  },
+  btnWithText: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+  },
+  btnIconOnly: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: "space-between",
     backgroundColor: COLORS.white,
     paddingVertical: 10,
@@ -77,6 +113,8 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
+  icon: { marginRight: 10 },
+  text: { fontWeight: "700", color: "#1e293b" },
   textDisabled: {
     color: COLORS.text.muted,
   },

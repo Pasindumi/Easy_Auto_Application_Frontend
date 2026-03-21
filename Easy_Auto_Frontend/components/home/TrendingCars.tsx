@@ -71,7 +71,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
         >
             <View style={styles.header}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Trending Ads</Text>
+                    <Text style={styles.title}>Trending Ads 🔥</Text>
                     <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
                 {/* 
@@ -132,7 +132,11 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                 decelerationRate="fast"
                 snapToInterval={230 + 16}
             >
-                {displayAds.map((ad, index) => (
+                {displayAds.map((ad, index) => {
+                    // CarDetails can be an object (list endpoint) or array (some Supabase versions)
+                    const details = Array.isArray(ad.CarDetails) ? ad.CarDetails?.[0] : ad.CarDetails;
+
+                    return (
                     <TouchableOpacity
                         key={`trending-${ad.id}-${index}`}
                         style={styles.card}
@@ -171,7 +175,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                                 {ad.title}
                             </Text>
                             <Text style={styles.cardSubTitle} numberOfLines={1}>
-                                {ad.CarDetails?.model} {ad.CarDetails?.year}
+                                {details?.model} {details?.year}
                             </Text>
 
                             <View style={styles.detailsRow}>
@@ -184,7 +188,8 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                             </View>
                         </View>
                     </TouchableOpacity>
-                ))}
+                    );
+                })}
             </ScrollView>
         </Animated.View>
     );

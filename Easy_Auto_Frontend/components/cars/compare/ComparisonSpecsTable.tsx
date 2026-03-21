@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ComparisonVehicle } from '../../../types/compare-detail.types';
+import { Ionicons } from '@expo/vector-icons';
+import COLORS from '@/constants/Colors';
 
 interface Props {
     vehicle1: ComparisonVehicle;
@@ -24,61 +26,106 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
     const km1 = parseKm(vehicle1.km);
     const km2 = parseKm(vehicle2.km);
 
-    return (
-        <View style={styles.detailRow}>
-            {/* LEFT SIDE */}
-            <View style={styles.detailColumn}>
-                <Text style={styles.price}>{vehicle1.price}</Text>
-                {price1 < price2 ? (
-                    <Text style={styles.greenText}>● Lower price</Text>
-                ) : price1 > price2 ? (
-                    <Text style={styles.redText}>● Higher price</Text>
-                ) : null}
-
-                <Text style={styles.spec}>{vehicle1.km}</Text>
-                {km1 < km2 ? (
-                    <Text style={styles.greenText}>● Less driven</Text>
-                ) : km1 > km2 ? (
-                    <Text style={styles.redText}>● More driven</Text>
-                ) : null}
-
-                <Text style={styles.spec}>{vehicle1.transmission}</Text>
-                <Text style={styles.spec}>Fuel Type - {vehicle1.fuelType}</Text>
-                <Text style={styles.spec}>Condition - {vehicle1.condition}</Text>
-                <Text style={styles.spec}>Year - {vehicle1.year}</Text>
-                <Text style={styles.spec}>Fuel Economy - {vehicle1.fuelEconomy}</Text>
-
-                <View style={styles.ratingRow}>
-                    <Text style={styles.spec}>Seller Rating</Text>
-                    <Text style={styles.star}>{'★'.repeat(vehicle1.rating) + '☆'.repeat(5 - vehicle1.rating)}</Text>
+    const SpecRow = ({ label, val1, val2, isBetter1, isBetter2, icon }: { 
+        label: string, 
+        val1: string, 
+        val2: string, 
+        isBetter1?: boolean, 
+        isBetter2?: boolean,
+        icon: any 
+    }) => (
+        <View style={styles.specRow}>
+            <View style={styles.specSide}>
+                <Text style={[styles.specVal, isBetter1 && styles.betterVal]}>{val1}</Text>
+                {isBetter1 && (
+                    <View style={styles.winnerBadge}>
+                        <Ionicons name="checkmark-circle" size={10} color="#10B981" />
+                        <Text style={styles.winnerText}>Better</Text>
+                    </View>
+                )}
+            </View>
+            
+            <View style={styles.specCenter}>
+                <View style={[styles.centerIconBg, { backgroundColor: '#F8FAFC' }]}>
+                    <Ionicons name={icon} size={14} color="#94A3B8" />
                 </View>
+                <Text style={styles.specLabel}>{label}</Text>
             </View>
 
-            {/* RIGHT SIDE */}
-            <View style={styles.detailColumn}>
-                <Text style={styles.price}>{vehicle2.price}</Text>
-                {price2 < price1 ? (
-                    <Text style={styles.greenText}>● Lower price</Text>
-                ) : price2 > price1 ? (
-                    <Text style={styles.redText}>● Higher price</Text>
-                ) : null}
+            <View style={styles.specSide}>
+                <Text style={[styles.specVal, isBetter2 && styles.betterVal]}>{val2}</Text>
+                {isBetter2 && (
+                    <View style={styles.winnerBadge}>
+                        <Ionicons name="checkmark-circle" size={10} color="#10B981" />
+                        <Text style={styles.winnerText}>Better</Text>
+                    </View>
+                )}
+            </View>
+        </View>
+    );
 
-                <Text style={styles.spec}>{vehicle2.km}</Text>
-                {km2 < km1 ? (
-                    <Text style={styles.greenText}>● Less driven</Text>
-                ) : km2 > km1 ? (
-                    <Text style={styles.redText}>● More driven</Text>
-                ) : null}
+    return (
+        <View style={styles.container}>
+            <View style={styles.tableHeader}>
+                <Text style={styles.headerTitle}>SIDE-BY-SIDE ANALYSIS</Text>
+            </View>
+            
+            <SpecRow 
+                label="Price"
+                val1={vehicle1.price}
+                val2={vehicle2.price}
+                isBetter1={price1 < price2}
+                isBetter2={price2 < price1}
+                icon="pricetag-outline"
+            />
+            
+            <SpecRow 
+                label="Mileage"
+                val1={vehicle1.km}
+                val2={vehicle2.km}
+                isBetter1={km1 < km2}
+                isBetter2={km2 < km1}
+                icon="speedometer-outline"
+            />
+            
+            <SpecRow 
+                label="Transmission"
+                val1={vehicle1.transmission}
+                val2={vehicle2.transmission}
+                icon="cog-outline"
+            />
+            
+            <SpecRow 
+                label="Fuel Type"
+                val1={vehicle1.fuelType}
+                val2={vehicle2.fuelType}
+                icon="water-outline"
+            />
+            
+            <SpecRow 
+                label="Condition"
+                val1={vehicle1.condition}
+                val2={vehicle2.condition}
+                icon="shield-outline"
+            />
 
-                <Text style={styles.spec}>{vehicle2.transmission}</Text>
-                <Text style={styles.spec}>Fuel Type - {vehicle2.fuelType}</Text>
-                <Text style={styles.spec}>Condition - {vehicle2.condition}</Text>
-                <Text style={styles.spec}>Year - {vehicle2.year}</Text>
-                <Text style={styles.spec}>Fuel Economy - {vehicle2.fuelEconomy}</Text>
+            <SpecRow 
+                label="Fuel Economy"
+                val1={vehicle1.fuelEconomy || 'N/A'}
+                val2={vehicle2.fuelEconomy || 'N/A'}
+                icon="leaf-outline"
+            />
 
-                <View style={styles.ratingRow}>
-                    <Text style={styles.spec}>Seller Rating</Text>
-                    <Text style={styles.star}>{'★'.repeat(vehicle2.rating) + '☆'.repeat(5 - vehicle2.rating)}</Text>
+            {/* Rating Section */}
+            <View style={styles.ratingSection}>
+                <View style={styles.ratingCol}>
+                    <Text style={styles.ratingVal}>{vehicle1.rating}/5</Text>
+                    <Text style={styles.stars}>{'★'.repeat(vehicle1.rating) + '☆'.repeat(5 - vehicle1.rating)}</Text>
+                </View>
+                <Text style={styles.ratingLabel}>SELLER RATING</Text>
+                <View style={styles.ratingCol}>
+                    <Text style={styles.ratingVal}>{vehicle2.rating}/5</Text>
+                    <Text style={styles.stars}>{'★'.repeat(vehicle2.rating) + '☆'.repeat(5 - vehicle2.rating)}</Text>
                 </View>
             </View>
         </View>
@@ -86,14 +133,110 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
 };
 
 const styles = StyleSheet.create({
-    detailRow: { flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' },
-    detailColumn: { width: '48%' },
-    price: { fontWeight: '700', fontSize: 13, marginBottom: 3 },
-    greenText: { color: 'green', fontSize: 11, marginBottom: 8 },
-    redText: { color: 'red', fontSize: 11, marginBottom: 8 },
-    spec: { fontSize: 11, marginBottom: 6, color: '#222' },
-    ratingRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
-    star: { color: '#F59E0B', fontSize: 12 },
+    container: { 
+        backgroundColor: '#fff',
+        borderRadius: 32,
+        padding: 8,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+    },
+    tableHeader: {
+        paddingVertical: 16,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F8FAFC',
+        marginBottom: 8,
+    },
+    headerTitle: {
+        fontSize: 11,
+        fontWeight: '800',
+        color: '#94A3B8',
+        letterSpacing: 1.5,
+    },
+    specRow: { 
+        flexDirection: 'row', 
+        paddingVertical: 16,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F8FAFC',
+    },
+    specSide: { 
+        flex: 1, 
+        alignItems: 'center',
+        paddingHorizontal: 10,
+    },
+    specCenter: { 
+        width: 80, 
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    centerIconBg: {
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 4,
+    },
+    specLabel: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#64748B',
+        textTransform: 'uppercase',
+    },
+    specVal: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#334155',
+        textAlign: 'center',
+    },
+    betterVal: {
+        color: '#10B981',
+    },
+    winnerBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#ECFDF5',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+        marginTop: 4,
+        gap: 3,
+    },
+    winnerText: {
+        fontSize: 9,
+        fontWeight: '800',
+        color: '#10B981',
+        textTransform: 'uppercase',
+    },
+    ratingSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 24,
+        paddingHorizontal: 16,
+        gap: 20,
+    },
+    ratingCol: {
+        alignItems: 'center',
+    },
+    ratingVal: {
+        fontSize: 16,
+        fontWeight: '900',
+        color: '#1E293B',
+    },
+    stars: {
+        fontSize: 12,
+        color: '#F59E0B',
+        marginTop: 2,
+    },
+    ratingLabel: {
+        fontSize: 10,
+        fontWeight: '800',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    }
 });
 
 export default ComparisonSpecsTable;
