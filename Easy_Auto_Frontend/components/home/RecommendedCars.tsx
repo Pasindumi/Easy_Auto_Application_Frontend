@@ -61,9 +61,6 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
         }).format(val);
     };
 
-    // If loading or empty, handle gracefully
-    if (!loading && ads.length === 0) return null;
-
     return (
         <Animated.View
             style={[
@@ -93,6 +90,10 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
             {loading ? (
                 <View style={styles.loadingContainer}>
                     <Loading size="small" />
+                </View>
+            ) : ads.length === 0 ? (
+                <View style={{ paddingVertical: 40, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: COLORS.text.muted, fontSize: 14 }}>No recommended cars at this time.</Text>
                 </View>
             ) : (
                 <ScrollView

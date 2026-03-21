@@ -55,9 +55,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     // For now, let's prefer API data, fall back to empty if none
     const displayAds = trendingAds.length > 0 ? trendingAds : [];
 
-    if (!loading && displayAds.length === 0) {
-        return null; // Hide section if no trending ads
-    }
+    // Note: displayAds might be empty. Handled below in UI.
 
     return (
         <Animated.View
@@ -125,67 +123,73 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
             </ScrollView>
             */}
 
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardsContainer}
-                decelerationRate="fast"
-                snapToInterval={230 + 16}
-            >
-                {displayAds.map((ad, index) => (
-                    <TouchableOpacity
-                        key={`trending-${ad.id}-${index}`}
-                        style={styles.card}
-                        activeOpacity={0.9}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.push(`/cars/${ad.id}`);
-                        }}
-                    >
-                        <View style={styles.imageContainer}>
-                            <Image
-                                source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
-                                style={styles.image}
-                                contentFit="cover"
-                                transition={300}
-                                cachePolicy="memory-disk"
-                            />
+            {displayAds.length === 0 ? (
+                <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
+                    <Text style={{ color: COLORS.text.muted, fontSize: 14 }}>No trending ads found right now.</Text>
+                </View>
+            ) : (
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.cardsContainer}
+                    decelerationRate="fast"
+                    snapToInterval={230 + 16}
+                >
+                    {displayAds.map((ad, index) => (
+                        <TouchableOpacity
+                            key={`trending-${ad.id}-${index}`}
+                            style={styles.card}
+                            activeOpacity={0.9}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                router.push(`/cars/${ad.id}`);
+                            }}
+                        >
+                            <View style={styles.imageContainer}>
+                                <Image
+                                    source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
+                                    style={styles.image}
+                                    contentFit="cover"
+                                    transition={300}
+                                    cachePolicy="memory-disk"
+                                />
 
-                            {/* Status Badge from Backend Logic if needed, or just Review Count badge */}
-                            <View style={styles.reviewBadge}>
-                                <Ionicons name="star" size={10} color="#FFD700" />
-                                <Text style={styles.reviewText}>
-                                    {ad.review_count || 0} Reviews
-                                </Text>
-                            </View>
+                                {/* Status Badge from Backend Logic if needed, or just Review Count badge */}
+                                <View style={styles.reviewBadge}>
+                                    <Ionicons name="star" size={10} color="#FFD700" />
+                                    <Text style={styles.reviewText}>
+                                        {ad.review_count || 0} Reviews
+                                    </Text>
+                                </View>
 
-                            <View style={styles.priceTag}>
-                                <Text style={styles.priceText}>
-                                    {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price)}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle} numberOfLines={1}>
-                                {ad.title}
-                            </Text>
-                            <Text style={styles.cardSubTitle} numberOfLines={1}>
-                                {ad.CarDetails?.model} {ad.CarDetails?.year}
-                            </Text>
-
-                            <View style={styles.detailsRow}>
-                                <View style={styles.locationRow}>
-                                    <Ionicons name="location-outline" size={14} color={COLORS.text.muted} />
-                                    <Text style={styles.locationText} numberOfLines={1}>
-                                        {ad.location?.split(",")[0] || "Unknown"}
+                                <View style={styles.priceTag}>
+                                    <Text style={styles.priceText}>
+                                        {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price)}
                                     </Text>
                                 </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+
+                            <View style={styles.cardContent}>
+                                <Text style={styles.cardTitle} numberOfLines={1}>
+                                    {ad.title}
+                                </Text>
+                                <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                    {ad.CarDetails?.model} {ad.CarDetails?.year}
+                                </Text>
+
+                                <View style={styles.detailsRow}>
+                                    <View style={styles.locationRow}>
+                                        <Ionicons name="location-outline" size={14} color={COLORS.text.muted} />
+                                        <Text style={styles.locationText} numberOfLines={1}>
+                                            {ad.location?.split(",")[0] || "Unknown"}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            )}
         </Animated.View>
     );
 };

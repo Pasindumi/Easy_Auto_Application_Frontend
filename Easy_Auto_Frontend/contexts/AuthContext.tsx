@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-expo';
 import { Platform } from 'react-native';
 import { ENDPOINTS } from '../constants/API';
+import { api } from '../utils/api';
 
 interface User {
   id: string;
@@ -112,6 +113,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Load stored auth on mount
   useEffect(() => {
     loadStoredAuth();
+
+    // Setup API interceptor callback for unauthenticated responses
+    api.onAuthError = () => {
+      setAccessToken(null);
+      setRefreshToken(null);
+      setUser(null);
+    };
   }, []);
 
   // Use a faster isTokenExpired check with safer padding logic if needed
@@ -147,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (storedAccessToken && storedRefreshToken && storedUser) {
         console.log('[Auth] Tokens found, checking expiration...');
-        
+
         // Handle expiration on load
         if (isTokenExpired(storedAccessToken)) {
           console.log('[Auth] Access token expired on app load, attempting prompt refresh...');
@@ -231,7 +239,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!isSignedIn || !clerkUser) {
           throw new Error('Not signed in with Clerk');
         }
-        
+
         try {
           clerkToken = await getClerkToken({ template: 'mobile' });
         } catch (err) {
@@ -329,13 +337,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getValidToken = async (): Promise<string | null> => {
     if (!accessToken) return null;
-    
+
     // If expired, try to refresh immediately
     if (isTokenExpired(accessToken)) {
       const result = await refreshAccessToken();
       return result.success ? result.accessToken! : null;
     }
-    
+
     return accessToken;
   };
 

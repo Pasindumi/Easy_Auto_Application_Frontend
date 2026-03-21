@@ -26,33 +26,28 @@ export default function Button({
   disabled = false,
   loading = false,
 }: Props) {
-<<<<<<< HEAD
-  const ButtonContent = (
-    <Text style={[styles.text, textStyle, disabled && { color: COLORS.text.muted }]}>
+  const Loading = require("../../ui/Loading").default;
+
+  const ButtonContent = loading ? (
+    <Loading size="small" />
+  ) : (
+    <Text style={[styles.text, textStyle, (disabled || loading) && { color: COLORS.text.muted }]}>
       {title}
     </Text>
   );
-=======
-  const Loading = require("../../ui/Loading").default;
->>>>>>> sachini_dev
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
-<<<<<<< HEAD
-        !gradient && { backgroundColor: disabled ? COLORS.divider : backgroundColor },
-=======
-        { backgroundColor: (disabled || loading) ? colors.divider : backgroundColor },
->>>>>>> sachini_dev
+        !gradient && { backgroundColor: (disabled || loading) ? COLORS.divider : backgroundColor },
         style
       ]}
       onPress={onPress}
       activeOpacity={activeOpacity}
       disabled={disabled || loading}
     >
-<<<<<<< HEAD
-      {gradient && !disabled ? (
+      {gradient && !disabled && !loading ? (
         <LinearGradient
           colors={gradient as any}
           start={{ x: 0, y: 0 }}
@@ -62,15 +57,9 @@ export default function Button({
           {ButtonContent}
         </LinearGradient>
       ) : (
-        <View style={[styles.gradient, { backgroundColor: disabled ? COLORS.divider : backgroundColor }]}>
+        <View style={[styles.gradient, { backgroundColor: (disabled || loading) ? COLORS.divider : backgroundColor }]}>
           {ButtonContent}
         </View>
-=======
-      {loading ? (
-        <Loading size="small" />
-      ) : (
-        <Text style={[styles.text, textStyle, (disabled || loading) && { color: colors.textGray }]}>{title}</Text>
->>>>>>> sachini_dev
       )}
     </TouchableOpacity>
   );

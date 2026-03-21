@@ -183,6 +183,11 @@ export default function SelectVehicleTypeScreen() {
             ) : (
                 <FlatList
                     data={vehicleTypes}
+                    ListEmptyComponent={() => (
+                        <View style={{ padding: 40, alignItems: 'center' }}>
+                            <Text style={{ color: COLORS.text.muted, textAlign: 'center', fontSize: 16 }}>No vehicle categories available at the moment.</Text>
+                        </View>
+                    )}
                     renderItem={renderItem}
                     keyExtractor={item => item.id}
                     contentContainerStyle={styles.listContent}
