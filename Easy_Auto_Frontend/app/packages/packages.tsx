@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -14,6 +13,8 @@ import {
 import Header from '../../components/Header';
 import BoostInfoCard from '../../components/packages/packages/BoostInfoCard';
 import PackagePlanCard from '../../components/packages/packages/PackagePlanCard';
+import Loading from '@/components/ui/Loading';
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import { ENDPOINTS } from '../../constants/API';
 import COLORS from '../../constants/Colors';
 
@@ -63,20 +64,24 @@ export default function PackagesScreen() {
       <Header title="Packages" />
       <View style={styles.mainContainer}>
 
+        <BrandedRefreshOverlay refreshing={refreshing} top={60} />
         <ScrollView
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={onRefresh} 
+              tintColor="transparent"
+              colors={["transparent"]}
+              progressBackgroundColor="transparent"
+            />
           }
         >
           <BoostInfoCard />
 
           {loading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
-              <Text style={styles.loaderText}>Loading packages...</Text>
-            </View>
+            <Loading message="Loading packages..." style={styles.loaderContainer} />
           ) : packages.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Ionicons name="alert-circle-outline" size={48} color="#999" />

@@ -9,12 +9,12 @@ import {
     KeyboardAvoidingView,
     Platform,
     Image,
-    ActivityIndicator,
     Modal,
     Alert,
     Platform as RNPlatform,
     StatusBar
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';

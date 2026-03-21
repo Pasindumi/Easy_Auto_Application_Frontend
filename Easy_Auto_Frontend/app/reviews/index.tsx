@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextInput, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Platform, StatusBar } from 'react-native';
+import Loading from '@/components/ui/Loading';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/Colors';
@@ -218,7 +220,7 @@ const ReviewsPage = () => {
 
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <Loading />
                 </View>
             ) : (
                 <FlatList
@@ -287,7 +289,7 @@ const ReviewsPage = () => {
                                 style={styles.gradientButton}
                             >
                                 {submitting ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <Loading size="small" />
                                 ) : (
                                     <Text style={styles.submitButtonText}>Submit Review</Text>
                                 )}

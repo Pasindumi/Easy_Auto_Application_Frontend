@@ -1,4 +1,5 @@
 import ProfileHeader from "@/components/ProfileHeader";
+import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Stack, useRouter } from "expo-router";
@@ -323,6 +324,7 @@ export default function AdminDashboard() {
       </View>
 
       {/* User List */}
+      <BrandedRefreshOverlay refreshing={refreshing} top={210} />
       <FlatList
         data={filteredUsers}
         renderItem={renderUserCard}
@@ -336,7 +338,13 @@ export default function AdminDashboard() {
           </View>
         }
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            tintColor="transparent"
+            colors={["transparent"]}
+            progressBackgroundColor="transparent"
+          />
         }
       />
 

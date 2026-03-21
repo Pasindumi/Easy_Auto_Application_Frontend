@@ -172,9 +172,10 @@ export default function SignupScreen() {
             </TouchableOpacity>
 
             <Button
-              title={loading ? "Creating Account..." : "Sign Up"}
+              title="Sign Up"
               onPress={handleSignup}
-              disabled={loading || socialLoading !== null}
+              loading={loading}
+              disabled={socialLoading !== null}
             />
 
             <View style={styles.orRow}>
@@ -185,23 +186,26 @@ export default function SignupScreen() {
 
             <SocialButton
               icon="logo-apple"
-              text={socialLoading === 'apple' ? "Signing in..." : "Sign in With Apple"}
+              text="Sign in With Apple"
               onPress={() => handleSocialSignIn('apple')}
-              disabled={socialLoading !== null}
+              loading={socialLoading === 'apple'}
+              disabled={socialLoading !== null && socialLoading !== 'apple'}
             />
             <SocialButton
               icon="logo-google"
-              text={socialLoading === 'google' ? "Signing in..." : "Sign in With Google"}
+              text="Sign in With Google"
               iconColor="#DB4437"
               onPress={() => handleSocialSignIn('google')}
-              disabled={socialLoading !== null}
+              loading={socialLoading === 'google'}
+              disabled={socialLoading !== null && socialLoading !== 'google'}
             />
             <SocialButton
               icon="logo-facebook"
-              text={socialLoading === 'facebook' ? "Signing in..." : "Sign in With Facebook"}
+              text="Sign in With Facebook"
               iconColor="#1877F2"
               onPress={() => handleSocialSignIn('facebook')}
-              disabled={socialLoading !== null}
+              loading={socialLoading === 'facebook'}
+              disabled={socialLoading !== null && socialLoading !== 'facebook'}
             />
 
             <View style={styles.bottomRow}>

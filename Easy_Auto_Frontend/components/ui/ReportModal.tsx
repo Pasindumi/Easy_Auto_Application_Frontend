@@ -9,9 +9,9 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    ActivityIndicator,
     Alert
 } from 'react-native';
+import Loading from './Loading';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '../../constants/Colors';
 
@@ -136,7 +136,7 @@ const ReportModal: React.FC<Props> = ({ visible, onClose, onSubmit }) => {
                             disabled={loading}
                         >
                             {loading ? (
-                                <ActivityIndicator color="white" size="small" />
+                                <Loading size="small" />
                             ) : (
                                 <Text style={styles.submitBtnText}>Submit Report</Text>
                             )}

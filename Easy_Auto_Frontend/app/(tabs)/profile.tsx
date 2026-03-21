@@ -1,4 +1,5 @@
 import ProfileHeader from '@/components/ProfileHeader';
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -14,7 +15,6 @@ import {
   TouchableOpacity,
   View,
   Alert,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -150,6 +150,7 @@ export default function ProfileScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <ProfileHeader title="Profile" showProfileCard={true} />
 
+      <BrandedRefreshOverlay refreshing={refreshing} top={180} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.container}
@@ -158,8 +159,9 @@ export default function ProfileScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
-            progressViewOffset={180}
+            tintColor="transparent"
+            colors={["transparent"]}
+            progressBackgroundColor="transparent"
           />
         }
       >

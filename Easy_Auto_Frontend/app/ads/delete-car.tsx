@@ -4,8 +4,8 @@ import { api } from "@/utils/api";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import Loading from "@/components/ui/Loading";
 import {
-  ActivityIndicator,
   Alert,
   Image,
   ScrollView,
@@ -100,7 +100,7 @@ export default function DeleteCar() {
   if (loading) {
     return (
       <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Loading size="large" />
       </View>
     );
   }
@@ -166,7 +166,7 @@ export default function DeleteCar() {
               disabled={deleting}
             >
               {deleting ? (
-                <ActivityIndicator size="small" color={COLORS.white} />
+                <Loading size="small" />
               ) : (
                 <>
                   <Ionicons name="trash-outline" size={18} color={COLORS.white} />

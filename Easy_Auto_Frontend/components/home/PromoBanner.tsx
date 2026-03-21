@@ -53,7 +53,7 @@ interface PromoBannerProps {
 
 const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const router = useRouter();
-    const [banners, setBanners] = useState<any[]>([]);
+    const [banners, setBanners] = useState<any[]>(STATIC_BANNERS);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);

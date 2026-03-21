@@ -2,7 +2,8 @@ import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { OrderItem } from '../../types/payment.types';
@@ -184,7 +185,7 @@ export default function PackageInvoice() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#235CF8" />
+        <Loading />
       </View>
     );
   }

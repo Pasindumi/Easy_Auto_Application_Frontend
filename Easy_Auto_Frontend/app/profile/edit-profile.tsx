@@ -13,11 +13,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import Loading from "@/components/ui/Loading";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from "@/contexts/AuthContext";
 import * as ImagePicker from "expo-image-picker";
@@ -180,7 +180,7 @@ export default function EditProfileScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Loading />
         </View>
       ) : (
         <KeyboardAvoidingView
@@ -294,7 +294,7 @@ export default function EditProfileScreen() {
                   style={styles.buttonGradient}
                 >
                   {saving ? (
-                    <ActivityIndicator size="small" color={COLORS.white} />
+                    <Loading size="small" />
                   ) : (
                     <Text style={styles.saveButtonText}>Update Profile</Text>
                   )}

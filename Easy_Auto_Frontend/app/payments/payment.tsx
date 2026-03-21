@@ -3,7 +3,8 @@ import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { ENDPOINTS } from '../../constants/API';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import { paymentData } from "../../constants/dummydata/payment";
@@ -368,8 +369,8 @@ export default function Payment() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#235CF8" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f4f6' }}>
+        <Loading />
       </View>
     );
   }

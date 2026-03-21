@@ -7,9 +7,9 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
-  ActivityIndicator
+  TouchableOpacity
 } from 'react-native';
+import Loading from "../../components/ui/Loading";
 import Header from "../../components/Header";
 import { headerSectionStylesWhite } from '../../styles/headerSectionStyles';
 import { useAuth } from '../../contexts/AuthContext';
@@ -117,7 +117,7 @@ export default function SubscriptionsScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {loading ? (
-          <ActivityIndicator size="large" color="#235CF8" />
+          <Loading />
         ) : activeSub ? (
           <CurrentPlanCard
             planName={activeSub.plan}

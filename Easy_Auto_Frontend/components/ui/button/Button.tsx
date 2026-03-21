@@ -10,6 +10,7 @@ type Props = {
   textStyle?: TextStyle;
   activeOpacity?: number;
   disabled?: boolean;
+  loading?: boolean;
 };
 
 export default function Button({
@@ -20,19 +21,26 @@ export default function Button({
   textStyle,
   activeOpacity = 0.8,
   disabled = false,
+  loading = false,
 }: Props) {
+  const Loading = require("../../ui/Loading").default;
+
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        { backgroundColor: disabled ? colors.divider : backgroundColor },
+        { backgroundColor: (disabled || loading) ? colors.divider : backgroundColor },
         style
       ]}
       onPress={onPress}
       activeOpacity={activeOpacity}
-      disabled={disabled}
+      disabled={disabled || loading}
     >
-      <Text style={[styles.text, textStyle, disabled && { color: colors.textGray }]}>{title}</Text>
+      {loading ? (
+        <Loading size="small" />
+      ) : (
+        <Text style={[styles.text, textStyle, (disabled || loading) && { color: colors.textGray }]}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 }

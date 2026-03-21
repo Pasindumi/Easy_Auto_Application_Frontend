@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -34,6 +35,7 @@ export default function AdminDashboard() {
             <Stack.Screen options={{ headerShown: false }} />
             <Header />
 
+            <BrandedRefreshOverlay refreshing={refreshing} top={100} />
             <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={[
@@ -45,7 +47,9 @@ export default function AdminDashboard() {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
-                        tintColor={COLORS.primary}
+                        tintColor="transparent"
+                        colors={["transparent"]}
+                        progressBackgroundColor="transparent"
                     />
                 }
             >

@@ -6,10 +6,10 @@ import {
   StyleSheet,
   Text,
   View,
-  ActivityIndicator,
   Alert,
   TouchableOpacity
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Header from "../../components/Header";
@@ -129,7 +129,7 @@ export default function PaymentHistoryScreen() {
   if (loading) {
     return (
       <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#235CF8" />
+        <Loading />
       </View>
     );
   }

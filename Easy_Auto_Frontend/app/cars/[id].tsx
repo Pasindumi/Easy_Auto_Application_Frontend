@@ -1,9 +1,9 @@
 import COLORS from "@/constants/Colors";
+import Loading from '@/components/ui/Loading';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Image,
@@ -208,7 +208,7 @@ export default function AdDetailsScreen() {
         return (
             <View style={styles.loadingContainer}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading message="Loading vehicle details..." />
             </View>
         );
     }
@@ -531,7 +531,7 @@ export default function AdDetailsScreen() {
                     disabled={sendingChat}
                 >
                     {sendingChat ? (
-                        <ActivityIndicator size="small" color="white" />
+                        <Loading size="small" />
                     ) : (
                         <>
                             <Ionicons name="chatbubble-ellipses-outline" size={22} color="white" />

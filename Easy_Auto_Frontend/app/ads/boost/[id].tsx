@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import Loading from '../../../components/ui/Loading';
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import {
-    ActivityIndicator,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -162,17 +163,23 @@ export default function BoostSelectionScreen() {
                 <Text style={styles.subText}>Make your ad stand out and sell faster!</Text>
             </View>
 
+            <BrandedRefreshOverlay refreshing={refreshing} top={150} />
             <ScrollView
                 contentContainerStyle={styles.container}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+                    <RefreshControl 
+                        refreshing={refreshing} 
+                        onRefresh={onRefresh} 
+                        tintColor="transparent"
+                        colors={["transparent"]}
+                        progressBackgroundColor="transparent"
+                    />
                 }
             >
                 {loading ? (
                     <View style={styles.loaderContainer}>
-                        <ActivityIndicator size="large" color={COLORS.primary} />
-                        <Text style={styles.loaderText}>Loading boost packages...</Text>
+                        <Loading size="large" message="Loading boost packages..." />
                     </View>
                 ) : packages.length === 0 ? (
                     <View style={styles.emptyContainer}>
