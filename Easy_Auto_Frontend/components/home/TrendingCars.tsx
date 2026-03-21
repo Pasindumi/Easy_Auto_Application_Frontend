@@ -1,4 +1,4 @@
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React, { useState, useEffect } from "react";
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
+import COLORS from "@/constants/Colors";
 
 interface TrendingCarsProps {
     fadeAnim: Animated.Value;
@@ -20,16 +21,13 @@ interface TrendingCarsProps {
     setTrendingCategory: (category: string) => void;
 }
 
-import { CATEGORIES } from "@/constants/dummydata/homedummydata";
-import COLORS from "@/constants/Colors";
-
 const TrendingCars: React.FC<TrendingCarsProps> = ({
     fadeAnim,
     slideAnim,
     trendingCategory,
     setTrendingCategory,
 }) => {
-    const router = useRouter(); // Use router for navigation
+    const router = useRouter();
     const [trendingAds, setTrendingAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -51,11 +49,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
         }
     };
 
-    // Use dummy data if no API data or while loading (optional, or just show skeleton)
-    // For now, let's prefer API data, fall back to empty if none
     const displayAds = trendingAds.length > 0 ? trendingAds : [];
-
-    // Note: displayAds might be empty. Handled below in UI.
 
     return (
         <Animated.View
@@ -72,56 +66,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                     <Text style={styles.title}>Trending Ads 🔥</Text>
                     <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
-                {/* 
-                <TouchableOpacity
-                    style={styles.viewAllButton}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        // Navigate to all ads or filtered view
-                        router.push('/(tabs)/explore');
-                    }}
-                >
-                    <Text style={styles.viewAllText}>View All</Text>
-                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
-                </TouchableOpacity>
-                */}
             </View>
-
-            {/* Category Tabs - Optional: Keep or Remove? User asked to "Update Trending Cars section to Trending Ads". 
-                If the backend doesn't support category filtering for trending yet, maybe hide tabs or keep them if we want to filter CLIENT SIDE.
-                For now, I will comment them out as the requirement implies a specific "Trending Ads" list based on reviews.
-            */}
-            {/* 
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.tabsScroll}
-                contentContainerStyle={styles.tabsContainer}
-            >
-                {CATEGORIES.map((category) => (
-                    <TouchableOpacity
-                        key={`category-${category.name}`}
-                        style={[
-                            styles.tab,
-                            trendingCategory === category.name && styles.tabActive,
-                        ]}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            setTrendingCategory(category.name);
-                        }}
-                    >
-                        <Text
-                            style={[
-                                styles.tabText,
-                                trendingCategory === category.name && styles.tabTextActive,
-                            ]}
-                        >
-                            {category.name}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-            */}
 
             {displayAds.length === 0 ? (
                 <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
@@ -153,37 +98,6 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                                     transition={300}
                                     cachePolicy="memory-disk"
                                 />
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardsContainer}
-                decelerationRate="fast"
-                snapToInterval={230 + 16}
-            >
-                {displayAds.map((ad, index) => {
-                    // CarDetails can be an object (list endpoint) or array (some Supabase versions)
-                    const details = Array.isArray(ad.CarDetails) ? ad.CarDetails?.[0] : ad.CarDetails;
-
-                    return (
-                    <TouchableOpacity
-                        key={`trending-${ad.id}-${index}`}
-                        style={styles.card}
-                        activeOpacity={0.9}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.push(`/cars/${ad.id}`);
-                        }}
-                    >
-                        <View style={styles.imageContainer}>
-                            <Image
-                                source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
-                                style={styles.image}
-                                contentFit="cover"
-                                transition={300}
-                                cachePolicy="memory-disk"
-                            />
-
-                                {/* Status Badge from Backend Logic if needed, or just Review Count badge */}
                                 <View style={styles.reviewBadge}>
                                     <Ionicons name="star" size={10} color="#FFD700" />
                                     <Text style={styles.reviewText}>
@@ -205,13 +119,6 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                                 <Text style={styles.cardSubTitle} numberOfLines={1}>
                                     {ad.CarDetails?.model} {ad.CarDetails?.year}
                                 </Text>
-                        <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle} numberOfLines={1}>
-                                {ad.title}
-                            </Text>
-                            <Text style={styles.cardSubTitle} numberOfLines={1}>
-                                {details?.model} {details?.year}
-                            </Text>
 
                                 <View style={styles.detailsRow}>
                                     <View style={styles.locationRow}>
@@ -226,11 +133,6 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                     ))}
                 </ScrollView>
             )}
-                        </View>
-                    </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
         </Animated.View>
     );
 };
@@ -262,61 +164,6 @@ const styles = StyleSheet.create({
         marginTop: 2,
         fontWeight: "500",
     },
-    viewAllButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 4,
-        padding: 4,
-    },
-    viewAllText: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: COLORS.primary,
-    },
-    tabsScroll: {
-        marginBottom: 20,
-    },
-    tabsContainer: {
-        paddingHorizontal: 20,
-        gap: 10,
-    },
-    tab: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 20, // Full rounded
-        backgroundColor: COLORS.secondary,
-        gap: 8,
-    },
-    tabActive: {
-        backgroundColor: COLORS.primary,
-    },
-    tabText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: COLORS.text.secondary,
-    },
-    tabTextActive: {
-        color: COLORS.white,
-    },
-    badge: {
-        backgroundColor: "rgba(0,0,0,0.05)",
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 8,
-    },
-    badgeActive: {
-        backgroundColor: "rgba(255,255,255,0.2)",
-    },
-    badgeText: {
-        fontSize: 10,
-        fontWeight: "700",
-        color: COLORS.text.muted,
-    },
-    badgeTextActive: {
-        color: COLORS.white,
-    },
     cardsContainer: {
         paddingHorizontal: 20,
         gap: 16,
@@ -345,25 +192,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
     },
-    statusBadge: {
-        position: "absolute",
-        top: 10,
-        right: 10,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        backdropFilter: 'blur(10px)', // doesn't work on RN, but just logic
-    },
-    statusHot: { backgroundColor: COLORS.status.danger },
-    statusCertified: { backgroundColor: COLORS.status.success },
-    statusNew: { backgroundColor: COLORS.primary },
-    statusText: {
-        fontSize: 10,
-        fontWeight: "700",
-        color: COLORS.white,
-        textTransform: 'uppercase',
-    },
     priceTag: {
         position: 'absolute',
         bottom: 10,
@@ -389,10 +217,16 @@ const styles = StyleSheet.create({
         color: COLORS.text.primary,
         marginBottom: 8,
     },
+    cardSubTitle: {
+        fontSize: 12,
+        color: COLORS.text.muted,
+        marginTop: 2,
+    },
     detailsRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginTop: 8,
     },
     locationRow: {
         flexDirection: 'row',
@@ -415,17 +249,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        backdropFilter: 'blur(10px)',
     },
     reviewText: {
         color: '#fff',
         fontSize: 10,
         fontWeight: 'bold',
-    },
-    cardSubTitle: {
-        fontSize: 12,
-        color: COLORS.text.muted,
-        marginTop: 2,
     },
 });
 

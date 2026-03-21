@@ -13,7 +13,6 @@ import {
   Platform
 } from 'react-native';
 import { COLORS } from '@/constants/Colors';
-
 import Header from "../../components/Header";
 import PaymentCard from '../../components/payments/history/PaymentCard';
 import PaymentSearch from '../../components/payments/history/PaymentSearch';
@@ -133,31 +132,31 @@ export default function PaymentHistoryScreen() {
   return (
     <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header 
-        showBack={true} 
-        title="Payment History" 
+      <Header
+        showBack={true}
+        title="Payment History"
       />
 
       <SafeAreaView style={styles.safe}>
         <View style={styles.totalInvestmentBar}>
-            <View style={styles.investmentInfo}>
-                <Text style={styles.investmentLabel}>Total Lifetime Investment</Text>
-                <Text style={styles.investmentValue}>{summaryData.totalSpent}</Text>
-            </View>
-            <View style={styles.investmentBadge}>
-                <Ionicons name="trending-up" size={16} color={COLORS.primary} />
-            </View>
+          <View style={styles.investmentInfo}>
+            <Text style={styles.investmentLabel}>Total Lifetime Investment</Text>
+            <Text style={styles.investmentValue}>{summaryData.totalSpent}</Text>
+          </View>
+          <View style={styles.investmentBadge}>
+            <Ionicons name="trending-up" size={16} color={COLORS.primary} />
+          </View>
         </View>
 
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.contentContainer}
-            showsVerticalScrollIndicator={false}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
             <View style={styles.badgeContainer}>
-                <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
+              <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
             </View>
           </View>
 
@@ -169,10 +168,10 @@ export default function PaymentHistoryScreen() {
                 <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
               ))
             ) : (
-                <View style={styles.emptyContainer}>
-                    <Ionicons name="receipt-outline" size={48} color={COLORS.text.placeholder} />
-                    <Text style={styles.emptyText}>No transactions found</Text>
-                </View>
+              <View style={styles.emptyContainer}>
+                <Ionicons name="receipt-outline" size={48} color={COLORS.text.placeholder} />
+                <Text style={styles.emptyText}>No transactions found</Text>
+              </View>
             )}
           </View>
         </ScrollView>
@@ -285,182 +284,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
-import React, { useState, useEffect } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  TouchableOpacity
-} from 'react-native';
-import Loading from '@/components/ui/Loading';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Header from "../../components/Header";
-import PaymentCard from '../../components/payments/history/PaymentCard';
-import PaymentSearch from '../../components/payments/history/PaymentSearch';
-import PaymentSummary from '../../components/payments/history/PaymentSummary';
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
-import { Payment, PaymentSummaryData } from '../../types/payment.types';
-import { api } from '@/utils/api';
-
-export default function PaymentHistoryScreen() {
-  const router = useRouter();
-  const [searchText, setSearchText] = useState('');
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const fetchHistory = async () => {
-    try {
-      const res: any = await api.get('/api/payment/my-history');
-      if (res.success && Array.isArray(res.data)) {
-        // Map backend data to frontend type
-        const mapped: Payment[] = res.data.map((p: any) => ({
-          id: p.id,
-          date: p.date,
-          plan: p.plan,
-          type: 'Package', // Default or derive from logic
-          amount: p.amount,
-          status: p.status === 'SUCCESS' ? 'Successful' : p.status === 'FAILED' ? 'Failed' : p.status,
-          card: 'PayHere' // Default
-        }));
-        setPayments(mapped);
-      }
-    } catch (error) {
-      console.error("Failed to fetch payment history:", error);
-      // Alert.alert("Error", "Could not load payment history.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClearHistory = () => {
-    Alert.alert(
-      "Clear History",
-      "Are you sure you want to clear your payment history? This cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLoading(true);
-              // Assuming backend supports DELETE on this endpoint
-              await api.delete('/api/payment/my-history');
-              setPayments([]);
-              Alert.alert("Success", "Payment history cleared.");
-            } catch (error) {
-              console.error("Failed to clear history:", error);
-              Alert.alert("Error", "Failed to clear payment history.");
-            } finally {
-              setLoading(false);
-            }
-          }
-        }
-      ]
-    );
-  };
-
-  const calculateSummary = (): PaymentSummaryData => {
-    const successful = payments.filter(p => p.status === 'Successful');
-    const failed = payments.filter(p => p.status === 'Failed');
-    const refunded = payments.filter(p => p.status === 'Refunded');
-
-    // Parse amount string "$29.99" -> 29.99
-    // Backend returns "LKR 1000.00", assume we parse it
-    const totalVal = successful.reduce((acc, curr) => {
-      const val = parseFloat(curr.amount.replace(/[^0-9.]/g, ''));
-      return acc + (isNaN(val) ? 0 : val);
-    }, 0);
-
-    return {
-      totalPayments: payments.length,
-      successful: successful.length,
-      failed: failed.length,
-      refunded: refunded.length,
-      totalSpent: `LKR ${totalVal.toFixed(2)}`,
-    };
-  };
-
-  const summaryData = calculateSummary();
-
-  const filteredPayments = payments.filter(p =>
-    p.plan.toLowerCase().includes(searchText.toLowerCase()) ||
-    p.status.toLowerCase().includes(searchText.toLowerCase()) ||
-    p.date.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  const handleCardPress = (item: Payment) => {
-    router.push({
-      pathname: '/payments/payment-detail',
-      params: {
-        id: item.id,
-        date: item.date,
-        amount: item.amount,
-        plan: item.plan,
-        status: item.status,
-        card: item.card,
-        type: item.type
-      },
-    } as any);
-  };
-
-  if (loading) {
-    return (
-      <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Loading />
-      </View>
-    );
-  }
-
-  return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <SafeAreaView style={styles.safe}>
-        {/* HEADER */}
-        <Header />
-        <View style={headerSectionStyles.headerWrap}>
-          <View style={headerSectionStyles.header}>
-            <View style={headerSectionStyles.headerLeft}>
-              <Ionicons name="time-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-              <Text style={headerSectionStyles.headerTitle}>Payment History</Text>
-            </View>
-            <TouchableOpacity onPress={handleClearHistory} style={{ padding: 8 }}>
-              <Ionicons name="trash-outline" size={20} color="#EF4444" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-          {/* SEARCH */}
-          <PaymentSearch value={searchText} onChangeText={setSearchText} />
-
-          {/* PAYMENT LIST */}
-          {filteredPayments.length > 0 ? (
-            filteredPayments.map((item) => (
-              <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
-            ))
-          ) : (
-            <Text style={{ textAlign: 'center', marginTop: 20, color: '#666' }}>No payment history found.</Text>
-          )}
-
-          {/* SUMMARY */}
-          <PaymentSummary data={summaryData} />
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-}
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F9FAFB' },
-});

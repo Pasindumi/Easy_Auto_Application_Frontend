@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Text,
   View,
-  SafeAreaView
+  SafeAreaView,
+  ActivityIndicator
 } from 'react-native';
 
 // Components
@@ -70,16 +71,11 @@ export default function PackagesScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl 
-                refreshing={refreshing} 
-                onRefresh={onRefresh} 
-                colors={[COLORS.primary]} 
-                tintColor={COLORS.primary}
-              refreshing={refreshing} 
-              onRefresh={onRefresh} 
-              tintColor="transparent"
-              colors={["transparent"]}
-              progressBackgroundColor="transparent"
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
             />
           }
         >
@@ -90,8 +86,6 @@ export default function PackagesScreen() {
               <ActivityIndicator size="large" color={COLORS.primary} />
               <Text style={styles.loaderText}>Curating best deals for you...</Text>
             </View>
-          {loading ? (
-            <Loading message="Loading packages..." style={styles.loaderContainer} />
           ) : packages.length === 0 ? (
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconBg}>
@@ -102,27 +96,27 @@ export default function PackagesScreen() {
             </View>
           ) : (
             <View style={styles.packagesGrid}>
-                {packages.map((pkg) => {
-                  const { price, perDay } = getPackagePriceInfo(pkg);
-                  const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
-                  const features = pkg.features?.map((f: any) => f.feature_description || f.feature_key) || [];
+              {packages.map((pkg) => {
+                const { price, perDay } = getPackagePriceInfo(pkg);
+                const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
+                const features = pkg.features?.map((f: any) => f.feature_description || f.feature_key) || [];
 
-                  return (
-                    <PackagePlanCard
-                      key={pkg.id}
-                      id={pkg.id}
-                      title={pkg.name}
-                      days={duration}
-                      price={price}
-                      perDay={perDay}
-                      backgroundColor={pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}10` : "#f1f5f9"}
-                      themeColor={pkg.config?.COLOR_THEME || COLORS.primary}
-                      features={features}
-                      adId={adId as string}
-                      isPopular={pkg.code.includes('GOLD') || pkg.code.includes('POPULAR')}
-                    />
-                  );
-                })}
+                return (
+                  <PackagePlanCard
+                    key={pkg.id}
+                    id={pkg.id}
+                    title={pkg.name}
+                    days={duration}
+                    price={price}
+                    perDay={perDay}
+                    backgroundColor={pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}10` : "#f1f5f9"}
+                    themeColor={pkg.config?.COLOR_THEME || COLORS.primary}
+                    features={features}
+                    adId={adId as string}
+                    isPopular={pkg.code.includes('GOLD') || pkg.code.includes('POPULAR')}
+                  />
+                );
+              })}
             </View>
           )}
         </ScrollView>

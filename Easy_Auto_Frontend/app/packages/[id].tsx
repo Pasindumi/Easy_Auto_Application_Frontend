@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   View,
   SafeAreaView,
-  Platform
+  Platform,
+  ActivityIndicator
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Loading from '../../components/ui/Loading';
@@ -128,8 +129,8 @@ export default function PackageDetailScreen() {
         <View style={styles.centered}>
           <Ionicons name="search-outline" size={60} color="#cbd5e1" />
           <Text style={styles.errorText}>Package information unavailable.</Text>
-          <TouchableOpacity 
-            style={styles.backButton} 
+          <TouchableOpacity
+            style={styles.backButton}
             onPress={() => router.back()}
           >
             <Text style={styles.backButtonText}>View All Packages</Text>
@@ -149,10 +150,10 @@ export default function PackageDetailScreen() {
       <Header title="Manage Plan" showBack={true} />
 
       <SafeAreaView style={styles.safe}>
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.scrollContent} 
-            showsVerticalScrollIndicator={false}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
           {/* Top Banner Card */}
           <LinearGradient
@@ -162,13 +163,13 @@ export default function PackageDetailScreen() {
             style={styles.heroCard}
           >
             <View style={styles.heroTop}>
-                <View style={styles.statusBadge}>
-                    <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color="#fff" />
-                    <Text style={styles.statusText}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
-                </View>
-                <View style={styles.heroIconBg}>
-                    <Ionicons name="diamond-outline" size={24} color="#fff" />
-                </View>
+              <View style={styles.statusBadge}>
+                <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color="#fff" />
+                <Text style={styles.statusText}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
+              </View>
+              <View style={styles.heroIconBg}>
+                <Ionicons name="diamond-outline" size={24} color="#fff" />
+              </View>
             </View>
 
             <Text style={styles.heroTitle}>{pkg.name}</Text>
@@ -177,65 +178,65 @@ export default function PackageDetailScreen() {
             <View style={styles.heroDivider} />
 
             <View style={styles.heroBottom}>
-                <View>
-                    <Text style={styles.priceLabel}>Package Value</Text>
-                    <Text style={styles.priceValue}>Rs. {price.toLocaleString()}</Text>
-                </View>
-                <View style={styles.durationBadge}>
-                    <Text style={styles.durationText}>{duration} Days Boost</Text>
-                </View>
+              <View>
+                <Text style={styles.priceLabel}>Package Value</Text>
+                <Text style={styles.priceValue}>Rs. {price.toLocaleString()}</Text>
+              </View>
+              <View style={styles.durationBadge}>
+                <Text style={styles.durationText}>{duration} Days Boost</Text>
+              </View>
             </View>
           </LinearGradient>
 
           {/* Action Area */}
           <View style={styles.actionContainer}>
             {isCurrentPlan ? (
-               <TouchableOpacity 
-                    style={styles.cancelBtn} 
-                    onPress={handleUnsubscribe}
-                >
-                    <Ionicons name="close-circle-outline" size={20} color="#ef4444" />
-                    <Text style={styles.cancelBtnText}>Cancel Subscription</Text>
-               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={handleUnsubscribe}
+              >
+                <Ionicons name="close-circle-outline" size={20} color="#ef4444" />
+                <Text style={styles.cancelBtnText}>Cancel Subscription</Text>
+              </TouchableOpacity>
             ) : (
-                <TouchableOpacity 
-                    style={[styles.buyBtn, { backgroundColor: themeColor }]}
-                    onPress={() => router.push({ 
-                        pathname: '/payments/invoice', 
-                        params: { 
-                            packageId: pkg.id,
-                            plan: pkg.name,
-                            price: price,
-                            days: duration
-                        } 
-                    })}
-                >
-                    <Text style={styles.buyBtnText}>Upgrade Now</Text>
-                    <Ionicons name="arrow-forward" size={20} color="#fff" />
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.buyBtn, { backgroundColor: themeColor }]}
+                onPress={() => router.push({
+                  pathname: '/payments/invoice',
+                  params: {
+                    packageId: pkg.id,
+                    plan: pkg.name,
+                    price: price,
+                    days: duration
+                  }
+                })}
+              >
+                <Text style={styles.buyBtnText}>Upgrade Now</Text>
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
+              </TouchableOpacity>
             )}
           </View>
 
           {/* Features Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Key Benefits</Text>
-                <View style={styles.sectionBadge}>
-                    <Text style={styles.sectionBadgeText}>{pkg.features?.length || 0}</Text>
-                </View>
+              <Text style={styles.sectionTitle}>Key Benefits</Text>
+              <View style={styles.sectionBadge}>
+                <Text style={styles.sectionBadgeText}>{pkg.features?.length || 0}</Text>
+              </View>
             </View>
             <View style={styles.featuresList}>
-                {pkg.features?.map((f: any, idx: number) => (
-                    <View key={idx} style={styles.featureItem}>
-                        <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
-                            <Ionicons name="checkmark" size={14} color={themeColor} />
-                        </View>
-                        <View style={styles.featureContent}>
-                            <Text style={styles.featureTitle}>{f.feature_description || f.feature_key}</Text>
-                            {f.feature_value && <Text style={styles.featureValue}>{f.feature_value}</Text>}
-                        </View>
-                    </View>
-                ))}
+              {pkg.features?.map((f: any, idx: number) => (
+                <View key={idx} style={styles.featureItem}>
+                  <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
+                    <Ionicons name="checkmark" size={14} color={themeColor} />
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>{f.feature_description || f.feature_key}</Text>
+                    {f.feature_value && <Text style={styles.featureValue}>{f.feature_value}</Text>}
+                  </View>
+                </View>
+              ))}
             </View>
           </View>
 
@@ -243,57 +244,57 @@ export default function PackageDetailScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Publishing Limits</Text>
             <Text style={styles.sectionSubtitle}>Categorized posting limits for your account</Text>
-            
+
             <View style={styles.limitsGrid}>
-                {pkg.config?.IS_UNLIMITED_ADS === 'true' ? (
-                    <View style={styles.unlimitedBox}>
-                        <Ionicons name="infinite-outline" size={32} color={themeColor} />
-                        <Text style={styles.unlimitedText}>Unlimited Ad Postings</Text>
+              {pkg.config?.IS_UNLIMITED_ADS === 'true' ? (
+                <View style={styles.unlimitedBox}>
+                  <Ionicons name="infinite-outline" size={32} color={themeColor} />
+                  <Text style={styles.unlimitedText}>Unlimited Ad Postings</Text>
+                </View>
+              ) : pkg.ad_limits?.map((l: any) => {
+                const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
+                return (
+                  <View key={l.id} style={styles.limitCard}>
+                    <View style={styles.limitTag}>
+                      <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
                     </View>
-                ) : pkg.ad_limits?.map((l: any) => {
-                    const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
-                    return (
-                        <View key={l.id} style={styles.limitCard}>
-                            <View style={styles.limitTag}>
-                                <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
-                            </View>
-                            <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
-                            {isCurrentPlan && usage && (
-                                <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
-                            )}
-                        </View>
-                    );
-                })}
+                    <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
+                    {isCurrentPlan && usage && (
+                      <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
+                    )}
+                  </View>
+                );
+              })}
             </View>
           </View>
 
           {/* Extra Items Section */}
           {pkg.included_items?.length > 0 && (
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Included Bundles</Text>
-                <View style={styles.bundlesList}>
-                    {pkg.included_items.map((it: any) => (
-                        <View key={it.id} style={styles.bundleItem}>
-                            <View style={styles.bundleIconBg}>
-                                <Ionicons name="gift-outline" size={20} color={COLORS.primary} />
-                            </View>
-                            <View style={styles.bundleInfo}>
-                                <Text style={styles.bundleName}>{it.price_items?.name || 'Bundle Item'}</Text>
-                                <Text style={styles.bundleDetail}>For {it.vehicle_types?.type_name || 'All Categories'}</Text>
-                            </View>
-                            <View style={styles.bundleValue}>
-                                <Text style={styles.bundleValueText}>{it.is_unlimited ? '∞' : `x${it.quantity}`}</Text>
-                            </View>
-                        </View>
-                    ))}
-                </View>
+              <Text style={styles.sectionTitle}>Included Bundles</Text>
+              <View style={styles.bundlesList}>
+                {pkg.included_items.map((it: any) => (
+                  <View key={it.id} style={styles.bundleItem}>
+                    <View style={styles.bundleIconBg}>
+                      <Ionicons name="gift-outline" size={20} color={COLORS.primary} />
+                    </View>
+                    <View style={styles.bundleInfo}>
+                      <Text style={styles.bundleName}>{it.price_items?.name || 'Bundle Item'}</Text>
+                      <Text style={styles.bundleDetail}>For {it.vehicle_types?.type_name || 'All Categories'}</Text>
+                    </View>
+                    <View style={styles.bundleValue}>
+                      <Text style={styles.bundleValueText}>{it.is_unlimited ? '∞' : `x${it.quantity}`}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
             </View>
           )}
 
           {pkg.description && (
             <View style={styles.descriptionBox}>
-                <Text style={styles.descTitle}>About this Package</Text>
-                <Text style={styles.descText}>{pkg.description}</Text>
+              <Text style={styles.descTitle}>About this Package</Text>
+              <Text style={styles.descText}>{pkg.description}</Text>
             </View>
           )}
 

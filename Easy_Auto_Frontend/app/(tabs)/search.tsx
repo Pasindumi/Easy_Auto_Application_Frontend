@@ -1,6 +1,4 @@
-import Header from '@/components/Header';
-import Loading from '@/components/ui/Loading';
-import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
+﻿import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -13,6 +11,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
   Modal,
   Animated,
   FlatList,
@@ -25,7 +24,6 @@ import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
-import LocationModal from '@/components/ui/LocationModal';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -76,7 +74,6 @@ export default function SearchScreen() {
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchFocused, setSearchFocused] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSort, setSelectedSort] = useState('relevance');
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
@@ -93,7 +90,6 @@ export default function SearchScreen() {
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [showLocationModal, setShowLocationModal] = useState(false);
 
   // Data States
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -109,6 +105,7 @@ export default function SearchScreen() {
   // Fetch initial data
   useEffect(() => {
     fetchVehicleTypes();
+    fetchConditions();
   }, []);
 
   // Fetch vehicle types
@@ -131,14 +128,9 @@ export default function SearchScreen() {
   };
 
   // Fetch conditions
-  const fetchConditions = async (typeId: string) => {
-    if (!typeId || typeId === 'all') {
-      setConditions([]);
-      setSelectedCondition('');
-      return;
-    }
+  const fetchConditions = async () => {
     try {
-      const res: any = await api.get(`/api/vehicle-config/conditions/${typeId}`);
+      const res: any = await api.get('/api/vehicle-config/conditions');
       if (Array.isArray(res)) {
         setConditions(res.map(c => ({ label: c.condition_name, value: c.id })));
       }
@@ -146,16 +138,6 @@ export default function SearchScreen() {
       console.error("Error fetching conditions:", error);
     }
   };
-
-  // Fetch conditions when category changes
-  useEffect(() => {
-    if (selectedCategory && selectedCategory !== 'all') {
-      fetchConditions(selectedCategory);
-    } else {
-      setConditions([]);
-      setSelectedCondition('');
-    }
-  }, [selectedCategory]);
 
   // Fetch brands when category changes
   useEffect(() => {
@@ -206,32 +188,32 @@ export default function SearchScreen() {
       const params: any = {};
 
       if (searchQuery) params.search = searchQuery;
-      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // ✅ was: vehicle_type_id
+      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // Γ£à was: vehicle_type_id
       if (locationFilter) params.location = locationFilter;
 
-      // Brand: backend expects brand NAME, not ID — resolve from list
+      // Brand: backend expects brand NAME, not ID ΓÇö resolve from list
       if (selectedBrand) {
         const brandObj = brands.find((b: any) => b.value === selectedBrand);
-        if (brandObj) params.brand = brandObj.label; // ✅ was: brand_id
+        if (brandObj) params.brand = brandObj.label; // Γ£à was: brand_id
       }
 
-      // Model: backend expects model NAME, not ID — resolve from list
+      // Model: backend expects model NAME, not ID ΓÇö resolve from list
       if (selectedModel) {
         const modelObj = models.find((m: any) => m.value === selectedModel);
-        if (modelObj) params.model = modelObj.label; // ✅ was: model_id
+        if (modelObj) params.model = modelObj.label; // Γ£à was: model_id
       }
 
-      if (selectedCondition) params.condition = selectedCondition; // ✅ was: condition_id
-      if (selectedFuelType) params.fuelType = selectedFuelType;     // ✅ was: fuel_type
+      if (selectedCondition) params.condition = selectedCondition; // Γ£à was: condition_id
+      if (selectedFuelType) params.fuelType = selectedFuelType;     // Γ£à was: fuel_type
       if (selectedTransmission) params.transmission = selectedTransmission;
 
       const priceRange = PRICE_RANGES[selectedPriceRange];
-      if (priceRange.min) params.minPrice = priceRange.min; // ✅ was: min_price
-      if (priceRange.max) params.maxPrice = priceRange.max; // ✅ was: max_price
+      if (priceRange.min) params.minPrice = priceRange.min; // Γ£à was: min_price
+      if (priceRange.max) params.maxPrice = priceRange.max; // Γ£à was: max_price
 
       const yearRange = YEAR_RANGES[selectedYearRange];
-      if (yearRange.min) params.minYear = yearRange.min; // ✅ was: min_year
-      if (yearRange.max) params.maxYear = yearRange.max; // ✅ was: max_year
+      if (yearRange.min) params.minYear = yearRange.min; // Γ£à was: min_year
+      if (yearRange.max) params.maxYear = yearRange.max; // Γ£à was: max_year
 
       if (selectedSort !== 'relevance') params.sort = selectedSort;
 
@@ -259,7 +241,7 @@ export default function SearchScreen() {
       performSearch();
     }, 500);
     return () => clearTimeout(timer);
-  }, [performSearch]); // ✅ performSearch already has all deps via useCallback
+  }, [performSearch]); // Γ£à performSearch already has all deps via useCallback
 
 
   // Calculate active filters
@@ -410,7 +392,7 @@ export default function SearchScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
+      {/* ΓöÇΓöÇΓöÇ NEW PREMIUM BRANDED HEADER ΓöÇΓöÇΓöÇ */}
       <LinearGradient
         colors={[COLORS.primary, COLORS.primaryDark]}
         style={[styles.header, { paddingTop: insets.top + 8 }]}
@@ -438,37 +420,14 @@ export default function SearchScreen() {
               style={styles.headerSearchInput}
               placeholder="Search cars, brands, models..."
               placeholderTextColor="rgba(255,255,255,0.6)"
-      {/* Search Bar section - cleaned up without redundant gradient */}
-      <View style={styles.searchSection}>
-        <View style={styles.searchBarContainer}>
-          <View style={[styles.searchBar, searchFocused && styles.searchBarFocused]}>
-            <LinearGradient
-              colors={searchFocused ? ['rgba(255,255,255,1)', 'rgba(255,255,255,0.9)'] : ['#F3F4F6', '#F3F4F6']}
-              style={styles.searchGradient}
-            />
-            <Ionicons
-              name="search"
-              size={16}
-              color={searchFocused ? COLORS.primary : COLORS.text.muted}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search cars..."
-              placeholderTextColor={COLORS.text.muted}
               value={searchQuery}
               onChangeText={setSearchQuery}
               returnKeyType="search"
               onSubmitEditing={performSearch}
-              onFocus={() => {
-                setSearchFocused(true);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-              onBlur={() => setSearchFocused(false)}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
                 <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.5)" />
-                <Ionicons name="close-circle" size={16} color={COLORS.text.muted} />
               </TouchableOpacity>
             )}
           </View>
@@ -545,7 +504,6 @@ export default function SearchScreen() {
       </View>
 
       {/* Search Results */}
-      <BrandedRefreshOverlay refreshing={refreshing} top={120} />
       <FlatList
         data={searchResults}
         renderItem={renderSearchCard}
@@ -561,15 +519,13 @@ export default function SearchScreen() {
               setRefreshing(true);
               performSearch();
             }}
-            tintColor="transparent"
-            colors={["transparent"]}
-            progressBackgroundColor="transparent"
+            tintColor={COLORS.primary}
           />
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
             {isSearching ? (
-              <Loading size="medium" message="Searching..." />
+              <ActivityIndicator size="large" color={COLORS.primary} />
             ) : (
               <>
                 <View style={styles.emptyIcon}>
@@ -599,48 +555,14 @@ export default function SearchScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.filterModal}>
-            <View style={styles.sheetHandle} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Advanced Filters</Text>
-              <TouchableOpacity
-                style={styles.closeBtnCircle}
-                onPress={toggleFilters}
-              >
-                <Ionicons name="close" size={20} color={COLORS.text.primary} />
+              <TouchableOpacity onPress={toggleFilters}>
+                <Ionicons name="close" size={24} color={COLORS.text.primary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
-              {/* Location & Sort Row */}
-              <View style={[styles.filterRow, { marginBottom: 24 }]}>
-                <View style={styles.filterCol}>
-                  <Text style={styles.filterLabel}>Location</Text>
-                  <TouchableOpacity
-                    style={styles.locationInputWrap}
-                    onPress={() => setShowLocationModal(true)}
-                  >
-                    <Ionicons
-                      name="location-outline"
-                      size={20}
-                      color={locationFilter ? COLORS.primary : COLORS.text.muted}
-                    />
-                    <Text style={[styles.locationInput, !locationFilter && { color: COLORS.text.muted }]} numberOfLines={1}>
-                      {locationFilter || "Select Location"}
-                    </Text>
-                    <Ionicons name="chevron-down" size={18} color={COLORS.text.muted} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.filterCol}>
-                  <SelectField
-                    label="Sort By"
-                    value={selectedSort}
-                    onSelect={setSelectedSort}
-                    options={SORT_OPTIONS}
-                  />
-                </View>
-              </View>
-
               {/* Price Range */}
               <View style={styles.filterSection}>
                 <Text style={styles.filterLabel}>Price Range</Text>
@@ -697,30 +619,29 @@ export default function SearchScreen() {
                 </ScrollView>
               </View>
 
-              {/* Brand & Model Row */}
-              <View style={[styles.filterRow, { marginBottom: 8 }]}>
-                {brands.length > 0 && (
-                  <View style={styles.filterCol}>
-                    <SelectField
-                      label="Brand"
-                      value={selectedBrand}
-                      onSelect={setSelectedBrand}
-                      options={[{ label: 'All Brands', value: '' }, ...brands]}
-                    />
-                  </View>
-                )}
+              {/* Brand */}
+              {brands.length > 0 && (
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Brand"
+                    value={selectedBrand}
+                    onSelect={setSelectedBrand}
+                    options={[{ label: 'All Brands', value: '' }, ...brands]}
+                  />
+                </View>
+              )}
 
-                {models.length > 0 && (
-                  <View style={styles.filterCol}>
-                    <SelectField
-                      label="Model"
-                      value={selectedModel}
-                      onSelect={setSelectedModel}
-                      options={[{ label: 'All Models', value: '' }, ...models]}
-                    />
-                  </View>
-                )}
-              </View>
+              {/* Model */}
+              {models.length > 0 && (
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Model"
+                    value={selectedModel}
+                    onSelect={setSelectedModel}
+                    options={[{ label: 'All Models', value: '' }, ...models]}
+                  />
+                </View>
+              )}
 
               {/* Condition */}
               {conditions.length > 0 && (
@@ -785,12 +706,6 @@ export default function SearchScreen() {
           </View>
         </View>
       </Modal>
-
-      <LocationModal
-        visible={showLocationModal}
-        onClose={() => setShowLocationModal(false)}
-        onSelect={setLocationFilter}
-      />
     </View>
   );
 }
@@ -850,35 +765,12 @@ const styles = StyleSheet.create({
     height: 52,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    height: 42,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    overflow: 'hidden',
-  },
-  searchBarFocused: {
-    borderColor: 'rgba(35, 92, 248, 0.3)',
-    backgroundColor: COLORS.white,
-    shadowColor: COLORS.shadowPremium || COLORS.primary,
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-  },
-  searchGradient: {
-    ...StyleSheet.absoluteFillObject,
   },
   headerSearchInput: {
     flex: 1,
     fontSize: 15,
     color: 'white',
     marginLeft: 10,
-    fontSize: 13,
-    color: COLORS.text.primary,
-    fontWeight: '500',
     padding: 0,
   },
   filterStatsSection: {
@@ -1077,47 +969,27 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
   filterModal: {
     backgroundColor: COLORS.white,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    maxHeight: '85%',
-    paddingTop: 12,
-    paddingBottom: 0,
-  },
-  sheetHandle: {
-    width: 40,
-    height: 5,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 2.5,
-    alignSelf: 'center',
-    marginBottom: 10,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,
   },
-  closeBtnCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: 'bold',
     color: COLORS.text.primary,
-    letterSpacing: -0.5,
   },
   filterContent: {
     padding: 20,
@@ -1126,10 +998,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   filterLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#6B7280',
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text.secondary,
+    marginBottom: 12,
   },
   rangeChips: {
     flexDirection: 'row',
@@ -1157,66 +1029,34 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 10,
+    padding: 20,
     gap: 12,
     borderTopWidth: 1,
     borderTopColor: COLORS.divider,
-    backgroundColor: COLORS.white,
   },
   clearFiltersBtn: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
     alignItems: 'center',
   },
   clearFiltersText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.primary,
   },
   applyFiltersBtn: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 12,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
   },
   applyFiltersText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.white,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  filterCol: {
-    flex: 1,
-  },
-  locationInputWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  locationInput: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 14,
-    color: COLORS.text.primary,
-    fontWeight: '500',
   },
 });

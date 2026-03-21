@@ -9,6 +9,7 @@ import React, { useRef, useEffect, useState } from "react";
 import {
   Alert,
   Animated,
+  ActivityIndicator,
   Dimensions,
   Easing,
   Modal,
@@ -31,24 +32,24 @@ interface WishlistDrawerProps {
 }
 
 export default function WishlistDrawer({ visible, onClose }: WishlistDrawerProps) {
-  const insets      = useSafeAreaInsets();
-  const router      = useRouter();
-  const slideAnim   = useRef(new Animated.Value(DRAWER_W)).current;
-  const bgOpacity   = useRef(new Animated.Value(0)).current;
-  const [items, setItems]     = useState<any[]>([]);
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const slideAnim = useRef(new Animated.Value(DRAWER_W)).current;
+  const bgOpacity = useRef(new Animated.Value(0)).current;
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (visible) {
       fetchWishlist();
       Animated.parallel([
-        Animated.timing(slideAnim, { toValue: 0,        duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(bgOpacity,  { toValue: 1,        duration: 300, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(bgOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(slideAnim, { toValue: DRAWER_W, duration: 280, easing: Easing.in(Easing.cubic),  useNativeDriver: true }),
-        Animated.timing(bgOpacity,  { toValue: 0,        duration: 260, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: DRAWER_W, duration: 280, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(bgOpacity, { toValue: 0, duration: 260, useNativeDriver: true }),
       ]).start();
     }
   }, [visible]);
@@ -151,17 +152,6 @@ export default function WishlistDrawer({ visible, onClose }: WishlistDrawerProps
               <View style={styles.emptyState}>
                 <View style={styles.emptyCircle}>
                   <Ionicons name="heart-dislike-outline" size={44} color="#CBD5E1" />
-                <Text style={styles.subtitle}>Your saved dream cars</Text>
-            </LinearGradient>
-
-            <ScrollView
-              style={styles.scrollView}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              {loading ? (
-                <View style={styles.loadingContainer}>
-                  <Loading size="large" />
                 </View>
                 <Text style={styles.emptyTitle}>Nothing saved yet</Text>
                 <Text style={styles.emptyBody}>
@@ -228,9 +218,9 @@ export default function WishlistDrawer({ visible, onClose }: WishlistDrawerProps
                       {/* Specs row */}
                       <View style={styles.specsRow}>
                         {[
-                          { icon: "location-outline",    val: item.location || "—" },
+                          { icon: "location-outline", val: item.location || "—" },
                           { icon: "speedometer-outline", val: details.mileage ? `${Number(details.mileage).toLocaleString()} km` : "—" },
-                          { icon: "color-palette-outline",val: details.color || "—" },
+                          { icon: "color-palette-outline", val: details.color || "—" },
                         ].map((s, i) => (
                           <View key={i} style={styles.specChip}>
                             <Ionicons name={s.icon as any} size={11} color="#64748B" />
@@ -278,7 +268,7 @@ export default function WishlistDrawer({ visible, onClose }: WishlistDrawerProps
 }
 
 const styles = StyleSheet.create({
-  root:    { flex: 1, flexDirection: "row-reverse" },
+  root: { flex: 1, flexDirection: "row-reverse" },
   backdrop: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15,23,42,0.55)" },
 
   drawer: {
@@ -323,7 +313,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between",
   },
   headerTitle: { fontSize: 24, fontWeight: "800", color: "#fff", letterSpacing: -0.5 },
-  headerSub:   { fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 3 },
+  headerSub: { fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 3 },
   countPill: {
     backgroundColor: "rgba(255,255,255,0.2)",
     paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20,
@@ -346,7 +336,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emptyTitle: { fontSize: 22, fontWeight: "800", color: "#1E293B", letterSpacing: -0.5, marginBottom: 10 },
-  emptyBody:  { fontSize: 14, color: "#64748B", textAlign: "center", lineHeight: 22, marginBottom: 28 },
+  emptyBody: { fontSize: 14, color: "#64748B", textAlign: "center", lineHeight: 22, marginBottom: 28 },
   browseBtn: {
     flexDirection: "row", alignItems: "center", gap: 8,
     backgroundColor: COLORS.primary,
@@ -369,7 +359,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   imageWrap: { width: "100%", height: 170, position: "relative" },
-  image:     { width: "100%", height: "100%" },
+  image: { width: "100%", height: "100%" },
   imagePlaceholder: {
     width: "100%", height: "100%", backgroundColor: "#F1F5F9",
     alignItems: "center", justifyContent: "center",

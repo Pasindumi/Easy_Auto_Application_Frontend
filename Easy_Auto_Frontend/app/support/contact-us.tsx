@@ -16,7 +16,7 @@ import {
     TouchableOpacity,
     View,
     ActivityIndicator,
-    SafeAreaView
+    SafeAreaView,
     Alert,
 } from "react-native";
 import api from "@/utils/api";
@@ -99,10 +99,10 @@ export default function ContactUsScreen() {
                                     setMode("INQUIRY");
                                 }}
                             >
-                                <Ionicons 
-                                    name="chatbox-ellipses-outline" 
-                                    size={16} 
-                                    color={mode === "INQUIRY" ? COLORS.primary : "#6B7280"} 
+                                <Ionicons
+                                    name="chatbox-ellipses-outline"
+                                    size={16}
+                                    color={mode === "INQUIRY" ? COLORS.primary : "#6B7280"}
                                 />
                                 <Text style={[styles.toggleText, mode === "INQUIRY" && styles.toggleTextActive]}>Inquiry</Text>
                             </TouchableOpacity>
@@ -113,10 +113,10 @@ export default function ContactUsScreen() {
                                     setMode("COMPLAINT");
                                 }}
                             >
-                                <Ionicons 
-                                    name="alert-circle-outline" 
-                                    size={16} 
-                                    color={mode === "COMPLAINT" ? COLORS.primary : "#6B7280"} 
+                                <Ionicons
+                                    name="alert-circle-outline"
+                                    size={16}
+                                    color={mode === "COMPLAINT" ? COLORS.primary : "#6B7280"}
                                 />
                                 <Text style={[styles.toggleText, mode === "COMPLAINT" && styles.toggleTextActive]}>Complaint</Text>
                             </TouchableOpacity>
@@ -235,26 +235,7 @@ export default function ContactUsScreen() {
                                 </LinearGradient>
                             </TouchableOpacity>
                         </View>
-                                {loading ? (
-                                    <Loading size="small" />
-                                ) : (
-                                    <>
-                                        <Text style={styles.submitButtonText}>
-                                            {mode === "INQUIRY" ? "Send Message" : "Submit Complaint"}
-                                        </Text>
-                                        <Ionicons
-                                            name={mode === "INQUIRY" ? "send" : "checkmark-circle-outline"}
-                                            size={16}
-                                            color={COLORS.white}
-                                            style={{ marginLeft: 8 }}
-                                        />
-                                    </>
-                                )}
-                            </LinearGradient>
-                        </TouchableOpacity>
-                    </View>
 
-                        
                         <View style={{ height: 40 }} />
                     </ScrollView>
                 </KeyboardAvoidingView>

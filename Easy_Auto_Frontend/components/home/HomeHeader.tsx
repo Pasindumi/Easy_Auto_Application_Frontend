@@ -97,46 +97,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     </View>
                 </TouchableOpacity>
 
-                    <LinearGradient
-                        colors={searchFocused ? ['#FFFFFF', '#F9FAFB'] : ['#FFFFFF', '#FFFFFF']}
-                        style={styles.searchGradient}
-                    />
-                    <View style={styles.searchIconBox}>
-                        <Ionicons
-                            name="search"
-                            size={16}
-                            color={searchFocused ? COLORS.primary : COLORS.text.muted}
-                        />
-                    </View>
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search cars..."
-                        placeholderTextColor={COLORS.text.placeholder}
-                        onFocus={() => {
-                            setSearchFocused(true);
-                            setShowSearchSuggestions(true);
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        }}
-                        onBlur={() => {
-                            setSearchFocused(false);
-                            setTimeout(() => setShowSearchSuggestions(false), 200);
-                        }}
-                    />
-                    {/* Compact closer layout without the extra Search button */}
-                    <TouchableOpacity
-                        style={styles.filterBtn}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        }}
-                    >
-                        <Ionicons
-                            name="options-outline"
-                            size={16}
-                            color={COLORS.primary}
-                        />
-                    </TouchableOpacity>
-                </View>
-
             </View>
         </Animated.View>
     );
@@ -207,7 +167,10 @@ const styles = StyleSheet.create({
     },
     searchBarFocused: {
         borderWidth: 2,
-        borderColor: "rgba(255,255,255,0.4)",
+        borderColor: 'rgba(255,255,255,0.8)',
+        shadowOpacity: 0.1,
+        elevation: 6,
+        backgroundColor: COLORS.white,
     },
     searchPlaceholder: {
         flex: 1,
@@ -230,12 +193,6 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.4)',
-    },
-    searchBarFocused: {
-        borderColor: 'rgba(255,255,255,0.8)',
-        shadowOpacity: 0.1,
-        elevation: 6,
-        backgroundColor: COLORS.white,
     },
     searchGradient: {
         ...StyleSheet.absoluteFillObject,

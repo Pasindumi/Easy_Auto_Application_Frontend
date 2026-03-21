@@ -46,7 +46,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
             try {
                 const res: any = await api.get("/api/cars?status=ACTIVE&limit=10&sort=created_at&order=desc");
                 if (res.success) setAds(res.data || []);
-            } catch {}
+            } catch { }
             finally { setLoading(false); }
         })();
     }, []);
@@ -61,8 +61,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
                 onViewAll={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/cars/buy-car" as any); }}
             />
             {loading ? (
-                <View style={styles.loader}><ActivityIndicator color={COLORS.primary} /></View>
-                <View style={styles.loadingContainer}>
+                <View style={styles.loader}>
                     <Loading size="small" />
                 </View>
             ) : (
