@@ -7,9 +7,9 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator,
     ScrollView
 } from "react-native";
+import Loading from "../ui/Loading";
 import api from "@/utils/api";
 import { useRouter } from "expo-router";
 import COLORS from "@/constants/Colors";
@@ -157,7 +157,7 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
     if (loading && vehicleTypes.length === 0) {
         return (
             <View style={[styles.container, { height: 200, justifyContent: 'center' }]}>
-                <ActivityIndicator size="small" color={COLORS.primary} />
+                <Loading size="small" />
             </View>
         );
     }
@@ -218,7 +218,7 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({
 
             {loading ? (
                 <View style={{ height: 160, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator size="small" color={COLORS.primary} />
+                    <Loading size="small" />
                 </View>
             ) : (
                 <View style={styles.brandGrid}>

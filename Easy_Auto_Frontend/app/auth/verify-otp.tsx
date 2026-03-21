@@ -11,7 +11,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
@@ -185,18 +184,11 @@ export default function VerifyOTPScreen() {
               />
 
               <Button
-                title={loading ? "Verifying..." : "Verify OTP"}
+                title="Verify OTP"
                 onPress={handleVerifyOTP}
+                loading={loading}
                 style={styles.button}
               />
-
-              {loading && (
-                <ActivityIndicator
-                  size="small"
-                  color={COLORS.primary}
-                  style={styles.loader}
-                />
-              )}
 
               {/* Resend OTP */}
               <View style={styles.resendRow}>

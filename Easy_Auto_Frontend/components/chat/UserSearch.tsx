@@ -7,10 +7,10 @@ import {
     TouchableOpacity,
     Image,
     StyleSheet,
-    ActivityIndicator,
     Modal,
     SafeAreaView
 } from 'react-native';
+import Loading from '../ui/Loading';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '../../utils/api';
 import { ENDPOINTS } from '../../constants/API';
@@ -103,7 +103,7 @@ export default function UserSearch({ visible, onClose, onSelectUser }: UserSearc
                         onChangeText={setQuery}
                         autoFocus
                     />
-                    {loading && <ActivityIndicator size="small" color="#235CF8" />}
+                    {loading && <Loading size="small" />}
                 </View>
 
                 <FlatList

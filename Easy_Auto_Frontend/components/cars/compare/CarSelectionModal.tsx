@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     Image,
     Modal,
@@ -11,6 +10,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import Loading from '../../ui/Loading';
 import COLORS from '../../../constants/Colors';
 import { ENDPOINTS } from '../../../constants/API';
 
@@ -88,7 +88,7 @@ const CarSelectionModal: React.FC<CarSelectionModalProps> = ({ visible, onClose,
                 </View>
 
                 {loading ? (
-                    <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
+                    <Loading size="large" style={{ marginTop: 20 }} />
                 ) : (
                     <FlatList
                         data={cars}

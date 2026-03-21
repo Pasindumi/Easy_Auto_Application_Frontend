@@ -1,5 +1,6 @@
 import ActionGrid from "@/components/home/ActionGrid";
 import CarComparison from "@/components/home/CarComparison";
+import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
 
 import ExploreByBrand from "@/components/home/ExploreByBrand";
 import FlashSale from "@/components/home/FlashSale";
@@ -185,13 +186,20 @@ export default function HomeScreen() {
         setShowSearchSuggestions={setShowSearchSuggestions}
       />
 
+      <BrandedRefreshOverlay refreshing={refreshing} top={120} />
       <ScrollView
         ref={mainScrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            tintColor="transparent"
+            colors={["transparent"]}
+            progressBackgroundColor="transparent"
+          />
         }
         onScroll={handleMainScroll}
         scrollEventThrottle={16}

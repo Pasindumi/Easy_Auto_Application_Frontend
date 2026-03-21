@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import Loading from '@/components/ui/Loading';
 import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -527,6 +528,8 @@ export default function SellCarScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header showBack={true} />
+      
+      {loading && <Loading fullScreen={true} message="Processing..." />}
 
       <View style={headerSectionStyles.headerWrap}>
         <View style={headerSectionStyles.header}>

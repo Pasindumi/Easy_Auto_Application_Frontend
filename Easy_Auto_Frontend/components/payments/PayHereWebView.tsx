@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import Loading from '../ui/Loading';
 import { WebView } from 'react-native-webview';
 
 interface PayHereWebViewProps {
@@ -40,13 +41,13 @@ const PayHereWebView: React.FC<PayHereWebViewProps> = ({
                 startInLoadingState={true}
                 renderLoading={() => (
                     <View style={styles.loadingOverlay}>
-                        <ActivityIndicator size="large" color="#235CF8" />
+                        <Loading size="large" />
                     </View>
                 )}
             />
             {loading && (
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color="#235CF8" />
+                    <Loading size="large" />
                 </View>
             )}
         </View>

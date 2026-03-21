@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
+import Loading from "@/components/ui/Loading";
 import {
     KeyboardAvoidingView,
     Platform,
@@ -14,7 +15,6 @@ import {
     TouchableOpacity,
     View,
     Alert,
-    ActivityIndicator,
 } from "react-native";
 import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import api from "@/utils/api";
@@ -227,7 +227,7 @@ export default function ContactUsScreen() {
                                 style={styles.gradientButton}
                             >
                                 {loading ? (
-                                    <ActivityIndicator color={COLORS.white} size="small" />
+                                    <Loading size="small" />
                                 ) : (
                                     <>
                                         <Text style={styles.submitButtonText}>

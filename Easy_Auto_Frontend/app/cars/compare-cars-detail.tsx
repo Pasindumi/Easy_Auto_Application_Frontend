@@ -4,13 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import ComparisonSpecsTable from '../../components/cars/compare/ComparisonSpecsTable';
 import ComparisonVehicleHeader from '../../components/cars/compare/ComparisonVehicleHeader';
 import SimilarComparisonsSection from '../../components/cars/compare/SimilarComparisonsSection';
@@ -80,7 +80,7 @@ export default function CompareCars() {
   if (loading) {
     return (
       <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Loading />
       </View>
     );
   }

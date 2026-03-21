@@ -4,7 +4,6 @@ import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
-  ActivityIndicator,
   Dimensions,
   Image,
   ScrollView,
@@ -13,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Loading from "../../components/ui/Loading";
 import Header from "../../components/Header";
 import { api } from "@/utils/api";
 
@@ -73,7 +73,7 @@ export default function WishlistScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {loading ? (
           <View style={{ marginTop: 50 }}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Loading />
           </View>
         ) : wishlistItems.length > 0 ? (
           <View style={styles.wishlistGrid}>

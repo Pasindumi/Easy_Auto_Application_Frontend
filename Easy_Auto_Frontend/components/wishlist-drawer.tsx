@@ -7,7 +7,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Animated,
   Dimensions,
@@ -19,6 +18,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Loading from "./ui/Loading";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
@@ -165,7 +165,7 @@ export default function WishlistDrawer({
             >
               {loading ? (
                 <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color={COLORS.primary} />
+                  <Loading size="large" />
                 </View>
               ) : wishlistItems.length > 0 ? (
                 <View style={styles.container}>

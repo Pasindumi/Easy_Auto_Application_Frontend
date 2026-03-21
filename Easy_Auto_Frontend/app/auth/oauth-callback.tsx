@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { useRouter } from 'expo-router';
 import { useAuth as useClerkAuth } from '@clerk/clerk-expo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -72,7 +73,7 @@ export default function OAuthCallback() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={COLORS.primary} />
+      <Loading size="large" />
       <Text style={styles.text}>Completing sign in...</Text>
     </View>
   );

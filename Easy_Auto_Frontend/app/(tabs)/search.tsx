@@ -1,4 +1,6 @@
 import Header from '@/components/Header';
+import Loading from '@/components/ui/Loading';
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -11,7 +13,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
-  ActivityIndicator,
   Modal,
   Animated,
   FlatList,
@@ -498,6 +499,7 @@ export default function SearchScreen() {
       </View>
 
       {/* Search Results */}
+      <BrandedRefreshOverlay refreshing={refreshing} top={120} />
       <FlatList
         data={searchResults}
         renderItem={renderSearchCard}
@@ -513,13 +515,15 @@ export default function SearchScreen() {
               setRefreshing(true);
               performSearch();
             }}
-            tintColor={COLORS.primary}
+            tintColor="transparent"
+            colors={["transparent"]}
+            progressBackgroundColor="transparent"
           />
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
             {isSearching ? (
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Loading size="medium" message="Searching..." />
             ) : (
               <>
                 <View style={styles.emptyIcon}>

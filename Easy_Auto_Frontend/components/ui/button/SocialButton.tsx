@@ -10,25 +10,35 @@ export default function SocialButton({
   onPress,
   iconColor,
   disabled,
+  loading,
 }: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
   text: string;
   onPress?: () => void;
   iconColor?: string;
   disabled?: boolean;
+  loading?: boolean;
 }) {
+  const Loading = require("../Loading").default;
+
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.btn, disabled && styles.btnDisabled]}
+      style={[styles.btn, (disabled || loading) && styles.btnDisabled]}
       activeOpacity={0.7}
-      disabled={disabled}
+      disabled={disabled || loading}
     >
-      <View style={styles.iconContainer}>
-        <Ionicons name={icon} size={20} color={iconColor ?? COLORS.text.primary} />
-      </View>
-      <Text style={[styles.text, disabled && styles.textDisabled]}>{text}</Text>
-      <View style={{ width: 20 }} />
+      {loading ? (
+        <Loading size="small" />
+      ) : (
+        <>
+          <View style={styles.iconContainer}>
+            <Ionicons name={icon} size={20} color={iconColor ?? COLORS.text.primary} />
+          </View>
+          <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>
+          <View style={{ width: 24 }} />
+        </>
+      )}
     </TouchableOpacity>
   );
 }

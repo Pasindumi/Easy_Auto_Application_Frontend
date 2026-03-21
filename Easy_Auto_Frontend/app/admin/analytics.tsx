@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
@@ -127,6 +128,7 @@ export default function AdminAnalyticsScreen() {
         </ScrollView>
       </View>
 
+      <BrandedRefreshOverlay refreshing={refreshing} top={140} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
@@ -138,7 +140,9 @@ export default function AdminAnalyticsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
+            tintColor="transparent"
+            colors={["transparent"]}
+            progressBackgroundColor="transparent"
           />
         }
       >

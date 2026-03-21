@@ -11,7 +11,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
 
 import Header from "../../components/Header";
@@ -144,18 +143,11 @@ export default function ForgotPasswordScreen() {
               />
 
               <Button
-                title={loading ? "Sending..." : "Send OTP"}
+                title="Send OTP"
                 onPress={handleSendOTP}
+                loading={loading}
                 style={styles.button}
               />
-
-              {loading && (
-                <ActivityIndicator
-                  size="small"
-                  color={COLORS.primary}
-                  style={styles.loader}
-                />
-              )}
 
               <View style={styles.loginRow}>
                 <Text style={styles.smallText}>Remember your password?</Text>

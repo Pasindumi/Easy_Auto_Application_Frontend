@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import Loading from '@/components/ui/Loading';
 import COLORS from "@/constants/Colors";
 import { MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
@@ -9,7 +10,6 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator,
     Alert,
     Dimensions
 } from 'react-native';
@@ -170,7 +170,7 @@ export default function SelectVehicleTypeScreen() {
 
             {loading ? (
                 <View style={styles.centerContainer}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <Loading message="Loading vehicle types..." />
                 </View>
             ) : error ? (
                 <View style={styles.centerContainer}>

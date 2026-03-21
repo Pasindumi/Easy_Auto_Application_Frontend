@@ -4,7 +4,6 @@ import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
 import {
   Alert,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -168,18 +167,11 @@ export default function ResetPasswordScreen() {
               />
 
               <Button
-                title={loading ? "Resetting..." : "Reset Password"}
+                title="Reset Password"
                 onPress={handleResetPassword}
+                loading={loading}
                 style={styles.button}
               />
-
-              {loading && (
-                <ActivityIndicator
-                  size="small"
-                  color={COLORS.primary}
-                  style={styles.loader}
-                />
-              )}
 
               <View style={styles.loginRow}>
                 <TouchableOpacity onPress={() => router.replace("/auth/login")}>

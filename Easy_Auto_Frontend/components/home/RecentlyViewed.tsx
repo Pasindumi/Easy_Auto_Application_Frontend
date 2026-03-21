@@ -8,8 +8,8 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator
 } from "react-native";
+import Loading from "../ui/Loading";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import COLORS from "@/constants/Colors";
@@ -97,7 +97,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
 
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator color={COLORS.primary} size="small" />
+                    <Loading size="small" />
                 </View>
             ) : (
                 <ScrollView

@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import COLORS from '@/constants/Colors';
+import Loading from '@/components/ui/Loading';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -14,7 +15,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
   Modal,
   Animated,
 } from 'react-native';
@@ -530,7 +530,7 @@ export default function BuyCarScreen() {
             contentContainerStyle={styles.categoryScroll}
           >
             {isCategoriesLoading ? (
-              <ActivityIndicator color={COLORS.primary} style={{ marginLeft: 20 }} />
+              <Loading style={{ marginLeft: 20, paddingVertical: 10 }} message="" />
             ) : (
               vehicleTypes.map((item) => (
                 <CategoryCard
@@ -559,7 +559,7 @@ export default function BuyCarScreen() {
           <View style={styles.carsSection}>
             {isLoading ? (
               <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading size="large" message="Fetching vehicles..." />
               </View>
             ) : ads.length === 0 ? (
               <View style={styles.emptyResultsContainer}>

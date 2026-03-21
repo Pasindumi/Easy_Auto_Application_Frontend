@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import Loading from '@/components/ui/Loading';
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState, useCallback } from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, RefreshControl, Platform, Alert, StatusBar as RNStatusBar } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, RefreshControl, Platform, Alert, StatusBar as RNStatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../utils/api';
@@ -235,19 +237,25 @@ export default function ChatScreen() {
         </View>
 
         {loading ? (
-          <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          </View>
+          <Loading size="medium" message="Loading conversations..." />
         ) : (
-          <FlatList
-            data={filteredConversations}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
+          <>
+            <BrandedRefreshOverlay refreshing={refreshing} top={10} />
+            <FlatList
+              data={filteredConversations}
+              renderItem={renderItem}
+              keyExtractor={item => item.id}
+              contentContainerStyle={styles.listContent}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl 
+                  refreshing={refreshing} 
+                  onRefresh={onRefresh} 
+                  tintColor="transparent"
+                  colors={["transparent"]}
+                  progressBackgroundColor="transparent"
+                />
+              }
             ListEmptyComponent={() => (
               <View style={styles.emptyContainer}>
                 <Ionicons name="chatbubbles-outline" size={80} color="#CBD5E1" />
@@ -265,6 +273,7 @@ export default function ChatScreen() {
             )}
             ListHeaderComponent={() => <View style={{ height: 10 }} />}
           />
+          </>
         )}
       </View>
 

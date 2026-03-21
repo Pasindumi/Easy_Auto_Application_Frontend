@@ -4,7 +4,6 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-ico
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     Image,
     ScrollView,
@@ -15,6 +14,7 @@ import {
     Dimensions,
     StatusBar
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { ENDPOINTS } from '../../constants/API';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '@/utils/api';
@@ -97,7 +97,7 @@ export default function ReviewAdScreen() {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading />
             </View>
         );
     }
