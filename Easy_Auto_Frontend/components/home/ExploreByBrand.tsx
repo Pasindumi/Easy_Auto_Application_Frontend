@@ -8,7 +8,6 @@ import {
     TouchableOpacity,
     View,
     ActivityIndicator,
-    ScrollView,
     ScrollView
 } from "react-native";
 import Loading from "../ui/Loading";
@@ -113,7 +112,6 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
             </ScrollView>
 
             {loading ? (
-                <View style={styles.loader}><ActivityIndicator color={COLORS.primary} /></View>
                 <View style={{ height: 160, justifyContent: 'center', alignItems: 'center' }}>
                     <Loading size="small" />
                 </View>

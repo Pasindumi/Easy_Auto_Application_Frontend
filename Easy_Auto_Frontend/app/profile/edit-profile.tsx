@@ -16,10 +16,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
 import Loading from "@/components/ui/Loading";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,7 +59,7 @@ export default function EditProfileScreen() {
       setLocation(user.location || '');
       setGender(user.gender || '');
       setBirthday(user.birthday || '');
-      
+
     } catch (error) {
       console.error('[EditProfile] Error loading user data:', error);
       if (user) {
@@ -117,7 +113,7 @@ export default function EditProfileScreen() {
 
       if (profilePhoto) {
         const formData = new FormData();
-        
+
         if (name.trim()) formData.append('name', name.trim());
         if (email.trim()) formData.append('email', email.trim());
         if (phone.trim()) formData.append('phone', phone.trim());
@@ -224,8 +220,8 @@ export default function EditProfileScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
         >
-          <ScrollView 
-            contentContainerStyle={styles.scrollContent} 
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
             {/* Premium Photo Uploader */}
@@ -238,8 +234,8 @@ export default function EditProfileScreen() {
                   <Image
                     source={
                       profilePhoto ? { uri: profilePhoto }
-                      : user?.avatar ? { uri: user.avatar }
-                      : require("@/assets/images/user.jpeg")
+                        : user?.avatar ? { uri: user.avatar }
+                          : require("@/assets/images/user.jpeg")
                     }
                     style={styles.masterImg}
                   />
@@ -255,10 +251,10 @@ export default function EditProfileScreen() {
 
             {/* Form Sections */}
             <View style={styles.formFlow}>
-              
+
               <View style={styles.formSection}>
                 <Text style={styles.sectionSlug}>Identity & Bio</Text>
-                
+
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Display Name</Text>
                   <View style={styles.fieldBox}>
@@ -367,8 +363,8 @@ export default function EditProfileScreen() {
 
             {/* Action Buttons */}
             <View style={styles.actionSection}>
-              <TouchableOpacity 
-                style={[styles.saveButton, saving && styles.saveButtonDisabled]} 
+              <TouchableOpacity
+                style={[styles.saveButton, saving && styles.saveButtonDisabled]}
                 activeOpacity={0.8}
                 onPress={handleSaveChanges}
                 disabled={saving}
@@ -382,7 +378,6 @@ export default function EditProfileScreen() {
                       <ActivityIndicator size="small" color={COLORS.white} style={{ marginRight: 8 }} />
                       <Text style={styles.saveButtonText}>Saving...</Text>
                     </>
-                    <Loading size="small" />
                   ) : (
                     <>
                       <Ionicons name="checkmark-circle" size={20} color={COLORS.white} style={{ marginRight: 8 }} />
@@ -392,7 +387,7 @@ export default function EditProfileScreen() {
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

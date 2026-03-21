@@ -26,7 +26,7 @@ import { useToast } from '@/contexts/ToastContext';
 
 export default function ProfileScreen() {
   useProtectedRoute();
-  
+
   const router = useRouter();
   const { user, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
@@ -147,10 +147,8 @@ export default function ProfileScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.white}
-            tintColor="transparent"
-            colors={["transparent"]}
-            progressBackgroundColor="transparent"
+            tintColor={COLORS.primary}
+            progressBackgroundColor="#fff"
           />
         }
       >
@@ -178,7 +176,7 @@ export default function ProfileScreen() {
                 )}
               </View>
               <Text style={styles.masterEmail}>{user?.email}</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.editProfilePill}
                 onPress={() => handleMenuItemPress('/profile/edit-profile')}
               >
@@ -223,7 +221,7 @@ export default function ProfileScreen() {
             <SettingItem
               icon="shield-checkmark-outline"
               title="Identity Verification"
-              onPress={() => {}}
+              onPress={() => { }}
               color="#10B981"
             />
             <View style={styles.itemDivider} />
