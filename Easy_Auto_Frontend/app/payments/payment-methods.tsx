@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -17,6 +17,7 @@ import { CreditCard, PaymentMethod } from '../../types/payment.types';
 
 export default function PaymentMethods() {
   const router = useRouter();
+  const { adId, rentalAdId } = useLocalSearchParams();
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
   const cards: CreditCard[] = [
@@ -68,7 +69,10 @@ export default function PaymentMethods() {
       Alert.alert('Select a method', 'Please choose a payment method to continue.');
       return;
     }
-    router.push('/payments/payment');
+    router.push({
+      pathname: '/payments/payment' as any,
+      params: { adId, rentalAdId }
+    });
   };
 
   return (
@@ -135,7 +139,10 @@ export default function PaymentMethods() {
 
         <TouchableOpacity
           style={[styles.payNowBtn, { backgroundColor: '#fff', borderWidth: 1, borderColor: '#235CF8', marginTop: 12 }]}
-          onPress={() => router.push('./payment' as any)}
+          onPress={() => router.push({
+            pathname: './payment' as any,
+            params: { adId, rentalAdId }
+          })}
         >
           <Text style={[styles.payNowText, { color: '#235CF8' }]}>View Summary</Text>
         </TouchableOpacity>
