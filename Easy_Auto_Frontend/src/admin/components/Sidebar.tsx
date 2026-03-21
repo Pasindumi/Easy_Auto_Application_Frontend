@@ -19,7 +19,7 @@ export const AdminSidebar = ({ isCollapsed, toggleCollapse, isMobile }: { isColl
     const handleLogout = () => {
         // Clear token logic here (implementation depends on storage used)
         localStorage.removeItem('adminToken');
-        router.replace('/admin/login');
+        router.replace('/admin/login' as any);
     };
 
     return (
@@ -38,9 +38,9 @@ export const AdminSidebar = ({ isCollapsed, toggleCollapse, isMobile }: { isColl
                         <TouchableOpacity
                             key={item.route}
                             style={[styles.menuItem, isActive && styles.activeItem]}
-                            onPress={() => router.push(item.route)}
+                            onPress={() => router.push(item.route as any)}
                         >
-                            <Ionicons name={item.icon} size={24} color={isActive ? COLORS.primary : COLORS.white} />
+                            <Ionicons name={item.icon as any} size={24} color={isActive ? COLORS.primary : COLORS.white} />
                             {!isCollapsed && <Text style={[styles.menuText, isActive && styles.activeText]}>{item.name}</Text>}
                         </TouchableOpacity>
                     );
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         borderRightWidth: 1,
         borderRightColor: '#E5E7EB',
-        transition: 'width 0.3s ease', // Web transition
+        transition: 'width 0.3s ease' as any, // Web transition
     },
     expanded: {
         width: 250,
@@ -118,6 +118,6 @@ const styles = StyleSheet.create({
     footer: {
         paddingBottom: 20,
     }
-});
+} as any);
 
 export default AdminSidebar;

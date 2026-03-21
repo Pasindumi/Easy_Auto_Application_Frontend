@@ -21,7 +21,7 @@ import Button from "../../components/ui/button/Button";
 
 export default function OTPLoginScreen() {
   const router = useRouter();
-  const { sendOTP, verifyOTP, isAuthenticated } = useAuth();
+  const { sendOTP, verifyOTP, isAuthenticated } = useAuth() as any;
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);

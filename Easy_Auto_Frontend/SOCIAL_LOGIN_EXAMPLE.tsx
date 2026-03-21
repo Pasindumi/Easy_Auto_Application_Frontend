@@ -2,6 +2,7 @@
 
 import { useClerkOAuth } from '@/hooks/useClerkOAuth';
 import { useState } from 'react';
+import { Button } from 'react-native';
 
 export default function LoginScreen() {
   const { signInWithGoogle, signInWithApple, signInWithFacebook } = useClerkOAuth();

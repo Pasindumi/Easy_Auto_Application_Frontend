@@ -25,9 +25,9 @@ const Loading: React.FC<LoadingProps> = ({
 }) => {
     // Scale factors
     const scaleMap = {
-        small: 0.4,
-        medium: 0.60,
-        large: 0.80
+        small: 0.6,
+        medium: 0.80,
+        large: 1.00
     };
     const scale = scaleMap[size];
     const rotateAnim = useRef(new Animated.Value(0)).current;

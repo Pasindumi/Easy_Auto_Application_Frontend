@@ -20,7 +20,7 @@ export default function SwitchAccountScreen() {
 
   const handleGoToAdmin = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('');
+    router.push('/admin' as any);
   };
    
 
