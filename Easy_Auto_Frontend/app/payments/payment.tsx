@@ -21,7 +21,7 @@ export default function Payment() {
   useProtectedRoute();
 
   const router = useRouter();
-  const { adId } = useLocalSearchParams();
+  const { adId, rentalAdId } = useLocalSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [adDetails, setAdDetails] = useState<any>(null);
@@ -33,14 +33,18 @@ export default function Payment() {
 
   useEffect(() => {
     const initData = async () => {
-      if (adId) {
+      const targetId = adId || rentalAdId;
+      if (targetId) {
         setLoading(true);
         try {
+          const adEndpoint = rentalAdId ? `/api/rentals/${rentalAdId}` : `/api/cars/${adId}`;
+          const myAdsEndpoint = rentalAdId ? '/api/rentals/my-ads' : '/api/cars/my-ads';
+
           const [adRes, rulesRes, discountsRes, myAdsRes, myPkgRes] = await Promise.all([
-            api.get<{ success: boolean; data: any }>(`/api/cars/${adId}`),
+            api.get<{ success: boolean; data: any }>(adEndpoint),
             fetch(`${ENDPOINTS.PRICING}/rules`),
             api.get<{ success: boolean; data: any }>('/api/discounts/active'),
-            api.get<{ success: boolean; data: any[] }>('/api/cars/my-ads'),
+            api.get<{ success: boolean; data: any[] }>(myAdsEndpoint),
             api.get<{ success: boolean; data: any }>('/api/pricing/active-package')
           ]);
 
@@ -55,7 +59,7 @@ export default function Payment() {
 
             const newOrderItems: OrderItem[] = [];
             const vehicleTypeId = adData.vehicle_type_id;
-            const uploadedImagesCount = adData.AdImage?.length || 0;
+            const uploadedImagesCount = rentalAdId ? (adData.images?.length || 0) : (adData.AdImage?.length || 0);
 
             // 1. Find the Standard (Global) Advertisement Price for this vehicle type
             // Based on rules-output.json, the code is 'STD_AD'
@@ -226,7 +230,7 @@ export default function Payment() {
     };
 
     initData();
-  }, [adId]);
+  }, [adId, rentalAdId]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -241,13 +245,13 @@ export default function Payment() {
   const displaySummary = adDetails ? {
     ...paymentData.summary,
     title: adDetails.title,
-    price: new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(adDetails.price),
-    date: formatDate(adDetails.createdAt || new Date().toISOString()),
-    payout: getSettleDate(adDetails.createdAt || new Date().toISOString()),
+    price: new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(adDetails.price || adDetails.price_per_day || 0),
+    date: formatDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
+    payout: getSettleDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
     expiryDate: adDetails.expiry_date ? formatDate(adDetails.expiry_date) : undefined,
-    invoice: `INV-${String(adId).substring(0, 10)}`,
+    invoice: `INV-${String(adId || rentalAdId).substring(0, 10)}`,
 
-    coverImage: adDetails.AdImage?.[0]?.image_url || 'blueLogo.png'
+    coverImage: (rentalAdId ? adDetails.images?.[0]?.image_url : adDetails.AdImage?.[0]?.image_url) || 'blueLogo.png'
   } : paymentData.summary;
 
   const displaySeller = adDetails?.users ? {
@@ -326,6 +330,7 @@ export default function Payment() {
         city: "Colombo",
         country: "Sri Lanka",
         packageId: activePackageId,
+        rentalAdId: rentalAdId, // Pass rentalAdId to backend
         sandbox: true
       };
 
