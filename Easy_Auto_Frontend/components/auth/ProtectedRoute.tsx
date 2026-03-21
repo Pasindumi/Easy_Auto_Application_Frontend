@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import COLORS from '@/constants/Colors';
 
 interface ProtectedRouteProps {
@@ -37,7 +38,7 @@ export function ProtectedRoute({ children, redirectTo = '/auth/login' }: Protect
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Loading size="large" />
       </View>
     );
   }

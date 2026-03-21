@@ -12,6 +12,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import Header from "../../components/Header";
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import COLORS from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -139,6 +140,7 @@ export default function RatingsScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header showBack={true} title="Ratings & Reviews" />
 
+      <BrandedRefreshOverlay refreshing={refreshing} top={100} />
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
@@ -146,7 +148,9 @@ export default function RatingsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
+            tintColor="transparent"
+            colors={["transparent"]}
+            progressBackgroundColor="transparent"
           />
         }
       >

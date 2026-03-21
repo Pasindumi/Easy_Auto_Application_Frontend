@@ -1,4 +1,6 @@
 import COLORS from "@/constants/Colors";
+import Loading from "@/components/ui/Loading";
+import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
 import { api } from "@/utils/api";
 import { useToast } from "@/contexts/ToastContext";
 import { Ionicons } from '@expo/vector-icons';
@@ -7,7 +9,6 @@ import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import {
-  ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -159,6 +160,11 @@ export default function MyAdsScreen() {
         </View>
 
         {loading ? renderSkeleton() : (
+        {loading ? (
+          <Loading message="Loading your ads..." />
+        ) : (
+          <>
+          <BrandedRefreshOverlay refreshing={refreshing} top={240} />
           <FlatList
             data={clientFilteredAds}
             renderItem={({ item }) => (
@@ -182,8 +188,18 @@ export default function MyAdsScreen() {
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+            contentContainerStyle={{ paddingBottom: 24 }}
+            refreshControl={
+              <RefreshControl 
+                refreshing={refreshing} 
+                onRefresh={onRefresh} 
+                tintColor="transparent"
+                colors={["transparent"]}
+                progressBackgroundColor="transparent"
+              />
             }
           />
+          </>
         )}
       </View>
 

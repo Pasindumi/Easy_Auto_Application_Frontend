@@ -9,9 +9,9 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator,
     Dimensions
 } from "react-native";
+import Loading from "../ui/Loading";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import COLORS from "@/constants/Colors";
@@ -92,7 +92,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
 
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="small" color={COLORS.primary} />
+                    <Loading size="small" />
                 </View>
             ) : (
                 <ScrollView

@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Alert,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -22,7 +21,7 @@ import Button from "../../components/ui/button/Button";
 
 export default function OTPLoginScreen() {
   const router = useRouter();
-  const { sendOTP, verifyOTP, isAuthenticated } = useAuth();
+  const { sendOTP, verifyOTP, isAuthenticated } = useAuth() as any;
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -172,8 +171,9 @@ export default function OTPLoginScreen() {
                 />
 
                 <Button
-                  title={loading ? "Sending..." : "Send OTP"}
+                  title="Send OTP"
                   onPress={handleSendOTP}
+                  loading={loading}
                 />
 
                 <View style={styles.bottomRow}>
@@ -214,8 +214,9 @@ export default function OTPLoginScreen() {
                 </View>
 
                 <Button
-                  title={loading ? "Verifying..." : "Verify OTP"}
+                  title="Verify OTP"
                   onPress={handleVerifyOTP}
+                  loading={loading}
                 />
 
                 <View style={styles.resendContainer}>

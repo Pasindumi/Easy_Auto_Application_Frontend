@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BuyCarItem } from '../../../types/buy-car.types';
+import COLORS from '@/constants/Colors';
 
 interface BuyCarCardProps {
     item: BuyCarItem;
@@ -69,18 +70,20 @@ const BuyCarCard: React.FC<BuyCarCardProps> = ({
 const styles = StyleSheet.create({
     carCard: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
+        borderRadius: 20,
         overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 4,
+        shadowColor: COLORS.shadowPremium || '#235CF8',
+        shadowOpacity: 0.1,
+        shadowRadius: 15,
+        shadowOffset: { width: 0, height: 10 },
+        elevation: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(229, 231, 235, 0.5)',
     },
     carImageContainer: {
         position: 'relative',
         width: '100%',
-        height: 140,
+        height: 150,
     },
     carCardImage: {
         width: '100%',
@@ -90,57 +93,64 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 12,
         left: 12,
-        backgroundColor: 'rgba(35, 92, 248, 0.9)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
+        backgroundColor: 'rgba(35, 92, 248, 0.85)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     yearBadgeText: {
         color: '#FFFFFF',
-        fontSize: 12,
-        fontWeight: '700',
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 0.5,
     },
     favoriteButton: {
         position: 'absolute',
         top: 12,
         right: 12,
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: 'rgba(0, 0, 0, 0.25)',
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     carCardBody: {
-        padding: 14,
+        padding: 16,
     },
     carTitle: {
-        fontSize: 16,
-        fontWeight: '700',
+        fontSize: 17,
+        fontWeight: '800',
         color: '#111827',
-        marginBottom: 8,
+        marginBottom: 6,
+        letterSpacing: -0.3,
     },
     carMetaRow: {
         flexDirection: 'row',
         gap: 12,
-        marginBottom: 10,
+        marginBottom: 12,
     },
     carMetaItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 5,
         flex: 1,
     },
     carMetaText: {
         fontSize: 12,
         color: '#6B7280',
-        fontWeight: '500',
+        fontWeight: '600',
         flex: 1,
     },
     price: {
-        fontSize: 18,
-        fontWeight: '700',
+        fontSize: 19,
+        fontWeight: '800',
         color: '#235CF8',
+        letterSpacing: -0.5,
     },
 });
 

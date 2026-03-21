@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import Loading from '@/components/ui/Loading';
 import {
     View,
     Text,
     StyleSheet,
     FlatList,
     TouchableOpacity,
-    ActivityIndicator,
     Alert,
     Modal,
     TextInput
@@ -154,7 +154,7 @@ export default function VehicleTypesManagement() {
                 </View>
 
                 {loading ? (
-                    <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
+                    <Loading size="large" style={{ marginTop: 40 }} />
                 ) : (
                     <FlatList
                         data={types}
@@ -204,7 +204,7 @@ export default function VehicleTypesManagement() {
                                 disabled={submitting}
                             >
                                 {submitting ? (
-                                    <ActivityIndicator size="small" color={COLORS.white} />
+                                    <Loading size="small" />
                                 ) : (
                                     <Text style={styles.modalButtonTextSubmit}>Add</Text>
                                 )}

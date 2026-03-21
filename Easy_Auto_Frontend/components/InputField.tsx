@@ -38,11 +38,7 @@ export default function InputField({
   numberOfLines,
   inputStyle,
 }: Props) {
-  const derivedLabel =
-    label ??
-    (placeholder
-      ? String(placeholder).replace(/(^\w)|(\s\w)/g, (c) => c.toUpperCase())
-      : "");
+  const derivedLabel = label;
 
   return (
     <View style={styles.container}>
@@ -93,14 +89,14 @@ export default function InputField({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 6,
   },
 
   label: {
     color: "#767575ff",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    marginBottom: 6,
+    marginBottom: 2,
   },
 
   inputRow: {
@@ -110,8 +106,8 @@ const styles = StyleSheet.create({
     borderColor: colors.bgLight,
     borderRadius: 8,
     paddingHorizontal: 12,
-    minHeight: Platform.OS === "ios" ? 48 : 46, // changed from fixed height to minHeight
-    paddingVertical: 4, // added padding for multiline comfort
+    minHeight: Platform.OS === "ios" ? 44 : 42,
+    paddingVertical: 2,
     backgroundColor: colors.white,
   },
 

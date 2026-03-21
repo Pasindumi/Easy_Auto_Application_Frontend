@@ -2,7 +2,6 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     Dimensions,
     ScrollView,
     StatusBar,
@@ -12,6 +11,7 @@ import {
     View,
     Platform,
 } from 'react-native';
+import Loading from '../../components/ui/Loading';
 import { Image } from "expo-image";
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -81,7 +81,7 @@ export default function DiscountDetailScreen() {
         return (
             <View style={styles.loadingContainer}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading />
             </View>
         );
     }
@@ -90,7 +90,7 @@ export default function DiscountDetailScreen() {
         return (
             <View style={styles.errorContainer}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <Ionicons name="alert-circle-outline" size={64} color={COLORS.gray} />
+                <Ionicons name="alert-circle-outline" size={64} color={COLORS.text.muted} />
                 <Text style={styles.errorText}>Offer not found</Text>
                 <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                     <Text style={styles.backButtonText}>Go Back</Text>
@@ -161,7 +161,7 @@ export default function DiscountDetailScreen() {
                                     <Text style={styles.dateLabel}>Valid From</Text>
                                     <Text style={styles.dateValue}>{formatDate(discount.start_date)}</Text>
                                 </View>
-                                <Ionicons name="arrow-forward" size={20} color={COLORS.gray} style={{ opacity: 0.5 }} />
+                                <Ionicons name="arrow-forward" size={20} color={COLORS.text.muted} style={{ opacity: 0.5 }} />
                                 <View style={styles.dateBox}>
                                     <Text style={styles.dateLabel}>Expires On</Text>
                                     <Text style={[styles.dateValue, { color: '#E11D48' }]}>{formatDate(discount.end_date)}</Text>
@@ -215,7 +215,7 @@ export default function DiscountDetailScreen() {
                             <View style={styles.chipsContainer}>
                                 {discount.discount_vehicle_types.map((vt: any, idx: number) => (
                                     <View key={idx} style={styles.chip}>
-                                        <Ionicons name="car-sport-outline" size={16} color={COLORS.text} />
+                                        <Ionicons name="car-sport-outline" size={16} color={COLORS.text.primary} />
                                         <Text style={styles.chipText}>{vt.vehicle_types?.type_name}</Text>
                                     </View>
                                 ))}
@@ -240,7 +240,7 @@ export default function DiscountDetailScreen() {
                                         <Text style={styles.packageName}>{pkg.price_items?.name || "Premium Package"}</Text>
                                         <Text style={styles.packageSub}>Tap to view package details</Text>
                                     </View>
-                                    <Ionicons name="chevron-forward" size={20} color={COLORS.gray} />
+                                    <Ionicons name="chevron-forward" size={20} color={COLORS.text.muted} />
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         fontSize: 18,
-        color: COLORS.gray,
+        color: COLORS.text.muted,
         marginTop: 16,
         marginBottom: 24,
     },
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     },
     dateLabel: {
         fontSize: 13,
-        color: COLORS.gray,
+        color: COLORS.text.muted,
         marginBottom: 4,
     },
     dateValue: {
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     },
     packageSub: {
         fontSize: 12,
-        color: COLORS.gray,
+        color: COLORS.text.muted,
     },
     bottomBar: {
         position: 'absolute',

@@ -10,13 +10,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
   Alert,
   Modal,
   FlatList,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import Loading from "../../components/ui/Loading";
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
@@ -143,7 +143,7 @@ export default function Address() {
           keyboardShouldPersistTaps="handled"
         >
           {loading ? (
-            <ActivityIndicator style={{ marginTop: 100 }} color={COLORS.primary} size="large" />
+            <Loading style={{ marginTop: 70 }} />
           ) : (
             <>
               {/* ---------- LOCATION ---------- */}
@@ -279,7 +279,7 @@ export default function Address() {
                     style={styles.buttonGradient}
                   >
                     {saving ? (
-                      <ActivityIndicator color="white" />
+                      <Loading size="small" />
                     ) : (
                       <Text style={styles.saveButtonText}>Update Address</Text>
                     )}

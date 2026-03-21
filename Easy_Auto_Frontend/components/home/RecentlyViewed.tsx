@@ -10,6 +10,7 @@ import {
     View,
     ActivityIndicator,
 } from "react-native";
+import Loading from "../ui/Loading";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import COLORS from "@/constants/Colors";
@@ -61,6 +62,9 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
             />
             {loading ? (
                 <View style={styles.loader}><ActivityIndicator color={COLORS.primary} /></View>
+                <View style={styles.loadingContainer}>
+                    <Loading size="small" />
+                </View>
             ) : (
                 <ScrollView
                     horizontal

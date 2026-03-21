@@ -13,6 +13,8 @@ import {
   SafeAreaView, 
   Platform 
 } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import { api } from '@/utils/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -91,6 +93,18 @@ export default function PackageInvoice() {
       setLoading(false);
     }
   };
+
+  const handleMorePackages = () => {
+    router.push('/packages/packages');
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <Loading />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.outerContainer}>

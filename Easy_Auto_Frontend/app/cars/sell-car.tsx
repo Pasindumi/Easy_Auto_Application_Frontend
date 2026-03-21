@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import Loading from '@/components/ui/Loading';
 import COLORS from "@/constants/Colors";
 import { useToast } from '@/contexts/ToastContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -545,6 +546,9 @@ export default function SellCarScreen() {
           <Text style={styles.headerTitleText}>Post Your Ad</Text>
         </View>
       </LinearGradient>
+      <Header showBack={true} />
+      
+      {loading && <Loading fullScreen={true} message="Processing..." />}
 
       <View style={styles.sellSubHeader}>
         <View style={styles.sellSubHeaderContent}>

@@ -1,4 +1,5 @@
 import COLORS from "@/constants/Colors";
+import Loading from '@/components/ui/Loading';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -6,7 +7,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useState, useRef } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Linking,
@@ -149,6 +149,7 @@ export default function AdDetailsScreen() {
                 <Stack.Screen options={{ headerShown: false }} />
                 <ActivityIndicator size="large" color={COLORS.primary} />
                 <Text style={styles.loadingText}>Loading vehicle details...</Text>
+                <Loading message="Loading vehicle details..." />
             </View>
         );
     }
@@ -453,6 +454,19 @@ export default function AdDetailsScreen() {
                             </>
                         )}
                     </LinearGradient>
+                <TouchableOpacity
+                    style={[styles.chatBtn, sendingChat && styles.disabledBtn]}
+                    onPress={handleChatWithSeller}
+                    disabled={sendingChat}
+                >
+                    {sendingChat ? (
+                        <Loading size="small" />
+                    ) : (
+                        <>
+                            <Ionicons name="chatbubble-ellipses-outline" size={22} color="white" />
+                            <Text style={styles.chatBtnText}>Chat Now</Text>
+                        </>
+                    )}
                 </TouchableOpacity>
             </View>
 

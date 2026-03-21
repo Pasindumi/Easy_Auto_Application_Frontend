@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,6 +13,7 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
+import Loading from '@/components/ui/Loading';
 import ComparisonSpecsTable from '../../components/cars/compare/ComparisonSpecsTable';
 import ComparisonVehicleHeader from '../../components/cars/compare/ComparisonVehicleHeader';
 import SimilarComparisonsSection from '../../components/cars/compare/SimilarComparisonsSection';
@@ -97,6 +97,8 @@ export default function CompareCars() {
         <Stack.Screen options={{ headerShown: false }} />
         <Header showBack={true} />
         {renderLoading()}
+      <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Loading />
       </View>
     );
   }

@@ -9,7 +9,7 @@ export default function PayHereGateway() {
 
     const handleSuccess = (url: string) => {
         Alert.alert("Success", "Payment completed successfully!", [
-            { text: "OK", onPress: () => router.push('/home') }
+            { text: "OK", onPress: () => router.push('/(tabs)') }
         ]);
     };
 

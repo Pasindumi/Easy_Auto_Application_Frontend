@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, ActivityIndicator, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, Image, Alert } from 'react-native';
+import Loading from './ui/Loading';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '@/constants/Colors';
 import api from '@/utils/api';
@@ -204,7 +205,7 @@ const AppReviewsSection = () => {
             </View>
 
             {loading ? (
-                <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 20 }} />
+                <Loading size="small" style={{ marginTop: 20 }} />
             ) : (
                 <>
                     {displayedReviews.map((item, index) => (
@@ -274,7 +275,7 @@ const AppReviewsSection = () => {
                                 style={styles.gradientButton}
                             >
                                 {submitting ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <Loading size="small" />
                                 ) : (
                                     <Text style={styles.submitButtonText}>Submit Review</Text>
                                 )}

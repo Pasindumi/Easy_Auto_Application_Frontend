@@ -16,6 +16,12 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import Loading from "@/components/ui/Loading";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from "@/contexts/AuthContext";
 import * as ImagePicker from "expo-image-picker";
 import { api } from "@/utils/api";
@@ -211,6 +217,7 @@ export default function EditProfileScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>Loading your profile...</Text>
+          <Loading />
         </View>
       ) : (
         <KeyboardAvoidingView
@@ -375,6 +382,7 @@ export default function EditProfileScreen() {
                       <ActivityIndicator size="small" color={COLORS.white} style={{ marginRight: 8 }} />
                       <Text style={styles.saveButtonText}>Saving...</Text>
                     </>
+                    <Loading size="small" />
                   ) : (
                     <>
                       <Ionicons name="checkmark-circle" size={20} color={COLORS.white} style={{ marginRight: 8 }} />

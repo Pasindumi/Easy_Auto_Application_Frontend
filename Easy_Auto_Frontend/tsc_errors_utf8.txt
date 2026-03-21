@@ -1,0 +1,15 @@
+﻿app/auth/otp-login.tsx(24,11): error TS2339: Property 'sendOTP' does not exist on type 'AuthContextType'.
+app/auth/otp-login.tsx(24,20): error TS2339: Property 'verifyOTP' does not exist on type 'AuthContextType'.
+app/payments/payhere-gateway.tsx(12,54): error TS2345: Argument of type '"/home"' is not assignable to parameter of type '"/" | RelativePathString | ExternalPathString | "/find-dealers" | `/find-dealers?${string}` | `/find-dealers#${string}` | `/?${string}` | `/#${string}` | "/landing" | `/landing?${string}` | ... 271 more ... | { ...; }'.
+app/settings/switch-account.tsx(23,17): error TS2345: Argument of type '""' is not assignable to parameter of type '"/" | RelativePathString | ExternalPathString | "/find-dealers" | `/find-dealers?${string}` | `/find-dealers#${string}` | `/?${string}` | `/#${string}` | "/landing" | `/landing?${string}` | ... 271 more ... | { ...; }'.
+SOCIAL_LOGIN_EXAMPLE.tsx(43,8): error TS2304: Cannot find name 'Button'.
+SOCIAL_LOGIN_EXAMPLE.tsx(49,8): error TS2304: Cannot find name 'Button'.
+SOCIAL_LOGIN_EXAMPLE.tsx(55,8): error TS2304: Cannot find name 'Button'.
+src/admin/components/Sidebar.tsx(22,24): error TS2345: Argument of type '"/admin/login"' is not assignable to parameter of type '"/" | RelativePathString | ExternalPathString | "/find-dealers" | `/find-dealers?${string}` | `/find-dealers#${string}` | `/?${string}` | `/#${string}` | "/landing" | `/landing?${string}` | ... 271 more ... | { ...; }'.
+src/admin/components/Sidebar.tsx(41,56): error TS2345: Argument of type 'string' is not assignable to parameter of type '"/" | RelativePathString | ExternalPathString | "/find-dealers" | `/find-dealers?${string}` | `/find-dealers#${string}` | `/?${string}` | `/#${string}` | "/landing" | `/landing?${string}` | ... 271 more ... | { ...; }'.
+src/admin/components/Sidebar.tsx(43,39): error TS2322: Type 'string' is not assignable to type '"filter" | "infinite" | "text" | "checkbox" | "grid-outline" | "time-outline" | "checkmark-circle-outline" | "close-circle-outline" | "alert-circle-outline" | "car" | "car-sport" | ... 1346 more ... | undefined'.
+src/admin/components/Sidebar.tsx(67,9): error TS2345: Argument of type '{ sidebar: { backgroundColor: string; height: "100%"; paddingVertical: number; borderRightWidth: number; borderRightColor: string; transition: string; }; expanded: { width: number; }; collapsed: { ...; }; ... 8 more ...; footer: { ...; }; }' is not assignable to parameter of type '{ sidebar: { backgroundColor: string; height: "100%"; paddingVertical: number; borderRightWidth: number; borderRightColor: string; transition: string; }; expanded: { width: number; }; collapsed: { ...; }; ... 8 more ...; footer: { ...; }; } & NamedStyles<...>'.
+  Property 'sidebar' is incompatible with index signature.
+    Object literal may only specify known properties, and 'transition' does not exist in type 'ViewStyle | TextStyle | ImageStyle'.
+src/i18n/index.ts(30,49): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.

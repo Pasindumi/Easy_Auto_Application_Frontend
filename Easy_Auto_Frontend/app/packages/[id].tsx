@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -13,6 +12,7 @@ import {
   Platform
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Loading from '../../components/ui/Loading';
 
 import Header from '../../components/Header';
 import { ENDPOINTS } from '../../constants/API';
@@ -113,6 +113,8 @@ export default function PackageDetailScreen() {
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>Fetching details...</Text>
+          <Loading />
+          <Text style={{ marginTop: 12, color: '#666' }}>Loading package...</Text>
         </View>
       </View>
     );

@@ -27,8 +27,8 @@ const LANGUAGE_DETECTOR = {
             if (locales && locales.length > 0) {
                 // Check if device language is supported
                 const deviceLanguage = locales[0].languageCode;
-                if (['en', 'si', 'ta'].includes(deviceLanguage)) {
-                    return callback(deviceLanguage ?? 'en');
+                if (deviceLanguage && ['en', 'si', 'ta'].includes(deviceLanguage)) {
+                    return callback(deviceLanguage);
                 }
             }
 

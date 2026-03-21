@@ -29,7 +29,7 @@
         "success": "Booking successful!"
     },
     "home": {
-        "search_placeholder": "Search cars, brands or models...",
+        "search_placeholder": "Search cars...",
         "recent_searches": "Recent Searches",
         "popular_searches": "Popular Searches"
     },

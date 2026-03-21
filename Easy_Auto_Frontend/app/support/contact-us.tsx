@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
+import Loading from "@/components/ui/Loading";
 import {
     KeyboardAvoidingView,
     Platform,
@@ -16,6 +17,7 @@ import {
     View,
     ActivityIndicator,
     SafeAreaView
+    Alert,
 } from "react-native";
 import api from "@/utils/api";
 import * as Haptics from 'expo-haptics';
@@ -233,6 +235,24 @@ export default function ContactUsScreen() {
                                 </LinearGradient>
                             </TouchableOpacity>
                         </View>
+                                {loading ? (
+                                    <Loading size="small" />
+                                ) : (
+                                    <>
+                                        <Text style={styles.submitButtonText}>
+                                            {mode === "INQUIRY" ? "Send Message" : "Submit Complaint"}
+                                        </Text>
+                                        <Ionicons
+                                            name={mode === "INQUIRY" ? "send" : "checkmark-circle-outline"}
+                                            size={16}
+                                            color={COLORS.white}
+                                            style={{ marginLeft: 8 }}
+                                        />
+                                    </>
+                                )}
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
 
                         
                         <View style={{ height: 40 }} />

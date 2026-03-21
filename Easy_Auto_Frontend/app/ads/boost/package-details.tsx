@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import Loading from '../../../components/ui/Loading';
 import {
-    ActivityIndicator,
     Alert,
     ScrollView,
     StyleSheet,
@@ -87,8 +87,7 @@ export default function BoostPackageDetailScreen() {
                 <Stack.Screen options={{ headerShown: false }} />
                 <Header showBack={true} title="Boost Details" />
                 <View style={styles.centered}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
-                    <Text style={{ marginTop: 12, color: '#666' }}>Loading details...</Text>
+                    <Loading size="large" message="Loading details..." />
                 </View>
             </View>
         );
@@ -141,7 +140,7 @@ export default function BoostPackageDetailScreen() {
                         disabled={activating}
                     >
                         {activating ? (
-                            <ActivityIndicator color="#fff" />
+                            <Loading size="small" />
                         ) : (
                             <Text style={styles.buyText}>Proceed to Payment</Text>
                         )}

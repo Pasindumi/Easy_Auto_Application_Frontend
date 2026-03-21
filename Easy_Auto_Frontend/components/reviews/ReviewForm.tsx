@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import Loading from '../ui/Loading';
 import COLORS from '@/constants/Colors';
 import StarRating from './StarRating';
 import { api } from '@/utils/api';
@@ -76,7 +77,7 @@ export default function ReviewForm({ adId, onSuccess }: ReviewFormProps) {
                 disabled={loading || rating === 0}
             >
                 {loading ? (
-                    <ActivityIndicator color="white" />
+                    <Loading size="small" />
                 ) : (
                     <Text style={styles.submitButtonText}>Submit Review</Text>
                 )}

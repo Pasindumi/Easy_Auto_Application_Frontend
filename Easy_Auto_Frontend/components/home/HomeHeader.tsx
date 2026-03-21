@@ -97,6 +97,45 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     </View>
                 </TouchableOpacity>
 
+                    <LinearGradient
+                        colors={searchFocused ? ['#FFFFFF', '#F9FAFB'] : ['#FFFFFF', '#FFFFFF']}
+                        style={styles.searchGradient}
+                    />
+                    <View style={styles.searchIconBox}>
+                        <Ionicons
+                            name="search"
+                            size={16}
+                            color={searchFocused ? COLORS.primary : COLORS.text.muted}
+                        />
+                    </View>
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search cars..."
+                        placeholderTextColor={COLORS.text.placeholder}
+                        onFocus={() => {
+                            setSearchFocused(true);
+                            setShowSearchSuggestions(true);
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }}
+                        onBlur={() => {
+                            setSearchFocused(false);
+                            setTimeout(() => setShowSearchSuggestions(false), 200);
+                        }}
+                    />
+                    {/* Compact closer layout without the extra Search button */}
+                    <TouchableOpacity
+                        style={styles.filterBtn}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }}
+                    >
+                        <Ionicons
+                            name="options-outline"
+                            size={16}
+                            color={COLORS.primary}
+                        />
+                    </TouchableOpacity>
+                </View>
 
             </View>
         </Animated.View>
@@ -151,6 +190,7 @@ const styles = StyleSheet.create({
 
     // Search
     searchBar: {
+        flex: 1,
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#fff",
@@ -176,6 +216,93 @@ const styles = StyleSheet.create({
         fontWeight: "500",
     },
     filterChip: {
+        backgroundColor: "rgba(255,255,255,0.7)",
+        borderRadius: 12,
+        paddingLeft: 8,
+        paddingRight: 6,
+        height: 42,
+        gap: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 4,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
+    },
+    searchBarFocused: {
+        borderColor: 'rgba(255,255,255,0.8)',
+        shadowOpacity: 0.1,
+        elevation: 6,
+        backgroundColor: COLORS.white,
+    },
+    searchGradient: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    searchIconBox: {
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        backgroundColor: 'rgba(243, 244, 246, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 13,
+        color: COLORS.text.primary,
+        fontWeight: "500",
+    },
+    filterBtn: {
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        backgroundColor: COLORS.white,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 6,
+        elevation: 2,
+    },
+    suggestionsContainer: {
+        position: 'absolute',
+        top: 64,
+        left: 0,
+        right: 0,
+        backgroundColor: COLORS.white,
+        borderRadius: 24,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 20 },
+        shadowOpacity: 0.15,
+        shadowRadius: 30,
+        elevation: 15,
+        zIndex: 2000,
+    },
+    suggestionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    suggestionsHeader: {
+        fontSize: 12,
+        fontWeight: "800",
+        color: COLORS.text.muted,
+        textTransform: "uppercase",
+        letterSpacing: 1,
+    },
+    clearAllText: {
+        fontSize: 12,
+        fontWeight: "700",
+        color: COLORS.primary,
+    },
+    suggestionRow: {
         flexDirection: "row",
         alignItems: "center",
         gap: 3,

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { Image } from 'expo-image';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -77,7 +78,7 @@ export default function BrandsScreen() {
             <View style={styles.loadingContainer}>
                 <Stack.Screen options={{ headerShown: false }} />
                 <Header title="All Brands" showBack={true} />
-                <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 50 }} />
+                <Loading />
             </View>
         );
     }

@@ -9,7 +9,9 @@ import {
     View,
     ActivityIndicator,
     ScrollView,
+    ScrollView
 } from "react-native";
+import Loading from "../ui/Loading";
 import api from "@/utils/api";
 import { useRouter } from "expo-router";
 import COLORS from "@/constants/Colors";
@@ -63,6 +65,21 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
         }
     };
 
+    const handleTypeSelect = (typeId: string, typeName: string) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setSelectedType(typeName); // Determine active state by name or ID
+        // Note: state update is async, but we pass ID directly
+        fetchBrands(typeId);
+    };
+
+    if (loading && vehicleTypes.length === 0) {
+        return (
+            <View style={[styles.container, { height: 200, justifyContent: 'center' }]}>
+                <Loading size="small" />
+            </View>
+        );
+    }
+
     return (
         <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <SectionHeader
@@ -97,6 +114,9 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
 
             {loading ? (
                 <View style={styles.loader}><ActivityIndicator color={COLORS.primary} /></View>
+                <View style={{ height: 160, justifyContent: 'center', alignItems: 'center' }}>
+                    <Loading size="small" />
+                </View>
             ) : (
                 <View style={styles.grid}>
                     {brands.map((brand) => (

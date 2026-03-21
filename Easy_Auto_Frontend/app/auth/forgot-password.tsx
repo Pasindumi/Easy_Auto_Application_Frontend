@@ -11,9 +11,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
-import Footer from "../../components/Footer";
+
 import Header from "../../components/Header";
 import InputField from "../../components/InputField";
 import Button from "../../components/ui/button/Button";
@@ -40,7 +39,7 @@ export default function ForgotPasswordScreen() {
     try {
       console.log("Sending request to:", `${ENDPOINTS.AUTH}/forgot`);
       console.log("Request body:", { emailOrPhone: identifier.trim() });
-      
+
       const response = await fetch(`${ENDPOINTS.AUTH}/forgot`, {
         method: "POST",
         headers: {
@@ -52,7 +51,7 @@ export default function ForgotPasswordScreen() {
 
       console.log("Response status:", response.status);
       console.log("Response headers:", response.headers);
-      
+
       // Get response text first to see what we're actually receiving
       const responseText = await response.text();
       console.log("Response text:", responseText);
@@ -90,7 +89,7 @@ export default function ForgotPasswordScreen() {
             onPress: () =>
               router.push({
                 pathname: "/auth/verify-otp",
-                params: { 
+                params: {
                   identifier: identifier.trim(),
                   userId: data.userId
                 },
@@ -144,18 +143,11 @@ export default function ForgotPasswordScreen() {
               />
 
               <Button
-                title={loading ? "Sending..." : "Send OTP"}
+                title="Send OTP"
                 onPress={handleSendOTP}
+                loading={loading}
                 style={styles.button}
               />
-
-              {loading && (
-                <ActivityIndicator
-                  size="small"
-                  color={COLORS.primary}
-                  style={styles.loader}
-                />
-              )}
 
               <View style={styles.loginRow}>
                 <Text style={styles.smallText}>Remember your password?</Text>
@@ -167,7 +159,7 @@ export default function ForgotPasswordScreen() {
           </View>
         </ScrollView>
 
-        <Footer fixed />
+
       </KeyboardAvoidingView>
     </View>
   );

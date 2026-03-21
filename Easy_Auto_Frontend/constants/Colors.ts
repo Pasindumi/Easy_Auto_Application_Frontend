@@ -60,6 +60,14 @@ export const COLORS = {
     // Specialty (Specific to components)
     shadow: "#000000",
     overlay: "rgba(0, 0, 0, 0.5)",
+    shadowPremium: "rgba(35, 92, 248, 0.15)",
+
+    // Premium Gradients
+    gradients: {
+        primary: ["#235CF8", "#1E60FF"],
+        dark: ["#032960", "#021B3F"],
+        glass: ["rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.05)"],
+    },
 
     // Brand specific blues from various places
     skyBlue: "#9BCBFF",      // From components/theme.ts

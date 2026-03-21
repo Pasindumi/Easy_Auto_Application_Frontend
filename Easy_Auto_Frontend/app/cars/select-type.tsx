@@ -1,7 +1,8 @@
 import Header from '@/components/Header';
+import Loading from '@/components/ui/Loading';
 import COLORS from "@/constants/Colors";
 import { MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     FlatList,
@@ -9,7 +10,6 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator,
     Alert,
     Dimensions
 } from 'react-native';
@@ -21,6 +21,7 @@ const { width } = Dimensions.get('window');
 
 export default function SelectVehicleTypeScreen() {
     const router = useRouter();
+    const { mode } = useLocalSearchParams(); // 'sell' or 'rent'
     const { isAuthenticated } = useAuth();
     const [vehicleTypes, setVehicleTypes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -56,8 +57,9 @@ export default function SelectVehicleTypeScreen() {
     }, []);
 
     const handleSelect = (type: any) => {
+        const pathname = mode === 'rent' ? '/cars/create-rental-ad' : '/cars/sell-car';
         router.push({
-            pathname: '/cars/sell-car',
+            pathname: pathname as any,
             params: {
                 vehicleType: type.type_name,
                 vehicleTypeId: type.id
@@ -114,7 +116,7 @@ export default function SelectVehicleTypeScreen() {
 
                     <View style={styles.textContainer}>
                         <Text style={styles.cardTitle}>{item.type_name}</Text>
-                        <Text style={styles.cardSubtitle}>Sell your {item.type_name}</Text>
+                        <Text style={styles.cardSubtitle}>{mode === 'rent' ? 'Rent your' : 'Sell your'} {item.type_name}</Text>
                     </View>
 
                     <View style={styles.arrowContainer}>
@@ -162,13 +164,13 @@ export default function SelectVehicleTypeScreen() {
             <Header showBack={true} title="Select Type" />
 
             <View style={styles.headerSection}>
-                <Text style={styles.headerTitle}>What are you selling?</Text>
+                <Text style={styles.headerTitle}>{mode === 'rent' ? 'What are you renting?' : 'What are you selling?'}</Text>
                 <Text style={styles.headerSubtitle}>Choose the vehicle category to proceed</Text>
             </View>
 
             {loading ? (
                 <View style={styles.centerContainer}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <Loading message="Loading vehicle types..." />
                 </View>
             ) : error ? (
                 <View style={styles.centerContainer}>
