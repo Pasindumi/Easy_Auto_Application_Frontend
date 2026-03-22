@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import COLORS from '../../constants/Colors';
 import { api } from '@/utils/api';
+import Header from '../../components/Header';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get("window");
@@ -126,15 +127,15 @@ export default function DiscountDetailScreen() {
                         style={styles.heroGradient}
                     />
 
-                    {/* Header Buttons */}
-                    <View style={[styles.headerActions, { top: insets.top + 10 }]}>
-                        <TouchableOpacity onPress={handleBack} style={styles.iconButton}>
-                            <Ionicons name="arrow-back" size={24} color="#fff" />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <Ionicons name="share-social-outline" size={24} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
+            <Header 
+                showBack={true} 
+                title="Offer Details"
+                rightElement={
+                    <TouchableOpacity style={styles.iconButton}>
+                        <Ionicons name="share-social-outline" size={24} color="#fff" />
+                    </TouchableOpacity>
+                }
+            />
 
                     {/* Hero Content */}
                     <View style={styles.heroContent}>

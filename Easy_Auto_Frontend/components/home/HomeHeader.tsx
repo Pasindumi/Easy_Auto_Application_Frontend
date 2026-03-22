@@ -45,9 +45,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
     const tap = (type: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        if (type === "menu")  setSidebarVisible(true);
+        if (type === "menu") setSidebarVisible(true);
         if (type === "notif") router.push("/notifications/notifications" as any);
-        if (type === "wish")  router.push("/wishlist/wishlist" as any);
+        if (type === "wish") router.push("/wishlist/wishlist" as any);
     };
 
     return (
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
 
     // Search
     searchBar: {
-        flex: 1,
+        width: '100%',
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#fff",
@@ -179,20 +179,14 @@ const styles = StyleSheet.create({
         fontWeight: "500",
     },
     filterChip: {
-        backgroundColor: "rgba(255,255,255,0.7)",
-        borderRadius: 12,
-        paddingLeft: 8,
-        paddingRight: 6,
-        height: 42,
-        gap: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 4,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.4)',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: COLORS.primary + "15", // Light blue background
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        height: 32,
+        gap: 4,
     },
     searchGradient: {
         ...StyleSheet.absoluteFillObject,

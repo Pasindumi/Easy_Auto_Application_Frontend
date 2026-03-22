@@ -22,15 +22,7 @@ export default function NotificationsSetting() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
-
-      {/* Unified Sub-Header */}
-      <View style={headerSectionStyles.headerWrap}>
-        <View style={headerSectionStyles.header}>
-          <Ionicons name="notifications-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={headerSectionStyles.headerTitle}>Notifications Setting</Text>
-        </View>
-      </View>
+      <Header showBack={true} title="Notification Settings" />
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Notifications Card */}

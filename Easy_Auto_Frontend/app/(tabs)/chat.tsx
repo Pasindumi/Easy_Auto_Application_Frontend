@@ -11,7 +11,7 @@ import { ENDPOINTS } from '../../constants/API';
 import socketService from '../../utils/socket';
 import UserSearch from '../../components/chat/UserSearch';
 import * as Haptics from 'expo-haptics';
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import COLORS from '@/constants/Colors';
 
 interface User {

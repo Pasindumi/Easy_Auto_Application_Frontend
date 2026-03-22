@@ -8,21 +8,22 @@ import {
   Text,
   View,
   TouchableOpacity,
-  ActivityIndicator,
-  SafeAreaView,
-  Platform,
   Alert,
+  Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Loading from "../../components/ui/Loading";
 import Header from "../../components/Header";
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '@/utils/api';
 import { COLORS } from '@/constants/Colors';
+import { LinearGradient } from 'expo-linear-gradient';
 
-// Modular Components
 import CurrentPlanCard from '../../components/packages/subscription/CurrentPlanCard';
 import PaymentHistorySection from '../../components/packages/subscription/PaymentHistorySection';
 import SupportHelpCard from '../../components/packages/subscription/SupportHelpCard';
+
+const { width } = Dimensions.get('window');
 
 export default function SubscriptionsScreen() {
   const router = useRouter();
@@ -123,9 +124,7 @@ export default function SubscriptionsScreen() {
     <View style={styles.usageItem}>
       <View style={styles.usageHeader}>
         <View style={styles.usageLabelRow}>
-          <View style={[styles.usageIconBg, { backgroundColor: `${color}15` }]}>
-            <Ionicons name={icon} size={16} color={color} />
-          </View>
+          <Ionicons name={icon} size={20} color={color} />
           <Text style={styles.usageLabel}>{label}</Text>
         </View>
         <Text style={styles.usageText}>{used} / {limit}</Text>
@@ -145,30 +144,29 @@ export default function SubscriptionsScreen() {
     <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header title="My Subscription" showBack={true} />
-
-      <SafeAreaView style={styles.safe}>
+      
+      <View style={styles.safe}>
         <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 60 }}
         >
           {loading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
-              <Text style={styles.loaderText}>Syncing subscription...</Text>
+            <View style={styles.heroSection}>
+              <Loading size="large" message="Syncing subscription..." />
             </View>
           ) : activeSub ? (
-            <>
-              <CurrentPlanCard
-                planName={activeSub.plan}
-                expiryDate={`Next Renewal: ${new Date(activeSub.endDate).toLocaleDateString()}`}
-                price={activeSub.amount}
-                onManagePlan={handleManagePlan}
-                onUnsubscribe={handleUnsubscribe}
-              />
+            <View style={styles.heroSection}>
+              <View style={styles.heroCardContent}>
+                 <CurrentPlanCard
+                  planName={activeSub.plan}
+                  expiryDate={`Next Renewal: ${new Date(activeSub.endDate).toLocaleDateString()}`}
+                  price={activeSub.amount}
+                  onManagePlan={handleManagePlan}
+                  onUnsubscribe={handleUnsubscribe}
+                />
+              </View>
 
-              {/* Plan Insights Card */}
-              <View style={styles.insightsCard}>
+              <View style={styles.usageCard}>
                 <Text style={styles.insightsTitle}>Plan Insights</Text>
                 <View style={styles.usageGrid}>
                   <UsageItem
@@ -176,44 +174,56 @@ export default function SubscriptionsScreen() {
                     used={activeSub.usedAds || 2}
                     limit={activeSub.adLimit || 5}
                     icon="car-outline"
-                    color="#3b82f6"
+                    color={COLORS.primary}
                   />
                   <UsageItem
                     label="Featured Slots"
                     used={activeSub.usedFeatured || 1}
                     limit={activeSub.featuredLimit || 2}
                     icon="star-outline"
-                    color="#f59e0b"
+                    color={COLORS.primary}
                   />
                 </View>
               </View>
-            </>
+            </View>
           ) : (
-            <View style={styles.emptyCard}>
-              <View style={styles.emptyIconBg}>
-                <Ionicons name="gift-outline" size={40} color={COLORS.primary} />
+            <View style={styles.heroSection}>
+              <View style={styles.emptyCard}>
+                <View style={styles.giftIconCircle}>
+                    <Ionicons name="gift-outline" size={40} color={COLORS.primary} />
+                </View>
+                <Text style={styles.emptyTitle}>Standard Free Plan</Text>
+                <Text style={styles.emptySubtitle}>Upgrade to Pro to unlock premium selling tools and reach 3x more buyers.</Text>
+                <TouchableOpacity
+                  style={styles.upgradeBtn}
+                  onPress={() => router.push('/packages/packages')}
+                  activeOpacity={0.8}
+                >
+                  <LinearGradient
+                    colors={COLORS.gradients.primary as any}
+                    style={styles.upgradeBtnGradient}
+                  >
+                    <Text style={styles.upgradeBtnText}>Explore Pro Plans</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
-              <Text style={styles.emptyTitle}>Standard Free Plan</Text>
-              <Text style={styles.emptySubtitle}>You're currently on the basic plan. Upgrade now to unlock premium selling tools and reach more buyers.</Text>
-              <TouchableOpacity
-                style={styles.upgradeBtn}
-                onPress={() => router.push('/packages/packages')}
-              >
-                <Text style={styles.upgradeBtnText}>Upgrade to Pro</Text>
-                <Ionicons name="rocket" size={18} color="#fff" />
-              </TouchableOpacity>
             </View>
           )}
 
-          <PaymentHistorySection
-            payments={history}
-            onDownload={handleDownload}
-            onDownloadAll={handleDownloadAll}
-            onViewAll={handleViewAll}
-          />
-          <SupportHelpCard onContactSupport={handleContactSupport} />
+          <View style={styles.historyContainer}>
+            <PaymentHistorySection
+              payments={history}
+              onDownload={handleDownload}
+              onDownloadAll={handleDownloadAll}
+              onViewAll={handleViewAll}
+            />
+            
+            <SupportHelpCard onContactSupport={handleContactSupport} />
+          </View>
+
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }
@@ -221,53 +231,47 @@ export default function SubscriptionsScreen() {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#fff',
   },
   safe: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F8FAFC',
   },
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  loaderContainer: {
-    paddingVertical: 60,
-    alignItems: 'center',
-    gap: 12,
-  },
-  loaderText: {
-    fontSize: 14,
-    color: COLORS.text.muted,
-    fontWeight: '600',
-  },
-  insightsCard: {
+  heroSection: {
     backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 40,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    elevation: 3,
+    marginBottom: 24,
+  },
+  heroCardContent: {
+      marginBottom: 24,
+  },
+  usageCard: {
+      backgroundColor: '#F8FAFC',
+      borderRadius: 24,
+      padding: 24,
+      borderWidth: 1,
+      borderColor: '#F1F5F9',
   },
   insightsTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#1e293b',
+    color: '#1E293B',
     marginBottom: 20,
   },
   usageGrid: {
     gap: 20,
   },
   usageItem: {
-    gap: 8,
+    gap: 12,
   },
   usageHeader: {
     flexDirection: 'row',
@@ -277,14 +281,7 @@ const styles = StyleSheet.create({
   usageLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-  },
-  usageIconBg: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    gap: 8,
   },
   usageLabel: {
     fontSize: 14,
@@ -292,13 +289,13 @@ const styles = StyleSheet.create({
     color: '#475569',
   },
   usageText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
-    color: '#1e293b',
+    color: '#1E293B',
   },
   progressBarBg: {
     height: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#E2E8F0',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -307,60 +304,56 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   emptyCard: {
-    backgroundColor: '#fff',
-    borderRadius: 32,
-    padding: 32,
     alignItems: 'center',
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
-    shadowRadius: 20,
-    elevation: 5,
+    paddingVertical: 12,
   },
-  emptyIconBg: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
-    backgroundColor: '#eff6ff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
+  giftIconCircle: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: '#EFF6FF',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 16,
   },
   emptyTitle: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#1e293b',
-    marginBottom: 8,
+    color: '#1E293B',
+    marginBottom: 10,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: COLORS.text.muted,
+    color: '#64748B',
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
-    fontWeight: '500',
+    lineHeight: 22,
+    marginBottom: 28,
+    paddingHorizontal: 20,
   },
   upgradeBtn: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
     borderRadius: 16,
-    gap: 10,
+    overflow: 'hidden',
+    width: '100%',
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowRadius: 10,
     elevation: 4,
+  },
+  upgradeBtnGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    gap: 10,
   },
   upgradeBtnText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
+  },
+  historyContainer: {
+    paddingHorizontal: 20,
+    gap: 24,
   },
 });

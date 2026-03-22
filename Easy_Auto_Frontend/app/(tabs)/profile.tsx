@@ -1,5 +1,4 @@
-import Header from '@/components/Header';
-import ProfileHeader from '@/components/ProfileHeader';
+import Header from "@/components/Header";
 import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -15,11 +14,9 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Alert,
   RefreshControl,
   Image,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { api } from '@/utils/api';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import { useToast } from '@/contexts/ToastContext';
@@ -46,19 +43,16 @@ export default function ProfileScreen() {
 
   const fetchUserStats = async () => {
     try {
-      // Fetch user statistics from API
-      // This is a placeholder - adjust based on your API
       const response = await api.get<any>('/api/users/stats');
       if (response.success) {
         setStats({
-          listings: response.data.ads || 0,  // ✅ backend returns `ads`, not `listings`
+          listings: response.data.ads || 0,
           saved: response.data.saved || 0,
           views: response.data.views || 0,
         });
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // Use default values on error
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -86,7 +80,8 @@ export default function ProfileScreen() {
     subtitle,
     onPress,
     rightElement,
-    color = COLORS.primary,
+    color = "#374151",
+    noBorder = false
   }: {
     icon: any;
     title: string;
@@ -94,19 +89,18 @@ export default function ProfileScreen() {
     onPress?: () => void;
     rightElement?: React.ReactNode;
     color?: string;
+    noBorder?: boolean;
   }) => (
     <TouchableOpacity
-      style={styles.settingItem}
+      style={[styles.settingItem, !noBorder && styles.itemBorder]}
       onPress={onPress}
       activeOpacity={0.7}
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={[styles.settingIconBox, { backgroundColor: `${color}10` }]}>
-          <Ionicons name={icon} size={20} color={color} />
-        </View>
+        <Ionicons name={icon} size={22} color={color} style={styles.settingIcon} />
         <View style={styles.settingTextContainer}>
-          <Text style={styles.settingTitle}>{title}</Text>
+          <Text style={[styles.settingTitle, rightElement && { color: '#111827' }]}>{title}</Text>
           {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
@@ -114,22 +108,16 @@ export default function ProfileScreen() {
       {rightElement ? (
         rightElement
       ) : (
-        <View style={styles.chevronBox}>
-          <Ionicons name="chevron-forward" size={16} color="#CBD5E1" />
-        </View>
+        <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
       )}
     </TouchableOpacity>
   );
 
-  const StatCard = ({ icon, value, label, color }: any) => (
-    <View style={styles.statCard}>
-      <View style={[styles.statIconBoxMinimal, { backgroundColor: `${color}10` }]}>
-        <MaterialCommunityIcons name={icon} size={22} color={color} />
-      </View>
-      <View style={styles.statContent}>
-        <Text style={styles.statValueMinimal}>{value}</Text>
-        <Text style={styles.statLabelMinimal}>{label}</Text>
-      </View>
+  const StatCard = ({ icon, value, label, color, isLast }: any) => (
+    <View style={[styles.statCard, !isLast && styles.statBorderRight]}>
+      <MaterialCommunityIcons name={icon} size={26} color={color} style={{ marginBottom: 6 }} />
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
 
@@ -138,10 +126,9 @@ export default function ProfileScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header title="My Profile" showBack={true} />
 
-      <BrandedRefreshOverlay refreshing={refreshing} top={180} />
+      <BrandedRefreshOverlay refreshing={refreshing} top={120} />
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -152,151 +139,154 @@ export default function ProfileScreen() {
           />
         }
       >
-        {/* User Identity Card (Clean & Modern) */}
-        <View style={styles.profileMasterCard}>
-          <View style={styles.profileMasterContent}>
+        {/* Professional Full-Width Profile Card */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileContent}>
             <View style={styles.avatarWrapper}>
               <Image
                 source={user?.avatar ? { uri: user.avatar } : require('@/assets/images/user.jpeg')}
-                style={styles.masterAvatar}
+                style={styles.avatar}
               />
-              <LinearGradient
-                colors={user?.is_premium ? ["#FCD34D", "#F59E0B"] : ["#10B981", "#059669"]}
-                style={styles.masterStatusDot}
-              />
+              <View style={[styles.statusIndicator, { backgroundColor: user?.is_premium ? '#F59E0B' : '#10B981' }]} />
             </View>
-            <View style={styles.masterInfo}>
-              <View style={styles.masterNameRow}>
-                <Text style={styles.masterName}>{user?.name || 'EasyAuto User'}</Text>
+            <View style={styles.userInfo}>
+              <View style={styles.nameRow}>
+                <Text style={styles.userName}>{user?.name || 'EasyAuto User'}</Text>
                 {user?.is_premium && (
-                  <LinearGradient colors={["#FCD34D", "#F59E0B"]} style={styles.masterProTag}>
-                    <Ionicons name="star" size={10} color="#fff" />
-                    <Text style={styles.masterProText}>PRO</Text>
-                  </LinearGradient>
+                  <View style={styles.proBadge}>
+                    <Text style={styles.proText}>PRO</Text>
+                  </View>
                 )}
               </View>
-              <Text style={styles.masterEmail}>{user?.email}</Text>
-              <TouchableOpacity
-                style={styles.editProfilePill}
-                onPress={() => handleMenuItemPress('/profile/edit-profile')}
-              >
-                <Ionicons name="create-outline" size={14} color={COLORS.primary} />
-                <Text style={styles.editProfileText}>Edit Profile</Text>
-              </TouchableOpacity>
+              <Text style={styles.userEmail}>{user?.email}</Text>
             </View>
           </View>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() => handleMenuItemPress('/profile/edit-profile')}
+          >
+            <Text style={styles.editBtnText}>Edit Profile</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Aesthetic Stats Section */}
-        <View style={styles.statsContainer}>
+        {/* Flat Stats Section */}
+        <View style={styles.statsSection}>
           <StatCard
             icon="car-multiple"
             value={loading ? '..' : stats.listings}
-            label="Ads"
-            color="#6366F1"
+            label="ADS"
+            color={COLORS.primary}
           />
           <StatCard
             icon="heart"
             value={loading ? '..' : stats.saved}
-            label="Saved"
-            color="#EC4899"
+            label="SAVED"
+            color={COLORS.primary}
           />
           <StatCard
             icon="eye"
             value={loading ? '..' : stats.views}
-            label="Views"
-            color="#10B981"
+            label="VIEWS"
+            color={COLORS.primary}
+            isLast
           />
         </View>
 
-        {/* Clean Settings List */}
-        <View style={styles.settingsWrapper}>
-          <View style={styles.card}>
-            <SettingItem
-              icon="location-outline"
-              title="Saved Addresses"
-              onPress={() => handleMenuItemPress('/profile/address')}
-              color="#8B5CF6"
-            />
-            <SettingItem
-              icon="shield-checkmark-outline"
-              title="Identity Verification"
-              onPress={() => { }}
-              color="#10B981"
-            />
-            <View style={styles.itemDivider} />
-            <SettingItem
-              icon="notifications-outline"
-              title="Notifications"
-              onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
-              color="#F59E0B"
-            />
-            <SettingItem
-              icon="moon-outline"
-              title="Dark Mode"
-              color="#64748B"
-              rightElement={
-                <Switch
-                  value={darkMode}
-                  onValueChange={(value) => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setDarkMode(value);
-                  }}
-                  thumbColor="#fff"
-                  trackColor={{ true: COLORS.primary, false: '#E2E8F0' }}
-                />
-              }
-            />
-            <SettingItem
-              icon="globe-outline"
-              title="App Language"
-              onPress={() => handleMenuItemPress('/settings/select-language')}
-              color="#3B82F6"
-            />
-            <View style={styles.itemDivider} />
-            <SettingItem
-              icon="lock-closed-outline"
-              title="Privacy & Security"
-              onPress={() => handleMenuItemPress('/settings/privacy-policy')}
-              color="#EF4444"
-            />
-            <SettingItem
-              icon="chatbubbles-outline"
-              title="Help & Support"
-              onPress={() => handleMenuItemPress('/support/contact-us')}
-              color="#10B981"
-            />
-          </View>
+        <View style={styles.sectionDivider} />
 
-          <TouchableOpacity style={styles.logoutFullBtn} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-            <Text style={styles.logoutFullText}>Sign Out</Text>
+        {/* Clean, Full-Width Settings List */}
+        <View style={styles.listSection}>
+          <SettingItem
+            icon="location-outline"
+            title="Saved Addresses"
+            onPress={() => handleMenuItemPress('/profile/address')}
+            color={COLORS.primary}
+          />
+          <SettingItem
+            icon="shield-checkmark-outline"
+            title="Identity Verification"
+            onPress={() => { }}
+            color={COLORS.primary}
+          />
+          <SettingItem
+            icon="notifications-outline"
+            title="Notifications"
+            onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
+            color={COLORS.primary}
+          />
+          <SettingItem
+            icon="moon-outline"
+            title="Dark Mode"
+            color={COLORS.primary}
+            rightElement={
+              <Switch
+                value={darkMode}
+                onValueChange={(value) => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setDarkMode(value);
+                }}
+                thumbColor="#fff"
+                trackColor={{ true: COLORS.primary, false: '#E5E7EB' }}
+              />
+            }
+          />
+          <SettingItem
+            icon="globe-outline"
+            title="App Language"
+            onPress={() => handleMenuItemPress('/settings/select-language')}
+            color={COLORS.primary}
+            noBorder
+          />
+        </View>
+
+        <View style={styles.sectionDivider} />
+
+        <View style={styles.listSection}>
+          <SettingItem
+            icon="lock-closed-outline"
+            title="Privacy & Security"
+            onPress={() => handleMenuItemPress('/settings/privacy-policy')}
+            color={COLORS.primary}
+          />
+          <SettingItem
+            icon="chatbubbles-outline"
+            title="Help & Support"
+            onPress={() => handleMenuItemPress('/support/contact-us')}
+            color={COLORS.primary}
+            noBorder
+          />
+        </View>
+
+        <View style={styles.sectionDivider} />
+        
+        <View style={styles.listSection}>
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={22} color="#EF4444" style={styles.settingIcon} />
+            <Text style={styles.logoutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
 
         <ConfirmationModal
           visible={showLogoutConfirm}
           title="Sign Out"
-          message="Are you sure you want to sign out? We'll miss you!"
+          message="Are you sure you want to sign out?"
           confirmText="Sign Out"
-          cancelText="Stay Logged In"
+          cancelText="Cancel"
           type="danger"
           onConfirm={async () => {
             setShowLogoutConfirm(false);
             await logout();
-            showToast({ message: "Successfully logged out. See you soon!", type: "info" });
+            showToast({ message: "Successfully logged out.", type: "info" });
             router.replace("/(tabs)");
           }}
           onCancel={() => setShowLogoutConfirm(false)}
         />
 
-        {/* App Version */}
-        <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>EasyAuto Enterprise v1.2.0</Text>
-          <Text style={styles.versionSubtext}>Crafted for Excellence • Sri Lanka 🇱🇰</Text>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>EasyAuto Enterprise v1.2.0</Text>
         </View>
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
@@ -305,245 +295,180 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F3F4F6',
   },
   scrollView: {
     flex: 1,
   },
-  container: {
-    paddingTop: 16,
-    paddingBottom: 40,
-  },
-  profileMasterCard: {
-    marginHorizontal: 16,
+  profileSection: {
     backgroundColor: '#fff',
-    borderRadius: 28,
     padding: 20,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    marginBottom: 20,
+    paddingTop: 24,
+    borderBottomWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  profileMasterContent: {
+  profileContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
+    marginBottom: 20,
   },
   avatarWrapper: {
     position: 'relative',
+    marginRight: 16,
   },
-  masterAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 4,
-    borderColor: '#F8FAFC',
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  masterStatusDot: {
+  statusIndicator: {
     position: 'absolute',
     bottom: 2,
     right: 2,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 3,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
     borderColor: '#fff',
   },
-  masterInfo: {
+  userInfo: {
     flex: 1,
   },
-  masterNameRow: {
+  nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     marginBottom: 4,
   },
-  masterName: {
+  userName: {
     fontSize: 20,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: -0.5,
-  },
-  masterProTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    gap: 4,
-  },
-  masterProText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: '900',
-  },
-  masterEmail: {
-    fontSize: 14,
-    color: '#64748B',
-    fontWeight: '500',
-    marginBottom: 12,
-  },
-  editProfilePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: `${COLORS.primary}10`,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-    gap: 6,
-  },
-  editProfileText: {
-    fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: '#111827',
   },
-  statsContainer: {
+  proBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  proText: {
+    color: '#D97706',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  editBtn: {
+    width: '100%',
+    paddingVertical: 12,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  editBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  statsSection: {
     flexDirection: 'row',
-    marginHorizontal: 16,
-    marginBottom: 28,
-    gap: 10,
+    backgroundColor: '#fff',
+    paddingVertical: 16,
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#E5E7EB',
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
   },
-  statIconBoxMinimal: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
+  statBorderRight: {
+    borderRightWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  statContent: {
-    alignItems: 'center',
-  },
-  statValueMinimal: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#1E293B',
-    letterSpacing: -0.5,
-  },
-  statLabelMinimal: {
-    fontSize: 10,
+  statValue: {
+    fontSize: 18,
     fontWeight: '700',
-    color: '#94A3B8',
-    textTransform: 'uppercase',
+    color: '#111827',
+    marginTop: 4,
+  },
+  statLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6B7280',
     letterSpacing: 0.5,
     marginTop: 2,
   },
-  itemDivider: {
-    height: 1,
-    backgroundColor: '#F1F5F9',
-    marginHorizontal: 16,
-    marginVertical: 4,
+  sectionDivider: {
+    height: 8,
+    backgroundColor: '#F3F4F6',
   },
-  section: {
-    marginBottom: 28,
-    paddingHorizontal: 16,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    color: '#64748B',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    fontWeight: '800',
-    marginBottom: 14,
-    marginLeft: 4,
-  },
-  settingsWrapper: {
-    marginTop: 8,
-  },
-  card: {
+  listSection: {
     backgroundColor: '#fff',
-    borderRadius: 24,
-    paddingVertical: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#E5E7EB',
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    paddingHorizontal: 16,
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+  },
+  itemBorder: {
+    borderBottomWidth: 1,
+    borderColor: '#F3F4F6',
   },
   settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  settingIconBox: {
-    width: 42, height: 42,
-    borderRadius: 14,
-    alignItems: 'center', justifyContent: 'center',
+  settingIcon: {
     marginRight: 16,
+    width: 24,
+    textAlign: 'center',
   },
   settingTextContainer: {
     flex: 1,
   },
   settingTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  settingSubtitle: {
-    fontSize: 12,
-    color: '#94A3B8',
-    marginTop: 2,
+    fontSize: 16,
+    color: '#111827',
     fontWeight: '500',
   },
-  chevronBox: {
-    width: 28, height: 28,
-    borderRadius: 8,
-    backgroundColor: '#F8FAFC',
-    alignItems: 'center', justifyContent: 'center',
+  settingSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 2,
   },
-  logoutFullBtn: {
-    marginHorizontal: 16,
-    marginTop: 8,
-    height: 56,
-    borderRadius: 20,
-    backgroundColor: '#FEF2F2',
+  logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#FEE2E2',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
   },
-  logoutFullText: {
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '500',
     color: '#EF4444',
-    fontSize: 15,
-    fontWeight: '800',
-    letterSpacing: -0.2,
   },
-  versionContainer: {
+  footer: {
     alignItems: 'center',
-    marginTop: 40,
+    paddingVertical: 24,
   },
-  versionText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#CBD5E1',
-  },
-  versionSubtext: {
-    fontSize: 11,
-    color: '#CBD5E1',
-    marginTop: 4,
-    fontWeight: '600',
+  footerText: {
+    fontSize: 12,
+    color: '#9CA3AF',
   },
 });

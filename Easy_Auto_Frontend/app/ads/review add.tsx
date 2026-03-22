@@ -15,15 +15,7 @@ export default function ReviewAd() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
-
-      {/* Unified Sub-Header */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
-          <Ionicons name="eye-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Review Ad</Text>
-        </View>
-      </View>
+      <Header showBack={true} title="Review Ad" />
 
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.card}>

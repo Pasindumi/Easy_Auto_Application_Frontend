@@ -85,19 +85,7 @@ export default function AdminAnalyticsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header />
-
-      {/* Sub-Header */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
-          <Ionicons
-            name="bar-chart-outline"
-            size={22}
-            color={COLORS.primary}
-            style={{ marginRight: 8 }}
-          />
-          <Text style={styles.subHeaderTitle}>Analytics</Text>
-        </View>
+      <Header title="Analytics" />
 
         {/* Time Filter */}
         <ScrollView
@@ -126,7 +114,6 @@ export default function AdminAnalyticsScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
-      </View>
 
       <BrandedRefreshOverlay refreshing={refreshing} top={140} />
       <ScrollView

@@ -20,7 +20,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import SectionHeader from "./SectionHeader";
 
 const { width } = Dimensions.get("window");
-const CARD_W = width * 0.58;
+const CARD_W = 180;
 
 interface RecentlyViewedProps {
     fadeAnim: Animated.Value;
@@ -133,15 +133,15 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#E8EEFF",
     },
-    imgWrap: { height: 130, position: "relative" },
+    imgWrap: { height: 110, position: "relative" },
     img: { width: "100%", height: "100%" },
     newBadge: {
         position: "absolute",
-        top: 10,
-        left: 10,
+        top: 8,
+        left: 8,
         backgroundColor: "#10B981",
-        borderRadius: 20,
-        paddingHorizontal: 8,
+        borderRadius: 12,
+        paddingHorizontal: 6,
         paddingVertical: 3,
     },
     newBadgeText: { color: "#fff", fontSize: 9, fontWeight: "800", letterSpacing: 0.5 },
@@ -149,18 +149,18 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 8,
         right: 8,
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: "rgba(0,0,0,0.4)",
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        backgroundColor: "rgba(0,0,0,0.3)",
         alignItems: "center",
         justifyContent: "center",
     },
     body: { padding: 12 },
-    cardTitle: { fontSize: 13, fontWeight: "700", color: "#0F172A", marginBottom: 4 },
-    price: { fontSize: 16, fontWeight: "800", color: COLORS.primary, marginBottom: 6, letterSpacing: -0.3 },
+    cardTitle: { fontSize: 13, fontWeight: "700", color: "#0F172A", marginBottom: 3 },
+    price: { fontSize: 13, fontWeight: "800", color: COLORS.primary, marginBottom: 5, letterSpacing: -0.2 },
     metaRow: { flexDirection: "row", alignItems: "center", gap: 3 },
-    meta: { fontSize: 11, color: "#94A3B8", fontWeight: "500", flex: 1 },
+    meta: { fontSize: 10, color: "#94A3B8", fontWeight: "500", flex: 1 },
 });
 
 export default RecentlyViewed;

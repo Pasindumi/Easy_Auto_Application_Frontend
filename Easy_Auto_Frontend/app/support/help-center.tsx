@@ -45,7 +45,7 @@ export default function HelpCenterScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header title="Help Center" showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
+      <View style={styles.safe}>
         <ScrollView 
             style={styles.container} 
             contentContainerStyle={styles.scrollContent}
@@ -140,7 +140,7 @@ export default function HelpCenterScreen() {
              <Text style={styles.footerText}>EasyAuto Support Hub v2.0</Text>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

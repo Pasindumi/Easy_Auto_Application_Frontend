@@ -1,25 +1,28 @@
-import COLORS from "@/constants/Colors";
+import Header from "@/components/Header";
 import Loading from "@/components/ui/Loading";
 import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
+import EmptyState from "@/components/ui/EmptyState";
+import COLORS from "@/constants/Colors";
 import { api } from "@/utils/api";
 import { useToast } from "@/contexts/ToastContext";
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { useProtectedRoute } from '@/hooks/useProtectedRoute';
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
+  Animated,
   FlatList,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View
-} from 'react-native';
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AdCard from "../../components/cards/AdCard";
-import Header from "../../components/Header";
-import SearchBar from "../../components/SearchBar";
+import AdCard from "@/components/cards/AdCard";
+import * as Haptics from 'expo-haptics';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 
 export default function MyAdsScreen() {
   // Protect this route - require authentication
@@ -34,6 +37,10 @@ export default function MyAdsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'expired' | 'draft' | 'banned'>('all');
+  // Tab Animation State
+  const [tabWidths, setTabWidths] = useState<{ [key: string]: number }>({});
+  const tabUnderlineLeft = React.useRef(new Animated.Value(0)).current;
+  const tabUnderlineWidth = React.useRef(new Animated.Value(0)).current;
 
   // Fetch ALL ads to get correct counts, filter Client Side
   const fetchAllAds = async () => {
@@ -63,6 +70,31 @@ export default function MyAdsScreen() {
   useEffect(() => {
     fetchAllAds();
   }, []);
+
+  // Update underline animation when filter changes or tab widths change
+  useEffect(() => {
+    const tabs = ['all', 'active', 'draft', 'expired'];
+    const index = tabs.indexOf(selectedFilter);
+    if (index !== -1 && tabWidths[selectedFilter]) {
+      let left = 0;
+      for (let i = 0; i < index; i++) {
+        left += (tabWidths[tabs[i]] || 0) + 12; // 12 is the gap
+      }
+      
+      Animated.parallel([
+        Animated.spring(tabUnderlineLeft, {
+          toValue: left,
+          useNativeDriver: false,
+          tension: 50,
+        }),
+        Animated.spring(tabUnderlineWidth, {
+          toValue: tabWidths[selectedFilter],
+          useNativeDriver: false,
+          tension: 50,
+        })
+      ]).start();
+    }
+  }, [selectedFilter, tabWidths]);
 
   const counts = {
     total: ads.length,
@@ -101,69 +133,93 @@ export default function MyAdsScreen() {
     fetchAllAds();
   }, []);
 
-  const renderSkeleton = () => (
-    <View style={{ padding: 16 }}>
-      {[1, 2, 3, 4].map((i) => (
-        <View key={i} style={styles.skeletonCard}>
-          <View style={styles.skeletonImg} />
-          <View style={styles.skeletonContent}>
-            <View style={styles.skeletonLineShort} />
-            <View style={styles.skeletonLineLong} />
-            <View style={styles.skeletonLinePrice} />
-          </View>
-        </View>
-      ))}
-    </View>
-  );
+  const TABS = [
+    { id: 'all', label: 'All Ads', count: counts.total },
+    { id: 'active', label: 'Active', count: counts.active },
+    { id: 'draft', label: 'Drafts', count: counts.draft },
+    { id: 'expired', label: 'Paused', count: counts.paused },
+  ];
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header title="My Ads" />
+      
+      {/* 1. Compact Professional Header with Integrated Search */}
+      <Header 
+        showBack={true} 
+        isFlat={true}
+        centerElement={
+          <View style={headerStyles.searchContainer}>
+            <Ionicons name="search" size={18} color="#94A3B8" />
+            <TextInput
+              style={headerStyles.searchInput}
+              placeholder="Search your ads..."
+              placeholderTextColor="#94A3B8"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={16} color="#CBD5E1" />
+              </TouchableOpacity>
+            )}
+          </View>
+        }
+      />
 
-      <View style={styles.content}>
-        {/* Search Bar */}
-        <View style={styles.searchFilterContainer}>
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Search ads by title..."
-          />
-        </View>
-
-        {/* Quick Filter Tabs */}
-        <View style={styles.filterTabs}>
-          {[
-            { id: 'all', label: 'All', count: counts.total },
-            { id: 'active', label: 'Active', count: counts.active },
-            { id: 'draft', label: 'Drafts', count: counts.draft },
-            { id: 'expired', label: 'Paused', count: counts.paused },
-          ].map((tab) => (
-            <TouchableOpacity
-              key={tab.id}
-              style={[styles.filterTab, selectedFilter === tab.id && styles.filterTabActive]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setSelectedFilter(tab.id as any);
-              }}
-            >
-              <Text style={[styles.filterTabText, selectedFilter === tab.id && styles.filterTabTextActive]}>
-                {tab.label}
-              </Text>
-              <View style={[styles.filterTabBadge, selectedFilter === tab.id && styles.filterTabBadgeActive]}>
-                <Text style={[styles.filterTabBadgeText, selectedFilter === tab.id && styles.filterTabBadgeTextActive]}>
-                  {tab.count}
-                </Text>
+      {/* 2. Interactive Tab Bar (Now more compact) */}
+      <View style={styles.tabBarWrapper}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.tabScroll}
+        >
+          <View>
+            <View style={styles.tabsWrapper}>
+                {TABS.map((tab) => (
+                  <TouchableOpacity
+                    key={tab.id}
+                    style={styles.tabItem}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setSelectedFilter(tab.id as any);
+                    }}
+                    onLayout={(e) => {
+                      const { width } = e.nativeEvent.layout;
+                      setTabWidths(prev => ({ ...prev, [tab.id]: width }));
+                    }}
+                  >
+                    <Text style={[styles.tabLabel, selectedFilter === tab.id && styles.tabLabelActive]}>
+                      {tab.label}
+                    </Text>
+                    <View style={[styles.tabBadge, selectedFilter === tab.id && styles.tabBadgeActive]}>
+                      <Text style={[styles.tabBadgeText, selectedFilter === tab.id && styles.tabBadgeTextActive]}>
+                        {tab.count}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
               </View>
-            </TouchableOpacity>
-          ))}
+              {/* Sliding Underline Indicator */}
+              <Animated.View 
+                style={[
+                  styles.tabUnderline, 
+                  { 
+                    left: tabUnderlineLeft, 
+                    width: tabUnderlineWidth 
+                  }
+                ]} 
+              />
+            </View>
+          </ScrollView>
         </View>
 
+      <View style={styles.mainContentArea}>
         {loading ? (
-          <Loading message="Loading your ads..." />
+          <Loading message="Consulting database..." />
         ) : (
-          <>
-            <BrandedRefreshOverlay refreshing={refreshing} top={240} />
+          <View style={{ flex: 1 }}>
+            <BrandedRefreshOverlay refreshing={refreshing} top={20} />
             <FlatList
               data={clientFilteredAds}
               renderItem={({ item }) => (
@@ -171,19 +227,24 @@ export default function MyAdsScreen() {
               )}
               keyExtractor={item => item.id}
               ListEmptyComponent={
-                <View style={styles.emptyState}>
-                  <View style={styles.emptyIconCircle}>
-                    <Ionicons name="car-sport-outline" size={40} color={COLORS.primary} />
-                  </View>
-                  <Text style={styles.emptyTitle}>No ads found</Text>
-                  <Text style={styles.emptyDesc}>Try adjusting your search or filters to find what you're looking for.</Text>
-                  <TouchableOpacity style={styles.createBtn} onPress={() => router.push('/cars/sell-car')}>
-                    <Text style={styles.createBtnText}>Create New Ad</Text>
-                    <Ionicons name="arrow-forward" size={16} color="#fff" />
-                  </TouchableOpacity>
-                </View>
+                <EmptyState
+                  icon={searchQuery ? "search-outline" : "car-outline"}
+                  title={searchQuery ? "No Matching Listings" : "Start Selling Cars"}
+                  description={
+                    searchQuery 
+                      ? `We couldn't find any ads matching "${searchQuery}". Try a different term or filter.`
+                      : "Your showroom is currently empty. Reach thousands of buyers by posting your first car ad today!"
+                  }
+                  actionText={searchQuery ? "Clear Search" : "Post Your First Ad"}
+                  onActionPress={() => {
+                    if (searchQuery) setSearchQuery('');
+                    else router.push('/cars/sell-car');
+                  }}
+                  secondaryActionText={!searchQuery ? "View Selling Tips" : undefined}
+                  onSecondaryActionPress={() => {}} // Could link to a guide
+                />
               }
-              contentContainerStyle={[styles.listContent, { paddingBottom: 24 }]}
+              contentContainerStyle={[styles.listContent, { paddingBottom: 120 }]}
               showsVerticalScrollIndicator={false}
               refreshControl={
                 <RefreshControl
@@ -193,41 +254,57 @@ export default function MyAdsScreen() {
                 />
               }
             />
-          </>
+          </View>
         )}
       </View>
 
-      {/* Bulk Actions Floating Bar */}
+      {/* Bulk Actions Floating Bar (Enhanced Design) */}
       {selected.length > 0 && (
-        <View style={[styles.bulkActions, { bottom: insets.bottom + 16 }]}>
-          <Text style={styles.bulkCount}>{selected.length} Selected</Text>
-          <View style={styles.bulkRight}>
-            <TouchableOpacity
-              style={styles.bulkBtn}
-              onPress={() => {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                showToast({ message: `${selected.length} ads have been paused successfully.`, type: 'info' });
-                setSelected([]);
-              }}
-            >
-              <Ionicons name="pause-outline" size={20} color={COLORS.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.bulkBtn, styles.bulkBtnDelete]}
-              onPress={() => {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-                showToast({ message: `${selected.length} ads have been deleted successfully.`, type: 'success' });
-                setSelected([]);
-              }}
-            >
-              <Ionicons name="trash-outline" size={20} color="#EF4444" />
-            </TouchableOpacity>
-            <View style={styles.bulkDivider} />
-            <TouchableOpacity style={styles.bulkBtnClose} onPress={() => setSelected([])}>
-              <Ionicons name="close" size={20} color="#64748B" />
-            </TouchableOpacity>
+        <Animated.View 
+          style={[
+            styles.bulkActions, 
+            { bottom: insets.bottom + 16 }
+          ]}
+        >
+          <View style={styles.bulkContent}>
+            <View style={styles.bulkInfo}>
+              <View style={styles.bulkBadge}>
+                <Text style={styles.bulkBadgeText}>{selected.length}</Text>
+              </View>
+              <Text style={styles.bulkCountText}>Selected</Text>
+            </View>
+
+            <View style={styles.bulkRight}>
+              <TouchableOpacity
+                style={styles.bulkBtn}
+                onPress={() => {
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                  showToast({ message: `${selected.length} ads have been paused successfully.`, type: 'info' });
+                  setSelected([]);
+                }}
+              >
+                <Ionicons name="pause-outline" size={20} color={COLORS.primary} />
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.bulkBtn, styles.bulkBtnDelete]}
+                onPress={() => {
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                  showToast({ message: `${selected.length} ads have been deleted successfully.`, type: 'success' });
+                  setSelected([]);
+                }}
+              >
+                <Ionicons name="trash-outline" size={20} color="#EF4444" />
+              </TouchableOpacity>
+
+              <View style={styles.bulkDivider} />
+              
+              <TouchableOpacity style={styles.bulkBtnClose} onPress={() => setSelected([])}>
+                <Ionicons name="close-circle" size={22} color="#94A3B8" />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </Animated.View>
       )}
     </View>
   );
@@ -236,260 +313,155 @@ export default function MyAdsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: '#F8FAFC',
   },
-  content: {
-    flex: 1,
-  },
-  pageHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-  },
-  pageTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#0F172A',
-    letterSpacing: -0.5,
-  },
-  pageSubtitle: {
-    fontSize: 13,
-    color: '#64748B',
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  selectAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
+  tabBarWrapper: {
     backgroundColor: '#fff',
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: '#E2E8F0',
+    zIndex: 90,
   },
-  selectAllBtnActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: '#EEF2FF',
+  tabScroll: {
+    paddingHorizontal: 16,
   },
-  selectAllText: {
-    fontSize: 13,
+  tabsWrapper: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingBottom: 10,
+  },
+  tabItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    gap: 6,
+  },
+  tabLabel: {
+    fontSize: 14,
     fontWeight: '600',
     color: '#64748B',
   },
-  selectAllTextActive: {
+  tabLabelActive: {
     color: COLORS.primary,
   },
-  searchFilterContainer: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 16,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 10,
-    elevation: 2,
-  },
-  filterTabs: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    gap: 8,
-    marginBottom: 20,
-  },
-  filterTab: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 14,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  filterTabActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  filterTabText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#64748B',
-  },
-  filterTabTextActive: {
-    color: '#fff',
-  },
-  filterTabBadge: {
+  tabBadge: {
     backgroundColor: '#F1F5F9',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
   },
-  filterTabBadgeActive: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  tabBadgeActive: {
+    backgroundColor: COLORS.primary + '15',
   },
-  filterTabBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
+  tabBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
     color: '#64748B',
   },
-  filterTabBadgeTextActive: {
-    color: '#fff',
+  tabBadgeTextActive: {
+    color: COLORS.primary,
+  },
+  tabUnderline: {
+    position: 'absolute',
+    bottom: 0,
+    height: 3,
+    backgroundColor: COLORS.primary,
+    borderRadius: 3,
+  },
+  mainContentArea: {
+    flex: 1,
   },
   listContent: {
-    paddingBottom: 100,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
-    marginTop: 60,
-  },
-  emptyIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 8,
-  },
-  emptyDesc: {
-    fontSize: 14,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
-  },
-  createBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 16,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  createBtnText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  // Skeleton Styles
-  skeletonCard: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  skeletonImg: {
-    width: 100,
-    height: 80,
-    borderRadius: 14,
-    backgroundColor: '#F1F5F9',
-  },
-  skeletonContent: {
-    flex: 1,
-    marginLeft: 12,
-    gap: 10,
-    justifyContent: 'center',
-  },
-  skeletonLineShort: {
-    width: '40%',
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#F1F5F9',
-  },
-  skeletonLineLong: {
-    width: '80%',
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#F8FAFC',
-  },
-  skeletonLinePrice: {
-    width: '30%',
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#F1F5F9',
-  },
-  // Bulk Actions Bar
   bulkActions: {
     position: 'absolute',
     left: 20,
     right: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#1E293B',
     borderRadius: 24,
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 30,
-    elevation: 20,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
   },
-  bulkCount: {
+  bulkContent: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  bulkInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  bulkBadge: {
+    backgroundColor: COLORS.primary,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bulkBadgeText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  bulkCountText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#fff',
   },
   bulkRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 12,
   },
   bulkBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F8FAFF',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   bulkBtnDelete: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
   },
   bulkDivider: {
     width: 1,
     height: 24,
-    backgroundColor: '#E2E8F0',
-    marginHorizontal: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    marginHorizontal: 4,
   },
   bulkBtnClose: {
-    width: 32,
-    height: 32,
+    padding: 4,
+  },
+});
+
+const headerStyles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    height: 40,
+    paddingHorizontal: 12,
+    width: '100%',
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 14,
+    color: '#1E293B',
+    fontWeight: '500',
   },
 });

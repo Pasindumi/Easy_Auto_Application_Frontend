@@ -117,6 +117,11 @@ export default function HomeScreen() {
                 }
             >
                 <View style={styles.inner}>
+                    {/* Advertisement section (Moved to top) */}
+                    <View style={styles.section}>
+                        <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
+                    </View>
+
                     {/* 1. Explore Easyauto */}
                     <View style={styles.sectionHeaderContainer}>
                         <Text style={styles.sectionTitle}>Explore EasyAuto</Text>
@@ -127,9 +132,9 @@ export default function HomeScreen() {
 
                     {/* 2. Trending Now */}
                     <View style={styles.section}>
-                        <TrendingCars 
-                            fadeAnim={fadeAnim} 
-                            slideAnim={slideAnim} 
+                        <TrendingCars
+                            fadeAnim={fadeAnim}
+                            slideAnim={slideAnim}
                             trendingCategory={trendingCategory}
                             setTrendingCategory={setTrendingCategory}
                         />
@@ -138,11 +143,6 @@ export default function HomeScreen() {
                     {/* 3. Recommended for you */}
                     <View style={styles.section}>
                         <RecommendedCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
-                    </View>
-
-                    {/* 4. Advertisement section */}
-                    <View style={styles.section}>
-                        <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
                     </View>
 
                     {/* 5. New Arrivals */}
@@ -186,17 +186,17 @@ const styles = StyleSheet.create({
     root: { flex: 1, backgroundColor: "#F8FAFF" },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 110 },
-    inner: { 
+    inner: {
         backgroundColor: "#F8FAFF",
-        gap: 32, // Consistent space between sections
+        gap: 22, // Tighter consistent space between sections
     },
-    section: { 
+    section: {
         backgroundColor: "#fff",
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,
-        marginBottom: -16,
-        marginTop: 8,
+        marginBottom: -12,
+        marginTop: 0,
     },
     sectionTitle: {
         fontSize: 18,

@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
@@ -6,225 +7,291 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  TouchableOpacity,
+  Dimensions,
 } from "react-native";
-import Header from "../../components/Header";
-import { LinearGradient } from "expo-linear-gradient";
-import * as Haptics from "expo-haptics";
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as Haptics from 'expo-haptics';
 
-export default function PrivacyPolicy() {
+const { width } = Dimensions.get('window');
+
+const POLICY_SECTIONS = [
+  {
+    id: '1',
+    title: 'Data Protection Commitment',
+    content: 'At Easy Auto, your trust is our most valuable asset. We use bank-grade security and transparent policies to safeguard your information.',
+    icon: 'shield-checkmark-outline',
+    color: '#3B82F6',
+  },
+  {
+    id: '2',
+    title: 'Information We Collect',
+    content: 'We collect information you provide directly to us (Name, Email, Mobile), behavioral usage insights for performance, and geolocation for nearby listings.',
+    icon: 'document-text-outline',
+    color: '#10B981',
+  },
+  {
+    id: '3',
+    title: 'Strategic Usage',
+    content: 'Your data helps us refine the marketplace algorithm, provide direct support, and optimize our security protocols.',
+    icon: 'analytics-outline',
+    color: '#F59E0B',
+  },
+  {
+    id: '4',
+    title: 'Security Architecture',
+    content: 'We employ multi-layer encryption and regular audits to ensure your data resides in a fortress-like environment.',
+    icon: 'lock-closed-outline',
+    color: '#EF4444',
+  },
+  {
+    id: '5',
+    title: 'Data Autonomy',
+    content: 'You retain absolute sovereignty over your data. You may export, modify, or terminate your data records at any moment.',
+    icon: 'finger-print-outline',
+    color: '#8B5CF6',
+  }
+];
+
+export default function PrivacyPolicyScreen() {
   const router = useRouter();
-  const scale = useSharedValue(1);
-
-  const buttonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const onPressIn = () => {
-    scale.value = withSpring(0.96);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const onPressOut = () => {
-    scale.value = withSpring(1);
-  };
-
-  const PolicySection = ({ title, content }: { title: string; content: string }) => (
-    <View style={styles.section}>
-      <Text style={styles.subTitle}>{title}</Text>
-      <Text style={styles.text}>{content}</Text>
-    </View>
-  );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title="Privacy Policy" />
+      <Header title="Privacy Policy" showBack={true} />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.heroSection}>
-          <View style={styles.focalContainer}>
-            <View style={styles.focalGlow} />
-            <LinearGradient
-              colors={['#EFF6FF', '#FFF']}
-              style={styles.iconCircle}
-            >
-              <Ionicons name="shield-checkmark" size={48} color={COLORS.primary} />
-            </LinearGradient>
+      <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Hero Section */}
+          <View style={styles.heroSection}>
+            <View style={styles.heroIconCircle}>
+                <Ionicons name="shield-half-sharp" size={36} color={COLORS.primary} />
+            </View>
+            <Text style={styles.heroTitle}>Your Privacy Matters</Text>
+            <Text style={styles.heroDescription}>
+                We are committed to protecting your personal data and your right to privacy. 
+                Our policy is designed to be clear, transparent, and user-first.
+            </Text>
+            <View style={styles.lastUpdated}>
+                <Text style={styles.lastUpdatedText}>Updated March 2024</Text>
+            </View>
           </View>
-          <Text style={styles.title}>Data Protection Commitment</Text>
-          <Text style={styles.heroText}>
-            At Easy Auto, your trust is our most valuable asset. We use bank-grade security and transparent policies to safeguard your information.
-          </Text>
-        </View>
 
-        <PolicySection
-          title="1. Information We Collect"
-          content={`• Academic personal info (Name, Email, Mobile)\n• Behavioral usage insights for performance\n• Precise geolocation for nearby listings`}
-        />
+          {/* Quick Summary Grid */}
+          <View style={styles.summaryGrid}>
+             <View style={styles.summaryItem}>
+                <Ionicons name="lock-closed" size={18} color={COLORS.primary} />
+                <Text style={styles.summaryText}>Secure</Text>
+             </View>
+             <View style={styles.summaryDivider} />
+             <View style={styles.summaryItem}>
+                <Ionicons name="eye-off" size={18} color={COLORS.primary} />
+                <Text style={styles.summaryText}>Private</Text>
+             </View>
+             <View style={styles.summaryDivider} />
+             <View style={styles.summaryItem}>
+                <Ionicons name="flash" size={18} color={COLORS.primary} />
+                <Text style={styles.summaryText}>Control</Text>
+             </View>
+          </View>
 
-        <View style={styles.divider} />
+          {/* Policy Sections */}
+          <View style={styles.sectionsList}>
+            {POLICY_SECTIONS.map((section) => (
+                <View key={section.id} style={styles.sectionCard}>
+                    <View style={styles.sectionHeader}>
+                        <View style={[styles.sectionIconBg, { backgroundColor: section.color + '15' }]}>
+                            <Ionicons name={section.icon as any} size={22} color={section.color} />
+                        </View>
+                        <Text style={styles.sectionTitle}>{section.title}</Text>
+                    </View>
+                    <Text style={styles.sectionBody}>{section.content}</Text>
+                </View>
+            ))}
+          </View>
 
-        <PolicySection
-          title="2. Strategic Usage"
-          content={`• Refining the marketplace algorithm\n• Direct support and security protocols\n• Optimizing purchase-intent analytics`}
-        />
-
-        <View style={styles.divider} />
-
-        <PolicySection
-          title="3. Security Architecture"
-          content="We employ RSA multi-layer encryption and regular audits to ensure your data resides in a fortress-like environment."
-        />
-
-        <View style={styles.divider} />
-
-        <PolicySection
-          title="4. Data Autonomy"
-          content="You retain absolute sovereignty over your data. You may export, modify, or terminate your data records at any moment."
-        />
-
-        <Animated.View style={[styles.actionWrapper, buttonStyle]}>
-          <TouchableOpacity
-            style={styles.button}
-            onPressIn={onPressIn}
-            onPressOut={onPressOut}
-            onPress={() => router.back()}
-            activeOpacity={0.9}
-          >
-            <LinearGradient
-              colors={[COLORS.primary, '#1e3a8a']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.buttonGradient}
-            >
-              <Ionicons name="checkmark-circle" size={20} color={COLORS.white} />
-              <Text style={styles.buttonText}>Acknowledge & Sync</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </Animated.View>
-
-        <Text style={styles.footerNote}>Last updated: March 2024</Text>
-      </ScrollView>
-    </SafeAreaView>
+          {/* Legal Footer */}
+          <View style={styles.footerSection}>
+             <Ionicons name="information-circle" size={20} color="#94A3B8" />
+             <Text style={styles.footerText}>
+                By using Easy Auto, you agree to our terms of service and this privacy policy. 
+                If you have questions, please contact our Data Protection Officer.
+             </Text>
+             <TouchableOpacity 
+                style={styles.contactLink}
+                onPress={() => {
+                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                   router.push('/support/contact-us');
+                }}
+             >
+                <Text style={styles.contactLinkText}>Contact Privacy Team</Text>
+                <Ionicons name="chevron-forward" size={12} color={COLORS.primary} />
+             </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: '#fff',
   },
-  content: {
+  safe: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  scrollContent: {
     paddingBottom: 40,
   },
   heroSection: {
-    padding: 32,
+    backgroundColor: '#fff',
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 40,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    elevation: 3,
     marginBottom: 20,
   },
-  focalContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
+  heroIconCircle: {
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      backgroundColor: '#EFF6FF',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 20,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#1E293B',
+    marginBottom: 12,
+  },
+  heroDescription: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 16,
     marginBottom: 24,
   },
-  focalGlow: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#EFF6FF',
-    opacity: 0.8,
+  lastUpdated: {
+      backgroundColor: '#F1F5F9',
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+      borderRadius: 12,
   },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
+  lastUpdatedText: {
+      fontSize: 11,
+      fontWeight: '800',
+      color: '#64748B',
+      textTransform: 'uppercase',
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "900",
-    textAlign: "center",
-    marginBottom: 16,
-    color: '#111827',
-    letterSpacing: -0.5,
+  summaryGrid: {
+      flexDirection: 'row',
+      backgroundColor: '#fff',
+      marginHorizontal: 24,
+      borderRadius: 20,
+      paddingVertical: 20,
+      marginBottom: 24,
+      marginTop: -20, // overlapping hero
+      borderWidth: 1,
+      borderColor: '#F1F5F9',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.03,
+      shadowRadius: 8,
+      elevation: 2,
   },
-  heroText: {
-    fontSize: 15,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 24,
-    fontWeight: '500',
-    paddingHorizontal: 20,
+  summaryItem: {
+      flex: 1,
+      alignItems: 'center',
+      gap: 6,
   },
-  section: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
+  summaryText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: '#334155',
   },
-  subTitle: {
-    fontSize: 12,
-    fontWeight: "800",
-    marginBottom: 12,
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
+  summaryDivider: {
+      width: 1,
+      height: 24,
+      backgroundColor: '#F1F5F9',
   },
-  text: {
-    fontSize: 15,
-    color: '#374151',
-    lineHeight: 26,
-    fontWeight: '500',
+  sectionsList: {
+      paddingHorizontal: 24,
+      gap: 16,
+      marginBottom: 32,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#F3F4F6',
-    marginHorizontal: 24,
+  sectionCard: {
+      backgroundColor: '#fff',
+      padding: 24,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: '#F1F5F9',
   },
-  actionWrapper: {
-    paddingHorizontal: 24,
-    marginTop: 40,
+  sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 14,
+      gap: 14,
   },
-  button: {
-    borderRadius: 16,
-    height: 56,
-    overflow: 'hidden',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
+  sectionIconBg: {
+      width: 44,
+      height: 44,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
   },
-  buttonGradient: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: 12,
+  sectionTitle: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: '#1E293B',
   },
-  buttonText: {
-    color: COLORS.white,
-    fontWeight: "900",
-    fontSize: 16,
-    letterSpacing: 0.5,
+  sectionBody: {
+      fontSize: 14,
+      color: '#64748B',
+      lineHeight: 22,
+      fontWeight: '500',
   },
-  footerNote: {
-    textAlign: 'center',
-    fontSize: 11,
-    color: '#9CA3AF',
-    marginTop: 32,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+  footerSection: {
+      marginHorizontal: 24,
+      padding: 24,
+      backgroundColor: '#F1F5F9',
+      borderRadius: 24,
+      alignItems: 'center',
+      gap: 12,
   },
+  footerText: {
+      fontSize: 12,
+      color: '#94A3B8',
+      textAlign: 'center',
+      lineHeight: 18,
+      fontWeight: '500',
+  },
+  contactLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginTop: 4,
+  },
+  contactLinkText: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: COLORS.primary,
+  }
 });

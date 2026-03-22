@@ -10,12 +10,11 @@ import {
   View,
   SafeAreaView,
   Platform,
-  ActivityIndicator
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Loading from '../../components/ui/Loading';
 
-import Header from '../../components/Header';
+import Header from "../../components/Header";
 import { ENDPOINTS } from '../../constants/API';
 import { COLORS } from '@/constants/Colors';
 
@@ -107,18 +106,7 @@ export default function PackageDetailScreen() {
   };
 
   if (loading) {
-    return (
-      <View style={styles.outerContainer}>
-        <Stack.Screen options={{ headerShown: false }} />
-        <Header title="Plan Detail" />
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Fetching details...</Text>
-          <Loading />
-          <Text style={{ marginTop: 12, color: '#666' }}>Loading package...</Text>
-        </View>
-      </View>
-    );
+    return <Loading fullScreen message="Fetching details..." />;
   }
 
   if (!pkg) {

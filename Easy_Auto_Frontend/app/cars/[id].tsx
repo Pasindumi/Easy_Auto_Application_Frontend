@@ -1,4 +1,4 @@
-﻿import COLORS from "@/constants/Colors";
+import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -6,7 +6,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useState, useRef } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Linking,
@@ -28,6 +27,8 @@ import { api } from '@/utils/api';
 import ReviewList from '@/components/reviews/ReviewList';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import { useAuth } from '@/contexts/AuthContext';
+import Loading from '@/components/ui/Loading';
+import Header from '@/components/Header';
 
 const { width, height } = Dimensions.get('window');
 const GALLERY_HEIGHT = height * 0.45;
@@ -131,7 +132,7 @@ export default function AdDetailsScreen() {
         }
     };
 
-    const shareMessage = ad ? `Check out this ${ad.title} on EasyAuto!\nhttps://easyauto.lk/cars/${id}` : '';
+    const shareMessage = ad ? `Check out this ${ad.title} on EasyAuto!\nimport Loading from "@/components/ui/Loading";\n\nhttps://easyauto.lk/cars/${id}` : '';
     const handleNativeShare = async () => {
         try { await Share.share({ message: shareMessage }); } catch { }
     };
@@ -144,13 +145,7 @@ export default function AdDetailsScreen() {
     const headerOpacity = scrollY.interpolate({ inputRange: [GALLERY_HEIGHT - 100, GALLERY_HEIGHT - 60], outputRange: [0, 1], extrapolate: 'clamp' });
 
     if (loading) {
-        return (
-            <View style={styles.loading}>
-                <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
-                <Text style={styles.loadingText}>Loading vehicle details...</Text>
-            </View>
-        );
+        return <Loading fullScreen message="Loading vehicle details..." />;
     }
     if (!ad) return null;
 
@@ -182,21 +177,17 @@ export default function AdDetailsScreen() {
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ΓöÇΓöÇΓöÇ FLOATING HEADER (appears on scroll) ΓöÇΓöÇΓöÇ */}
-            <Animated.View style={[styles.floatingHeader, { paddingTop: insets.top + 8, opacity: headerOpacity }]}>
-                <TouchableOpacity style={styles.floatingBackBtn} onPress={() => router.back()}>
-                    <Ionicons name="chevron-back" size={24} color="white" />
-                </TouchableOpacity>
-                <View pointerEvents="none" style={styles.logoCentre}>
-                    <Image
-                        source={require("@/assets/logoHome.png")}
-                        contentFit="contain"
-                        style={styles.logoImg}
-                    />
-                </View>
-                <TouchableOpacity style={styles.floatingShareBtn} onPress={() => setShowShareModal(true)}>
-                    <Ionicons name="share-outline" size={20} color="white" />
-                </TouchableOpacity>
+            {/* standardized FLOATING HEADER (appears on scroll) */}
+            <Animated.View style={[styles.floatingHeader, { opacity: headerOpacity }]}>
+                <Header 
+                    showBack={true} 
+                    title={ad.title}
+                    rightElement={
+                        <TouchableOpacity style={styles.floatingShareBtn} onPress={() => setShowShareModal(true)}>
+                            <Ionicons name="share-outline" size={20} color="white" />
+                        </TouchableOpacity>
+                    }
+                />
             </Animated.View>
 
             <Animated.ScrollView
@@ -446,7 +437,7 @@ export default function AdDetailsScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.chatBtn, sendingChat && { opacity: 0.7 }]} onPress={handleChatWithSeller} disabled={sendingChat}>
                     <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.chatBtnGrad}>
-                        {sendingChat ? <ActivityIndicator size="small" color="white" /> : (
+                        {sendingChat ? <Loading size="small" /> : (
                             <>
                                 <Ionicons name="chatbubble-ellipses" size={20} color="white" />
                                 <Text style={styles.chatBtnText}>Chat with Seller</Text>
@@ -521,15 +512,8 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
     },
-    floatingBackBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-    logoCentre: {
-        ...StyleSheet.absoluteFillObject,
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 5,
-        marginTop: 10,
-    },
-    logoImg: { width: 100, height: 22 },
+    floatingBackBtn: { width: 32, height: 32, alignItems: 'flex-start', justifyContent: 'center' },
+    logoImg: { width: 85, height: 22 },
     floatingShareBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 
     // GALLERY

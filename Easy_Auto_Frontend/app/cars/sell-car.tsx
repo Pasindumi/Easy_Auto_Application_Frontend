@@ -1,4 +1,4 @@
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import Loading from '@/components/ui/Loading';
 import COLORS from "@/constants/Colors";
 import { useToast } from '@/contexts/ToastContext';
@@ -461,10 +461,10 @@ export default function SellCarScreen() {
       }
 
       if (response.success) {
-        showToast({ 
-          title: isEdit ? "Update Successful" : "Ad Saved", 
-          message: isEdit ? "Your ad has been updated successfully!" : "Your ad has been saved as a draft!", 
-          type: "success" 
+        showToast({
+          title: isEdit ? "Update Successful" : "Ad Saved",
+          message: isEdit ? "Your ad has been updated successfully!" : "Your ad has been saved as a draft!",
+          type: "success"
         });
         const adId = isEdit ? params.id : response.data.id;
         router.replace({
@@ -487,7 +487,7 @@ export default function SellCarScreen() {
     return (
       <View style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
-        <Header showBack={true} />
+        <Header showBack={true} title="Login" />
         <View style={styles.authGuardContainer}>
           <View style={styles.iconCircle}>
             <Ionicons name="lock-closed-outline" size={40} color={COLORS.primary} />
@@ -521,33 +521,12 @@ export default function SellCarScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
-      <LinearGradient
-        colors={[COLORS.primary, COLORS.primaryDark]}
-        style={[styles.header, { paddingTop: insets.top + 8 }]}
-      >
-        <View style={styles.headerTopRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={26} color="white" />
-          </TouchableOpacity>
-          
-          <View pointerEvents="none" style={styles.logoCentre}>
-            <RNImage
-              source={require("@/assets/logoHome.png")}
-              resizeMode="contain"
-              style={styles.logoImg}
-            />
-          </View>
+      {/* Standardized Header */}
+      <Header 
+        showBack={true} 
+        title="Post Your Ad" 
+      />
 
-          <View style={styles.headerRightSpacer} />
-        </View>
-
-        <View style={styles.headerTitleArea}>
-          <Text style={styles.headerTitleText}>Post Your Ad</Text>
-        </View>
-      </LinearGradient>
-      <Header showBack={true} />
-      
       {loading && <Loading fullScreen={true} message="Processing..." />}
 
       <View style={styles.sellSubHeader}>
@@ -633,54 +612,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 40,
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    elevation: 8,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    zIndex: 100,
-  },
-  headerTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 44,
-    marginBottom: 8,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  logoCentre: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoImg: {
-    width: 100,
-    height: 24,
-  },
-  headerRightSpacer: {
-    width: 40,
-  },
-  headerTitleArea: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitleText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: -0.5,
   },
   sellSubHeader: {
     paddingHorizontal: 16,

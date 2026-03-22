@@ -1,4 +1,4 @@
-﻿import COLORS from "@/constants/Colors";
+import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
@@ -24,8 +24,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api } from "../../utils/api";
+import Header from "@/components/Header";
 import SelectField from "@/components/ui/SelectField";
 import LocationModal from "../../components/ui/LocationModal";
+import EmptyState from "@/components/ui/EmptyState";
 
 const { width, height } = Dimensions.get("window");
 // App brand gradient colours (same as all other headers)
@@ -34,9 +36,9 @@ const BRAND_GRAD: [string, string] = ["#235CF8", "#1E4DB7"];
 const PRICE_RANGES = [
     { label: "Any Price", min: "", max: "" },
     { label: "Under 1M", min: "", max: "1000000" },
-    { label: "1M ΓÇô 3M", min: "1000000", max: "3000000" },
-    { label: "3M ΓÇô 5M", min: "3000000", max: "5000000" },
-    { label: "5M ΓÇô 10M", min: "5000000", max: "10000000" },
+    { label: "1M G 3M", min: "1000000", max: "3000000" },
+    { label: "3M G 5M", min: "3000000", max: "5000000" },
+    { label: "5M G 10M", min: "5000000", max: "10000000" },
     { label: "Above 10M", min: "10000000", max: "" },
 ];
 
@@ -68,8 +70,8 @@ const formatMileage = (m: any) => {
 
 const SORT_OPTIONS = [
     { value: "all", label: "Best Match" },
-    { value: "price-low", label: "Price: Low ΓåÆ High" },
-    { value: "price-high", label: "Price: High ΓåÆ Low" },
+    { value: "price-low", label: "Price: Low G High" },
+    { value: "price-high", label: "Price: High G Low" },
     { value: "year-new", label: "Newest Year" },
     { value: "year-old", label: "Classic First" },
 ];
@@ -277,7 +279,7 @@ export default function BuyCarScreen() {
                     />
                     {item.is_featured && (
                         <View style={styles.featuredBadge}>
-                            <Text style={styles.featuredBadgeText}>Γ¡É Featured</Text>
+                            <Text style={styles.featuredBadgeText}>G Featured</Text>
                         </View>
                     )}
                 </View>
@@ -341,7 +343,7 @@ export default function BuyCarScreen() {
                     <Text style={styles.gridTitle} numberOfLines={1}>{details?.brand ? `${details.brand} ${details.model || ""}`.trim() : item.title}</Text>
                     <View style={styles.gridMetaRow}>
                         {details?.year ? <Text style={styles.gridMeta}>{details.year}</Text> : null}
-                        {details?.year && details?.mileage ? <Text style={styles.gridDot}>┬╖</Text> : null}
+                        {details?.year && details?.mileage ? <Text style={styles.gridDot}>-+</Text> : null}
                         {details?.mileage ? <Text style={styles.gridMeta}>{formatMileage(details.mileage)}</Text> : null}
                     </View>
                     <View style={styles.gridLocationRow}>
@@ -415,12 +417,12 @@ export default function BuyCarScreen() {
                         {/* Brand */}
                         <SelectField label="Make / Brand" value={selectedBrand} options={brands}
                             onSelect={setSelectedBrand} disabled={selectedCategory === "all" || isBrandsLoading}
-                            placeholder={isBrandsLoading ? "LoadingΓÇª" : "Select Brand"} searchable />
+                            placeholder={isBrandsLoading ? "LoadingG" : "Select Brand"} searchable />
 
                         {/* Model */}
                         <SelectField label="Model" value={selectedModel} options={models}
                             onSelect={setSelectedModel} disabled={!selectedBrand || isModelsLoading}
-                            placeholder={isModelsLoading ? "LoadingΓÇª" : "Select Model"} searchable />
+                            placeholder={isModelsLoading ? "LoadingG" : "Select Model"} searchable />
 
                         {/* Location */}
                         <Text style={styles.filterGroupLabel}>Location</Text>
@@ -446,66 +448,42 @@ export default function BuyCarScreen() {
 
     return (
         <View style={styles.root}>
-            <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ΓöÇΓöÇΓöÇ APP BRANDED HEADER ΓöÇΓöÇΓöÇ */}
-            <LinearGradient
-                colors={BRAND_GRAD}
-                style={[styles.header, { paddingTop: insets.top }]}
-            >
-                {/* Row 1: Back chevron + Logo + View Toggle */}
-                <View style={styles.headerRow1}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <Ionicons name="chevron-back" size={26} color="white" />
-                    </TouchableOpacity>
-
-                    <View pointerEvents="none" style={styles.logoCentre}>
-                        <RNImage
-                            source={require("@/assets/logoHome.png")}
-                            resizeMode="contain"
-                            style={styles.logoImg}
+            {/* Standardized Header */}
+            <Header 
+                showBack={true} 
+                centerElement={
+                    <View style={styles.headerSearchWrap}>
+                        <Ionicons name="search" size={16} color="#94A3B8" />
+                        <TextInput
+                            style={styles.headerSearchInput}
+                            placeholder="Search cars..."
+                            placeholderTextColor="#94A3B8"
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
                         />
                     </View>
-
+                }
+                rightElement={
                     <View style={styles.viewToggleWrap}>
                         <TouchableOpacity
                             style={[styles.viewToggleBtn, viewMode === "list" && styles.viewToggleBtnActive]}
                             onPress={() => setViewMode("list")}
                         >
-                            <Ionicons name="list" size={18} color={viewMode === "list" ? "white" : "rgba(255,255,255,0.6)"} />
+                            <Ionicons name="list" size={16} color={viewMode === "list" ? "white" : "rgba(255,255,255,0.6)"} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.viewToggleBtn, viewMode === "grid" && styles.viewToggleBtnActive]}
                             onPress={() => setViewMode("grid")}
                         >
-                            <Ionicons name="grid" size={15} color={viewMode === "grid" ? "white" : "rgba(255,255,255,0.6)"} />
+                            <Ionicons name="grid" size={14} color={viewMode === "grid" ? "white" : "rgba(255,255,255,0.6)"} />
                         </TouchableOpacity>
                     </View>
-                </View>
+                }
+            />
 
-                <Text style={styles.headerSub}>
-                    {ads.length > 0 ? `${ads.length} listings available` : "Finding your perfect match..."}
-                </Text>
-
-                {/* Search Bar */}
-                <View style={styles.searchBar}>
-                    <Ionicons name="search" size={17} color="rgba(255,255,255,0.7)" />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search make, model, keyword..."
-                        placeholderTextColor="rgba(255,255,255,0.5)"
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        returnKeyType="search"
-                    />
-                    {searchQuery ? (
-                        <TouchableOpacity onPress={() => setSearchQuery("")}>
-                            <Ionicons name="close-circle" size={17} color="rgba(255,255,255,0.7)" />
-                        </TouchableOpacity>
-                    ) : null}
-                </View>
-
+            <View style={styles.categoryExtension}>
                 {/* Category Pills */}
                 <ScrollView
                     horizontal
@@ -530,9 +508,9 @@ export default function BuyCarScreen() {
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
-            </LinearGradient>
+            </View>
 
-            {/* ΓöÇΓöÇΓöÇ CONTENT ΓöÇΓöÇΓöÇ */}
+            {/* GGG CONTENT GGG */}
             <ScrollView
                 contentContainerStyle={[styles.scrollContent, { paddingTop: 10 }]}
                 showsVerticalScrollIndicator={false}
@@ -543,14 +521,13 @@ export default function BuyCarScreen() {
                         {[1, 2, 3, 4, 5, 6].map(i => <ShimmerCard key={i} />)}
                     </View>
                 ) : ads.length === 0 ? (
-                    <View style={styles.emptyState}>
-                        <MaterialCommunityIcons name="car-off" size={64} color="#334155" />
-                        <Text style={styles.emptyTitle}>No Listings Found</Text>
-                        <Text style={styles.emptySub}>Try adjusting your filters or search terms</Text>
-                        <TouchableOpacity style={styles.emptyResetBtn} onPress={resetFilters}>
-                            <Text style={styles.emptyResetText}>Reset All Filters</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <EmptyState
+                        icon="search-outline"
+                        title="No Listings Found"
+                        description="We couldn't find any cars matching your criteria. Try adjusting your filters or search terms."
+                        actionText="Reset All Filters"
+                        onActionPress={resetFilters}
+                    />
                 ) : viewMode === "grid" ? (
                     <View style={styles.gridWrap}>
                         {ads.map(item => (
@@ -569,9 +546,9 @@ export default function BuyCarScreen() {
                 <View style={{ height: 120 }} />
             </ScrollView>
 
-            {/* ΓöÇΓöÇΓöÇ FILTER FAB ΓöÇΓöÇΓöÇ */}
+            {/* GGG FILTER FAB GGG */}
             <View style={[styles.filterFabWrap, { bottom: insets.bottom + 20 }]}>
-                    <TouchableOpacity
+                <TouchableOpacity
                     style={styles.filterFab}
                     onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowFilters(true); }}
                 >
@@ -594,6 +571,30 @@ export default function BuyCarScreen() {
 
 const styles = StyleSheet.create({
     root: { flex: 1, backgroundColor: "#F1F5F9" },
+    headerSearchWrap: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        height: 40,
+        marginHorizontal: 8,
+    },
+    headerSearchInput: {
+        flex: 1,
+        fontSize: 14,
+        color: '#111827',
+        marginLeft: 6,
+    },
+    categoryExtension: {
+        backgroundColor: COLORS.primary,
+        paddingBottom: 12,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
+        marginTop: -20,
+        zIndex: 90,
+    },
 
     // HEADER (app brand style)
     header: {
@@ -614,17 +615,16 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         height: 52,
     },
-    logoCentre: {
-        ...StyleSheet.absoluteFillObject,
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 5,
-    },
-    logoImg: { width: 100, height: 22 },
+    logoImg: { width: 85, height: 22 },
     backBtn: {
-        width: 36, height: 36, borderRadius: 18,
-        alignItems: "center", justifyContent: "flex-start",
-        zIndex: 10,
+        width: 32, height: 32,
+        alignItems: "flex-start", justifyContent: "center", marginRight: 8,
+    },
+    headerTitleText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: '700',
+        letterSpacing: -0.3,
     },
     headerSub: { fontSize: 12, color: "rgba(255,255,255,0.65)", marginBottom: 8, marginLeft: 2 },
 
@@ -635,7 +635,7 @@ const styles = StyleSheet.create({
     viewToggleBtn: { padding: 7, borderRadius: 8 },
     viewToggleBtnActive: { backgroundColor: "rgba(255,255,255,0.25)" },
 
-    // SEARCH BAR ΓÇö white glass effect on blue header
+    // SEARCH BAR G white glass effect on blue header
     searchBar: {
         flexDirection: "row", alignItems: "center", gap: 10,
         backgroundColor: "rgba(255,255,255,0.18)",
@@ -822,3 +822,4 @@ const styles = StyleSheet.create({
     applyBtnGradient: { paddingVertical: 16, alignItems: "center" },
     applyBtnText: { color: "white", fontWeight: "800", fontSize: 16 },
 });
+

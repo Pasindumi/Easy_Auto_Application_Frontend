@@ -70,72 +70,72 @@ export default function CompareScreen() {
     <View style={styles.selectionHero}>
       <Text style={styles.heroTitle}>Compare & Decide</Text>
       <Text style={styles.heroSub}>Select two vehicles to see a side-by-side comparison of features, performance and value.</Text>
-      
+
       <View style={styles.selectorRow}>
         {/* Slot 1 */}
-        <TouchableOpacity 
-          style={[styles.slot, selectedCar1 && styles.slotActive]} 
+        <TouchableOpacity
+          style={[styles.slot, selectedCar1 && styles.slotActive]}
           onPress={() => openSelection(1)}
         >
           {selectedCar1 ? (
             <View style={styles.selectedContainer}>
-               <Image 
-                source={{ uri: selectedCar1.AdImage?.[0]?.image_url }} 
-                style={styles.selectedImg} 
-               />
-               <Text style={styles.selectedName} numberOfLines={1}>{selectedCar1.title}</Text>
-               <View style={styles.changeBadge}>
-                 <Text style={styles.changeText}>Change</Text>
-               </View>
+              <Image
+                source={{ uri: selectedCar1.AdImage?.[0]?.image_url }}
+                style={styles.selectedImg}
+              />
+              <Text style={styles.selectedName} numberOfLines={1}>{selectedCar1.title}</Text>
+              <View style={styles.changeBadge}>
+                <Text style={styles.changeText}>Change</Text>
+              </View>
             </View>
           ) : (
             <View style={styles.emptySlot}>
-               <View style={styles.addIconCircle}>
-                 <Ionicons name="add" size={24} color={COLORS.primary} />
-               </View>
-               <Text style={styles.addLabel}>Add Car 1</Text>
+              <View style={styles.addIconCircle}>
+                <Ionicons name="add" size={24} color={COLORS.primary} />
+              </View>
+              <Text style={styles.addLabel}>Add Car 1</Text>
             </View>
           )}
         </TouchableOpacity>
 
         <View style={styles.vsBadgeContainer}>
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.primaryDark]}
-              style={styles.vsBadge}
-            >
-              <Text style={styles.vsBadgeText}>VS</Text>
-            </LinearGradient>
+          <LinearGradient
+            colors={[COLORS.primary, COLORS.primaryDark]}
+            style={styles.vsBadge}
+          >
+            <Text style={styles.vsBadgeText}>VS</Text>
+          </LinearGradient>
         </View>
 
         {/* Slot 2 */}
-        <TouchableOpacity 
-          style={[styles.slot, selectedCar2 && styles.slotActive]} 
+        <TouchableOpacity
+          style={[styles.slot, selectedCar2 && styles.slotActive]}
           onPress={() => openSelection(2)}
         >
           {selectedCar2 ? (
             <View style={styles.selectedContainer}>
-               <Image 
-                source={{ uri: selectedCar2.AdImage?.[0]?.image_url }} 
-                style={styles.selectedImg} 
-               />
-               <Text style={styles.selectedName} numberOfLines={1}>{selectedCar2.title}</Text>
-               <View style={styles.changeBadge}>
-                 <Text style={styles.changeText}>Change</Text>
-               </View>
+              <Image
+                source={{ uri: selectedCar2.AdImage?.[0]?.image_url }}
+                style={styles.selectedImg}
+              />
+              <Text style={styles.selectedName} numberOfLines={1}>{selectedCar2.title}</Text>
+              <View style={styles.changeBadge}>
+                <Text style={styles.changeText}>Change</Text>
+              </View>
             </View>
           ) : (
             <View style={styles.emptySlot}>
-               <View style={styles.addIconCircle}>
-                 <Ionicons name="add" size={24} color={COLORS.primary} />
-               </View>
-               <Text style={styles.addLabel}>Add Car 2</Text>
+              <View style={styles.addIconCircle}>
+                <Ionicons name="add" size={24} color={COLORS.primary} />
+              </View>
+              <Text style={styles.addLabel}>Add Car 2</Text>
             </View>
           )}
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={[styles.compareActionBtn, (!selectedCar1 || !selectedCar2) && styles.compareActionBtnDisabled]} 
+      <TouchableOpacity
+        style={[styles.compareActionBtn, (!selectedCar1 || !selectedCar2) && styles.compareActionBtnDisabled]}
         onPress={handleCompare}
         disabled={!selectedCar1 || !selectedCar2}
       >
@@ -155,26 +155,25 @@ export default function CompareScreen() {
       {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
       <LinearGradient
         colors={[COLORS.primary, COLORS.primaryDark]}
-        style={[styles.header, { paddingTop: insets.top + 8 }]}
+        style={[styles.header, { paddingTop: insets.top + 8, paddingBottom: 12 }]}
       >
         <View style={styles.headerTopRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={26} color="white" />
-          </TouchableOpacity>
-          
-          <View pointerEvents="none" style={styles.logoCentre}>
+          {/* Left: Back & Title */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 16 }}>
+            <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitleText} numberOfLines={1}>Car Comparison</Text>
+          </View>
+
+          {/* Right: Logo */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
             <RNImage
               source={require("@/assets/logoHome.png")}
               resizeMode="contain"
               style={styles.logoImg}
             />
           </View>
-
-          <View style={styles.headerRightSpacer} />
-        </View>
-
-        <View style={styles.headerTitleArea}>
-          <Text style={styles.headerTitleText}>Car Comparison</Text>
         </View>
       </LinearGradient>
 
@@ -230,33 +229,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    marginRight: 8,
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
-  logoCentre: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   logoImg: {
-    width: 100,
-    height: 24,
-  },
-  headerRightSpacer: {
-    width: 40,
-  },
-  headerTitleArea: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 85,
+    height: 22,
   },
   headerTitleText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: -0.5,
+    fontWeight: '700',
+    letterSpacing: -0.3,
   },
   selectionHero: {
     backgroundColor: '#fff',

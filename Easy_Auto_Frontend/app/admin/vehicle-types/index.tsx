@@ -14,7 +14,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '@/constants/Colors';
 import { ENDPOINTS } from '@/constants/API';
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 
 export default function VehicleTypesManagement() {
     const router = useRouter();

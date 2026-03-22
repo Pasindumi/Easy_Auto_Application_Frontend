@@ -11,7 +11,7 @@ import {
     View,
 } from 'react-native';
 
-import Header from '../../../components/Header';
+import Header from "../../../components/Header";
 import COLORS from '../../../constants/Colors';
 import { api } from '@/utils/api';
 

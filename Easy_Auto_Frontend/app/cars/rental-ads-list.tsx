@@ -1,4 +1,4 @@
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
@@ -12,9 +12,9 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    ActivityIndicator,
     Modal,
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../../utils/api';
 import SelectField from '@/components/ui/SelectField';
@@ -257,27 +257,32 @@ export default function RentalAdsListScreen() {
     return (
         <>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header showBack={true} title="Rental Vehicles" />
+            <Header 
+                showBack={true} 
+                title="Rental Vehicles" 
+                centerElement={
+                    <View style={styles.headerSearchContainer}>
+                        <Ionicons name="search-outline" size={18} color="#9CA3AF" />
+                        <TextInput
+                            placeholder="Search rentals..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            style={styles.headerSearchInput}
+                            placeholderTextColor="#9CA3AF"
+                        />
+                    </View>
+                }
+                rightElement={
+                    <TouchableOpacity style={styles.headerFilterBtn} onPress={() => setShowFilters(true)}>
+                        <Ionicons name="options-outline" size={22} color="#fff" />
+                        {(minPrice || maxPrice || selectedBrand || locationFilter) && <View style={styles.filterDot} />}
+                    </TouchableOpacity>
+                }
+            />
             {renderFilterModal()}
 
             <SafeAreaView style={styles.safe} edges={['bottom']}>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                    {/* Search Section */}
-                    <View style={styles.searchSection}>
-                        <View style={styles.searchContainer}>
-                            <Ionicons name="search-outline" size={20} color="#9CA3AF" />
-                            <TextInput
-                                placeholder="Search rentals..."
-                                value={searchQuery}
-                                onChangeText={setSearchQuery}
-                                style={styles.searchInput}
-                            />
-                            <TouchableOpacity style={styles.filterBtn} onPress={() => setShowFilters(true)}>
-                                <Ionicons name="options-outline" size={24} color={COLORS.primary} />
-                                {(minPrice || maxPrice || selectedBrand || locationFilter) && <View style={styles.filterDot} />}
-                            </TouchableOpacity>
-                        </View>
-                    </View>
 
                     {/* Listings */}
                     <View style={styles.sectionHeader}>
@@ -287,7 +292,7 @@ export default function RentalAdsListScreen() {
 
                     <View style={styles.carsSection}>
                         {isLoading ? (
-                            <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
+                            <Loading size="medium" message="Finding rental vehicles..." />
                         ) : ads.length === 0 ? (
                             <View style={styles.emptyState}>
                                 <Ionicons name="car-outline" size={64} color="#D1D5DB" />
@@ -322,6 +327,26 @@ const styles = StyleSheet.create({
     safe: { flex: 1, backgroundColor: '#F9FAFB' },
     scrollView: { flex: 1 },
     scrollContent: { paddingBottom: 40 },
+    headerSearchContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        height: 40,
+        marginHorizontal: 8,
+    },
+    headerSearchInput: {
+        flex: 1,
+        fontSize: 14,
+        color: '#111827',
+        marginLeft: 6,
+    },
+    headerFilterBtn: {
+        padding: 4,
+        position: 'relative',
+    },
     searchSection: { padding: 16 },
     searchContainer: {
         flexDirection: 'row',
@@ -337,7 +362,7 @@ const styles = StyleSheet.create({
     },
     searchInput: { flex: 1, marginLeft: 12, fontSize: 15, color: '#111827' },
     filterBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F0F4FF', borderRadius: 12 },
-    filterDot: { position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444', borderWidth: 1, borderColor: '#fff' },
+    filterDot: { position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: COLORS.primary },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginTop: 10, marginBottom: 12 },
     sectionTitle: { fontSize: 18, fontWeight: '700', color: '#111827' },
     sectionSubtitle: { fontSize: 14, color: '#6B7280' },

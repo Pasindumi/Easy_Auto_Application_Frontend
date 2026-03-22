@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator, SafeAreaView, Platform } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, SafeAreaView, Platform } from 'react-native';
 import Loading from '@/components/ui/Loading';
 import { ENDPOINTS } from '../../constants/API';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
@@ -348,12 +348,7 @@ export default function Payment() {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Preparing your checkout...</Text>
-      </View>
-    );
+    return <Loading fullScreen message="Preparing your checkout..." />;
   }
 
   return (

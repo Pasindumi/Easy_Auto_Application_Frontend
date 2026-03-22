@@ -33,7 +33,7 @@ export default function AdminDashboard() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header />
+            <Header title="Admin Dashboard" />
 
             <BrandedRefreshOverlay refreshing={refreshing} top={100} />
             <ScrollView

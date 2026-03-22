@@ -61,7 +61,7 @@ export default function OffersScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header title="Latest Offers" showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
+      <View style={styles.safe}>
         <ScrollView 
             style={styles.container} 
             contentContainerStyle={styles.scrollContent}
@@ -148,7 +148,7 @@ export default function OffersScreen() {
 
           <View style={{ height: 40 }} />
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

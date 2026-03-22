@@ -1,4 +1,4 @@
-﻿import COLORS from "@/constants/Colors";
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
@@ -124,7 +124,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      
+
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -146,25 +146,33 @@ export default function LoginScreen() {
               colors={['rgba(15,23,42,0.8)', 'transparent', '#fff']}
               style={StyleSheet.absoluteFillObject}
             />
-            
-            <TouchableOpacity 
-              style={[styles.backButton, { top: insets.top + 10 }]} 
-              onPress={() => router.replace('/(tabs)')}
-            >
-              <Ionicons name="chevron-back" size={24} color="#fff" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.logoContainer, { marginTop: insets.top + 15 }]}
-              onPress={() => router.replace('/(tabs)')}
-              activeOpacity={0.7}
-            >
-              <Image
-                source={require("@/assets/logoHome.png")}
-                style={styles.logoImg}
-                contentFit="contain"
-              />
-            </TouchableOpacity>
+
+            <View style={{
+              position: 'absolute', top: insets.top + 10, left: 20, right: 20,
+              flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={() => router.replace('/(tabs)')}
+                >
+                  <Ionicons name="chevron-back" size={24} color="#fff" />
+                </TouchableOpacity>
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '700', marginLeft: 12, letterSpacing: -0.5 }}>{t('login')}</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.logoContainer}
+                onPress={() => router.replace('/(tabs)')}
+                activeOpacity={0.7}
+              >
+                <Image
+                  source={require("@/assets/logoHome.png")}
+                  style={styles.logoImg}
+                  contentFit="contain"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Custom Auth Form Area */}
@@ -245,7 +253,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          
+
           <Footer />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -263,27 +271,22 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   backButton: {
-    position: 'absolute',
-    left: 20,
     width: 42,
     height: 42,
     borderRadius: 21,
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
   },
   logoContainer: {
     alignItems: 'center',
-    width: '100%',
-    position: 'absolute',
-    zIndex: 5,
+    justifyContent: 'center',
   },
   logoImg: {
-    width: 130,
-    height: 38,
+    width: 90,
+    height: 24,
   },
   scrollContent: {
     flexGrow: 1,

@@ -1,5 +1,5 @@
 // app/cars/rent-car.tsx
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';

@@ -8,11 +8,10 @@ import {
   Text,
   View,
   SafeAreaView,
-  ActivityIndicator
 } from 'react-native';
 
 // Components
-import Header from '../../components/Header';
+import Header from "../../components/Header";
 import BoostInfoCard from '../../components/packages/packages/BoostInfoCard';
 import PackagePlanCard from '../../components/packages/packages/PackagePlanCard';
 import Loading from '@/components/ui/Loading';
@@ -64,7 +63,7 @@ export default function PackagesScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header title={adId ? "Boost Advertisement" : "Premium Packages"} showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
+      <View style={styles.safe}>
         <BrandedRefreshOverlay refreshing={refreshing} top={60} />
         <ScrollView
           style={styles.container}
@@ -83,7 +82,7 @@ export default function PackagesScreen() {
 
           {loading && !refreshing ? (
             <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Loading size="medium" />
               <Text style={styles.loaderText}>Curating best deals for you...</Text>
             </View>
           ) : packages.length === 0 ? (
@@ -120,7 +119,7 @@ export default function PackagesScreen() {
             </View>
           )}
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

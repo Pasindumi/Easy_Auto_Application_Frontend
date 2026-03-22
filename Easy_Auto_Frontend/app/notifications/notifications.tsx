@@ -26,6 +26,9 @@ interface NotificationItem {
     type: "car" | "price" | "message" | "alert" | "promo" | "system";
 }
 
+import Header from "@/components/Header";
+import EmptyState from "@/components/ui/EmptyState";
+
 const TYPE_META: Record<string, { icon: any; color: string; bg: string; label: string }> = {
     car: { icon: "car-sport", color: "#235CF8", bg: "#EEF2FF", label: "Listing" },
     price: { icon: "trending-down", color: "#10B981", bg: "#ECFDF5", label: "Price Drop" },
@@ -111,32 +114,18 @@ export default function NotificationsScreen() {
             <StatusBar barStyle="light-content" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ── Professional Header (Exact Home Theme) ── */}
-            <View style={[styles.header, { paddingTop: insets.top }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.back();
-                        }} 
-                        style={styles.backBtn}
-                    >
-                        <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    
-                    <View style={styles.headerTitleContainer}>
-                         <Text style={styles.headerTitle}>Notifications</Text>
-                    </View>
-
-                    {/* Placeholder for balance/alignment or a settings icon */}
+            <Header 
+                showBack={true} 
+                title="Notifications"
+                rightElement={
                     <TouchableOpacity 
                         style={styles.headerActionBtn}
                         onPress={() => router.push("/notifications/notifications-setting")}
                     >
                         <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
                     </TouchableOpacity>
-                </View>
-            </View>
+                }
+            />
 
             {/* ── Filter Strip (Now Outside Header) ── */}
             <View style={styles.filterStrip}>
@@ -182,19 +171,15 @@ export default function NotificationsScreen() {
                 }
             >
                 {displayed.length === 0 ? (
-                    <View style={styles.emptyContainer}>
-                        <View style={styles.emptyIconCircle}>
-                            <Ionicons name="notifications-off-outline" size={56} color="#CBD5E1" />
-                        </View>
-                        <Text style={styles.emptyTitle}>Nothing to show</Text>
-                        <Text style={styles.emptyText}>You've read all your notifications. We'll update you when there's something new.</Text>
-                        <TouchableOpacity 
-                            style={styles.backHomeBtn} 
-                            onPress={() => router.replace("/(tabs)")}
-                        >
-                             <Text style={styles.backHomeText}>Go back home</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <EmptyState
+                        icon="notifications-off-outline"
+                        title="All Caught Up!"
+                        description="You've read all your notifications. We'll let you know as soon as something important happens."
+                        actionText="Go to Dashboard"
+                        onActionPress={() => router.replace("/(tabs)")}
+                        secondaryActionText="Notification Settings"
+                        onSecondaryActionPress={() => router.push("/notifications/notifications-setting")}
+                    />
                 ) : (
                     displayed.map((n) => {
                         const meta = TYPE_META[n.type] || TYPE_META.system;
@@ -251,45 +236,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#F9FAFB",
     },
-    // Header Style
-    header: {
-        backgroundColor: COLORS.primary,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        paddingBottom: 20,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.22,
-        shadowRadius: 15,
-        elevation: 12,
-        zIndex: 100,
-    },
-    headerTop: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 20,
-        height: 64,
-    },
-    headerTitleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 21,
-        fontWeight: "800",
-        color: "#FFFFFF",
-        letterSpacing: -0.5,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        justifyContent: "center",
-    },
     headerActionBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         backgroundColor: "rgba(255,255,255,0.15)",
         alignItems: "center",
         justifyContent: "center",
@@ -366,48 +316,6 @@ const styles = StyleSheet.create({
 
     content: {
         flex: 1,
-    },
-
-    // Empty state
-    emptyContainer: {
-        marginTop: 100,
-        alignItems: "center",
-        paddingHorizontal: 45,
-    },
-    emptyIconCircle: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: "#EDF2F7",
-        alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 24,
-    },
-    emptyTitle: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: "#1E293B",
-        marginBottom: 10,
-    },
-    emptyText: {
-        fontSize: 15,
-        color: "#64748B",
-        textAlign: "center",
-        lineHeight: 22,
-        marginBottom: 30,
-    },
-    backHomeBtn: {
-        backgroundColor: "#FFFFFF",
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 18,
-        borderWidth: 1,
-        borderColor: "#E2E8F0",
-    },
-    backHomeText: {
-        color: "#1E293B",
-        fontWeight: '800',
-        fontSize: 14,
     },
 
     // Swipeable

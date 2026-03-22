@@ -1,4 +1,4 @@
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';

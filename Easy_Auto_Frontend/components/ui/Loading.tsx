@@ -25,55 +25,32 @@ const Loading: React.FC<LoadingProps> = ({
 }) => {
     // Scale factors
     const scaleMap = {
-        small: 0.6,
-        medium: 0.80,
-        large: 1.00
+        small: 0.5,
+        medium: 0.8,
+        large: 1.0
     };
     const scale = scaleMap[size];
     const rotateAnim = useRef(new Animated.Value(0)).current;
-    const pulseAnim = useRef(new Animated.Value(1)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 500,
+            duration: 400,
             useNativeDriver: true,
         }).start();
 
-        const rotation = Animated.loop(
+        const animation = Animated.loop(
             Animated.timing(rotateAnim, {
                 toValue: 1,
-                duration: 1500,
-                easing: Easing.linear,
+                duration: 1200,
+                easing: Easing.bezier(0.4, 0, 0.2, 1),
                 useNativeDriver: true,
             })
         );
+        animation.start();
 
-        const pulse = Animated.loop(
-            Animated.sequence([
-                Animated.timing(pulseAnim, {
-                    toValue: 1.1,
-                    duration: 1000,
-                    easing: Easing.inOut(Easing.ease),
-                    useNativeDriver: true,
-                }),
-                Animated.timing(pulseAnim, {
-                    toValue: 1,
-                    duration: 1000,
-                    easing: Easing.inOut(Easing.ease),
-                    useNativeDriver: true,
-                }),
-            ])
-        );
-
-        rotation.start();
-        pulse.start();
-
-        return () => {
-            rotation.stop();
-            pulse.stop();
-        };
+        return () => animation.stop();
     }, []);
 
     const rotationInterpolation = rotateAnim.interpolate({
@@ -81,26 +58,26 @@ const Loading: React.FC<LoadingProps> = ({
         outputRange: ['0deg', '360deg'],
     });
 
-    // Generate 12 pills like in the image
+    // 12 pills like in standard iOS activity indicator
     const pills = [];
-    const colors = [
-        '#0033CC', '#0044DD', '#0055EE', '#0066FF',
-        '#3388FF', '#66AAFF', '#99CCFF', '#CCE6FF',
-        '#E6F2FF', '#FFFFFF', '#CCE6FF', '#99CCFF'
-    ];
+    const pillCount = 12;
 
-    for (let i = 0; i < 12; i++) {
-        const rotation = i * 30; // 360 / 12
+    for (let i = 0; i < pillCount; i++) {
+        // Opacity staggered based on index
+        const opacity = (i + 1) / pillCount; 
+        const rotation = i * (360 / pillCount);
+        
         pills.push(
             <View
                 key={i}
                 style={[
                     styles.pill,
                     {
-                        backgroundColor: colors[i],
+                        backgroundColor: COLORS.primary, // Using primary blue
+                        opacity: opacity,
                         transform: [
                             { rotate: `${rotation}deg` },
-                            { translateY: -20 } // Distance from center
+                            { translateY: -28 } // Radius distance from center
                         ]
                     }
                 ]}
@@ -112,7 +89,7 @@ const Loading: React.FC<LoadingProps> = ({
         <Animated.View style={[
             styles.container,
             fullScreen && styles.fullScreen,
-            !fullScreen && { paddingVertical: size === 'small' ? 4 : (size === 'medium' ? 16 : 30) },
+            !fullScreen && { paddingVertical: size === 'small' ? 8 : (size === 'medium' ? 24 : 40) },
             style,
             { opacity: fadeAnim }
         ]}>
@@ -120,7 +97,7 @@ const Loading: React.FC<LoadingProps> = ({
                 styles.loaderWrapper,
                 { transform: [{ scale }] }
             ]}>
-                {/* Rotating Spinner (12 Pills) */}
+                {/* Rotating Spinner Container */}
                 <Animated.View style={[
                     styles.spinnerContainer,
                     { transform: [{ rotate: rotationInterpolation }] }
@@ -128,23 +105,19 @@ const Loading: React.FC<LoadingProps> = ({
                     {pills}
                 </Animated.View>
 
-                {/* Logo in the center */}
-                <View style={styles.logoContainer}>
-                    <Animated.View style={{
-                        transform: [
-                            { scale: pulseAnim },
-                            { rotate: rotationInterpolation } // Logo also rotates
-                        ]
-                    }}>
-                        <Image
-                            source={require('../../assets/logoB.png')}
-                            style={styles.logo}
-                            resizeMode="contain"
-                        />
-                    </Animated.View>
+                {/* Logo in the center - doesn't rotate */}
+                <View style={styles.logoWrapper}>
+                    <Image
+                        source={require('../../assets/logoB.png')}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
                 </View>
             </View>
-            {message && size !== 'small' && <Text style={styles.message}>{message}</Text>}
+            
+            {message && size !== 'small' && (
+                <Text style={styles.message}>{message}</Text>
+            )}
         </Animated.View>
     );
 };
@@ -156,47 +129,47 @@ const styles = StyleSheet.create({
     },
     fullScreen: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         zIndex: 9999,
         paddingVertical: 0,
     },
     loaderWrapper: {
-        width: 60,
-        height: 60,
+        width: 100,
+        height: 100,
         alignItems: 'center',
         justifyContent: 'center',
     },
     spinnerContainer: {
-        width: 54,
-        height: 54,
+        width: 100,
+        height: 100,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'absolute',
     },
     pill: {
-        width: 4,
-        height: 10,
-        borderRadius: 2,
+        width: 5,
+        height: 14,
+        borderRadius: 3,
         position: 'absolute',
     },
-    logoContainer: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: 'transparent',
-        alignItems: 'center',
+    logoWrapper: {
+        width: 44,
+        height: 44,
         justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
     },
     logo: {
-        width: 18,
-        height: 18,
+        width: 32,
+        height: 32,
+        opacity: 0.9,
     },
     message: {
-        fontSize: 15,
-        color: COLORS.primary,
-        fontWeight: '600',
         marginTop: 20,
-        letterSpacing: 0.5,
+        fontSize: 16,
+        fontWeight: '700',
+        color: COLORS.primary,
+        letterSpacing: -0.2,
     },
 });
 

@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
   SafeAreaView,
   Image
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import Header from "../../components/Header";
 import { api } from "@/utils/api";
 import { COLORS } from "@/constants/Colors";
@@ -104,10 +104,7 @@ export default function BoostAdScreen() {
         </View>
 
         {loading && !refreshing ? (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
-            <Text style={styles.loaderText}>Fetching your listings...</Text>
-          </View>
+          <Loading fullScreen message="Fetching your listings..." />
         ) : ads.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconBg}>

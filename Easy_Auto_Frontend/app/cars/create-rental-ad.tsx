@@ -7,11 +7,11 @@ import {
     KeyboardAvoidingView,
     Platform,
     Text,
-    ActivityIndicator
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import COLORS from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/utils/api';
@@ -366,7 +366,7 @@ export default function CreateRentalAdScreen() {
 
                     <ContactDetailsSection
                         userName={user?.name}
-                        email={user?.email}
+                        email={user?.email || ''}
                         contactNumber={carDetails.location} // Use location or add state for contact if needed
                         hidePhoneNumber={false}
                         handleInputChange={handleCarInputChange}
@@ -375,14 +375,10 @@ export default function CreateRentalAdScreen() {
 
                     <SubmitSection
                         onSubmit={handleSubmit}
-                        loading={loading}
                     />
 
                     {loading && (
-                        <View style={styles.overlay}>
-                            <ActivityIndicator size="large" color={COLORS.primary} />
-                            <Text style={styles.overlayText}>Creating your Ad...</Text>
-                        </View>
+                        <Loading fullScreen message="Creating your Ad..." />
                     )}
                 </ScrollView>
             </KeyboardAvoidingView>

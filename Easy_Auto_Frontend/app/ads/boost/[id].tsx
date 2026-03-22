@@ -13,7 +13,7 @@ import {
     TouchableOpacity
 } from 'react-native';
 
-import Header from '../../../components/Header';
+import Header from "../../../components/Header";
 import PackagePlanCard from '../../../components/packages/packages/PackagePlanCard';
 import { api } from '@/utils/api';
 import COLORS from '../../../constants/Colors';

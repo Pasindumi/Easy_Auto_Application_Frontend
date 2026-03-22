@@ -32,15 +32,7 @@ export default function PostedAd() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
-
-      {/* Unified Sub-Header */}
-      <View style={styles.subHeaderWrap}>
-        <View style={styles.subHeader}>
-          <Ionicons name="car-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.subHeaderTitle}>Ad Details</Text>
-        </View>
-      </View>
+      <Header showBack={true} title="Ad Details" />
 
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.card}>

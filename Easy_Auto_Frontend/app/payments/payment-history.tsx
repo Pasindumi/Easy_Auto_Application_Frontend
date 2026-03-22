@@ -6,16 +6,17 @@ import {
   StyleSheet,
   Text,
   View,
-  ActivityIndicator,
   Alert,
   TouchableOpacity,
-  SafeAreaView,
-  Platform
+  FlatList
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from '@/constants/Colors';
-import Header from "../../components/Header";
-import PaymentCard from '../../components/payments/history/PaymentCard';
-import PaymentSearch from '../../components/payments/history/PaymentSearch';
+import Header from "@/components/Header";
+import PaymentCard from '@/components/payments/history/PaymentCard';
+import PaymentSearch from '@/components/payments/history/PaymentSearch';
+import Loading from "@/components/ui/Loading";
+import EmptyState from "@/components/ui/EmptyState";
 import { Payment, PaymentSummaryData } from '../../types/payment.types';
 import { api } from '@/utils/api';
 
@@ -49,33 +50,6 @@ export default function PaymentHistoryScreen() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleClearHistory = () => {
-    Alert.alert(
-      "Clear History",
-      "Are you sure you want to clear your payment history?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLoading(true);
-              await api.delete('/api/payment/my-history');
-              setPayments([]);
-              Alert.alert("Success", "Payment history cleared.");
-            } catch (error) {
-              console.error("Failed to clear history:", error);
-              Alert.alert("Error", "Failed to clear payment history.");
-            } finally {
-              setLoading(false);
-            }
-          }
-        }
-      ]
-    );
   };
 
   const calculateSummary = (): PaymentSummaryData => {
@@ -121,61 +95,77 @@ export default function PaymentHistoryScreen() {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Fetching history...</Text>
-      </View>
-    );
+    return <Loading fullScreen message="Fetching history..." />;
   }
 
   return (
     <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
+      
       <Header
         showBack={true}
         title="Payment History"
       />
 
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.totalInvestmentBar}>
-          <View style={styles.investmentInfo}>
-            <Text style={styles.investmentLabel}>Total Lifetime Investment</Text>
-            <Text style={styles.investmentValue}>{summaryData.totalSpent}</Text>
-          </View>
-          <View style={styles.investmentBadge}>
-            <Ionicons name="trending-up" size={16} color={COLORS.primary} />
-          </View>
+      <View style={styles.content}>
+        {/* Floating Investment Card */}
+        <View style={styles.investmentCardContainer}>
+          <LinearGradient
+            colors={[COLORS.primary, COLORS.primaryDark || '#1E4DB7']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.investmentCard}
+          >
+            <View style={styles.investmentInfo}>
+              <View style={styles.investmentHeader}>
+                <Ionicons name="wallet-outline" size={20} color="rgba(255,255,255,0.8)" />
+                <Text style={styles.investmentLabel}>Total Lifetime Investment</Text>
+              </View>
+              <Text style={styles.investmentValue}>{summaryData.totalSpent}</Text>
+            </View>
+            <View style={styles.trendContainer}>
+              <Ionicons name="trending-up" size={32} color="rgba(255,255,255,0.4)" />
+            </View>
+          </LinearGradient>
         </View>
 
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.mainContent}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Transactions</Text>
-            <View style={styles.badgeContainer}>
-              <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
+            <View style={styles.sectionTitleRow}>
+              <Text style={styles.sectionTitle}>Recent Transactions</Text>
+              <View style={styles.badgeContainer}>
+                <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
+              </View>
             </View>
           </View>
 
           <PaymentSearch value={searchText} onChangeText={setSearchText} />
 
-          <View style={styles.listContainer}>
-            {filteredPayments.length > 0 ? (
-              filteredPayments.map((item) => (
-                <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
-              ))
-            ) : (
-              <View style={styles.emptyContainer}>
-                <Ionicons name="receipt-outline" size={48} color={COLORS.text.placeholder} />
-                <Text style={styles.emptyText}>No transactions found</Text>
-              </View>
+          <FlatList
+            data={filteredPayments}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <PaymentCard item={item} onPress={handleCardPress} />
             )}
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <EmptyState
+                icon="receipt-outline"
+                title="No Transactions Found"
+                description={searchText 
+                  ? `We couldn't find any payments matching "${searchText}".`
+                  : "You haven't made any payments yet. Your transaction history will appear here."}
+                actionText={searchText ? "Clear Search" : "Explore Packages"}
+                onActionPress={() => {
+                  if (searchText) setSearchText('');
+                  else router.push('/packages/packages' as any);
+                }}
+              />
+            }
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -183,72 +173,75 @@ export default function PaymentHistoryScreen() {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F8FAFC',
   },
-  safe: {
+  content: {
     flex: 1,
-    backgroundColor: '#f8fafc',
   },
-  totalInvestmentBar: {
+  investmentCardContainer: {
+    paddingHorizontal: 16,
+    marginTop: -25, // Overlap with header curve
+    zIndex: 110,
+  },
+  investmentCard: {
+    borderRadius: 24,
+    padding: 24,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    margin: 16,
-    padding: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    elevation: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
   },
   investmentInfo: {
     flex: 1,
   },
-  investmentLabel: {
-    fontSize: 12,
-    color: COLORS.text.muted,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  investmentValue: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#1e293b',
-  },
-  investmentBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: '#eff6ff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: 40,
-  },
-  sectionHeader: {
+  investmentHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  investmentLabel: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.85)',
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  investmentValue: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#fff',
+    letterSpacing: -0.5,
+  },
+  trendContainer: {
+    marginLeft: 16,
+  },
+  mainContent: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  sectionHeader: {
     paddingHorizontal: 20,
     marginBottom: 16,
-    gap: 10,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#1e293b',
+    color: '#0F172A',
+    letterSpacing: -0.3,
   },
   badgeContainer: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: COLORS.primary + '10',
     paddingHorizontal: 10,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 10,
   },
   sectionBadge: {
@@ -256,32 +249,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.primary,
   },
-  listContainer: {
-    paddingHorizontal: 16,
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
     gap: 12,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  loadingText: {
-    marginTop: 12,
-    color: COLORS.text.secondary,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: COLORS.text.muted,
-    fontWeight: '600',
   },
 });
-

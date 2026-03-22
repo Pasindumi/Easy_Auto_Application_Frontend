@@ -1,4 +1,4 @@
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import Loading from '@/components/ui/Loading';
 import COLORS from "@/constants/Colors";
 import { MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';

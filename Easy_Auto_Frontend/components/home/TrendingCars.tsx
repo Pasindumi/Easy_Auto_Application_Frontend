@@ -78,7 +78,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.cardsContainer}
                     decelerationRate="fast"
-                    snapToInterval={230 + 16}
+                    snapToInterval={180 + 16}
                 >
                     {displayAds.map((ad, index) => (
                         <TouchableOpacity
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     card: {
-        width: 230,
+        width: 180,
         backgroundColor: COLORS.white,
         borderRadius: 20,
         shadowColor: COLORS.shadow,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
     },
     imageContainer: {
-        height: 140,
+        height: 110,
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -194,33 +194,33 @@ const styles = StyleSheet.create({
     },
     priceTag: {
         position: 'absolute',
-        bottom: 10,
-        left: 10,
-        backgroundColor: 'rgba(0,0,0,0.75)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        bottom: 8,
+        left: 8,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: 'rgba(255,255,255,0.15)',
     },
     priceText: {
         color: COLORS.white,
-        fontWeight: "700",
-        fontSize: 12,
+        fontWeight: "800",
+        fontSize: 11,
     },
     cardContent: {
-        padding: 14,
+        padding: 12,
     },
     cardTitle: {
-        fontSize: 16,
+        fontSize: 13,
         fontWeight: "700",
         color: COLORS.text.primary,
-        marginBottom: 8,
+        marginBottom: 4,
     },
     cardSubTitle: {
-        fontSize: 12,
+        fontSize: 11,
         color: COLORS.text.muted,
-        marginTop: 2,
+        marginTop: 0,
     },
     detailsRow: {
         flexDirection: 'row',
@@ -240,11 +240,11 @@ const styles = StyleSheet.create({
     },
     reviewBadge: {
         position: 'absolute',
-        top: 10,
-        right: 10,
+        top: 8,
+        right: 8,
         backgroundColor: 'rgba(0,0,0,0.6)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
         borderRadius: 8,
         flexDirection: 'row',
         alignItems: 'center',

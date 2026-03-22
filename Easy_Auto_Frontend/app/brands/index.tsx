@@ -6,7 +6,7 @@ import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '@/constants/Colors';
 import api from '@/utils/api';
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 
 const { width } = Dimensions.get('window');
 

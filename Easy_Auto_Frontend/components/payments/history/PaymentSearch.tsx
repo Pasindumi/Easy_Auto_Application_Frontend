@@ -12,10 +12,10 @@ const PaymentSearch: React.FC<PaymentSearchProps> = ({ value, onChangeText }) =>
     return (
         <View style={styles.container}>
             <View style={styles.searchBox}>
-                <Ionicons name="search" size={18} color={COLORS.text.placeholder} />
+                <Ionicons name="search-outline" size={20} color={'#9CA3AF'} />
                 <TextInput
                     placeholder="Search by plan or status..."
-                    placeholderTextColor={COLORS.text.placeholder}
+                    placeholderTextColor={'#9CA3AF'}
                     style={styles.searchInput}
                     value={value}
                     onChangeText={onChangeText}
@@ -35,28 +35,22 @@ const PaymentSearch: React.FC<PaymentSearchProps> = ({ value, onChangeText }) =>
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 16,
-        marginTop: 20,
-        marginBottom: 8,
+        paddingHorizontal: 20,
+        marginBottom: 24,
     },
     searchBox: {
         flexDirection: 'row',
         backgroundColor: '#fff',
-        borderRadius: 12,
-        height: 50,
+        borderRadius: 14,
+        height: 52,
         alignItems: 'center',
-        paddingHorizontal: 14,
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 8,
-        elevation: 2,
+        paddingHorizontal: 16,
+        borderWidth: 1.5,
+        borderColor: '#E2E8F0',
     },
     searchInput: { 
         flex: 1, 
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
         fontSize: 14,
         color: '#1e293b',
         fontWeight: '500',

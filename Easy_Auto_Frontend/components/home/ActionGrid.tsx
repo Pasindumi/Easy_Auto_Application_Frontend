@@ -176,7 +176,13 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                 },
             ]}
         >
-            <View style={styles.grid}>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+                decelerationRate="fast"
+                snapToInterval={110 + 12}
+            >
                 {actions.map((action, index) => (
                     <ActionCard
                         key={index}
@@ -206,7 +212,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                         </View>
                     </ActionCard>
                 ))}
-            </View>
+            </ScrollView>
         </Animated.View>
     );
 };
@@ -216,16 +222,13 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         backgroundColor: COLORS.white,
     },
-    grid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
+    scrollContent: {
         paddingHorizontal: 16,
         paddingVertical: 12,
-        justifyContent: 'space-between',
-        gap: 10,
+        gap: 12, // Consistent gap between horizontal items
     },
     cardContainer: {
-        width: (Dimensions.get("window").width - 32 - 20) / 3, // Perfect 3-column width
+        width: 110, // Fixed width for horizontal scrolling
         height: 120,
         backgroundColor: COLORS.white,
         borderRadius: 20,

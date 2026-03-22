@@ -14,6 +14,7 @@ import {
     Platform as RNPlatform,
     StatusBar
 } from 'react-native';
+import Header from '@/components/Header';
 import Loading from '@/components/ui/Loading';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
@@ -359,56 +360,48 @@ export default function ChatRoomScreen() {
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* Custom Header */}
-            <View style={styles.customHeader}>
-                <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
-                    <View style={styles.headerContent}>
-                        <TouchableOpacity
-                            onPress={() => router.back()}
-                            style={styles.backButton}
-                            activeOpacity={0.7}
-                        >
-                            <Ionicons name="arrow-back" size={24} color="#fff" />
-                        </TouchableOpacity>
-
-                        <View style={styles.headerUserInfo}>
-                            <View style={styles.avatarContainer}>
-                                {otherUser?.avatar ? (
-                                    <Image source={{ uri: otherUser.avatar }} style={styles.avatarImage} />
-                                ) : (
-                                    <View style={styles.avatarPlaceholder}>
-                                        <Text style={styles.avatarInitial}>
-                                            {otherUser?.name?.charAt(0) || 'U'}
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                            <View style={styles.headerTextContainer}>
-                                <Text style={styles.headerName} numberOfLines={1}>
-                                    {otherUser?.name || 'Loading...'}
-                                </Text>
-                                {isTyping ? (
-                                    <Text style={styles.typingText}>typing...</Text>
-                                ) : (
-                                    <Text style={styles.statusText}>Online</Text>
-                                )}
-                            </View>
+            {/* Standardized Header */}
+            <Header
+                showBack={true}
+                centerElement={
+                    <View style={styles.headerUserInfo}>
+                        <View style={styles.avatarContainer}>
+                            {otherUser?.avatar ? (
+                                <Image source={{ uri: otherUser.avatar }} style={styles.avatarImage} />
+                            ) : (
+                                <View style={styles.avatarPlaceholder}>
+                                    <Text style={styles.avatarInitial}>
+                                        {otherUser?.name?.charAt(0) || 'U'}
+                                    </Text>
+                                </View>
+                            )}
                         </View>
-
-                        <View style={styles.headerActions}>
-                            <TouchableOpacity
-                                style={styles.headerActionBtn}
-                                onPress={() => setShowNegotiationModal(true)}
-                            >
-                                <MaterialCommunityIcons name="handshake-outline" size={24} color="#fff" />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.headerActionBtn}>
-                                <Ionicons name="call-outline" size={22} color="#fff" />
-                            </TouchableOpacity>
+                        <View style={styles.headerTextContainer}>
+                            <Text style={styles.headerName} numberOfLines={1}>
+                                {otherUser?.name || 'Loading...'}
+                            </Text>
+                            {isTyping ? (
+                                <Text style={styles.typingText}>typing...</Text>
+                            ) : (
+                                <Text style={styles.statusText}>Online</Text>
+                            )}
                         </View>
                     </View>
-                </SafeAreaView>
-            </View>
+                }
+                rightElement={
+                    <View style={styles.headerActions}>
+                        <TouchableOpacity
+                            style={styles.headerActionBtn}
+                            onPress={() => setShowNegotiationModal(true)}
+                        >
+                            <MaterialCommunityIcons name="handshake-outline" size={24} color="#fff" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.headerActionBtn}>
+                            <Ionicons name="call-outline" size={22} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                }
+            />
 
             <KeyboardAvoidingView
                 style={{ flex: 1 }}

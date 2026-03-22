@@ -3,7 +3,6 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5, MaterialIcons } from '@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Image,
@@ -20,6 +19,7 @@ import {
     ImageBackground,
     SafeAreaView
 } from 'react-native';
+import Loading from '@/components/ui/Loading';
 import { api } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -63,12 +63,7 @@ export default function RentalAdDetailsScreen() {
     };
 
     if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
-            </View>
-        );
+        return <Loading fullScreen message="Fetching rental details..." />;
     }
 
     if (!ad) return null;
@@ -270,7 +265,7 @@ export default function RentalAdDetailsScreen() {
                     <Text style={styles.callText}>Contact</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.bookBtn} onPress={handleChatWithSeller} disabled={sendingChat}>
-                    {sendingChat ? <ActivityIndicator color="white" /> : (
+                    {sendingChat ? <Loading size="small" /> : (
                         <>
                             <Ionicons name="chatbubble-ellipses" size={20} color="white" />
                             <Text style={styles.bookText}>Chat to Rent</Text>

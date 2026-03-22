@@ -7,7 +7,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     Animated,
     RefreshControl,
@@ -18,6 +17,9 @@ import {
     View,
     StatusBar,
 } from "react-native";
+import Loading from "@/components/ui/Loading";
+import Header from "@/components/Header";
+import EmptyState from "@/components/ui/EmptyState";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Swipeable } from "react-native-gesture-handler";
 
@@ -38,8 +40,8 @@ export default function WishlistScreen() {
             const res = await api.get<{ success: boolean; data: any[] }>("/api/favorites");
             if (res.success) setItems(res.data);
         } catch { /* silent */ }
-        finally { 
-            setLoading(false); 
+        finally {
+            setLoading(false);
             setRefreshing(false);
         }
     };
@@ -86,8 +88,8 @@ export default function WishlistScreen() {
         });
 
         return (
-            <TouchableOpacity 
-                style={styles.deleteAction} 
+            <TouchableOpacity
+                style={styles.deleteAction}
                 onPress={() => removeItem(id)}
                 activeOpacity={0.8}
             >
@@ -103,41 +105,21 @@ export default function WishlistScreen() {
             <StatusBar barStyle="light-content" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ── Professional Header (Home Match) ── */}
-            <View style={[styles.header, { paddingTop: insets.top }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.back();
-                        }} 
-                        style={styles.backBtn}
-                    >
-                        <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    
-                    <View style={styles.headerTitleContainer}>
-                         <Text style={styles.headerTitle}>My Wishlist</Text>
-                    </View>
-
-                    <View style={styles.headerRightPlaceholder} />
-                </View>
-
-                {/* Subtitle & Count */}
-                <View style={styles.headerInfo}>
-                    <View />
-                    {items.length > 0 && (
+            {/* Standardized Header */}
+            <Header 
+                showBack={true} 
+                title="My Wishlist" 
+                rightElement={
+                    items.length > 0 && (
                         <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{items.length} {items.length === 1 ? 'Item' : 'Items'}</Text>
+                            <Text style={styles.countText}>{items.length}</Text>
                         </View>
-                    )}
-                </View>
-            </View>
+                    )
+                }
+            />
 
             {loading && !refreshing ? (
-                <View style={styles.centerBox}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
-                </View>
+                <Loading fullScreen message="Syncing your wishlist..." />
             ) : (
                 <ScrollView
                     style={styles.content}
@@ -148,19 +130,15 @@ export default function WishlistScreen() {
                     }
                 >
                     {items.length === 0 ? (
-                        <View style={styles.emptyContainer}>
-                            <View style={styles.emptyIconCircle}>
-                                <Ionicons name="heart-dislike-outline" size={56} color="#CBD5E1" />
-                            </View>
-                            <Text style={styles.emptyTitle}>Nothing saved yet</Text>
-                            <Text style={styles.emptyText}>Tap the heart on any car listing to save it here for quick access.</Text>
-                            <TouchableOpacity 
-                                style={styles.exploreBtn} 
-                                onPress={() => router.replace("/(tabs)/search")}
-                            >
-                                 <Text style={styles.exploreBtnText}>Explore Cars</Text>
-                            </TouchableOpacity>
-                        </View>
+                        <EmptyState
+                            icon="heart-outline"
+                            title="Your Wishlist is Empty"
+                            description="You haven't saved any cars yet. Start exploring the marketplace and tap the heart icon to save your favorites here!"
+                            actionText="Explore Marketplace"
+                            onActionPress={() => router.replace("/(tabs)/search")}
+                            secondaryActionText="Search by Category"
+                            onSecondaryActionPress={() => router.push("/cars/select-type" as any)}
+                        />
                     ) : (
                         items.map((item) => {
                             const img = item.AdImage?.find((i: any) => i.is_main)?.image_url || item.AdImage?.[0]?.image_url;
@@ -190,7 +168,7 @@ export default function WishlistScreen() {
                                         <View style={styles.cardContent}>
                                             <Text style={styles.carTitle} numberOfLines={1}>{item.title}</Text>
                                             <Text style={styles.carPrice}>{formatPrice(item.price)}</Text>
-                                            
+
                                             <View style={styles.specsRow}>
                                                 <View style={styles.specItem}>
                                                     <Ionicons name="speedometer-outline" size={12} color="#64748B" />
@@ -205,7 +183,7 @@ export default function WishlistScreen() {
                                         </View>
 
                                         <View style={styles.chevronIcon}>
-                                             <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+                                            <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
                                         </View>
                                     </TouchableOpacity>
                                 </Swipeable>
@@ -292,51 +270,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-
-    // Empty state
-    emptyContainer: {
-        marginTop: 80,
-        alignItems: "center",
-        paddingHorizontal: 45,
-    },
-    emptyIconCircle: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: "#F1F5F9",
-        alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 24,
-    },
-    emptyTitle: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: "#1E293B",
-        marginBottom: 10,
-    },
-    emptyText: {
-        fontSize: 15,
-        color: "#64748B",
-        textAlign: "center",
-        lineHeight: 22,
-        marginBottom: 30,
-    },
-    exploreBtn: {
-        backgroundColor: COLORS.primary,
-        paddingHorizontal: 30,
-        paddingVertical: 14,
-        borderRadius: 18,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    exploreBtnText: {
-        color: "#FFFFFF",
-        fontWeight: '800',
-        fontSize: 15,
     },
 
     // Cards

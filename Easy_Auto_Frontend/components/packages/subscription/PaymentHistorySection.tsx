@@ -75,31 +75,19 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
                     </View>
                 )}
             </View>
-
-            {payments.length > 0 && (
-                <TouchableOpacity
-                    style={styles.downloadAllBtn}
-                    onPress={onDownloadAll}
-                    activeOpacity={0.8}
-                >
-                    <Ionicons name="cloud-download-outline" size={18} color={COLORS.primary} />
-                    <Text style={styles.downloadAllText}>Download All Invoices</Text>
-                </TouchableOpacity>
-            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 24,
+        marginBottom: 8,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 16,
-        paddingHorizontal: 4,
     },
     headerTitleRow: {
         flexDirection: 'row',
@@ -107,37 +95,34 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     title: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '800',
-        color: '#1e293b',
+        color: '#0F172A',
+        letterSpacing: -0.2,
     },
     badge: {
-        backgroundColor: '#eff6ff',
+        backgroundColor: '#EEF2FF',
         paddingHorizontal: 8,
         paddingVertical: 2,
-        borderRadius: 8,
+        borderRadius: 12,
     },
     badgeText: {
-        fontSize: 11,
-        fontWeight: '700',
+        fontSize: 12,
+        fontWeight: '800',
         color: COLORS.primary,
     },
     viewAll: {
         fontSize: 14,
         color: COLORS.primary,
-        fontWeight: '700',
+        fontWeight: '800',
     },
     listCard: {
         backgroundColor: '#fff',
         borderRadius: 24,
         padding: 8,
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.04,
-        shadowRadius: 10,
-        elevation: 2,
+        borderWidth: 1.5,
+        borderColor: '#F1F5F9', // slightly visible border
+        overflow: 'hidden',
     },
     paymentRow: {
         flexDirection: 'row',
@@ -196,30 +181,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#f1f5f9',
         marginHorizontal: 12,
     },
-    downloadAllBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        marginTop: 16,
-        borderWidth: 1.5,
-        borderColor: '#e2e8f0',
-        borderRadius: 16,
-        paddingVertical: 14,
-        backgroundColor: '#fff',
-    },
-    downloadAllText: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: COLORS.primary,
-    },
     emptyState: {
-        padding: 20,
+        paddingVertical: 36,
         alignItems: 'center',
     },
     emptyText: {
         fontSize: 14,
-        color: COLORS.text.muted,
+        color: '#64748B',
         fontWeight: '500',
     }
 });

@@ -12,7 +12,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -210,11 +209,7 @@ export default function EditProfileScreen() {
       <Header showBack={true} title="Edit Profile" />
 
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Loading your profile...</Text>
-          <Loading />
-        </View>
+        <Loading fullScreen message="Loading your profile..." />
       ) : (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -375,7 +370,7 @@ export default function EditProfileScreen() {
                 >
                   {saving ? (
                     <>
-                      <ActivityIndicator size="small" color={COLORS.white} style={{ marginRight: 8 }} />
+                      <Loading size="small" />
                       <Text style={styles.saveButtonText}>Saving...</Text>
                     </>
                   ) : (

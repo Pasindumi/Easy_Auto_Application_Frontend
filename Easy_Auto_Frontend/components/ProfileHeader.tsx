@@ -55,12 +55,19 @@ export default function ProfileHeader({
       >
         <View style={styles.decorCircle1} />
         <View style={styles.decorCircle2} />
-        
+
         <View style={styles.topRow}>
           <Text style={styles.headerTitle}>{title}</Text>
-          <TouchableOpacity style={styles.headerHelpBtn} onPress={() => router.push('/support/contact-us')}>
-            <Ionicons name="help-circle-outline" size={24} color={COLORS.white} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <TouchableOpacity style={styles.headerHelpBtn} onPress={() => router.push('/support/contact-us')}>
+              <Ionicons name="help-circle-outline" size={24} color={COLORS.white} />
+            </TouchableOpacity>
+            <Image
+              source={require("@/assets/logoHome.png")}
+              style={{ width: 85, height: 22 }}
+              resizeMode="contain"
+            />
+          </View>
         </View>
 
         {showProfileCard && (
@@ -101,12 +108,12 @@ export default function ProfileHeader({
                   <Text style={styles.email} numberOfLines={1}>
                     {user?.email || 'No email'}
                   </Text>
-                  
+
                   <View style={styles.memberSinceContainer}>
                     <Text style={styles.memberSinceText}>Member since 2024</Text>
                   </View>
                 </View>
-                
+
                 <View style={styles.chevronFrame}>
                   <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.7)" />
                 </View>

@@ -32,7 +32,7 @@ export default function AboutAppScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header title="About EasyAuto" showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
+      <View style={styles.safe}>
         <ScrollView 
             style={styles.container} 
             contentContainerStyle={styles.scrollContent}
@@ -131,7 +131,7 @@ export default function AboutAppScreen() {
 
           <View style={{ height: 40 }} />
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

@@ -285,7 +285,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 const styles = StyleSheet.create({
     container: {
         marginTop: 16,
-        marginBottom: 24,
+        marginBottom: 0,
     },
     scrollContent: {
         paddingHorizontal: 16,

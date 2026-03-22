@@ -22,7 +22,7 @@ const INACTIVE = "#94A3B8";
  */
 function CustomTabBar({ state, descriptors, navigation }: any) {
     const insets = useSafeAreaInsets();
-    
+
     // Calculate tab width (excluding margins)
     const MARGIN_H = 20;
     const barWidth = width - (MARGIN_H * 2);
@@ -44,11 +44,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         <View style={[styles.floatingContainer, { bottom: insets.bottom + 10 }]}>
             <View style={styles.glassBar}>
                 {/* Active Tab Indicator (Sliding Background) */}
-                <Animated.View 
+                <Animated.View
                     style={[
-                        styles.indicator, 
+                        styles.indicator,
                         { width: tabWidth - 10, transform: [{ translateX: Animated.add(translateX, 5) }] }
-                    ]} 
+                    ]}
                 />
 
                 {state.routes.map((route: any, index: number) => {
@@ -70,12 +70,12 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
                     const getIcon = (focused: boolean) => {
                         switch (route.name) {
-                            case "index":   return focused ? "home" : "home-outline";
-                            case "search":  return focused ? "search" : "search-outline";
+                            case "index": return focused ? "home" : "home-outline";
+                            case "search": return focused ? "search" : "search-outline";
                             case "compare": return "swap-horizontal";
-                            case "chat":    return focused ? "chatbubbles" : "chatbubbles-outline";
+                            case "chat": return focused ? "chatbubbles" : "chatbubbles-outline";
                             case "profile": return focused ? "person" : "person-outline";
-                            default:        return "square";
+                            default: return "square";
                         }
                     };
 
@@ -85,13 +85,13 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                             onPress={onPress}
                             style={styles.tabItem}
                         >
-                            <Ionicons 
-                                name={getIcon(isFocused) as any} 
-                                size={isFocused ? 22 : 21} 
-                                color={isFocused ? "#FFF" : INACTIVE} 
+                            <Ionicons
+                                name={getIcon(isFocused) as any}
+                                size={isFocused ? 22 : 21}
+                                color={isFocused ? "#FFF" : INACTIVE}
                             />
                             <Text style={[
-                                styles.label, 
+                                styles.label,
                                 { color: isFocused ? "#FFF" : INACTIVE, fontWeight: isFocused ? "800" : "600" }
                             ]}>
                                 {options.title || route.name}

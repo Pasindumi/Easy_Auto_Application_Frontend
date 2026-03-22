@@ -101,7 +101,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
                     decelerationRate="fast"
-                    snapToInterval={230 + 16}
+                    snapToInterval={180 + 16}
                 >
                     {ads.map((car, index) => {
                         // CarDetails can be an object (list endpoint) or array (some Supabase versions)
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     card: {
-        width: 230,
+        width: 180,
         backgroundColor: COLORS.white,
         borderRadius: 20,
         shadowColor: COLORS.shadow, // Use specialized shadow color
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border, // Subtle border
     },
     imageContainer: {
-        height: 140,
+        height: 110,
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -235,39 +235,39 @@ const styles = StyleSheet.create({
     },
     priceTag: {
         position: 'absolute',
-        bottom: 10,
-        left: 10,
-        backgroundColor: 'rgba(0,0,0,0.75)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        bottom: 8,
+        left: 8,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: 'rgba(255,255,255,0.15)',
     },
     priceText: {
         color: COLORS.white,
-        fontWeight: "700",
-        fontSize: 12,
+        fontWeight: "800",
+        fontSize: 11,
     },
     likeButton: {
         position: 'absolute',
-        top: 10,
-        right: 10,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        top: 8,
+        right: 8,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
         backgroundColor: 'rgba(0,0,0,0.4)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     cardContent: {
-        padding: 14,
+        padding: 12,
     },
     cardTitle: {
-        fontSize: 16,
+        fontSize: 13,
         fontWeight: "700",
         color: COLORS.text.primary,
-        marginBottom: 8,
+        marginBottom: 5,
     },
     detailsRow: {
         flexDirection: 'row',

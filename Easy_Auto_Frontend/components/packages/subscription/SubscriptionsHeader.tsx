@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 
 const SubscriptionsHeader: React.FC = () => {
     return (
@@ -10,6 +10,11 @@ const SubscriptionsHeader: React.FC = () => {
                     <Ionicons name="people-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
                     <Text style={styles.headerTitle}>My Subscribers</Text>
                 </View>
+                <Image
+                    source={require("@/assets/logoHome.png")}
+                    style={{ width: 85, height: 22 }}
+                    resizeMode="contain"
+                />
             </View>
         </View>
     );

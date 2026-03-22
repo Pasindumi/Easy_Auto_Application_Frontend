@@ -1,4 +1,4 @@
-import Header from '@/components/Header';
+import Header from "@/components/Header";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   View,
   Alert,
-  ActivityIndicator,
   SafeAreaView,
   Platform
 } from 'react-native';
@@ -98,11 +97,7 @@ export default function PackageInvoice() {
   };
 
   if (loading) {
-    return (
-      <View style={styles.center}>
-        <Loading />
-      </View>
-    );
+    return <Loading fullScreen message="Validating your order..." />;
   }
 
   return (
@@ -123,7 +118,7 @@ export default function PackageInvoice() {
         >
           {loading ? (
             <View style={styles.loader}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Loading size="medium" />
               <Text style={styles.loaderText}>Validating your order...</Text>
             </View>
           ) : (
@@ -198,7 +193,7 @@ export default function PackageInvoice() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <Loading size="small" />
             ) : (
               <>
                 <Text style={styles.payBtnText}>Confirm and Pay Rs. {total.toLocaleString()}</Text>

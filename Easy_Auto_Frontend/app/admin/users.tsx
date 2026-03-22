@@ -1,4 +1,4 @@
-import ProfileHeader from "@/components/ProfileHeader";
+import Header from "@/components/Header";
 import BrandedRefreshOverlay from "@/components/ui/BrandedRefreshOverlay";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -193,7 +193,7 @@ export default function AdminDashboard() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ProfileHeader title="User Management" showProfileCard={false} />
+      <Header title="User Management" />
 
       {/* Stats Overview */}
       <View style={styles.statsOverview}>

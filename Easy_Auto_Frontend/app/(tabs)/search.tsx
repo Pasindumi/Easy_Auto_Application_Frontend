@@ -1,4 +1,5 @@
-﻿import Header from '@/components/Header';
+import Header from "@/components/Header";
+import Loading from "@/components/ui/Loading";
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -11,7 +12,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
-  ActivityIndicator,
   Modal,
   Animated,
   FlatList,
@@ -24,6 +24,7 @@ import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
+import EmptyState from '@/components/ui/EmptyState';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -105,7 +106,6 @@ export default function SearchScreen() {
   // Fetch initial data
   useEffect(() => {
     fetchVehicleTypes();
-    fetchConditions();
   }, []);
 
   // Fetch vehicle types
@@ -146,6 +146,10 @@ export default function SearchScreen() {
     } else {
       setBrands([]);
       setSelectedBrand('');
+      setModels([]);
+      setSelectedModel('');
+      setConditions([]);
+      setSelectedCondition('');
     }
   }, [selectedCategory]);
 
@@ -172,7 +176,7 @@ export default function SearchScreen() {
 
   const fetchModels = async () => {
     try {
-      const res: any = await api.get(`/api/vehicle-config/models/by-brand/${selectedBrand}`);
+      const res: any = await api.get(`/api/vehicle-config/models/${selectedBrand}`);
       if (Array.isArray(res)) {
         setModels(res.map(m => ({ label: m.model_name, value: m.id })));
       }
@@ -181,519 +185,406 @@ export default function SearchScreen() {
     }
   };
 
-  // Perform search
-  const performSearch = useCallback(async () => {
+  // Initial and filtered search
+  const performSearch = useCallback(async (isRefreshing = false) => {
     setIsSearching(true);
     try {
-      const params: any = {};
+      const params: any = {
+        category: selectedCategory !== 'all' ? selectedCategory : undefined,
+        brand: selectedBrand || undefined,
+        model: selectedModel || undefined,
+        sort: selectedSort,
+        minPrice: PRICE_RANGES[selectedPriceRange].min || undefined,
+        maxPrice: PRICE_RANGES[selectedPriceRange].max || undefined,
+        minYear: YEAR_RANGES[selectedYearRange].min || undefined,
+        maxYear: YEAR_RANGES[selectedYearRange].max || undefined,
+        condition: selectedCondition || undefined,
+        search: searchQuery || undefined,
+        location: locationFilter || undefined,
+      };
 
-      if (searchQuery) params.search = searchQuery;
-      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // Γ£à was: vehicle_type_id
-      if (locationFilter) params.location = locationFilter;
-
-      // Brand: backend expects brand NAME, not ID ΓÇö resolve from list
-      if (selectedBrand) {
-        const brandObj = brands.find((b: any) => b.value === selectedBrand);
-        if (brandObj) params.brand = brandObj.label; // Γ£à was: brand_id
-      }
-
-      // Model: backend expects model NAME, not ID ΓÇö resolve from list
-      if (selectedModel) {
-        const modelObj = models.find((m: any) => m.value === selectedModel);
-        if (modelObj) params.model = modelObj.label; // Γ£à was: model_id
-      }
-
-      if (selectedCondition) params.condition = selectedCondition; // Γ£à was: condition_id
-      if (selectedFuelType) params.fuelType = selectedFuelType;     // Γ£à was: fuel_type
-      if (selectedTransmission) params.transmission = selectedTransmission;
-
-      const priceRange = PRICE_RANGES[selectedPriceRange];
-      if (priceRange.min) params.minPrice = priceRange.min; // Γ£à was: min_price
-      if (priceRange.max) params.maxPrice = priceRange.max; // Γ£à was: max_price
-
-      const yearRange = YEAR_RANGES[selectedYearRange];
-      if (yearRange.min) params.minYear = yearRange.min; // Γ£à was: min_year
-      if (yearRange.max) params.maxYear = yearRange.max; // Γ£à was: max_year
-
-      if (selectedSort !== 'relevance') params.sort = selectedSort;
-
-      const queryString = new URLSearchParams(params).toString();
-      const response = await api.get<{ success: boolean; data: any[] }>(
-        `/api/cars${queryString ? `?${queryString}` : ''}`
-      );
-
-      if (response.success) {
-        setSearchResults(response.data);
-      }
+      const res: any = await api.get('/api/cars/search', params);
+      setSearchResults(Array.isArray(res) ? res : []);
     } catch (error) {
       console.error("Search error:", error);
+      setSearchResults([]);
     } finally {
       setIsSearching(false);
       setRefreshing(false);
     }
-  }, [searchQuery, selectedCategory, selectedBrand, selectedModel, selectedCondition,
-    selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange,
-    selectedYearRange, selectedSort, brands, models]);
+  }, [
+    selectedCategory, selectedBrand, selectedModel, selectedSort,
+    selectedPriceRange, selectedYearRange, selectedCondition,
+    searchQuery, locationFilter
+  ]);
 
-  // Auto-search on ANY filter change (Fix 4: was missing brand/model/condition/fuel/transmission/location)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      performSearch();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [performSearch]); // Γ£à performSearch already has all deps via useCallback
+    performSearch();
+  }, [selectedSort]);
 
-
-  // Calculate active filters
   useEffect(() => {
     let count = 0;
     if (selectedCategory !== 'all') count++;
     if (selectedBrand) count++;
     if (selectedModel) count++;
-    if (selectedCondition) count++;
-    if (selectedFuelType) count++;
-    if (selectedTransmission) count++;
-    if (locationFilter) count++;
     if (selectedPriceRange > 0) count++;
     if (selectedYearRange > 0) count++;
+    if (selectedCondition) count++;
+    if (locationFilter) count++;
     setActiveFilterCount(count);
-  }, [selectedCategory, selectedBrand, selectedModel, selectedCondition,
-    selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange, selectedYearRange]);
+  }, [selectedCategory, selectedBrand, selectedModel, selectedPriceRange, selectedYearRange, selectedCondition, locationFilter]);
 
-  // Toggle filters
   const toggleFilters = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setShowFilters(!showFilters);
-    Animated.spring(filterSlideAnim, {
-      toValue: showFilters ? 0 : 1,
-      useNativeDriver: true,
-      tension: 50,
-      friction: 8,
-    }).start();
-  };
-
-  // Clear all filters
-  const clearAllFilters = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setSelectedCategory('all');
-    setSelectedBrand('');
-    setSelectedModel('');
-    setSelectedCondition('');
-    setSelectedFuelType('');
-    setSelectedTransmission('');
-    setLocationFilter('');
-    setSelectedPriceRange(0);
-    setSelectedYearRange(0);
-    setSearchQuery('');
-  };
-
-  // Toggle favorite
-  const toggleFavorite = async (adId: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    try {
-      const response = await api.post<{ success: boolean; isFavorite: boolean }>(
-        '/api/favorites/toggle',
-        { ad_id: adId }
-      );
-      if (response.success) {
-        setFavorites(prev =>
-          response.isFavorite
-            ? [...prev, adId]
-            : prev.filter(id => id !== adId)
-        );
-      }
-    } catch (error) {
-      console.error("Toggle favorite error:", error);
+    if (showFilters) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Animated.timing(filterSlideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowFilters(false));
+    } else {
+      setShowFilters(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      Animated.timing(filterSlideAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
     }
   };
 
-  // Render search result card
-  const renderSearchCard = ({ item }: { item: any }) => {
-    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
-      item.AdImage?.[0]?.image_url;
-    const details = item.CarDetails?.[0] || item.CarDetails || {};
-    const formattedPrice = new Intl.NumberFormat('en-LK', {
-      style: 'currency',
-      currency: 'LKR',
-      maximumFractionDigits: 0
-    }).format(item.price);
-    const isFavorite = favorites.includes(String(item.id));
-
-    return (
-      <TouchableOpacity
-        style={styles.resultCard}
-        activeOpacity={0.9}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          router.push(`/cars/${item.id}` as any);
-        }}
-      >
-        <View style={styles.cardImageContainer}>
-          {mainImage ? (
-            <Image
-              source={{ uri: mainImage }}
-              style={styles.cardImage}
-              contentFit="cover"
-              transition={200}
-            />
-          ) : (
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="car-outline" size={40} color={COLORS.border} />
-            </View>
-          )}
-          <TouchableOpacity
-            style={styles.favoriteBtn}
-            onPress={() => toggleFavorite(String(item.id))}
-          >
-            <Ionicons
-              name={isFavorite ? "heart" : "heart-outline"}
-              size={18}
-              color={isFavorite ? "#EF4444" : COLORS.white}
-            />
-          </TouchableOpacity>
-          {item.is_featured && (
-            <View style={styles.featuredBadge}>
-              <Ionicons name="star" size={12} color="#FFD700" />
-              <Text style={styles.featuredText}>Featured</Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text style={styles.cardPrice}>{formattedPrice}</Text>
-
-          <View style={styles.cardMeta}>
-            <View style={styles.metaItem}>
-              <Ionicons name="calendar-outline" size={12} color={COLORS.text.muted} />
-              <Text style={styles.metaText}>{details.year || 'N/A'}</Text>
-            </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="speedometer-outline" size={12} color={COLORS.text.muted} />
-              <Text style={styles.metaText}>
-                {details.mileage ? `${Number(details.mileage).toLocaleString()}km` : 'N/A'}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.cardLocation}>
-            <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
-            <Text style={styles.locationText} numberOfLines={1}>
-              {item.location}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
+  const clearFilters = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setSelectedCategory('all');
+    setSelectedBrand('');
+    setSelectedModel('');
+    setSelectedPriceRange(0);
+    setSelectedYearRange(0);
+    setSelectedCondition('');
+    setLocationFilter('');
+    setSearchQuery('');
   };
+
+  const handleFavorite = async (id: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      await api.post(`/api/favorites/toggle/${id}`);
+      setFavorites(prev => 
+        prev.includes(id) ? prev.filter(fId => fId !== id) : [...prev, id]
+      );
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
+  const renderResultItem = ({ item }: { item: any }) => (
+    <TouchableOpacity 
+      style={styles.resultCard}
+      activeOpacity={0.9}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push(`/cars/${item.id}`);
+      }}
+    >
+      <View style={styles.cardImageContainer}>
+        {item.images?.[0] ? (
+          <Image 
+            source={{ uri: item.images[0] }}
+            style={styles.cardImage}
+            contentFit="cover"
+            transition={200}
+          />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Ionicons name="car-outline" size={40} color={COLORS.text.muted} />
+          </View>
+        )}
+        
+        <TouchableOpacity 
+          style={styles.favoriteBtn}
+          onPress={() => handleFavorite(item.id)}
+        >
+          <Ionicons 
+            name={favorites.includes(item.id) ? "heart" : "heart-outline"} 
+            size={18} 
+            color={favorites.includes(item.id) ? COLORS.status.danger : COLORS.white} 
+          />
+        </TouchableOpacity>
+
+        {item.is_featured && (
+          <View style={styles.featuredBadge}>
+            <Ionicons name="star" size={10} color={COLORS.status.warning} />
+            <Text style={styles.featuredText}>FEATURED</Text>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+        <Text style={styles.cardPrice}>Rs. {item.price?.toLocaleString()}</Text>
+        
+        <View style={styles.cardMeta}>
+          <View style={styles.metaItem}>
+            <Ionicons name="calendar-outline" size={12} color={COLORS.text.muted} />
+            <Text style={styles.metaText}>{item.year}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Ionicons name="speedometer-outline" size={12} color={COLORS.text.muted} />
+            <Text style={styles.metaText}>{item.mileage} km</Text>
+          </View>
+        </View>
+
+        <View style={styles.cardLocation}>
+          <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
+          <Text style={styles.locationText} numberOfLines={1}>{item.location}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      {/* ΓöÇΓöÇΓöÇ NEW PREMIUM BRANDED HEADER ΓöÇΓöÇΓöÇ */}
-      <LinearGradient
-        colors={[COLORS.primary, COLORS.primaryDark]}
-        style={[styles.header, { paddingTop: insets.top + 8 }]}
-      >
-        <View style={styles.headerTopRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={26} color="white" />
-          </TouchableOpacity>
-          
-          <View pointerEvents="none" style={styles.logoCentre}>
-            <RNImage
-              source={require("@/assets/logoHome.png")}
-              resizeMode="contain"
-              style={styles.logoImg}
-            />
-          </View>
-
-          <View style={styles.headerRightSpacer} />
-        </View>
-
-        <View style={styles.headerSearchArea}>
-           <View style={styles.glassSearch}>
-            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
+      
+      <Header
+        showBack={true}
+        isFlat={true}
+        centerElement={
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={18} color={COLORS.text.muted} />
             <TextInput
-              style={styles.headerSearchInput}
-              placeholder="Search cars, brands, models..."
-              placeholderTextColor="rgba(255,255,255,0.6)"
+              style={styles.searchInput}
+              placeholder="Search cars, brands..."
+              placeholderTextColor={COLORS.text.muted}
               value={searchQuery}
               onChangeText={setSearchQuery}
+              onSubmitEditing={() => performSearch()}
               returnKeyType="search"
-              onSubmitEditing={performSearch}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.5)" />
+                <Ionicons name="close-circle" size={16} color={COLORS.text.muted} />
               </TouchableOpacity>
             )}
           </View>
-        </View>
-      </LinearGradient>
+        }
+      />
 
-      {/* Filter and stats section */}
-      <View style={styles.filterStatsSection}>
-
-        {/* Quick Filters */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.quickFilters}
+      <View style={styles.tabBarWrapper}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.categoriesScroll}
         >
-          <TouchableOpacity
-            style={[styles.filterChip, activeFilterCount > 0 && styles.filterChipActive]}
-            onPress={toggleFilters}
+          <TouchableOpacity 
+            style={[styles.categoryTab, selectedCategory === 'all' && styles.categoryTabActive]}
+            onPress={() => setSelectedCategory('all')}
           >
-            <Ionicons
-              name="options-outline"
-              size={16}
-              color={activeFilterCount > 0 ? COLORS.white : COLORS.primary}
+            <Ionicons 
+              name="grid-outline" 
+              size={16} 
+              color={selectedCategory === 'all' ? COLORS.primary : COLORS.white} 
             />
-            <Text style={[styles.filterChipText, activeFilterCount > 0 && styles.filterChipTextActive]}>
-              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+            <Text style={[styles.categoryTabText, selectedCategory === 'all' && styles.categoryTabTextActive]}>
+              All
             </Text>
           </TouchableOpacity>
 
-          {vehicleTypes.slice(0, 5).map((type) => (
-            <TouchableOpacity
+          {vehicleTypes.map((type) => (
+            <TouchableOpacity 
               key={type.key}
-              style={[
-                styles.filterChip,
-                selectedCategory === type.key && styles.filterChipActive
-              ]}
+              style={[styles.categoryTab, selectedCategory === type.key && styles.categoryTabActive]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setSelectedCategory(selectedCategory === type.key ? 'all' : type.key);
+                setSelectedCategory(type.key);
               }}
             >
-              <Ionicons
-                name={type.icon as any}
-                size={16}
-                color={selectedCategory === type.key ? COLORS.white : COLORS.primary}
+              <Ionicons 
+                name={getIconForType(type.label) as any} 
+                size={16} 
+                color={selectedCategory === type.key ? COLORS.primary : "#64748B"} 
               />
-              <Text
-                style={[
-                  styles.filterChipText,
-                  selectedCategory === type.key && styles.filterChipTextActive
-                ]}
-              >
+              <Text style={[styles.categoryTabText, selectedCategory === type.key && styles.categoryTabTextActive]}>
                 {type.label}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
-
-        {/* Sort & Results Count */}
-        <View style={styles.resultsBar}>
-          <Text style={styles.resultsCount}>
-            {isSearching ? 'Searching...' : `${searchResults.length} results found`}
-          </Text>
-          <TouchableOpacity
-            style={styles.sortButton}
-            onPress={() => {
-              // Could open a sort modal here
-            }}
-          >
-            <Ionicons name="swap-vertical" size={16} color={COLORS.primary} />
-            <Text style={styles.sortText}>Sort</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
-      {/* Search Results */}
+      <View style={styles.resultsHeader}>
+        <Text style={styles.resultsCount}>
+          {isSearching ? 'Searching...' : `${searchResults.length} results found`}
+        </Text>
+        <TouchableOpacity 
+          style={styles.sortButton}
+          onPress={toggleFilters}
+        >
+          <Ionicons name="options-outline" size={18} color={COLORS.primary} />
+          <Text style={styles.sortText}>Filters</Text>
+          {activeFilterCount > 0 && (
+            <View style={styles.activeFilterBadge}>
+              <Text style={styles.activeFilterBadgeText}>{activeFilterCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={searchResults}
-        renderItem={renderSearchCard}
-        keyExtractor={(item) => String(item.id)}
+        renderItem={renderResultItem}
+        keyExtractor={(item) => item.id}
         numColumns={2}
-        contentContainerStyle={styles.resultsGrid}
         columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.resultsGrid}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              performSearch();
+              performSearch(true);
             }}
             tintColor={COLORS.primary}
           />
         }
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            {isSearching ? (
-              <ActivityIndicator size="large" color={COLORS.primary} />
-            ) : (
-              <>
-                <View style={styles.emptyIcon}>
-                  <Ionicons name="search-outline" size={64} color={COLORS.border} />
-                </View>
-                <Text style={styles.emptyTitle}>No results found</Text>
-                <Text style={styles.emptyText}>
-                  Try adjusting your search or filters
-                </Text>
-                {activeFilterCount > 0 && (
-                  <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
-                    <Text style={styles.clearButtonText}>Clear All Filters</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
-          </View>
+          isSearching ? (
+            <View style={styles.loadingContainer}>
+              <Loading size="large" message="Finding your perfect car..." />
+            </View>
+          ) : (
+            <EmptyState
+              icon="search-outline"
+              title="No Results Found"
+              description="We couldn't find any cars matching your criteria. Try adjusting your filters or search terms."
+              actionText="Clear All Filters"
+              onActionPress={clearFilters}
+            />
+          )
         }
       />
 
-      {/* Advanced Filters Modal */}
+      {/* Filters Modal */}
       <Modal
         visible={showFilters}
-        animationType="slide"
         transparent={true}
+        animationType="fade"
         onRequestClose={toggleFilters}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.filterModal}>
+          <Animated.View 
+            style={[
+              styles.filterModal,
+              {
+                transform: [{
+                  translateY: filterSlideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [600, 0],
+                  })
+                }]
+              }
+            ]}
+          >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Advanced Filters</Text>
+              <Text style={styles.modalTitle}>Filters</Text>
               <TouchableOpacity onPress={toggleFilters}>
                 <Ionicons name="close" size={24} color={COLORS.text.primary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
-              {/* Price Range */}
               <View style={styles.filterSection}>
                 <Text style={styles.filterLabel}>Price Range</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
-                    {PRICE_RANGES.map((range, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.rangeChip,
-                          selectedPriceRange === index && styles.rangeChipActive
-                        ]}
-                        onPress={() => setSelectedPriceRange(index)}
-                      >
-                        <Text
-                          style={[
-                            styles.rangeChipText,
-                            selectedPriceRange === index && styles.rangeChipTextActive
-                          ]}
-                        >
-                          {range.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rangeChips}>
+                  {PRICE_RANGES.map((range, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[styles.rangeChip, selectedPriceRange === index && styles.rangeChipActive]}
+                      onPress={() => setSelectedPriceRange(index)}
+                    >
+                      <Text style={[styles.rangeChipText, selectedPriceRange === index && styles.rangeChipTextActive]}>
+                        {range.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </ScrollView>
               </View>
 
-              {/* Year Range */}
               <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Year</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
-                    {YEAR_RANGES.map((range, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.rangeChip,
-                          selectedYearRange === index && styles.rangeChipActive
-                        ]}
-                        onPress={() => setSelectedYearRange(index)}
-                      >
-                        <Text
-                          style={[
-                            styles.rangeChipText,
-                            selectedYearRange === index && styles.rangeChipTextActive
-                          ]}
-                        >
-                          {range.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                <Text style={styles.filterLabel}>Manufacturing Year</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rangeChips}>
+                  {YEAR_RANGES.map((range, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[styles.rangeChip, selectedYearRange === index && styles.rangeChipActive]}
+                      onPress={() => setSelectedYearRange(index)}
+                    >
+                      <Text style={[styles.rangeChipText, selectedYearRange === index && styles.rangeChipTextActive]}>
+                        {range.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </ScrollView>
               </View>
 
-              {/* Brand */}
-              {brands.length > 0 && (
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Brand"
-                    value={selectedBrand}
-                    onSelect={setSelectedBrand}
-                    options={[{ label: 'All Brands', value: '' }, ...brands]}
-                  />
-                </View>
-              )}
-
-              {/* Model */}
-              {models.length > 0 && (
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Model"
-                    value={selectedModel}
-                    onSelect={setSelectedModel}
-                    options={[{ label: 'All Models', value: '' }, ...models]}
-                  />
-                </View>
-              )}
-
-              {/* Condition */}
-              {conditions.length > 0 && (
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Condition"
-                    value={selectedCondition}
-                    onSelect={setSelectedCondition}
-                    options={[{ label: 'Any Condition', value: '' }, ...conditions]}
-                  />
-                </View>
-              )}
-
-              {/* Fuel Type */}
               <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>Brand & Model</Text>
                 <SelectField
-                  label="Fuel Type"
-                  value={selectedFuelType}
-                  onSelect={setSelectedFuelType}
-                  options={[
-                    { label: 'Any Fuel Type', value: '' },
-                    { label: 'Petrol', value: 'Petrol' },
-                    { label: 'Diesel', value: 'Diesel' },
-                    { label: 'Electric', value: 'Electric' },
-                    { label: 'Hybrid', value: 'Hybrid' },
-                  ]}
+                  label="Select Brand"
+                  value={selectedBrand}
+                  options={brands}
+                  onSelect={setSelectedBrand}
+                  placeholder="All Brands"
+                />
+                <View style={{ height: 12 }} />
+                <SelectField
+                  label="Select Model"
+                  value={selectedModel}
+                  options={models}
+                  onSelect={setSelectedModel}
+                  placeholder="All Models"
+                  disabled={!selectedBrand}
                 />
               </View>
 
-              {/* Transmission */}
               <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>Condition</Text>
                 <SelectField
-                  label="Transmission"
-                  value={selectedTransmission}
-                  onSelect={setSelectedTransmission}
-                  options={[
-                    { label: 'Any Transmission', value: '' },
-                    { label: 'Automatic', value: 'Automatic' },
-                    { label: 'Manual', value: 'Manual' },
-                  ]}
+                  label="Vehicle Condition"
+                  value={selectedCondition}
+                  options={conditions}
+                  onSelect={setSelectedCondition}
+                  placeholder="Any Condition"
                 />
+              </View>
+
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>Sort By</Text>
+                <View style={styles.rangeChips}>
+                  {SORT_OPTIONS.map((option) => (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={[styles.rangeChip, selectedSort === option.value && styles.rangeChipActive]}
+                      onPress={() => setSelectedSort(option.value)}
+                    >
+                      <Text style={[styles.rangeChipText, selectedSort === option.value && styles.rangeChipTextActive]}>
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             </ScrollView>
 
             <View style={styles.modalFooter}>
-              <TouchableOpacity
+              <TouchableOpacity 
                 style={styles.clearFiltersBtn}
-                onPress={clearAllFilters}
+                onPress={clearFilters}
               >
-                <Text style={styles.clearFiltersText}>Clear All</Text>
+                <Text style={styles.clearFiltersText}>Reset All</Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              <TouchableOpacity 
                 style={styles.applyFiltersBtn}
                 onPress={() => {
                   performSearch();
@@ -703,7 +594,7 @@ export default function SearchScreen() {
                 <Text style={styles.applyFiltersText}>Apply Filters</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>
@@ -716,102 +607,84 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingBottom: 16,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    elevation: 8,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    zIndex: 100,
   },
-  headerTopRow: {
+  headerContent: {
+    paddingHorizontal: 16,
+  },
+  searchBarWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 44,
-    marginBottom: 16,
+    gap: 12,
+    marginTop: 8,
   },
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    alignItems: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
-  },
-  logoCentre: {
-    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  logoImg: {
-    width: 100,
-    height: 24,
-  },
-  headerRightSpacer: {
-    width: 40,
-  },
-  headerSearchArea: {
-    width: '100%',
-  },
-  glassSearch: {
+  searchBar: {
+    flex: 1,
+    height: 44,
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 52,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  headerSearchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: 'white',
-    marginLeft: 10,
-    padding: 0,
-  },
-  filterStatsSection: {
-    backgroundColor: COLORS.white,
-    paddingBottom: 4,
-  },
-  quickFilters: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
     gap: 8,
   },
-  filterChip: {
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: COLORS.text.primary,
+    fontWeight: '500',
+  },
+  tabBarWrapper: {
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: '#E2E8F0',
+    zIndex: 90,
+  },
+  categoriesScroll: {
+    gap: 8,
+    paddingRight: 16,
+    paddingLeft: 16,
+  },
+  categoryTab: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-    borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9',
     gap: 6,
-    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  filterChipActive: {
-    backgroundColor: COLORS.primary,
+  categoryTabActive: {
+    backgroundColor: COLORS.primary + '15',
     borderColor: COLORS.primary,
   },
-  filterChipText: {
+  categoryTabText: {
     fontSize: 13,
     fontWeight: '600',
+    color: '#64748B',
+  },
+  categoryTabTextActive: {
     color: COLORS.primary,
   },
-  filterChipTextActive: {
-    color: COLORS.white,
-  },
-  resultsBar: {
+  resultsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
   resultsCount: {
     fontSize: 14,
@@ -822,11 +695,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    position: 'relative',
   },
   sortText: {
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.primary,
+  },
+  activeFilterBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -10,
+    backgroundColor: COLORS.status.danger,
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  activeFilterBadgeText: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   resultsGrid: {
     padding: 16,
@@ -929,6 +820,12 @@ const styles = StyleSheet.create({
     color: COLORS.text.muted,
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 100,
+  },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
@@ -955,6 +852,7 @@ const styles = StyleSheet.create({
     color: COLORS.text.muted,
     textAlign: 'center',
     marginBottom: 24,
+    paddingHorizontal: 32,
   },
   clearButton: {
     backgroundColor: COLORS.primary,
@@ -976,7 +874,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '80%',
+    maxHeight: '85%',
+    paddingBottom: 20,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -1005,6 +904,7 @@ const styles = StyleSheet.create({
   },
   rangeChips: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
   },
   rangeChip: {

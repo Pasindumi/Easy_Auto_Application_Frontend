@@ -11,7 +11,7 @@ const SupportHelpCard: React.FC<SupportHelpCardProps> = ({ onContactSupport }) =
     return (
         <View style={styles.helpCard}>
             <View style={styles.helpIconContainer}>
-                <Ionicons name="chatbubble-ellipses-outline" size={32} color={COLORS.primary} />
+                <Ionicons name="chatbubble-ellipses-outline" size={28} color={COLORS.primary} />
             </View>
             <View style={styles.helpContent}>
                 <Text style={styles.helpTitle}>Need Assistance?</Text>
@@ -24,8 +24,8 @@ const SupportHelpCard: React.FC<SupportHelpCardProps> = ({ onContactSupport }) =
                     onPress={onContactSupport}
                     activeOpacity={0.8}
                 >
-                    <Text style={styles.supportText}>Talk to an Expert</Text>
-                    <Ionicons name="chevron-forward" size={16} color={COLORS.primary} />
+                    <Text style={styles.supportText}>TALK TO AN EXPERT</Text>
+                    <Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -41,19 +41,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         gap: 20,
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.04,
-        shadowRadius: 10,
-        elevation: 2,
+        borderWidth: 1.5,
+        borderColor: '#F1F5F9',
     },
     helpIconContainer: {
-        width: 60,
-        height: 60,
-        borderRadius: 20,
-        backgroundColor: '#eff6ff',
+        width: 56,
+        height: 56,
+        borderRadius: 18,
+        backgroundColor: '#EEF2FF',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -61,28 +56,28 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     helpTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#1e293b',
-        marginBottom: 6,
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#0F172A',
+        marginBottom: 8,
+        letterSpacing: -0.2,
     },
     helpText: {
-        fontSize: 14,
-        color: COLORS.text.muted,
+        fontSize: 13,
+        color: '#64748B',
         lineHeight: 20,
-        marginBottom: 16,
+        marginBottom: 20,
         fontWeight: '500',
     },
     supportButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 4,
     },
     supportText: {
         color: COLORS.primary,
         fontWeight: '800',
-        fontSize: 14,
-        textTransform: 'uppercase',
+        fontSize: 12,
         letterSpacing: 0.5,
     },
 });
