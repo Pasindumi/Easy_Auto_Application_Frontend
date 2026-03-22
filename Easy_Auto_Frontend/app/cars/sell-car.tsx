@@ -93,6 +93,14 @@ export default function SellCarScreen() {
   const [extraImagePrice, setExtraImagePrice] = useState(0);
   const [extraLetterPrice, setExtraLetterPrice] = useState(0);
 
+  const [currentStep, setCurrentStep] = useState(1);
+  const steps = [
+    { id: 1, title: 'Basic Info', icon: 'information-circle' },
+    { id: 2, title: 'Details', icon: 'car' },
+    { id: 3, title: 'Photos', icon: 'camera' },
+    { id: 4, title: 'Contact', icon: 'person' }
+  ];
+
   // Fetch Logic
   useEffect(() => {
     const fetchData = async () => {
@@ -546,24 +554,24 @@ export default function SellCarScreen() {
           <Text style={styles.headerTitleText}>Post Your Ad</Text>
         </View>
       </LinearGradient>
-      <Header showBack={true} />
       
       {loading && <Loading fullScreen={true} message="Processing..." />}
 
-      <View style={styles.sellSubHeader}>
-        <View style={styles.sellSubHeaderContent}>
-          <View style={styles.sellSubHeaderIcon}>
-            <Ionicons name="pricetag" size={20} color={COLORS.white} />
-          </View>
-          <View>
-            <Text style={styles.sellSubHeaderTitle}>Sell Your {vehicleType}</Text>
-            {activePackageName && (
-              <Text style={styles.sellSubHeaderPkg}>
-                Active Package: {activePackageName}
-              </Text>
+      <View style={styles.stepperContainer}>
+        {steps.map((step, index) => (
+          <View key={step.id} style={styles.stepWrapper}>
+            <TouchableOpacity 
+              style={[styles.stepCircle, currentStep >= step.id ? styles.stepCircleActive : null]}
+              onPress={() => setCurrentStep(step.id)}
+            >
+              <Ionicons name={step.icon as any} size={18} color={currentStep >= step.id ? '#FFF' : '#94A3B8'} />
+            </TouchableOpacity>
+            <Text style={[styles.stepText, currentStep >= step.id ? styles.stepTextActive : null]}>{step.title}</Text>
+            {index < steps.length - 1 && (
+              <View style={[styles.stepLine, currentStep > step.id ? styles.stepLineActive : null]} />
             )}
           </View>
-        </View>
+        ))}
       </View>
 
       <KeyboardAvoidingView
@@ -575,48 +583,72 @@ export default function SellCarScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <BasicInformationSection
-            carDetails={carDetails}
-            handleInputChange={handleInputChange}
-            descriptionLimit={descriptionLimit}
-            extraLetterPrice={extraLetterPrice}
-            isUnlimited={unlimitedDescription}
-          />
+          {currentStep === 1 && (
+            <BasicInformationSection
+              carDetails={carDetails}
+              handleInputChange={handleInputChange}
+              descriptionLimit={descriptionLimit}
+              extraLetterPrice={extraLetterPrice}
+              isUnlimited={unlimitedDescription}
+            />
+          )}
 
-          <CarDetailsSection
-            carDetails={carDetails}
-            handleInputChange={handleInputChange}
-            vehicleType={vehicleType}
-            brands={brands}
-            models={models}
-            conditions={conditions}
-            attributes={attributes}
-            handleDynamicAttributeChange={handleDynamicAttributeChange}
-          />
+          {currentStep === 2 && (
+            <CarDetailsSection
+              carDetails={carDetails}
+              handleInputChange={handleInputChange}
+              vehicleType={vehicleType}
+              brands={brands}
+              models={models}
+              conditions={conditions}
+              attributes={attributes}
+              handleDynamicAttributeChange={handleDynamicAttributeChange}
+            />
+          )}
 
-          <PhotoUploadSection
-            selectedImages={selectedImages}
-            removeImage={handleRemovePhoto}
-            addImage={pickImage}
-            freeImageCount={freeImageCount}
-            onViewPackages={handleViewPackages}
-            extraImagePrice={extraImagePrice}
-            isUnlimited={unlimitedImages}
-            activePackageName={activePackageName}
-          />
+          {currentStep === 3 && (
+            <PhotoUploadSection
+              selectedImages={selectedImages}
+              removeImage={handleRemovePhoto}
+              addImage={pickImage}
+              freeImageCount={freeImageCount}
+              onViewPackages={handleViewPackages}
+              extraImagePrice={extraImagePrice}
+              isUnlimited={unlimitedImages}
+              activePackageName={activePackageName}
+            />
+          )}
 
-          <ContactDetailsSection
-            userName={user?.name}
-            email={carDetails.email}
-            contactNumber={carDetails.contactNumber}
-            hidePhoneNumber={hidePhoneNumber}
-            handleInputChange={handleInputChange}
-            setHidePhoneNumber={setHidePhoneNumber}
-          />
+          {currentStep === 4 && (
+            <>
+              <ContactDetailsSection
+                userName={user?.name}
+                email={carDetails.email}
+                contactNumber={carDetails.contactNumber}
+                hidePhoneNumber={hidePhoneNumber}
+                handleInputChange={handleInputChange}
+                setHidePhoneNumber={setHidePhoneNumber}
+              />
+              <SubmitSection
+                onSubmit={handleSubmit}
+              />
+            </>
+          )}
 
-          <SubmitSection
-            onSubmit={handleSubmit}
-          />
+          <View style={styles.stepNavigation}>
+            {currentStep > 1 && (
+              <TouchableOpacity style={styles.stepBackBtn} onPress={() => setCurrentStep(currentStep - 1)}>
+                <Text style={styles.stepBackText}>Back</Text>
+              </TouchableOpacity>
+            )}
+            <View style={{ flex: 1 }} />
+            {currentStep < 4 ? (
+              <TouchableOpacity style={styles.stepNextBtn} onPress={() => setCurrentStep(currentStep + 1)}>
+                <Text style={styles.stepNextText}>Next Step</Text>
+                <Ionicons name="arrow-forward" size={16} color="white" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -682,37 +714,52 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: -0.5,
   },
-  sellSubHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+  stepperContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
+    elevation: 2,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    zIndex: 50,
   },
-  sellSubHeaderContent: {
-    flexDirection: 'row',
+  stepWrapper: {
     alignItems: 'center',
-    gap: 12,
+    position: 'relative',
+    flex: 1,
   },
-  sellSubHeaderIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+  stepCircle: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 6, zIndex: 2,
+    borderWidth: 2, borderColor: '#FFF',
+  },
+  stepCircleActive: {
     backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
   },
-  sellSubHeaderTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1E293B',
+  stepText: { fontSize: 10, color: '#94A3B8', fontWeight: '600' },
+  stepTextActive: { color: COLORS.primary, fontWeight: '800' },
+  stepLine: {
+    position: 'absolute', top: 16, left: '60%', right: '-40%', height: 3,
+    backgroundColor: '#F1F5F9', zIndex: 1, borderRadius: 2,
   },
-  sellSubHeaderPkg: {
-    fontSize: 12,
-    color: COLORS.primary,
-    fontWeight: '700',
-    marginTop: 2,
+  stepLineActive: { backgroundColor: COLORS.primary },
+  stepNavigation: {
+    flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingHorizontal: 16, paddingBottom: 20
   },
+  stepBackBtn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: 'white' },
+  stepBackText: { color: '#64748B', fontWeight: '700', fontSize: 14 },
+  stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, backgroundColor: COLORS.primary, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  stepNextText: { color: 'white', fontWeight: '800', fontSize: 14 },
   authGuardContainer: {
     flex: 1,
     padding: 30,

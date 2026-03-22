@@ -38,16 +38,16 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
             <View style={styles.specSide}>
                 <Text style={[styles.specVal, isBetter1 && styles.betterVal]}>{val1}</Text>
                 {isBetter1 && (
-                    <View style={styles.winnerBadge}>
-                        <Ionicons name="checkmark-circle" size={10} color="#10B981" />
-                        <Text style={styles.winnerText}>Better</Text>
+                    <View style={[styles.winnerBadge, { backgroundColor: '#D1FAE5' }]}>
+                        <Ionicons name="trophy" size={11} color="#059669" />
+                        <Text style={[styles.winnerText, { color: '#059669' }]}>Winner</Text>
                     </View>
                 )}
             </View>
             
             <View style={styles.specCenter}>
                 <View style={[styles.centerIconBg, { backgroundColor: '#F8FAFC' }]}>
-                    <Ionicons name={icon} size={14} color="#94A3B8" />
+                    <Ionicons name={icon} size={15} color="#64748B" />
                 </View>
                 <Text style={styles.specLabel}>{label}</Text>
             </View>
@@ -55,9 +55,9 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
             <View style={styles.specSide}>
                 <Text style={[styles.specVal, isBetter2 && styles.betterVal]}>{val2}</Text>
                 {isBetter2 && (
-                    <View style={styles.winnerBadge}>
-                        <Ionicons name="checkmark-circle" size={10} color="#10B981" />
-                        <Text style={styles.winnerText}>Better</Text>
+                    <View style={[styles.winnerBadge, { backgroundColor: '#D1FAE5' }]}>
+                        <Ionicons name="trophy" size={11} color="#059669" />
+                        <Text style={[styles.winnerText, { color: '#059669' }]}>Winner</Text>
                     </View>
                 )}
             </View>
@@ -135,10 +135,16 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
 const styles = StyleSheet.create({
     container: { 
         backgroundColor: '#fff',
-        borderRadius: 32,
-        padding: 8,
+        borderRadius: 24,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         borderWidth: 1,
         borderColor: '#F1F5F9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 4,
     },
     tableHeader: {
         paddingVertical: 16,

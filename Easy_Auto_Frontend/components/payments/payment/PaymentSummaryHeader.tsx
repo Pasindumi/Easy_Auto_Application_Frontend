@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#f1f5f9',
     },
     metaLabel: { 
-        color: COLORS.gray[500], 
+        color: COLORS.text.muted, 
         fontSize: 11,
         fontWeight: '500',
         textTransform: 'uppercase',

@@ -71,25 +71,16 @@ export default function PackagesScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl 
-                refreshing={refreshing} 
-                onRefresh={onRefresh} 
-                colors={[COLORS.primary]} 
-                tintColor={COLORS.primary}
               refreshing={refreshing} 
               onRefresh={onRefresh} 
-              tintColor="transparent"
-              colors={["transparent"]}
-              progressBackgroundColor="transparent"
+              colors={[COLORS.primary]} 
+              tintColor={COLORS.primary}
             />
           }
         >
           <BoostInfoCard />
 
-          {loading && !refreshing ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
-              <Text style={styles.loaderText}>Curating best deals for you...</Text>
-            </View>
+
           {loading ? (
             <Loading message="Loading packages..." style={styles.loaderContainer} />
           ) : packages.length === 0 ? (

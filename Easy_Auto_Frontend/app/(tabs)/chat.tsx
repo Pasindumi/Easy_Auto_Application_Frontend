@@ -3,7 +3,7 @@ import Loading from '@/components/ui/Loading';
 import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState, useCallback } from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, RefreshControl, Platform, Alert, StatusBar as RNStatusBar } from 'react-native';
+import { FlatList, Image as RNImage, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, RefreshControl, Alert, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../utils/api';
@@ -11,8 +11,9 @@ import { ENDPOINTS } from '../../constants/API';
 import socketService from '../../utils/socket';
 import UserSearch from '../../components/chat/UserSearch';
 import * as Haptics from 'expo-haptics';
-import Header from '@/components/Header';
+import { LinearGradient } from 'expo-linear-gradient';
 import COLORS from '@/constants/Colors';
+import EmptyState from '@/components/ui/EmptyState';
 
 interface User {
   id: string;
@@ -40,6 +41,9 @@ export default function ChatScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Real-time typing states per conversation ID
+  const [typingDict, setTypingDict] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (user?.id && accessToken) {
@@ -50,6 +54,15 @@ export default function ChatScreen() {
       socketService.onNotification((notification) => {
         if (notification.type === 'new_message') {
           fetchConversations();
+        } else if (notification.type === 'typing') {
+           const convId = notification.data?.conversationId;
+           if (convId) {
+             setTypingDict(prev => ({ ...prev, [convId]: true }));
+             // clear typing after 3s
+             setTimeout(() => {
+               setTypingDict(prev => ({ ...prev, [convId]: false }));
+             }, 3000);
+           }
         }
       });
 
@@ -190,15 +203,22 @@ export default function ChatScreen() {
           )}
         </View>
         <View style={styles.chatFooter}>
-          <Text
-            style={[
-              styles.lastMessage,
-              item.unread_count > 0 && styles.lastMessageBold
-            ]}
-            numberOfLines={1}
-          >
-            {item.last_message?.content || 'No messages yet'}
-          </Text>
+          {typingDict[item.id] ? (
+            <Text style={[styles.lastMessage, { color: COLORS.primary, fontWeight: '700', fontStyle: 'italic' }]} numberOfLines={1}>
+              typing...
+            </Text>
+          ) : (
+            <Text
+              style={[
+                styles.lastMessage,
+                item.unread_count > 0 && styles.lastMessageBold
+              ]}
+              numberOfLines={1}
+            >
+              {item.last_message?.content || 'No messages yet'}
+            </Text>
+          )}
+          
           {item.unread_count > 0 && (
             <View style={[styles.unreadBadge, { backgroundColor: COLORS.primary }]}>
               <Text style={styles.unreadText}>{item.unread_count > 9 ? '9+' : item.unread_count}</Text>
@@ -212,10 +232,38 @@ export default function ChatScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header
-        title="Messages"
-        showBack={true}
-      />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+
+      {/* ─── BRANDED GRADIENT HEADER ─── */}
+      <LinearGradient
+        colors={["#235CF8", "#1E4DB7"]}
+        style={[styles.header, { paddingTop: insets.top }]}
+      >
+        <View style={styles.headerRow}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={26} color="white" />
+          </TouchableOpacity>
+
+          <View pointerEvents="none" style={styles.logoCentre}>
+            <RNImage
+              source={require("@/assets/logoHome.png")}
+              resizeMode="contain"
+              style={styles.logoImg}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.composeBtn}
+            onPress={() => setSearchVisible(true)}
+          >
+            <Ionicons name="create-outline" size={22} color="white" />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.headerTitle}>Messages</Text>
+        <Text style={styles.headerSub}>
+          {conversations.length > 0 ? `${conversations.length} conversations` : "No conversations yet"}
+        </Text>
+      </LinearGradient>
 
       <View style={styles.listContainer}>
         <View style={styles.searchBarWrapper}>
@@ -257,19 +305,13 @@ export default function ChatScreen() {
                 />
               }
             ListEmptyComponent={() => (
-              <View style={styles.emptyContainer}>
-                <Ionicons name="chatbubbles-outline" size={80} color="#CBD5E1" />
-                <Text style={styles.emptyTitle}>No messages yet</Text>
-                <Text style={styles.emptySubtitle}>
-                  {searchQuery ? "No conversations match your search" : "Start a conversation with a buyer or seller!"}
-                </Text>
-                <TouchableOpacity
-                  style={[styles.startBtn, { backgroundColor: COLORS.primary }]}
-                  onPress={() => setSearchVisible(true)}
-                >
-                  <Text style={styles.startBtnText}>Start Chatting</Text>
-                </TouchableOpacity>
-              </View>
+              <EmptyState
+                icon="chatbubbles-outline"
+                title={searchQuery ? "No matches found" : "No messages yet"}
+                subtitle={searchQuery ? `No conversations matched "${searchQuery}"` : "Start a conversation with a buyer or seller!"}
+                ctaLabel="Start Chatting"
+                onCta={() => setSearchVisible(true)}
+              />
             )}
             ListHeaderComponent={() => <View style={{ height: 10 }} />}
           />
@@ -303,14 +345,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FB',
   },
-  iconBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+
+  // BRANDED HEADER
+  header: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    elevation: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 52,
+  },
+  logoCentre: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: -5,
+    zIndex: 5,
+  },
+  logoImg: { width: 100, height: 22 },
+  backBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'flex-start',
+    zIndex: 10,
+  },
+  composeBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'flex-end',
+    zIndex: 10,
+  },
+  headerTitle: {
+    fontSize: 22, fontWeight: '800', color: 'white',
+    letterSpacing: -0.5, marginTop: 4,
+  },
+  headerSub: {
+    fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2,
   },
 
   listContainer: {

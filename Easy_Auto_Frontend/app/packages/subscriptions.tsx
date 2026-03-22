@@ -12,7 +12,6 @@ import {
   SafeAreaView,
   Platform,
   Alert
-  TouchableOpacity
 } from 'react-native';
 import Loading from "../../components/ui/Loading";
 import Header from "../../components/Header";
@@ -211,27 +210,7 @@ export default function SubscriptionsScreen() {
             onDownload={handleDownload}
             onDownloadAll={handleDownloadAll}
             onViewAll={handleViewAll}
-      {/* Inline Sub-Header Section */}
-      <View style={headerSectionStylesWhite.headerWrap}>
-        <View style={headerSectionStylesWhite.header}>
-          <Ionicons name="people-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-          <Text style={headerSectionStylesWhite.headerTitle}>My Subscription</Text>
-        </View>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {loading ? (
-          <Loading />
-        ) : activeSub ? (
-          <CurrentPlanCard
-            planName={activeSub.plan}
-            expiryDate={`Active Until ${new Date(activeSub.endDate).toLocaleDateString()}`}
-            price={activeSub.amount}
-            onManagePlan={handleManagePlan}
-            onUnsubscribe={handleUnsubscribe}
           />
-
-          <SupportHelpCard onContactSupport={handleContactSupport} />
         </ScrollView>
       </SafeAreaView>
     </View>

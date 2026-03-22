@@ -61,8 +61,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
                 onViewAll={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/cars/buy-car" as any); }}
             />
             {loading ? (
-                <View style={styles.loader}><ActivityIndicator color={COLORS.primary} /></View>
-                <View style={styles.loadingContainer}>
+                <View style={styles.loader}>
                     <Loading size="small" />
                 </View>
             ) : (

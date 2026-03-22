@@ -1,9 +1,6 @@
-// components/SocialButton.tsx
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../../theme";
-import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle, Platform, View } from "react-native";
 import COLORS from "@/constants/Colors";
 
 export default function SocialButton({
@@ -21,31 +18,17 @@ export default function SocialButton({
   disabled?: boolean;
   loading?: boolean;
 }) {
-  const isIconOnly = !text;
-
-  return (
-    <TouchableOpacity 
-      onPress={onPress} 
-      style={[
-        styles.btn, 
-        isIconOnly ? styles.btnIconOnly : styles.btnWithText,
-        disabled && styles.btnDisabled
-      ]}
-      disabled={disabled}
-    >
-      <Ionicons 
-        name={icon} 
-        size={isIconOnly ? 24 : 18} 
-        color={iconColor ?? "#1e293b"} 
-        style={!isIconOnly && styles.icon} 
-      />
-      {text && <Text style={[styles.text, disabled && styles.textDisabled]}>{text}</Text>}
   const Loading = require("../Loading").default;
+  const isIconOnly = !text;
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.btn, (disabled || loading) && styles.btnDisabled]}
+      style={[
+        styles.btn, 
+        isIconOnly ? styles.btnIconOnly : styles.btnWithText,
+        (disabled || loading) && styles.btnDisabled
+      ]}
       activeOpacity={0.7}
       disabled={disabled || loading}
     >
@@ -53,11 +36,15 @@ export default function SocialButton({
         <Loading size="small" />
       ) : (
         <>
-          <View style={styles.iconContainer}>
-            <Ionicons name={icon} size={20} color={iconColor ?? COLORS.text.primary} />
-          </View>
-          <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>
-          <View style={{ width: 24 }} />
+          {!isIconOnly ? (
+            <View style={styles.iconContainer}>
+              <Ionicons name={icon} size={20} color={iconColor ?? COLORS.text.primary} />
+            </View>
+          ) : (
+            <Ionicons name={icon} size={24} color={iconColor ?? COLORS.text.primary} />
+          )}
+          {text && <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>}
+          {!isIconOnly && <View style={{ width: 24 }} />}
         </>
       )}
     </TouchableOpacity>
@@ -69,37 +56,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  btnWithText: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginBottom: 12,
-  },
-  btnIconOnly: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "space-between",
     backgroundColor: COLORS.white,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    marginBottom: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: COLORS.shadow,
+    borderColor: COLORS.border || '#E2E8F0',
+    shadowColor: COLORS.shadow || '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
+  btnWithText: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+    borderRadius: 14,
+  },
+  btnIconOnly: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 8,
+  },
   btnDisabled: {
     opacity: 0.5,
-    backgroundColor: COLORS.backgroundMuted,
+    backgroundColor: COLORS.backgroundMuted || '#F1F5F9',
   },
   iconContainer: {
     width: 24,
@@ -109,13 +89,11 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: "700",
     fontSize: 15,
-    color: COLORS.text.primary,
+    color: COLORS.text.primary || '#0F172A',
     flex: 1,
     textAlign: 'center',
   },
-  icon: { marginRight: 10 },
-  text: { fontWeight: "700", color: "#1e293b" },
   textDisabled: {
-    color: COLORS.text.muted,
+    color: COLORS.text.muted || '#64748B',
   },
 });

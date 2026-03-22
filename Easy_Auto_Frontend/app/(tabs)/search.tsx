@@ -15,10 +15,11 @@ import {
   Dimensions,
   Modal,
   Animated,
-  FlatList,
   RefreshControl,
   Image as RNImage,
+  InteractionManager,
 } from 'react-native';
+import { FlashList } from "@shopify/flash-list";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
@@ -26,6 +27,10 @@ import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
 import LocationModal from '@/components/ui/LocationModal';
+import SkeletonCard from '@/components/ui/SkeletonCard';
+import EmptyState from '@/components/ui/EmptyState';
+import SortBar, { SortOption } from '@/components/ui/SortBar';
+import { useDebounce } from '@/hooks/useDebounce'; // Assuming a useDebounce hook, or we can just implement the delay inline
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -106,9 +111,12 @@ export default function SearchScreen() {
   // Animation
   const filterSlideAnim = React.useRef(new Animated.Value(0)).current;
 
-  // Fetch initial data
+  // Fetch initial data deferred to avoid blocking navigation animation
   useEffect(() => {
-    fetchVehicleTypes();
+    const task = InteractionManager.runAfterInteractions(() => {
+      fetchVehicleTypes();
+    });
+    return () => task.cancel();
   }, []);
 
   // Fetch vehicle types
@@ -253,14 +261,14 @@ export default function SearchScreen() {
     selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange,
     selectedYearRange, selectedSort, brands, models]);
 
-  // Auto-search on ANY filter change (Fix 4: was missing brand/model/condition/fuel/transmission/location)
+  // Auto-search on ANY filter change with debounced search query
   useEffect(() => {
     const timer = setTimeout(() => {
       performSearch();
-    }, 500);
+    }, 300); // 300ms debounce
     return () => clearTimeout(timer);
-  }, [performSearch]); // ✅ performSearch already has all deps via useCallback
-
+  }, [searchQuery, selectedCategory, selectedBrand, selectedModel, selectedCondition,
+    selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange, selectedYearRange, selectedSort, performSearch]);
 
   // Calculate active filters
   useEffect(() => {
@@ -326,7 +334,7 @@ export default function SearchScreen() {
   };
 
   // Render search result card
-  const renderSearchCard = ({ item }: { item: any }) => {
+  const renderSearchCard = useCallback(({ item }: { item: any }) => {
     const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
       item.AdImage?.[0]?.image_url;
     const details = item.CarDetails?.[0] || item.CarDetails || {};
@@ -353,6 +361,7 @@ export default function SearchScreen() {
               style={styles.cardImage}
               contentFit="cover"
               transition={200}
+              cachePolicy="memory-disk"
             />
           ) : (
             <View style={styles.imagePlaceholder}>
@@ -405,7 +414,7 @@ export default function SearchScreen() {
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [favorites, toggleFavorite, router]);
 
   return (
     <View style={styles.container}>
@@ -432,29 +441,12 @@ export default function SearchScreen() {
         </View>
 
         <View style={styles.headerSearchArea}>
-           <View style={styles.glassSearch}>
-            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
+           <View style={[styles.glassSearch, searchFocused && styles.searchBarFocused]}>
+            <Ionicons name="search" size={20} color={searchFocused ? COLORS.primary : COLORS.text.muted} />
             <TextInput
               style={styles.headerSearchInput}
               placeholder="Search cars, brands, models..."
-              placeholderTextColor="rgba(255,255,255,0.6)"
-      {/* Search Bar section - cleaned up without redundant gradient */}
-      <View style={styles.searchSection}>
-        <View style={styles.searchBarContainer}>
-          <View style={[styles.searchBar, searchFocused && styles.searchBarFocused]}>
-            <LinearGradient
-              colors={searchFocused ? ['rgba(255,255,255,1)', 'rgba(255,255,255,0.9)'] : ['#F3F4F6', '#F3F4F6']}
-              style={styles.searchGradient}
-            />
-            <Ionicons
-              name="search"
-              size={16}
-              color={searchFocused ? COLORS.primary : COLORS.text.muted}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search cars..."
-              placeholderTextColor={COLORS.text.muted}
+              placeholderTextColor="rgba(15,23,42,0.4)"
               value={searchQuery}
               onChangeText={setSearchQuery}
               returnKeyType="search"
@@ -467,8 +459,7 @@ export default function SearchScreen() {
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.5)" />
-                <Ionicons name="close-circle" size={16} color={COLORS.text.muted} />
+                <Ionicons name="close-circle" size={20} color={COLORS.text.muted} />
               </TouchableOpacity>
             )}
           </View>
@@ -527,68 +518,55 @@ export default function SearchScreen() {
           ))}
         </ScrollView>
 
-        {/* Sort & Results Count */}
-        <View style={styles.resultsBar}>
-          <Text style={styles.resultsCount}>
-            {isSearching ? 'Searching...' : `${searchResults.length} results found`}
-          </Text>
-          <TouchableOpacity
-            style={styles.sortButton}
-            onPress={() => {
-              // Could open a sort modal here
-            }}
-          >
-            <Ionicons name="swap-vertical" size={16} color={COLORS.primary} />
-            <Text style={styles.sortText}>Sort</Text>
-          </TouchableOpacity>
+        <View style={{ paddingTop: 8 }}>
+          <SortBar
+            selected={selectedSort}
+            onSelect={setSelectedSort}
+            resultCount={searchResults.length}
+            options={SORT_OPTIONS.map(o => ({ key: o.value, label: o.label }))}
+          />
         </View>
       </View>
 
       {/* Search Results */}
       <BrandedRefreshOverlay refreshing={refreshing} top={120} />
-      <FlatList
-        data={searchResults}
-        renderItem={renderSearchCard}
-        keyExtractor={(item) => String(item.id)}
-        numColumns={2}
-        contentContainerStyle={styles.resultsGrid}
-        columnWrapperStyle={styles.columnWrapper}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              performSearch();
-            }}
-            tintColor="transparent"
-            colors={["transparent"]}
-            progressBackgroundColor="transparent"
-          />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            {isSearching ? (
-              <Loading size="medium" message="Searching..." />
+      <View style={{ flex: 1 }}>
+        <FlashList
+          data={searchResults}
+          renderItem={renderSearchCard}
+          keyExtractor={(item) => String(item.id)}
+          numColumns={2}
+          contentContainerStyle={styles.resultsGrid}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                performSearch();
+              }}
+              tintColor="transparent"
+              colors={["transparent"]}
+              progressBackgroundColor="transparent"
+            />
+          }
+          ListEmptyComponent={
+            isSearching ? (
+              <View style={styles.skeletonGrid}>
+                <SkeletonCard variant="grid" count={6} />
+              </View>
             ) : (
-              <>
-                <View style={styles.emptyIcon}>
-                  <Ionicons name="search-outline" size={64} color={COLORS.border} />
-                </View>
-                <Text style={styles.emptyTitle}>No results found</Text>
-                <Text style={styles.emptyText}>
-                  Try adjusting your search or filters
-                </Text>
-                {activeFilterCount > 0 && (
-                  <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
-                    <Text style={styles.clearButtonText}>Clear All Filters</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
-          </View>
-        }
-      />
+              <EmptyState
+                icon="search-outline"
+                title="No results found"
+                subtitle="Try adjusting your search query or removing some filters to see more cars."
+                ctaLabel={activeFilterCount > 0 ? "Clear All Filters" : undefined}
+                onCta={activeFilterCount > 0 ? clearAllFilters : undefined}
+              />
+            )
+          }
+        />
+      </View>
 
       {/* Advanced Filters Modal */}
       <Modal
@@ -844,12 +822,6 @@ const styles = StyleSheet.create({
   glassSearch: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 52,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
     backgroundColor: '#F3F4F6',
     borderRadius: 12,
     paddingHorizontal: 10,
@@ -873,8 +845,6 @@ const styles = StyleSheet.create({
   },
   headerSearchInput: {
     flex: 1,
-    fontSize: 15,
-    color: 'white',
     marginLeft: 10,
     fontSize: 13,
     color: COLORS.text.primary,
@@ -938,10 +908,7 @@ const styles = StyleSheet.create({
   },
   resultsGrid: {
     padding: 16,
-  },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    paddingBottom: 40,
   },
   resultCard: {
     width: CARD_WIDTH,
@@ -953,6 +920,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    marginRight: 16, // Required for FlashList numColumns gaps
+    marginBottom: 16,
   },
   cardImageContainer: {
     width: '100%',
@@ -1037,43 +1006,12 @@ const styles = StyleSheet.create({
     color: COLORS.text.muted,
     flex: 1,
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyIcon: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: COLORS.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.text.primary,
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: COLORS.text.muted,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  clearButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  clearButtonText: {
-    color: COLORS.white,
-    fontSize: 14,
-    fontWeight: '600',
+  skeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 16,
+    paddingTop: 8,
   },
   modalOverlay: {
     flex: 1,

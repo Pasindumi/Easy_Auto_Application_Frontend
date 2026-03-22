@@ -97,8 +97,6 @@ export default function CompareCars() {
         <Stack.Screen options={{ headerShown: false }} />
         <Header showBack={true} />
         {renderLoading()}
-      <View style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Loading />
       </View>
     );
   }

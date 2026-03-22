@@ -15,10 +15,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import Loading from "@/components/ui/Loading";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -378,11 +375,7 @@ export default function EditProfileScreen() {
                   style={styles.saveGradient}
                 >
                   {saving ? (
-                    <>
-                      <ActivityIndicator size="small" color={COLORS.white} style={{ marginRight: 8 }} />
-                      <Text style={styles.saveButtonText}>Saving...</Text>
-                    </>
-                    <Loading size="small" />
+                    <ActivityIndicator size="small" color="#fff" style={{ marginRight: 8 }} />
                   ) : (
                     <>
                       <Ionicons name="checkmark-circle" size={20} color={COLORS.white} style={{ marginRight: 8 }} />

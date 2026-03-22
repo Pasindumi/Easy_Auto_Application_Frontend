@@ -7,6 +7,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useRef, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Animated,
   Dimensions,
@@ -151,17 +152,6 @@ export default function WishlistDrawer({ visible, onClose }: WishlistDrawerProps
               <View style={styles.emptyState}>
                 <View style={styles.emptyCircle}>
                   <Ionicons name="heart-dislike-outline" size={44} color="#CBD5E1" />
-                <Text style={styles.subtitle}>Your saved dream cars</Text>
-            </LinearGradient>
-
-            <ScrollView
-              style={styles.scrollView}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              {loading ? (
-                <View style={styles.loadingContainer}>
-                  <Loading size="large" />
                 </View>
                 <Text style={styles.emptyTitle}>Nothing saved yet</Text>
                 <Text style={styles.emptyBody}>

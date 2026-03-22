@@ -111,10 +111,7 @@ export default function PackageDetailScreen() {
         <Stack.Screen options={{ headerShown: false }} />
         <Header title="Plan Detail" />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Fetching details...</Text>
-          <Loading />
-          <Text style={{ marginTop: 12, color: '#666' }}>Loading package...</Text>
+          <Loading message="Fetching package details..." />
         </View>
       </View>
     );

@@ -152,8 +152,13 @@ export default function LoginScreen() {
             <TouchableOpacity 
               style={[styles.backButton, { top: insets.top + 10 }]} 
               onPress={() => router.replace('/(tabs)')}
-        <View style={styles.contentContainer}>
-          {/* Toggle */}
+            >
+              <Ionicons name="chevron-back" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.contentContainer}>
+            {/* Toggle */}
           <View style={styles.toggleRow}>
             <TouchableOpacity
               style={[styles.toggleBtn, styles.toggleInactive]}
@@ -183,6 +188,7 @@ export default function LoginScreen() {
               <Text style={styles.subtitleText}>
                 {t('auth.sign_in_subtitle')}
               </Text>
+            </View>
             {/* Social login */}
             <SocialButton
               icon="logo-apple"
@@ -286,11 +292,10 @@ export default function LoginScreen() {
           </View>
           
           <Footer />
-        </ScrollView>
-
         </View>
-      </KeyboardAvoidingView>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </View>
   );
 }
 
@@ -347,6 +352,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     letterSpacing: -0.8,
     marginBottom: 4,
+  },
   contentContainer: {
     flex: 1,
     paddingHorizontal: 20,
@@ -396,7 +402,6 @@ const styles = StyleSheet.create({
   subtitleText: {
     fontSize: 14,
     color: '#64748B',
-    color: COLORS.text.muted,
     marginBottom: 12,
     textAlign: 'center',
     lineHeight: 20,
@@ -448,23 +453,4 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 14,
   },
-
-  rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  rememberRow: { flexDirection: "row", alignItems: "center" },
-  checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: COLORS.divider, marginRight: 8, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.white },
-  checkboxChecked: { borderColor: COLORS.primary },
-
-  smallText: { color: COLORS.text.muted },
-  forgot: { color: COLORS.primary, fontWeight: "700" },
-  forgotPasswordContainer: {
-    alignSelf: 'flex-end',
-    marginBottom: 12
-  },
-
-  orRow: { flexDirection: "row", alignItems: "center", marginVertical: 12 },
-  orLine: { flex: 1, height: 1, backgroundColor: COLORS.divider },
-  orText: { marginHorizontal: 12, color: COLORS.text.muted, fontWeight: "700" },
-
-  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 12, marginBottom: 10 },
-  loginLink: { color: COLORS.primary, fontWeight: "700" },
 });

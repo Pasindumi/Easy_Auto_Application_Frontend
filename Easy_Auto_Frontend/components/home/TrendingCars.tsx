@@ -1,7 +1,7 @@
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import {
     Animated,
     ScrollView,
@@ -23,21 +23,17 @@ interface TrendingCarsProps {
 import { CATEGORIES } from "@/constants/dummydata/homedummydata";
 import COLORS from "@/constants/Colors";
 
-const TrendingCars: React.FC<TrendingCarsProps> = ({
+const TrendingCars: React.FC<TrendingCarsProps> = memo(({
     fadeAnim,
     slideAnim,
     trendingCategory,
     setTrendingCategory,
 }) => {
-    const router = useRouter(); // Use router for navigation
+    const router = useRouter();
     const [trendingAds, setTrendingAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchTrendingAds();
-    }, []);
-
-    const fetchTrendingAds = async () => {
+    const fetchTrendingAds = useCallback(async () => {
         try {
             setLoading(true);
             const response: any = await api.get('/api/cars/trending');
@@ -49,7 +45,11 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchTrendingAds();
+    }, [fetchTrendingAds]);
 
     // Use dummy data if no API data or while loading (optional, or just show skeleton)
     // For now, let's prefer API data, fall back to empty if none
@@ -58,6 +58,81 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     if (!loading && displayAds.length === 0) {
         return null; // Hide section if no trending ads
     }
+
+    const renderAd = useCallback((ad: any, index: number) => {
+        const details = Array.isArray(ad.CarDetails) ? ad.CarDetails?.[0] : ad.CarDetails;
+        return (
+            <TouchableOpacity
+                key={`trending-${ad.id}-${index}`}
+                style={styles.card}
+                activeOpacity={0.9}
+                onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push(`/cars/${ad.id}`);
+                }}
+            >
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
+                        style={styles.image}
+                        contentFit="cover"
+                        transition={300}
+                        cachePolicy="memory-disk"
+                    />
+
+                    {/* Star/Review badge */}
+                    <View style={styles.reviewBadge}>
+                        <Ionicons name="star" size={10} color="#FFD700" />
+                        <Text style={styles.reviewText}>
+                            {ad.review_count || 0}
+                        </Text>
+                    </View>
+
+                    <View style={styles.priceTag}>
+                        <Text style={styles.priceText}>
+                            {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price)}
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle} numberOfLines={1}>
+                        {ad.title}
+                    </Text>
+                    <Text style={styles.cardSubTitle} numberOfLines={1}>
+                        {details?.model} · {details?.year}
+                    </Text>
+
+                    {/* Spec chips row */}
+                    <View style={styles.specRow}>
+                        {details?.mileage && (
+                            <View style={styles.specChip}>
+                                <Ionicons name="speedometer-outline" size={10} color={COLORS.text.muted} />
+                                <Text style={styles.specText}>
+                                    {Number(details.mileage).toLocaleString()} km
+                                </Text>
+                            </View>
+                        )}
+                        {details?.fuel_type && (
+                            <View style={styles.specChip}>
+                                <Ionicons name="flash-outline" size={10} color={COLORS.text.muted} />
+                                <Text style={styles.specText}>{details.fuel_type}</Text>
+                            </View>
+                        )}
+                    </View>
+
+                    <View style={styles.detailsRow}>
+                        <View style={styles.locationRow}>
+                            <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
+                            <Text style={styles.locationText} numberOfLines={1}>
+                                {ad.location?.split(",")[0] || "Unknown"}
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+            </TouchableOpacity>
+        );
+    }, [router]);
 
     return (
         <Animated.View
@@ -74,19 +149,16 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                     <Text style={styles.title}>Trending Ads 🔥</Text>
                     <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
-                {/* 
                 <TouchableOpacity
                     style={styles.viewAllButton}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        // Navigate to all ads or filtered view
-                        router.push('/(tabs)/explore');
+                        router.push('/(tabs)/search' as any);
                     }}
                 >
                     <Text style={styles.viewAllText}>View All</Text>
-                    <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
+                    <Ionicons name="arrow-forward" size={15} color={COLORS.primary} />
                 </TouchableOpacity>
-                */}
             </View>
 
             {/* Category Tabs - Optional: Keep or Remove? User asked to "Update Trending Cars section to Trending Ads". 
@@ -130,70 +202,13 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.cardsContainer}
                 decelerationRate="fast"
-                snapToInterval={230 + 16}
+                snapToInterval={270 + 16}
             >
-                {displayAds.map((ad, index) => {
-                    // CarDetails can be an object (list endpoint) or array (some Supabase versions)
-                    const details = Array.isArray(ad.CarDetails) ? ad.CarDetails?.[0] : ad.CarDetails;
-
-                    return (
-                    <TouchableOpacity
-                        key={`trending-${ad.id}-${index}`}
-                        style={styles.card}
-                        activeOpacity={0.9}
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.push(`/cars/${ad.id}`);
-                        }}
-                    >
-                        <View style={styles.imageContainer}>
-                            <Image
-                                source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
-                                style={styles.image}
-                                contentFit="cover"
-                                transition={300}
-                                cachePolicy="memory-disk"
-                            />
-
-                            {/* Status Badge from Backend Logic if needed, or just Review Count badge */}
-                            <View style={styles.reviewBadge}>
-                                <Ionicons name="star" size={10} color="#FFD700" />
-                                <Text style={styles.reviewText}>
-                                    {ad.review_count || 0} Reviews
-                                </Text>
-                            </View>
-
-                            <View style={styles.priceTag}>
-                                <Text style={styles.priceText}>
-                                    {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price)}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle} numberOfLines={1}>
-                                {ad.title}
-                            </Text>
-                            <Text style={styles.cardSubTitle} numberOfLines={1}>
-                                {details?.model} {details?.year}
-                            </Text>
-
-                            <View style={styles.detailsRow}>
-                                <View style={styles.locationRow}>
-                                    <Ionicons name="location-outline" size={14} color={COLORS.text.muted} />
-                                    <Text style={styles.locationText} numberOfLines={1}>
-                                        {ad.location?.split(",")[0] || "Unknown"}
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                    );
-                })}
+                {displayAds.map((ad, index) => renderAd(ad, index))}
             </ScrollView>
         </Animated.View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -282,7 +297,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     card: {
-        width: 230,
+        width: 270,
         backgroundColor: COLORS.white,
         borderRadius: 20,
         shadowColor: COLORS.shadow,
@@ -294,7 +309,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
     },
     imageContainer: {
-        height: 140,
+        height: 160,
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -386,6 +401,24 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: COLORS.text.muted,
         marginTop: 2,
+        marginBottom: 8,
+    },
+    specRow: {
+        flexDirection: 'row',
+        gap: 6,
+        marginBottom: 8,
+    },
+    specChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        backgroundColor: COLORS.background,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 8,
+    },
+    specText: {
+        fontSize: 10,
     },
 });
 

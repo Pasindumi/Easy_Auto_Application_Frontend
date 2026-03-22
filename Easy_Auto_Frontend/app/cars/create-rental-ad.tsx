@@ -7,11 +7,15 @@ import {
     KeyboardAvoidingView,
     Platform,
     Text,
-    ActivityIndicator
+    ActivityIndicator,
+    Image as RNImage,
+    TouchableOpacity
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import Header from '@/components/Header';
 import COLORS from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/utils/api';
@@ -35,6 +39,7 @@ export default function CreateRentalAdScreen() {
     useProtectedRoute();
     const router = useRouter();
     const params = useLocalSearchParams();
+    const insets = useSafeAreaInsets();
     const { user, isAuthenticated } = useAuth();
 
     const [loading, setLoading] = useState(false);
@@ -62,6 +67,7 @@ export default function CreateRentalAdScreen() {
         contactNumber: '',
         email: '',
         negotiable: false,
+        hidePhoneNumber: false,
         dynamicAttributes: [] as any[]
     });
 
@@ -302,7 +308,32 @@ export default function CreateRentalAdScreen() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header showBack={true} title="Create Rental Ad" />
+            
+            {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
+            <LinearGradient
+                colors={[COLORS.primary, COLORS.primaryDark]}
+                style={[styles.header, { paddingTop: insets.top + 8 }]}
+            >
+                <View style={styles.headerTopRow}>
+                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                        <Ionicons name="chevron-back" size={26} color="white" />
+                    </TouchableOpacity>
+                    
+                    <View pointerEvents="none" style={styles.logoCentre}>
+                        <RNImage
+                            source={require("@/assets/logoHome.png")}
+                            resizeMode="contain"
+                            style={styles.logoImg}
+                        />
+                    </View>
+
+                    <View style={styles.headerRightSpacer} />
+                </View>
+
+                <View style={styles.headerTitleArea}>
+                    <Text style={styles.headerTitleText}>Create Rental Ad</Text>
+                </View>
+            </LinearGradient>
 
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
@@ -365,17 +396,16 @@ export default function CreateRentalAdScreen() {
                     />
 
                     <ContactDetailsSection
-                        userName={user?.name}
-                        email={user?.email}
-                        contactNumber={carDetails.location} // Use location or add state for contact if needed
-                        hidePhoneNumber={false}
-                        handleInputChange={handleCarInputChange}
-                        setHidePhoneNumber={() => { }}
+                        userName={user?.name || ''}
+                        email={user?.email || ''}
+                        contactNumber={carDetails.contactNumber}
+                        hidePhoneNumber={carDetails.hidePhoneNumber || false}
+                        handleInputChange={handleCarInputChange as any}
+                        setHidePhoneNumber={(val) => handleCarInputChange('hidePhoneNumber', val)}
                     />
 
                     <SubmitSection
                         onSubmit={handleSubmit}
-                        loading={loading}
                     />
 
                     {loading && (
@@ -395,6 +425,25 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.background || '#f5f5f5',
     },
+    header: {
+        paddingHorizontal: 16,
+        paddingBottom: 16,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        elevation: 8,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
+        zIndex: 100,
+    },
+    headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 44, marginBottom: 8 },
+    backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'flex-start', justifyContent: 'center' },
+    logoCentre: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
+    logoImg: { width: 100, height: 24 },
+    headerRightSpacer: { width: 40 },
+    headerTitleArea: { alignItems: 'center', justifyContent: 'center' },
+    headerTitleText: { color: 'white', fontSize: 18, fontWeight: '800', letterSpacing: -0.5 },
     scrollView: {
         flex: 1,
     },

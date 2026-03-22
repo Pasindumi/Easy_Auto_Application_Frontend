@@ -162,7 +162,10 @@ export default function SignupScreen() {
               onPress={() => router.replace('/(tabs)')}
             >
               <Ionicons name="chevron-back" size={24} color="#fff" />
-        <View style={styles.contentContainer}>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.contentContainer}>
           {/* Toggle */}
           <View style={styles.toggleContainer}>
             <TouchableOpacity style={[styles.toggleBtn, styles.activeTab]}>
@@ -271,11 +274,10 @@ export default function SignupScreen() {
           </View>
           
           <Footer />
-        </ScrollView>
-
         </View>
-      </KeyboardAvoidingView>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </View>
   );
 }
 
@@ -439,18 +441,5 @@ const styles = StyleSheet.create({
   whiteText: { color: COLORS.primary },
   blueText: { color: COLORS.text.secondary },
 
-  form: { flex: 1, marginTop: 5 }, // Reduced from 10
 
-  termRow: { flexDirection: "row", alignItems: "center", marginBottom: 5 }, // Reduced from 8
-  checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: COLORS.divider, marginRight: 8, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.white },
-  checkboxChecked: { borderColor: COLORS.primary },
-  termText: { color: COLORS.text.muted, fontSize: 12 },
-
-  orRow: { flexDirection: "row", alignItems: "center", marginVertical: 6 }, // Reduced from 8
-  line: { flex: 1, height: 1, backgroundColor: COLORS.divider },
-  or: { marginHorizontal: 12, fontWeight: "700", color: COLORS.text.muted },
-
-  bottomRow: { flexDirection: "row", justifyContent: "center", marginTop: 8, marginBottom: 5 },
-  small: { color: COLORS.text.muted, fontSize: 12 },
-  loginLink: { color: COLORS.primary, fontWeight: "700", fontSize: 12 },
 });

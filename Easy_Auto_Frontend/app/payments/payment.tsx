@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator, SafeAreaView, Platform } from 'react-native';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import Loading from '@/components/ui/Loading';
 import { ENDPOINTS } from '../../constants/API';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
@@ -245,10 +244,7 @@ export default function Payment() {
     date: formatDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
     payout: getSettleDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
     expiryDate: adDetails.expiry_date ? formatDate(adDetails.expiry_date) : undefined,
-    invoice: `INV-${String(adId).substring(0, 10).toUpperCase()}`,
-    coverImage: adDetails.AdImage?.[0]?.image_url || 'blueLogo.png'
     invoice: `INV-${String(adId || rentalAdId).substring(0, 10)}`,
-
     coverImage: (rentalAdId ? adDetails.images?.[0]?.image_url : adDetails.AdImage?.[0]?.image_url) || 'blueLogo.png'
   } : paymentData.summary;
 
@@ -356,8 +352,6 @@ export default function Payment() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={styles.loadingText}>Preparing your checkout...</Text>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f4f6' }}>
-        <Loading />
       </View>
     );
   }

@@ -159,46 +159,42 @@ export default function MyAdsScreen() {
           ))}
         </View>
 
-        {loading ? renderSkeleton() : (
         {loading ? (
-          <Loading message="Loading your ads..." />
+          <Loading message="Loading your ads..." fullScreen={true} />
         ) : (
           <>
-          <BrandedRefreshOverlay refreshing={refreshing} top={240} />
-          <FlatList
-            data={clientFilteredAds}
-            renderItem={({ item }) => (
-              <AdCard ad={item} selected={selected.includes(item.id)} toggleSelect={toggleSelect} />
-            )}
-            keyExtractor={item => item.id}
-            ListEmptyComponent={
-              <View style={styles.emptyState}>
-                <View style={styles.emptyIconCircle}>
-                  <Ionicons name="car-sport-outline" size={40} color={COLORS.primary} />
+            <BrandedRefreshOverlay refreshing={refreshing} top={240} />
+            <FlatList
+              data={clientFilteredAds}
+              renderItem={({ item }) => (
+                <AdCard ad={item} selected={selected.includes(item.id)} toggleSelect={toggleSelect} />
+              )}
+              keyExtractor={item => item.id}
+              ListEmptyComponent={
+                <View style={styles.emptyState}>
+                  <View style={styles.emptyIconCircle}>
+                    <Ionicons name="car-sport-outline" size={40} color={COLORS.primary} />
+                  </View>
+                  <Text style={styles.emptyTitle}>No ads found</Text>
+                  <Text style={styles.emptyDesc}>Try adjusting your search or filters to find what you're looking for.</Text>
+                  <TouchableOpacity style={styles.createBtn} onPress={() => router.push('/cars/sell-car')}>
+                    <Text style={styles.createBtnText}>Create New Ad</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#fff" />
+                  </TouchableOpacity>
                 </View>
-                <Text style={styles.emptyTitle}>No ads found</Text>
-                <Text style={styles.emptyDesc}>Try adjusting your search or filters to find what you're looking for.</Text>
-                <TouchableOpacity style={styles.createBtn} onPress={() => router.push('/cars/sell-car')}>
-                  <Text style={styles.createBtnText}>Create New Ad</Text>
-                  <Ionicons name="arrow-forward" size={16} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            }
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
-            contentContainerStyle={{ paddingBottom: 24 }}
-            refreshControl={
-              <RefreshControl 
-                refreshing={refreshing} 
-                onRefresh={onRefresh} 
-                tintColor="transparent"
-                colors={["transparent"]}
-                progressBackgroundColor="transparent"
-              />
-            }
-          />
+              }
+              contentContainerStyle={[styles.listContent, { paddingBottom: 24 }]}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl 
+                  refreshing={refreshing} 
+                  onRefresh={onRefresh} 
+                  tintColor="transparent"
+                  colors={["transparent"]}
+                  progressBackgroundColor="transparent"
+                />
+              }
+            />
           </>
         )}
       </View>

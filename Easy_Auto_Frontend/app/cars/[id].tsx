@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useState, useRef } from 'react';
 import {
+    ActivityIndicator,
     Alert,
     Dimensions,
     Linking,
@@ -24,9 +25,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ReportModal from '@/components/ui/ReportModal';
+import ImageGallery from '@/components/ui/ImageGallery';
 import { api } from '@/utils/api';
 import ReviewList from '@/components/reviews/ReviewList';
 import ReviewForm from '@/components/reviews/ReviewForm';
+import TrendingCars from '@/components/home/TrendingCars';
 import { useAuth } from '@/contexts/AuthContext';
 
 const { width, height } = Dimensions.get('window');
@@ -51,6 +54,10 @@ export default function AdDetailsScreen() {
     const [showContactModal, setShowContactModal] = useState(false);
     const [sendingChat, setSendingChat] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [galleryVisible, setGalleryVisible] = useState(false);
+    const [initialGalleryIndex, setInitialGalleryIndex] = useState(0);
+    const dummyAnim = useRef(new Animated.Value(1)).current;
+    const dummyAnimSlide = useRef(new Animated.Value(0)).current;
 
     const scrollY = useRef(new Animated.Value(0)).current;
     const galleryRef = useRef<FlatList>(null);
@@ -188,7 +195,7 @@ export default function AdDetailsScreen() {
                 <TouchableOpacity style={styles.floatingBackBtn} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="white" />
                 </TouchableOpacity>
-                <View pointerEvents="none" style={styles.logoCentre}>
+                <View pointerEvents="none" style={styles.logoCentreFixed}>
                     <Image
                         source={require("@/assets/logoHome.png")}
                         contentFit="contain"
@@ -196,7 +203,7 @@ export default function AdDetailsScreen() {
                     />
                 </View>
                 <TouchableOpacity style={styles.floatingShareBtn} onPress={() => setShowShareModal(true)}>
-                    <Ionicons name="share-outline" size={20} color="white" />
+                    <Ionicons name="share-social" size={20} color="white" />
                 </TouchableOpacity>
             </Animated.View>
 
@@ -218,15 +225,22 @@ export default function AdDetailsScreen() {
                         onMomentumScrollEnd={(e) => {
                             setActiveImageIndex(Math.round(e.nativeEvent.contentOffset.x / width));
                         }}
-                        renderItem={({ item }) => (
-                            <View style={{ width, height: GALLERY_HEIGHT }}>
+                        renderItem={({ item, index }) => (
+                            <TouchableOpacity 
+                                activeOpacity={0.9}
+                                onPress={() => {
+                                    setInitialGalleryIndex(index);
+                                    setGalleryVisible(true);
+                                }}
+                                style={{ width, height: GALLERY_HEIGHT }}
+                            >
                                 <Image
                                     source={item.image_url ? { uri: item.image_url } : require('@/assets/images/car.jpg')}
                                     style={{ width, height: GALLERY_HEIGHT }}
                                     contentFit="cover"
                                     transition={200}
                                 />
-                            </View>
+                            </TouchableOpacity>
                         )}
                     />
 
@@ -247,7 +261,7 @@ export default function AdDetailsScreen() {
                         </TouchableOpacity>
                         <View style={styles.galleryTopActions}>
                             <TouchableOpacity style={styles.glassBtn} onPress={() => setShowShareModal(true)}>
-                                <Ionicons name="share-outline" size={20} color="white" />
+                                <Ionicons name="share-social" size={20} color="white" />
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.glassBtn, isFavorite && styles.glassBtnActive]} onPress={handleToggleFavorite} disabled={favoriteLoading}>
                                 <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={20} color={isFavorite ? "#EF4444" : "white"} />
@@ -437,36 +451,41 @@ export default function AdDetailsScreen() {
                     <Ionicons name="flag-outline" size={14} color="#94A3B8" />
                     <Text style={styles.reportText}>Report this Ad</Text>
                 </TouchableOpacity>
+
+                {/* ─── SIMILAR CARS ─── */}
+                <View style={[styles.section, { backgroundColor: 'transparent', elevation: 0, shadowOpacity: 0, paddingHorizontal: 0, marginHorizontal: 0 }]}>
+                    <Text style={[styles.sectionTitle, { paddingHorizontal: 20 }]}>Similar Cars You Might Like</Text>
+                    <TrendingCars 
+                        fadeAnim={dummyAnim} 
+                        slideAnim={dummyAnimSlide} 
+                        trendingCategory="All"
+                        setTrendingCategory={() => {}}
+                    />
+                </View>
+                
             </Animated.ScrollView>
 
             {/* ─── STICKY FOOTER ─── */}
             <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-                <TouchableOpacity style={styles.callBtn} onPress={() => setShowContactModal(true)}>
-                    <Ionicons name="call-outline" size={20} color={COLORS.primary} />
-                    <Text style={styles.callBtnText}>Call</Text>
+                <TouchableOpacity style={styles.actionIconBtn} onPress={handleToggleFavorite} disabled={favoriteLoading}>
+                    <Ionicons name={isFavorite ? "heart" : "heart"} size={22} color={isFavorite ? "#EF4444" : "#94A3B8"} />
+                    <Text style={[styles.actionIconText, isFavorite && { color: "#EF4444" }]}>Save</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity style={styles.actionIconBtn} onPress={() => setShowContactModal(true)}>
+                    <Ionicons name="call" size={22} color={COLORS.primary} />
+                    <Text style={[styles.actionIconText, { color: COLORS.primary }]}>Call</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity style={[styles.chatBtn, sendingChat && { opacity: 0.7 }]} onPress={handleChatWithSeller} disabled={sendingChat}>
                     <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.chatBtnGrad}>
                         {sendingChat ? <ActivityIndicator size="small" color="white" /> : (
                             <>
-                                <Ionicons name="chatbubble-ellipses" size={20} color="white" />
-                                <Text style={styles.chatBtnText}>Chat with Seller</Text>
+                                <Ionicons name="chatbubbles" size={22} color="white" />
+                                <Text style={styles.chatBtnText}>Chat Now</Text>
                             </>
                         )}
                     </LinearGradient>
-                <TouchableOpacity
-                    style={[styles.chatBtn, sendingChat && styles.disabledBtn]}
-                    onPress={handleChatWithSeller}
-                    disabled={sendingChat}
-                >
-                    {sendingChat ? (
-                        <Loading size="small" />
-                    ) : (
-                        <>
-                            <Ionicons name="chatbubble-ellipses-outline" size={22} color="white" />
-                            <Text style={styles.chatBtnText}>Chat Now</Text>
-                        </>
-                    )}
                 </TouchableOpacity>
             </View>
 
@@ -513,6 +532,14 @@ export default function AdDetailsScreen() {
                 </TouchableOpacity>
             </Modal>
 
+            {/* ─── FULL-SCREEN IMAGE GALLERY MODAL ─── */}
+            <ImageGallery
+                images={images}
+                visible={galleryVisible}
+                initialIndex={initialGalleryIndex}
+                onClose={() => setGalleryVisible(false)}
+            />
+
             <ReportModal visible={showReportModal} onClose={() => setShowReportModal(false)} onSubmit={handleReportSubmit} />
         </View>
     );
@@ -527,24 +554,24 @@ const styles = StyleSheet.create({
     // FLOATING HEADER
     floatingHeader: {
         position: 'absolute', top: 0, left: 0, right: 0, zIndex: 200,
-        flexDirection: 'row', alignItems: 'center',
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
         backgroundColor: COLORS.primary,
         paddingHorizontal: 16, paddingBottom: 12,
-        elevation: 8,
-        shadowColor: '#0F172A', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 10,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        elevation: 10,
+        shadowColor: COLORS.primaryDark, shadowOpacity: 0.3, shadowOffset: { width: 0, height: 8 }, shadowRadius: 15,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
     },
-    floatingBackBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-    logoCentre: {
+    floatingBackBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
+    logoCentreFixed: {
         ...StyleSheet.absoluteFillObject,
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 5,
+        zIndex: -1,
         marginTop: 10,
     },
     logoImg: { width: 100, height: 22 },
-    floatingShareBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+    floatingShareBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
 
     // GALLERY
     galleryWrap: { height: GALLERY_HEIGHT, position: 'relative' },
@@ -583,12 +610,12 @@ const styles = StyleSheet.create({
         elevation: 10, shadowColor: COLORS.primary, shadowOpacity: 0.12, shadowOffset: { width: 0, height: 8 }, shadowRadius: 24,
     },
     priceRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-    priceText: { fontSize: 32, fontWeight: '900', color: COLORS.primary, letterSpacing: -1 },
+    priceText: { fontSize: 34, fontWeight: '900', color: COLORS.primary, letterSpacing: -1.2 },
     negotiableBadge: { backgroundColor: COLORS.primaryLight, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1, borderColor: COLORS.primary + '20' },
     negotiableText: { color: COLORS.primary, fontSize: 12, fontWeight: '800' },
     urgentBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#EF4444', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
     urgentText: { color: 'white', fontSize: 12, fontWeight: '800' },
-    adTitle: { fontSize: 22, fontWeight: '800', color: '#0F172A', letterSpacing: -0.5, marginBottom: 12, lineHeight: 28 },
+    adTitle: { fontSize: 24, fontWeight: '900', color: '#0F172A', letterSpacing: -0.8, marginBottom: 12, lineHeight: 30 },
     locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 18 },
     locationText: { fontSize: 14, color: '#64748B', fontWeight: '500', flex: 1 },
     dot2: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#CBD5E1', marginHorizontal: 4 },
@@ -605,14 +632,14 @@ const styles = StyleSheet.create({
     specsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
     specCard: {
         width: (width - 64) / 3,
-        backgroundColor: '#FFFFFF', borderRadius: 20, padding: 14,
-        alignItems: 'center', gap: 8,
-        borderWidth: 1.5, borderColor: '#F1F5F9',
-        elevation: 1, shadowColor: '#000', shadowOpacity: 0.02, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4,
+        backgroundColor: '#FFFFFF', borderRadius: 24, paddingVertical: 18, paddingHorizontal: 10,
+        alignItems: 'center', gap: 10,
+        borderWidth: 1, borderColor: '#E2E8F0',
+        elevation: 4, shadowColor: '#94A3B8', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 10,
     },
-    specIconBox: { width: 44, height: 44, borderRadius: 14, backgroundColor: COLORS.primaryLight, alignItems: 'center', justifyContent: 'center' },
+    specIconBox: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' },
     specLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' },
-    specValue: { fontSize: 14, color: '#0F172A', fontWeight: '800', textAlign: 'center' },
+    specValue: { fontSize: 13, color: '#0F172A', fontWeight: '800', textAlign: 'center' },
 
     // DESCRIPTION
     descText: { fontSize: 15, color: '#475569', lineHeight: 24, fontWeight: '400' },
@@ -623,18 +650,22 @@ const styles = StyleSheet.create({
     featureText: { fontSize: 12, color: '#166534', fontWeight: '600' },
 
     // SELLER
-    sellerCard: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-    sellerAvatar: { width: 56, height: 56, borderRadius: 28, overflow: 'hidden' },
+    sellerCard: { 
+        flexDirection: 'row', alignItems: 'center', gap: 16,
+        backgroundColor: '#F8FAFC', padding: 16, borderRadius: 24,
+        borderWidth: 1, borderColor: '#E2E8F0'
+    },
+    sellerAvatar: { width: 60, height: 60, borderRadius: 30, overflow: 'hidden', borderWidth: 2, borderColor: '#10B981' },
     sellerAvatarImg: { width: '100%', height: '100%' },
     sellerAvatarGrad: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' },
     sellerInitial: { color: 'white', fontSize: 22, fontWeight: '800' },
     sellerInfo: { flex: 1 },
     sellerNameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-    sellerName: { fontSize: 15, fontWeight: '800', color: '#0F172A' },
-    verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#10B981', paddingHorizontal: 7, paddingVertical: 3, borderRadius: 10 },
-    verifiedText: { color: 'white', fontSize: 10, fontWeight: '700' },
-    sellerMeta: { fontSize: 12, color: '#64748B', marginTop: 3 },
-    sellerPhone: { fontSize: 13, color: COLORS.primary, fontWeight: '700', marginTop: 4 },
+    sellerName: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
+    verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#059669', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+    verifiedText: { color: 'white', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+    sellerMeta: { fontSize: 13, color: '#64748B', marginTop: 4, fontWeight: '500' },
+    sellerPhone: { fontSize: 14, color: COLORS.primary, fontWeight: '700', marginTop: 6 },
 
     // SHARE
     shareRow: { flexDirection: 'row', gap: 12 },
@@ -658,20 +689,23 @@ const styles = StyleSheet.create({
     // FOOTER
     footer: {
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        backgroundColor: 'white', flexDirection: 'row',
-        paddingHorizontal: 16, paddingTop: 12, gap: 12,
-        borderTopLeftRadius: 24, borderTopRightRadius: 24,
-        elevation: 20, shadowColor: '#0F172A', shadowOpacity: 0.12, shadowOffset: { width: 0, height: -4 }, shadowRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.85)', // more translucent glass
+        flexDirection: 'row',
+        paddingHorizontal: 16, paddingTop: 16, gap: 12,
+        borderTopLeftRadius: 32, borderTopRightRadius: 32,
+        borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.4)',
+        elevation: 24, shadowColor: '#0F172A', shadowOpacity: 0.15, shadowOffset: { width: 0, height: -8 }, shadowRadius: 24,
     },
-    callBtn: {
-        width: 64, height: 52, borderRadius: 16,
-        borderWidth: 2, borderColor: COLORS.primary,
-        alignItems: 'center', justifyContent: 'center', gap: 2,
+    actionIconBtn: {
+        width: 68, height: 60, borderRadius: 20,
+        backgroundColor: '#F8FAFC',
+        alignItems: 'center', justifyContent: 'center', gap: 4,
+        borderWidth: 1, borderColor: '#E2E8F0',
     },
-    callBtnText: { fontSize: 10, color: COLORS.primary, fontWeight: '700' },
-    chatBtn: { flex: 1, borderRadius: 16, overflow: 'hidden' },
-    chatBtnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14 },
-    chatBtnText: { color: 'white', fontWeight: '800', fontSize: 15 },
+    actionIconText: { fontSize: 11, color: '#94A3B8', fontWeight: '800' },
+    chatBtn: { flex: 1, borderRadius: 20, overflow: 'hidden', elevation: 8, shadowColor: COLORS.primary, shadowOpacity: 0.3, shadowOffset: { width: 0, height: 4 }, shadowRadius: 12 },
+    chatBtnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 60 },
+    chatBtnText: { color: 'white', fontWeight: '800', fontSize: 16, letterSpacing: -0.3 },
 
     // CONTACT MODAL
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },

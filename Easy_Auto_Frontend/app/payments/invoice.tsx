@@ -13,7 +13,7 @@ import {
   SafeAreaView, 
   Platform 
 } from 'react-native';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+
 import Loading from '@/components/ui/Loading';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import { api } from '@/utils/api';
@@ -100,7 +100,7 @@ export default function PackageInvoice() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
         <Loading />
       </View>
     );
