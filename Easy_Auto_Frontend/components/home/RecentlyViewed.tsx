@@ -46,7 +46,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
             try {
                 const res: any = await api.get("/api/cars?status=ACTIVE&limit=10&sort=created_at&order=desc");
                 if (res.success) setAds(res.data || []);
-            } catch {}
+            } catch { }
             finally { setLoading(false); }
         })();
     }, []);

@@ -13,7 +13,6 @@ import {
   Platform
 } from 'react-native';
 import { COLORS } from '@/constants/Colors';
-
 import Header from "../../components/Header";
 import PaymentCard from '../../components/payments/history/PaymentCard';
 import PaymentSearch from '../../components/payments/history/PaymentSearch';
@@ -40,8 +39,12 @@ export default function PaymentHistoryScreen() {
           plan: p.plan,
           type: 'Ad Post',
           amount: p.amount,
-          status: p.status === 'SUCCESS' ? 'Successful' : p.status === 'FAILED' ? 'Failed' : p.status,
-          card: 'PayHere'
+          status: p.status === 'SUCCESS' ? 'Successful' : p.status === 'FAILED' ? 'Failed' : p.status === 'PENDING' ? 'Pending' : p.status,
+          card: 'PayHere',
+          adId: p.adId,
+          rentalAdId: p.rentalAdId,
+          packageId: p.packageId,
+          rawAmount: p.rawAmount
         }));
         setPayments(mapped);
       }
@@ -116,7 +119,11 @@ export default function PaymentHistoryScreen() {
         plan: item.plan,
         status: item.status,
         card: item.card,
-        type: item.type
+        type: item.type,
+        adId: (item as any).adId,
+        rentalAdId: (item as any).rentalAdId,
+        packageId: (item as any).packageId,
+        rawAmount: (item as any).rawAmount
       },
     } as any);
   };
@@ -133,31 +140,31 @@ export default function PaymentHistoryScreen() {
   return (
     <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header 
-        showBack={true} 
-        title="Payment History" 
+      <Header
+        showBack={true}
+        title="Payment History"
       />
 
       <SafeAreaView style={styles.safe}>
         <View style={styles.totalInvestmentBar}>
-            <View style={styles.investmentInfo}>
-                <Text style={styles.investmentLabel}>Total Lifetime Investment</Text>
-                <Text style={styles.investmentValue}>{summaryData.totalSpent}</Text>
-            </View>
-            <View style={styles.investmentBadge}>
-                <Ionicons name="trending-up" size={16} color={COLORS.primary} />
-            </View>
+          <View style={styles.investmentInfo}>
+            <Text style={styles.investmentLabel}>Total Lifetime Investment</Text>
+            <Text style={styles.investmentValue}>{summaryData.totalSpent}</Text>
+          </View>
+          <View style={styles.investmentBadge}>
+            <Ionicons name="trending-up" size={16} color={COLORS.primary} />
+          </View>
         </View>
 
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.contentContainer}
-            showsVerticalScrollIndicator={false}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
             <View style={styles.badgeContainer}>
-                <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
+              <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
             </View>
           </View>
 
@@ -169,10 +176,10 @@ export default function PaymentHistoryScreen() {
                 <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
               ))
             ) : (
-                <View style={styles.emptyContainer}>
-                    <Ionicons name="receipt-outline" size={48} color={COLORS.text.placeholder} />
-                    <Text style={styles.emptyText}>No transactions found</Text>
-                </View>
+              <View style={styles.emptyContainer}>
+                <Ionicons name="receipt-outline" size={48} color={COLORS.text.placeholder} />
+                <Text style={styles.emptyText}>No transactions found</Text>
+              </View>
             )}
           </View>
         </ScrollView>

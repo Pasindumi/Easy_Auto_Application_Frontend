@@ -18,19 +18,15 @@ import {
   Alert,
   RefreshControl,
   Image,
-  Image as RNImage,
-  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '@/utils/api';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import { useToast } from '@/contexts/ToastContext';
 
-
 export default function ProfileScreen() {
   useProtectedRoute();
-  
+
   const router = useRouter();
   const { user, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
@@ -125,44 +121,71 @@ export default function ProfileScreen() {
     </TouchableOpacity>
   );
 
-  const StatCard = ({ icon, value, label, colors }: any) => (
-    <LinearGradient colors={colors} style={styles.statCardGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-      <View style={styles.statIconBoxPremium}>
-        <MaterialCommunityIcons name={icon} size={24} color={colors[0]} />
+  const StatCard = ({ icon, value, label, color }: any) => (
+    <View style={styles.statCard}>
+      <View style={[styles.statIconBoxMinimal, { backgroundColor: `${color}10` }]}>
+        <MaterialCommunityIcons name={icon} size={22} color={color} />
       </View>
-      <View style={styles.statContentPremium}>
-        <Text style={styles.statValuePremium}>{value}</Text>
-        <Text style={styles.statLabelPremium}>{label}</Text>
+      <View style={styles.statContent}>
+        <Text style={styles.statValueMinimal}>{value}</Text>
+        <Text style={styles.statLabelMinimal}>{label}</Text>
       </View>
-    </LinearGradient>
+    </View>
   );
-
-  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-
-      <ProfileHeader title="My Profile" />
+      <Header title="My Profile" showBack={true} />
 
       <BrandedRefreshOverlay refreshing={refreshing} top={180} />
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.container, { paddingTop: 200 }]} // Offset for absolute ProfileHeader
+        contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="transparent"
-            colors={["transparent"]}
-            progressBackgroundColor="transparent"
+            tintColor={COLORS.primary}
+            progressBackgroundColor="#fff"
           />
         }
       >
-        {/* User Identity Card (Clean & Modern) - REMOVED since ProfileHeader has it */}
-        <View style={{ height: 10 }} />
+        {/* User Identity Card (Clean & Modern) */}
+        <View style={styles.profileMasterCard}>
+          <View style={styles.profileMasterContent}>
+            <View style={styles.avatarWrapper}>
+              <Image
+                source={user?.avatar ? { uri: user.avatar } : require('@/assets/images/user.jpeg')}
+                style={styles.masterAvatar}
+              />
+              <LinearGradient
+                colors={user?.is_premium ? ["#FCD34D", "#F59E0B"] : ["#10B981", "#059669"]}
+                style={styles.masterStatusDot}
+              />
+            </View>
+            <View style={styles.masterInfo}>
+              <View style={styles.masterNameRow}>
+                <Text style={styles.masterName}>{user?.name || 'EasyAuto User'}</Text>
+                {user?.is_premium && (
+                  <LinearGradient colors={["#FCD34D", "#F59E0B"]} style={styles.masterProTag}>
+                    <Ionicons name="star" size={10} color="#fff" />
+                    <Text style={styles.masterProText}>PRO</Text>
+                  </LinearGradient>
+                )}
+              </View>
+              <Text style={styles.masterEmail}>{user?.email}</Text>
+              <TouchableOpacity
+                style={styles.editProfilePill}
+                onPress={() => handleMenuItemPress('/profile/edit-profile')}
+              >
+                <Ionicons name="create-outline" size={14} color={COLORS.primary} />
+                <Text style={styles.editProfileText}>Edit Profile</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
 
         {/* Aesthetic Stats Section */}
         <View style={styles.statsContainer}>
@@ -170,25 +193,24 @@ export default function ProfileScreen() {
             icon="car-multiple"
             value={loading ? '..' : stats.listings}
             label="Ads"
-            colors={["#6366F1", "#818CF8"]}
+            color="#6366F1"
           />
           <StatCard
             icon="heart"
             value={loading ? '..' : stats.saved}
             label="Saved"
-            colors={["#EC4899", "#F472B6"]}
+            color="#EC4899"
           />
           <StatCard
             icon="eye"
             value={loading ? '..' : stats.views}
             label="Views"
-            colors={["#10B981", "#34D399"]}
+            color="#10B981"
           />
         </View>
 
-        {/* Settings Sections */}
+        {/* Clean Settings List */}
         <View style={styles.settingsWrapper}>
-          <Text style={styles.sectionLabel}>Account Settings</Text>
           <View style={styles.card}>
             <SettingItem
               icon="location-outline"
@@ -199,13 +221,10 @@ export default function ProfileScreen() {
             <SettingItem
               icon="shield-checkmark-outline"
               title="Identity Verification"
-              onPress={() => {}}
+              onPress={() => { }}
               color="#10B981"
             />
-          </View>
-
-          <Text style={styles.sectionLabel}>Preferences</Text>
-          <View style={styles.card}>
+            <View style={styles.itemDivider} />
             <SettingItem
               icon="notifications-outline"
               title="Notifications"
@@ -234,10 +253,7 @@ export default function ProfileScreen() {
               onPress={() => handleMenuItemPress('/settings/select-language')}
               color="#3B82F6"
             />
-          </View>
-
-          <Text style={styles.sectionLabel}>Support & Legal</Text>
-          <View style={styles.card}>
+            <View style={styles.itemDivider} />
             <SettingItem
               icon="lock-closed-outline"
               title="Privacy & Security"
@@ -388,54 +404,44 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    gap: 12,
-    marginBottom: 24,
+    marginHorizontal: 16,
+    marginBottom: 28,
+    gap: 10,
   },
-  statCardGradient: {
+  statCard: {
     flex: 1,
-    padding: 16,
-    borderRadius: 24,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
-  statIconBoxPremium: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#fff',
+  statIconBoxMinimal: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
-  statContentPremium: {
+  statContent: {
     alignItems: 'center',
   },
-  statValuePremium: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#fff',
-    marginBottom: 2,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  statValueMinimal: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#1E293B',
+    letterSpacing: -0.5,
   },
-  statLabelPremium: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '600',
+  statLabelMinimal: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#94A3B8',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    marginTop: 2,
   },
   itemDivider: {
     height: 1,
@@ -457,29 +463,17 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   settingsWrapper: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-  },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#94A3B8',
-    marginLeft: 8,
-    marginBottom: 10,
-    marginTop: 18,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    marginTop: 8,
   },
   card: {
     backgroundColor: '#fff',
     borderRadius: 24,
     paddingVertical: 8,
-    elevation: 3,
-    shadowColor: '#64748B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
     shadowRadius: 10,
-    marginBottom: 16,
   },
   settingItem: {
     flexDirection: 'row',

@@ -2,18 +2,17 @@ import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { 
-  ScrollView, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  Alert, 
-  ActivityIndicator, 
-  SafeAreaView, 
-  Platform 
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+  ActivityIndicator,
+  SafeAreaView,
+  Platform
 } from 'react-native';
-
 import Loading from '@/components/ui/Loading';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import { api } from '@/utils/api';
@@ -24,7 +23,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 export default function PackageInvoice() {
   useProtectedRoute();
   const router = useRouter();
-  const { plan, price, days, packageId } = useLocalSearchParams();
+  const { plan, price, days, packageId, adId } = useLocalSearchParams();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
@@ -34,6 +33,7 @@ export default function PackageInvoice() {
   const planPrice = parseFloat(Array.isArray(price) ? price[0] : price || '0');
   const planDays = parseInt(Array.isArray(days) ? days[0] : days || '0');
   const pkgIdString = Array.isArray(packageId) ? packageId[0] : packageId;
+  const adIdString = Array.isArray(adId) ? adId[0] : adId;
 
   useEffect(() => {
     fetchDiscounts();
@@ -43,20 +43,20 @@ export default function PackageInvoice() {
     try {
       setLoading(true);
       const items = [{ label: `${planName} (${planDays} Days)`, price: planPrice }];
-      
+
       if (pkgIdString) {
         const res: any = await api.get('/api/discounts/active');
         const activeDiscounts = res.success ? (res.data || []) : (Array.isArray(res) ? res : []);
-        
-        const discount = activeDiscounts.find((d: any) => 
+
+        const discount = activeDiscounts.find((d: any) =>
           d.discount_packages?.some((dp: any) => String(dp.package_id) === String(pkgIdString))
         );
 
         if (discount) {
-          const discountAmt = discount.discount_type === 'PERCENTAGE' 
-            ? (planPrice * discount.value) / 100 
+          const discountAmt = discount.discount_type === 'PERCENTAGE'
+            ? (planPrice * discount.value) / 100
             : discount.value;
-            
+
           items.push({ label: `Discount: ${discount.name}`, price: -Math.min(discountAmt, planPrice) });
         }
       }
@@ -79,6 +79,7 @@ export default function PackageInvoice() {
         amount: total.toFixed(2),
         userId: user.id,
         packageId: pkgIdString,
+        adId: adIdString,
         planName: planName
       });
 
@@ -100,7 +101,7 @@ export default function PackageInvoice() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
+      <View style={styles.center}>
         <Loading />
       </View>
     );
@@ -113,100 +114,100 @@ export default function PackageInvoice() {
 
       <SafeAreaView style={styles.safe}>
         <View style={styles.topBanner}>
-            <Ionicons name="shield-checkmark" size={16} color={COLORS.status.success} />
-            <Text style={styles.topBannerText}>SSL SECURED TRANSACTION</Text>
+          <Ionicons name="shield-checkmark" size={16} color={COLORS.status.success} />
+          <Text style={styles.topBannerText}>SSL SECURED TRANSACTION</Text>
         </View>
 
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
           {loading ? (
             <View style={styles.loader}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
-                <Text style={styles.loaderText}>Validating your order...</Text>
+              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Text style={styles.loaderText}>Validating your order...</Text>
             </View>
           ) : (
             <>
-                <View style={styles.planCard}>
-                    <LinearGradient
-                        colors={[COLORS.primary, '#1e40af']}
-                        style={styles.iconBg}
-                    >
-                        <Ionicons name="flash" size={24} color="#fff" />
-                    </LinearGradient>
-                    <View style={styles.planInfo}>
-                        <Text style={styles.planTitle}>{planName}</Text>
-                        <Text style={styles.planMeta}>Valid for {planDays} days from date of purchase</Text>
-                    </View>
+              <View style={styles.planCard}>
+                <LinearGradient
+                  colors={[COLORS.primary, '#1e40af']}
+                  style={styles.iconBg}
+                >
+                  <Ionicons name="flash" size={24} color="#fff" />
+                </LinearGradient>
+                <View style={styles.planInfo}>
+                  <Text style={styles.planTitle}>{planName}</Text>
+                  <Text style={styles.planMeta}>Valid for {planDays} days from date of purchase</Text>
                 </View>
+              </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Order Summary</Text>
-                    <View style={styles.itemsList}>
-                        {orderItems.map((item, index) => (
-                            <View key={index} style={styles.itemRow}>
-                                <Text style={[styles.itemLabel, item.price < 0 && styles.discountLabel]}>{item.label}</Text>
-                                <Text style={[styles.itemPrice, item.price < 0 && styles.discountPrice]}>
-                                    {item.price < 0 ? '-' : ''}Rs. {Math.abs(item.price).toLocaleString()}
-                                </Text>
-                            </View>
-                        ))}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Order Summary</Text>
+                <View style={styles.itemsList}>
+                  {orderItems.map((item, index) => (
+                    <View key={index} style={styles.itemRow}>
+                      <Text style={[styles.itemLabel, item.price < 0 && styles.discountLabel]}>{item.label}</Text>
+                      <Text style={[styles.itemPrice, item.price < 0 && styles.discountPrice]}>
+                        {item.price < 0 ? '-' : ''}Rs. {Math.abs(item.price).toLocaleString()}
+                      </Text>
                     </View>
-                    <View style={styles.divider} />
-                    <View style={styles.totalRow}>
-                        <Text style={styles.totalLabel}>Total Payable</Text>
-                        <Text style={styles.totalValue}>Rs. {total.toLocaleString()}</Text>
-                    </View>
+                  ))}
                 </View>
+                <View style={styles.divider} />
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Total Payable</Text>
+                  <Text style={styles.totalValue}>Rs. {total.toLocaleString()}</Text>
+                </View>
+              </View>
 
-                <View style={styles.userSection}>
-                    <Text style={styles.sectionTitle}>Billing Account</Text>
-                    <View style={styles.userCard}>
-                        <View style={styles.userAvatar}>
-                            <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'U'}</Text>
-                        </View>
-                        <View>
-                            <Text style={styles.userName}>{user?.name || 'Authorized Buyer'}</Text>
-                            <Text style={styles.userEmail}>{user?.email || 'customer@easyauto.lk'}</Text>
-                        </View>
-                    </View>
+              <View style={styles.userSection}>
+                <Text style={styles.sectionTitle}>Billing Account</Text>
+                <View style={styles.userCard}>
+                  <View style={styles.userAvatar}>
+                    <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'U'}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.userName}>{user?.name || 'Authorized Buyer'}</Text>
+                    <Text style={styles.userEmail}>{user?.email || 'customer@easyauto.lk'}</Text>
+                  </View>
                 </View>
+              </View>
 
-                <View style={styles.trustBox}>
-                   <View style={styles.trustItem}>
-                     <Ionicons name="lock-closed-outline" size={18} color="#64748b" />
-                     <Text style={styles.trustText}>Encrypted Payment</Text>
-                   </View>
-                   <View style={styles.trustItem}>
-                     <Ionicons name="refresh-outline" size={18} color="#64748b" />
-                     <Text style={styles.trustText}>Cancel Anytime</Text>
-                   </View>
-                   <View style={styles.trustItem}>
-                     <Ionicons name="help-circle-outline" size={18} color="#64748b" />
-                     <Text style={styles.trustText}>24/7 Support</Text>
-                   </View>
+              <View style={styles.trustBox}>
+                <View style={styles.trustItem}>
+                  <Ionicons name="lock-closed-outline" size={18} color="#64748b" />
+                  <Text style={styles.trustText}>Encrypted Payment</Text>
                 </View>
+                <View style={styles.trustItem}>
+                  <Ionicons name="refresh-outline" size={18} color="#64748b" />
+                  <Text style={styles.trustText}>Cancel Anytime</Text>
+                </View>
+                <View style={styles.trustItem}>
+                  <Ionicons name="help-circle-outline" size={18} color="#64748b" />
+                  <Text style={styles.trustText}>24/7 Support</Text>
+                </View>
+              </View>
             </>
           )}
         </ScrollView>
 
         <View style={styles.footer}>
-            <TouchableOpacity 
-                style={styles.payBtn}
-                onPress={handleConfirmPayment}
-                disabled={loading}
-            >
-                {loading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <>
-                        <Text style={styles.payBtnText}>Confirm and Pay Rs. {total.toLocaleString()}</Text>
-                        <Ionicons name="arrow-forward" size={20} color="#fff" />
-                    </>
-                )}
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.payBtn}
+            onPress={handleConfirmPayment}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Text style={styles.payBtnText}>Confirm and Pay Rs. {total.toLocaleString()}</Text>
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
+              </>
+            )}
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </View>
@@ -214,6 +215,12 @@ export default function PackageInvoice() {
 }
 
 const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
   outerContainer: {
     flex: 1,
     backgroundColor: '#fff',
@@ -229,7 +236,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 12,
     backgroundColor: '#fff',
-    borderBottomWidth:1,
+    borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
   topBannerText: {

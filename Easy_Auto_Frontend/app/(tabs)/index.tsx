@@ -20,6 +20,7 @@ import COLORS from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/utils/api";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
     Animated,
     Easing,
@@ -38,6 +39,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
     const { isAuthenticated } = useAuth();
+    const { t } = useTranslation();
 
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [searchFocused, setSearchFocused] = useState(false);
@@ -121,7 +123,7 @@ export default function HomeScreen() {
                 <View style={styles.inner}>
                     {/* 1. Explore Easyauto */}
                     <View style={styles.sectionHeaderContainer}>
-                        <Text style={styles.sectionTitle}>Explore EasyAuto</Text>
+                        <Text style={styles.sectionTitle}>{t("home_screen.explore", "Explore EasyAuto")}</Text>
                     </View>
                     <View style={styles.section}>
                         <ActionGrid fadeAnim={fadeAnim} slideAnim={slideAnim} compareCount={0} newListingsCount={0} />
@@ -129,9 +131,9 @@ export default function HomeScreen() {
 
                     {/* 2. Trending Now */}
                     <View style={styles.section}>
-                        <TrendingCars 
-                            fadeAnim={fadeAnim} 
-                            slideAnim={slideAnim} 
+                        <TrendingCars
+                            fadeAnim={fadeAnim}
+                            slideAnim={slideAnim}
                             trendingCategory={trendingCategory}
                             setTrendingCategory={setTrendingCategory}
                         />
@@ -198,11 +200,11 @@ const styles = StyleSheet.create({
     root: { flex: 1, backgroundColor: "#F8FAFF" },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 110 },
-    inner: { 
+    inner: {
         backgroundColor: "#F8FAFF",
         gap: 32, // Consistent space between sections
     },
-    section: { 
+    section: {
         backgroundColor: "#fff",
     },
     sectionHeaderContainer: {

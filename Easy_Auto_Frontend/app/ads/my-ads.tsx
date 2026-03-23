@@ -48,7 +48,7 @@ export default function MyAdsScreen() {
           image: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=300&h=200",
           views: ad.views_count || 0,
           likes: ad.likes_count || 0,
-          messages: 0 
+          messages: 0
         }));
         setAds(mappedAds);
       }
@@ -124,10 +124,10 @@ export default function MyAdsScreen() {
       <View style={styles.content}>
         {/* Search Bar */}
         <View style={styles.searchFilterContainer}>
-          <SearchBar 
-            value={searchQuery} 
-            onChange={setSearchQuery} 
-            placeholder="Search ads by title..." 
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search ads by title..."
           />
         </View>
 
@@ -139,7 +139,7 @@ export default function MyAdsScreen() {
             { id: 'draft', label: 'Drafts', count: counts.draft },
             { id: 'expired', label: 'Paused', count: counts.paused },
           ].map((tab) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               key={tab.id}
               style={[styles.filterTab, selectedFilter === tab.id && styles.filterTabActive]}
               onPress={() => {
@@ -160,7 +160,7 @@ export default function MyAdsScreen() {
         </View>
 
         {loading ? (
-          <Loading message="Loading your ads..." fullScreen={true} />
+          <Loading message="Loading your ads..." />
         ) : (
           <>
             <BrandedRefreshOverlay refreshing={refreshing} top={240} />
@@ -186,12 +186,10 @@ export default function MyAdsScreen() {
               contentContainerStyle={[styles.listContent, { paddingBottom: 24 }]}
               showsVerticalScrollIndicator={false}
               refreshControl={
-                <RefreshControl 
-                  refreshing={refreshing} 
-                  onRefresh={onRefresh} 
-                  tintColor="transparent"
-                  colors={["transparent"]}
-                  progressBackgroundColor="transparent"
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={COLORS.primary}
                 />
               }
             />
@@ -204,8 +202,8 @@ export default function MyAdsScreen() {
         <View style={[styles.bulkActions, { bottom: insets.bottom + 16 }]}>
           <Text style={styles.bulkCount}>{selected.length} Selected</Text>
           <View style={styles.bulkRight}>
-            <TouchableOpacity 
-              style={styles.bulkBtn} 
+            <TouchableOpacity
+              style={styles.bulkBtn}
               onPress={() => {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                 showToast({ message: `${selected.length} ads have been paused successfully.`, type: 'info' });
@@ -214,8 +212,8 @@ export default function MyAdsScreen() {
             >
               <Ionicons name="pause-outline" size={20} color={COLORS.primary} />
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.bulkBtn, styles.bulkBtnDelete]} 
+            <TouchableOpacity
+              style={[styles.bulkBtn, styles.bulkBtnDelete]}
               onPress={() => {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
                 showToast({ message: `${selected.length} ads have been deleted successfully.`, type: 'success' });

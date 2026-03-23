@@ -363,14 +363,14 @@ export default function Payment() {
 
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerIndicator}>
-            <Ionicons name="shield-checkmark" size={18} color={COLORS.status.success} />
-            <Text style={styles.headerIndicatorText}>Secure Checkout</Text>
+          <Ionicons name="shield-checkmark" size={18} color={COLORS.status.success} />
+          <Text style={styles.headerIndicatorText}>Secure Checkout</Text>
         </View>
 
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.contentContainer}
-            showsVerticalScrollIndicator={false}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.mainContent}>
             <PaymentSummaryHeader summary={displaySummary} />
@@ -382,27 +382,27 @@ export default function Payment() {
         </ScrollView>
 
         <View style={styles.bottomActions}>
-            <View style={styles.totalSummary}>
-                <View>
-                    <Text style={styles.totalLabel}>Total to Pay</Text>
-                    <Text style={styles.totalValue}>LKR {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
-                </View>
-                <TouchableOpacity style={styles.payBtn} onPress={handlePayHere}>
-                    <Text style={styles.payBtnText}>Confirm & Pay</Text>
-                    <Ionicons name="arrow-forward" size={18} color="#fff" />
-                </TouchableOpacity>
+          <View style={styles.totalSummary}>
+            <View>
+              <Text style={styles.totalLabel}>Total to Pay</Text>
+              <Text style={styles.totalValue}>LKR {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
             </View>
-            
-            <View style={styles.secondaryActions}>
-                <TouchableOpacity style={styles.outlineBtn} onPress={() => router.push('/packages/packages')}>
-                    <Ionicons name="cube-outline" size={18} color={COLORS.primary} />
-                    <Text style={styles.outlineBtnText}>View Packages</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.outlineBtn, styles.modifyBtn]} onPress={() => router.back()}>
-                    <Ionicons name="create-outline" size={18} color={COLORS.text.secondary} />
-                    <Text style={[styles.outlineBtnText, styles.modifyBtnText]}>Modify Ad</Text>
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.payBtn} onPress={handlePayHere}>
+              <Text style={styles.payBtnText}>Confirm & Pay</Text>
+              <Ionicons name="arrow-forward" size={18} color="#fff" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.secondaryActions}>
+            <TouchableOpacity style={styles.outlineBtn} onPress={() => router.push('/packages/packages')}>
+              <Ionicons name="cube-outline" size={18} color={COLORS.primary} />
+              <Text style={styles.outlineBtnText}>View Packages</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.outlineBtn, styles.modifyBtn]} onPress={() => router.back()}>
+              <Ionicons name="create-outline" size={18} color={COLORS.text.secondary} />
+              <Text style={[styles.outlineBtnText, styles.modifyBtnText]}>Modify Ad</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
     </View>
@@ -419,8 +419,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
   },
   loadingContainer: {
-    flex: 1, 
-    justifyContent: 'center', 
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
   },

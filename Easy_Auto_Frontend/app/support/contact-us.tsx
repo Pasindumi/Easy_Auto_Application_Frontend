@@ -99,10 +99,10 @@ export default function ContactUsScreen() {
                                     setMode("INQUIRY");
                                 }}
                             >
-                                <Ionicons 
-                                    name="chatbox-ellipses-outline" 
-                                    size={16} 
-                                    color={mode === "INQUIRY" ? COLORS.primary : "#6B7280"} 
+                                <Ionicons
+                                    name="chatbox-ellipses-outline"
+                                    size={16}
+                                    color={mode === "INQUIRY" ? COLORS.primary : "#6B7280"}
                                 />
                                 <Text style={[styles.toggleText, mode === "INQUIRY" && styles.toggleTextActive]}>Inquiry</Text>
                             </TouchableOpacity>
@@ -113,10 +113,10 @@ export default function ContactUsScreen() {
                                     setMode("COMPLAINT");
                                 }}
                             >
-                                <Ionicons 
-                                    name="alert-circle-outline" 
-                                    size={16} 
-                                    color={mode === "COMPLAINT" ? COLORS.primary : "#6B7280"} 
+                                <Ionicons
+                                    name="alert-circle-outline"
+                                    size={16}
+                                    color={mode === "COMPLAINT" ? COLORS.primary : "#6B7280"}
                                 />
                                 <Text style={[styles.toggleText, mode === "COMPLAINT" && styles.toggleTextActive]}>Complaint</Text>
                             </TouchableOpacity>
@@ -236,8 +236,6 @@ export default function ContactUsScreen() {
                             </TouchableOpacity>
                         </View>
 
-
-                        
                         <View style={{ height: 40 }} />
                     </ScrollView>
                 </KeyboardAvoidingView>

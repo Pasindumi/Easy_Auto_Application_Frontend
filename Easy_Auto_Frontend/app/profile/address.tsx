@@ -1,6 +1,6 @@
 // app/profile/address.tsx
 
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import {
@@ -34,7 +34,7 @@ const DISTRICTS = [
 
 export default function Address() {
   const router = useRouter();
-  const { user, accessToken, logout } = useAuth();
+  const { user, accessToken, updateUser } = useAuth();
 
   const scale = useSharedValue(1);
 
@@ -60,10 +60,10 @@ export default function Address() {
   const [postalCode, setPostalCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const [showDistrictModal, setShowDistrictModal] = useState(false);
 
-  // Load user address on mount
   useEffect(() => {
     loadUserAddress();
   }, [user]);
@@ -74,7 +74,11 @@ export default function Address() {
       if (user) {
         setFullName(user.name || '');
         setMobile(user.phone || '');
-        // In a real app, you'd fetch more details from API
+        setAddressLine1(user.address_line1 || '');
+        setAddressLine2(user.address_line2 || '');
+        setCity(user.city || '');
+        setDistrict(user.district || '');
+        setPostalCode(user.postal_code || '');
       }
     } catch (error) {
       console.error('[Address] Error loading user address:', error);
@@ -91,7 +95,6 @@ export default function Address() {
 
     try {
       setSaving(true);
-      // Simulating API call as requested "interfaces only" change mostly
       if (!accessToken || !user) {
         Alert.alert('Error', 'User not authenticated');
         return;
@@ -104,11 +107,24 @@ export default function Address() {
           'Authorization': `Bearer ${accessToken}`,
           'ngrok-skip-browser-warning': 'true',
         },
-        body: JSON.stringify({ fullName, mobile, addressLine1, addressLine2, city, district, postalCode }),
+        body: JSON.stringify({
+          name: fullName,
+          phone: mobile,
+          addressLine1,
+          addressLine2,
+          city,
+          district,
+          postalCode
+        }),
       });
 
       if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          await updateUser(result.data);
+        }
         Alert.alert('Success', 'Profile updated successfully!');
+        setIsEditing(false);
       } else {
         const err = await response.json();
         Alert.alert('Error', err.message || 'Failed to update profile');
@@ -129,7 +145,17 @@ export default function Address() {
   return (
     <SafeAreaView style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header title="Delivery Address" showBack={true} />
+      <Header
+        title="Delivery Address"
+        showBack={true}
+        rightElement={
+          !isEditing && (
+            <TouchableOpacity onPress={() => setIsEditing(true)}>
+              <Text style={{ color: '#fff', fontWeight: '700' }}>Edit</Text>
+            </TouchableOpacity>
+          )
+        }
+      />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -143,16 +169,18 @@ export default function Address() {
           keyboardShouldPersistTaps="handled"
         >
           {loading ? (
-            <Loading style={{ marginTop: 70 }} />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
+              <Loading />
+            </View>
           ) : (
             <>
-              {/* ---------- LOCATION ---------- */}
               {renderSectionHeader("LOCATION")}
               <View style={styles.sectionCard}>
                 <TouchableOpacity
-                  style={styles.selectorRow}
-                  onPress={() => setShowDistrictModal(true)}
+                  style={[styles.selectorRow, !isEditing && styles.rowDisabled]}
+                  onPress={() => isEditing && setShowDistrictModal(true)}
                   activeOpacity={0.7}
+                  disabled={!isEditing}
                 >
                   <View style={styles.rowIconGroupSide}>
                     <Ionicons name="location-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
@@ -163,143 +191,176 @@ export default function Address() {
                       </Text>
                     </View>
                   </View>
-                  <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                  {isEditing && <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
                 </TouchableOpacity>
 
                 <View style={styles.divider} />
 
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
                   <Ionicons name="business-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
                     <Text style={styles.rowLabel}>City / Area</Text>
-                    <TextInput
-                      style={styles.rowInput}
-                      placeholder="Enter city or area"
-                      value={city}
-                      onChangeText={setCity}
-                      placeholderTextColor="#9CA3AF"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.rowInput}
+                        placeholder="Enter city or area"
+                        value={city}
+                        onChangeText={setCity}
+                        placeholderTextColor="#9CA3AF"
+                      />
+                    ) : (
+                      <Text style={[styles.rowValueText, !city && styles.placeholder]}>
+                        {city || "Not set"}
+                      </Text>
+                    )}
                   </View>
                 </View>
               </View>
 
-              {/* ---------- CONTACT DETAILS ---------- */}
               {renderSectionHeader("CONTACT DETAILS")}
               <View style={styles.sectionCard}>
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
                   <Ionicons name="person-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
                     <Text style={styles.rowLabel}>Full Name</Text>
-                    <TextInput
-                      style={styles.rowInput}
-                      placeholder="Enter full name"
-                      value={fullName}
-                      onChangeText={setFullName}
-                      placeholderTextColor="#9CA3AF"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.rowInput}
+                        placeholder="Enter full name"
+                        value={fullName}
+                        onChangeText={setFullName}
+                        placeholderTextColor="#9CA3AF"
+                      />
+                    ) : (
+                      <Text style={[styles.rowValueText, !fullName && styles.placeholder]}>
+                        {fullName || "Not set"}
+                      </Text>
+                    )}
                   </View>
                 </View>
                 <View style={styles.divider} />
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
                   <Ionicons name="call-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
                     <Text style={styles.rowLabel}>Mobile Number</Text>
-                    <TextInput
-                      style={styles.rowInput}
-                      placeholder="Enter mobile number"
-                      value={mobile}
-                      onChangeText={setMobile}
-                      keyboardType="phone-pad"
-                      placeholderTextColor="#9CA3AF"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.rowInput}
+                        placeholder="Enter mobile number"
+                        value={mobile}
+                        onChangeText={setMobile}
+                        keyboardType="phone-pad"
+                        placeholderTextColor="#9CA3AF"
+                      />
+                    ) : (
+                      <Text style={[styles.rowValueText, !mobile && styles.placeholder]}>
+                        {mobile || "Not set"}
+                      </Text>
+                    )}
                   </View>
                 </View>
               </View>
 
-              {/* ---------- ADDRESS DETAILS ---------- */}
               {renderSectionHeader("ADDRESS DETAILS")}
               <View style={styles.sectionCard}>
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
                   <Ionicons name="home-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
                     <Text style={styles.rowLabel}>Address Line 1</Text>
-                    <TextInput
-                      style={styles.rowInput}
-                      placeholder="Street, House No"
-                      value={addressLine1}
-                      onChangeText={setAddressLine1}
-                      placeholderTextColor="#9CA3AF"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.rowInput}
+                        placeholder="Street, House No"
+                        value={addressLine1}
+                        onChangeText={setAddressLine1}
+                        placeholderTextColor="#9CA3AF"
+                      />
+                    ) : (
+                      <Text style={[styles.rowValueText, !addressLine1 && styles.placeholder]}>
+                        {addressLine1 || "Not set"}
+                      </Text>
+                    )}
                   </View>
                 </View>
                 <View style={styles.divider} />
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
                   <Ionicons name="map-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
                     <Text style={styles.rowLabel}>Address Line 2 (Optional)</Text>
-                    <TextInput
-                      style={styles.rowInput}
-                      placeholder="Enter locality details"
-                      value={addressLine2}
-                      onChangeText={setAddressLine2}
-                      placeholderTextColor="#9CA3AF"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.rowInput}
+                        placeholder="Enter locality details"
+                        value={addressLine2}
+                        onChangeText={setAddressLine2}
+                        placeholderTextColor="#9CA3AF"
+                      />
+                    ) : (
+                      <Text style={[styles.rowValueText, !addressLine2 && styles.placeholder]}>
+                        {addressLine2 || "Not set"}
+                      </Text>
+                    )}
                   </View>
                 </View>
                 <View style={styles.divider} />
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
                   <Ionicons name="mail-unread-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
                     <Text style={styles.rowLabel}>Postal Code</Text>
-                    <TextInput
-                      style={styles.rowInput}
-                      placeholder="Enter postal code"
-                      value={postalCode}
-                      onChangeText={setPostalCode}
-                      keyboardType="numeric"
-                      placeholderTextColor="#9CA3AF"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.rowInput}
+                        placeholder="Enter postal code"
+                        value={postalCode}
+                        onChangeText={setPostalCode}
+                        keyboardType="numeric"
+                        placeholderTextColor="#9CA3AF"
+                      />
+                    ) : (
+                      <Text style={[styles.rowValueText, !postalCode && styles.placeholder]}>
+                        {postalCode || "Not set"}
+                      </Text>
+                    )}
                   </View>
                 </View>
               </View>
 
-              <Animated.View style={saveButtonStyle}>
-                <TouchableOpacity
-                  style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-                  onPress={handleSaveAddress}
-                  disabled={saving}
-                  activeOpacity={0.9}
-                  onPressIn={onPressIn}
-                  onPressOut={onPressOut}
-                >
-                  <LinearGradient
-                    colors={[COLORS.primary, '#1e3a8a']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.buttonGradient}
-                  >
-                    {saving ? (
-                      <Loading size="small" />
-                    ) : (
-                      <Text style={styles.saveButtonText}>Update Address</Text>
-                    )}
-                  </LinearGradient>
-                </TouchableOpacity>
-              </Animated.View>
+              {isEditing && (
+                <View style={{ padding: 24 }}>
+                  <Animated.View style={saveButtonStyle}>
+                    <TouchableOpacity
+                      style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+                      onPress={handleSaveAddress}
+                      disabled={saving}
+                      activeOpacity={0.9}
+                      onPressIn={onPressIn}
+                      onPressOut={onPressOut}
+                    >
+                      <LinearGradient
+                        colors={[COLORS.primary, '#1e3a8a']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.buttonGradient}
+                      >
+                        <Text style={styles.saveButtonText}>{saving ? "Updating..." : "Update Address"}</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </Animated.View>
 
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => router.back()}
-                activeOpacity={0.6}
-              >
-                <Text style={styles.cancelButtonText}>Discard Changes</Text>
-              </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => setIsEditing(false)}
+                    activeOpacity={0.6}
+                  >
+                    <Text style={styles.cancelButtonText}>Discard Changes</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </>
           )}
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* District Picker Modal */}
       <Modal visible={showDistrictModal} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -324,12 +385,10 @@ export default function Address() {
                   {district === item && <Ionicons name="checkmark" size={20} color={COLORS.primary} />}
                 </TouchableOpacity>
               )}
-              ItemSeparatorComponent={() => <View style={styles.divider} />}
             />
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }
@@ -346,16 +405,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 32,
     paddingBottom: 12,
-    backgroundColor: '#F8FAFC',
   },
   sectionHeaderTitle: {
     fontSize: 11,
     fontWeight: '900',
     color: '#94A3B8',
     letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
   sectionCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFF',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#F1F5F9',
   },
   selectorRow: {
     flexDirection: 'row',
@@ -363,18 +425,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingVertical: 14,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 14,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+  },
+  rowDisabled: {
+    backgroundColor: '#F8FAFC',
   },
   rowIconGroupSide: {
     flexDirection: 'row',
@@ -415,14 +474,14 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   divider: {
-    height: 0,
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginLeft: 64,
   },
   saveButton: {
     borderRadius: 16,
     height: 56,
     overflow: 'hidden',
-    marginHorizontal: 24,
-    marginTop: 40,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
@@ -444,7 +503,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   cancelButton: {
-    marginHorizontal: 24,
     marginTop: 16,
     height: 50,
     borderRadius: 16,
@@ -480,7 +538,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     color: '#1E293B',
-    letterSpacing: -0.5,
   },
   modalItem: {
     flexDirection: 'row',
@@ -488,6 +545,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F8FAFC',
   },
   modalItemText: {
     fontSize: 15,

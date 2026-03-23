@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   View,
   SafeAreaView,
-  Platform
+  Platform,
+  ActivityIndicator
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Loading from '../../components/ui/Loading';
@@ -125,8 +126,8 @@ export default function PackageDetailScreen() {
         <View style={styles.centered}>
           <Ionicons name="search-outline" size={60} color="#cbd5e1" />
           <Text style={styles.errorText}>Package information unavailable.</Text>
-          <TouchableOpacity 
-            style={styles.backButton} 
+          <TouchableOpacity
+            style={styles.backButton}
             onPress={() => router.back()}
           >
             <Text style={styles.backButtonText}>View All Packages</Text>
@@ -146,26 +147,18 @@ export default function PackageDetailScreen() {
       <Header title="Manage Plan" showBack={true} />
 
       <SafeAreaView style={styles.safe}>
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.scrollContent} 
-            showsVerticalScrollIndicator={false}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          {/* Top Banner Card */}
-          <LinearGradient
-            colors={[themeColor, themeColor + 'CC']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroCard}
-          >
+          {/* Top Banner Card - Neutral Theme */}
+          <View style={styles.heroCard}>
             <View style={styles.heroTop}>
-                <View style={styles.statusBadge}>
-                    <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color="#fff" />
-                    <Text style={styles.statusText}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
-                </View>
-                <View style={styles.heroIconBg}>
-                    <Ionicons name="diamond-outline" size={24} color="#fff" />
-                </View>
+              <View style={[styles.statusBadge, { backgroundColor: '#f1f5f9' }]}>
+                <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color={COLORS.primary} />
+                <Text style={[styles.statusText, { color: COLORS.primary }]}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
+              </View>
             </View>
 
             <Text style={styles.heroTitle}>{pkg.name}</Text>
@@ -174,125 +167,136 @@ export default function PackageDetailScreen() {
             <View style={styles.heroDivider} />
 
             <View style={styles.heroBottom}>
-                <View>
-                    <Text style={styles.priceLabel}>Package Value</Text>
-                    <Text style={styles.priceValue}>Rs. {price.toLocaleString()}</Text>
-                </View>
-                <View style={styles.durationBadge}>
-                    <Text style={styles.durationText}>{duration} Days Boost</Text>
-                </View>
+              <View>
+                <Text style={styles.priceLabel}>Package Value</Text>
+                <Text style={styles.priceValue}>Rs. {price.toLocaleString()}</Text>
+              </View>
+              <View style={styles.durationBadge}>
+                <Text style={styles.durationText}>{duration} Days Boost</Text>
+              </View>
             </View>
-          </LinearGradient>
+          </View>
+
+          {/* Package Description Paragraph */}
+          {pkg.description && (
+            <Text style={styles.descText}>{pkg.description}</Text>
+          )}
 
           {/* Action Area */}
           <View style={styles.actionContainer}>
             {isCurrentPlan ? (
-               <TouchableOpacity 
-                    style={styles.cancelBtn} 
-                    onPress={handleUnsubscribe}
-                >
-                    <Ionicons name="close-circle-outline" size={20} color="#ef4444" />
-                    <Text style={styles.cancelBtnText}>Cancel Subscription</Text>
-               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelBtnSmall}
+                onPress={handleUnsubscribe}
+              >
+                <Ionicons name="close-circle-outline" size={16} color="#ef4444" />
+                <Text style={styles.cancelBtnTextSmall}>Cancel Subscription</Text>
+              </TouchableOpacity>
             ) : (
-                <TouchableOpacity 
-                    style={[styles.buyBtn, { backgroundColor: themeColor }]}
-                    onPress={() => router.push({ 
-                        pathname: '/payments/invoice', 
-                        params: { 
-                            packageId: pkg.id,
-                            plan: pkg.name,
-                            price: price,
-                            days: duration
-                        } 
-                    })}
-                >
-                    <Text style={styles.buyBtnText}>Upgrade Now</Text>
-                    <Ionicons name="arrow-forward" size={20} color="#fff" />
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.buyBtn, { backgroundColor: themeColor }]}
+                onPress={() => router.push({
+                  pathname: '/payments/invoice',
+                  params: {
+                    packageId: pkg.id,
+                    plan: pkg.name,
+                    price: price,
+                    days: duration
+                  }
+                })}
+              >
+                <Text style={styles.buyBtnText}>Upgrade Now</Text>
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
+              </TouchableOpacity>
             )}
           </View>
 
           {/* Features Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Key Benefits</Text>
-                <View style={styles.sectionBadge}>
-                    <Text style={styles.sectionBadgeText}>{pkg.features?.length || 0}</Text>
-                </View>
+              <Text style={styles.sectionTitle}>Key Benefits</Text>
+              <View style={styles.sectionBadge}>
+                <Text style={styles.sectionBadgeText}>{pkg.features?.length || 0}</Text>
+              </View>
             </View>
             <View style={styles.featuresList}>
-                {pkg.features?.map((f: any, idx: number) => (
-                    <View key={idx} style={styles.featureItem}>
-                        <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
-                            <Ionicons name="checkmark" size={14} color={themeColor} />
-                        </View>
-                        <View style={styles.featureContent}>
-                            <Text style={styles.featureTitle}>{f.feature_description || f.feature_key}</Text>
-                            {f.feature_value && <Text style={styles.featureValue}>{f.feature_value}</Text>}
-                        </View>
-                    </View>
-                ))}
+              {pkg.features?.map((f: any, idx: number) => (
+                <View key={idx} style={styles.featureItem}>
+                  <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
+                    <Ionicons name="checkmark" size={14} color={themeColor} />
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>{f.feature_key}</Text>
+                    {f.feature_value && <Text style={styles.featureValue}>{f.feature_value}</Text>}
+                  </View>
+                </View>
+              ))}
+              {pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' && (
+                <View style={styles.featureItem}>
+                  <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
+                    <Ionicons name="checkmark" size={14} color={themeColor} />
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>Allow unlimited ads across all types</Text>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
 
           {/* Ad Limits Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Publishing Limits</Text>
-            <Text style={styles.sectionSubtitle}>Categorized posting limits for your account</Text>
-            
-            <View style={styles.limitsGrid}>
-                {pkg.config?.IS_UNLIMITED_ADS === 'true' ? (
-                    <View style={styles.unlimitedBox}>
-                        <Ionicons name="infinite-outline" size={32} color={themeColor} />
-                        <Text style={styles.unlimitedText}>Unlimited Ad Postings</Text>
-                    </View>
+          {((pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true') || (pkg.ad_limits && pkg.ad_limits.length > 0)) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Publishing Limits</Text>
+              <Text style={styles.sectionSubtitle}>Categorized posting limits for your account</Text>
+
+              <View style={styles.limitsGrid}>
+                {pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' ? (
+                  <View style={styles.unlimitedBox}>
+                    <Ionicons name="infinite-outline" size={32} color={themeColor} />
+                    <Text style={styles.unlimitedText}>Unlimited Ad Postings</Text>
+                  </View>
                 ) : pkg.ad_limits?.map((l: any) => {
-                    const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
-                    return (
-                        <View key={l.id} style={styles.limitCard}>
-                            <View style={styles.limitTag}>
-                                <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
-                            </View>
-                            <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
-                            {isCurrentPlan && usage && (
-                                <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
-                            )}
-                        </View>
-                    );
+                  const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
+                  return (
+                    <View key={l.id} style={styles.limitCard}>
+                      <View style={styles.limitTag}>
+                        <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
+                      </View>
+                      <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
+                      {isCurrentPlan && usage && (
+                        <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
+                      )}
+                    </View>
+                  );
                 })}
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Extra Items Section */}
           {pkg.included_items?.length > 0 && (
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Included Bundles</Text>
-                <View style={styles.bundlesList}>
-                    {pkg.included_items.map((it: any) => (
-                        <View key={it.id} style={styles.bundleItem}>
-                            <View style={styles.bundleIconBg}>
-                                <Ionicons name="gift-outline" size={20} color={COLORS.primary} />
-                            </View>
-                            <View style={styles.bundleInfo}>
-                                <Text style={styles.bundleName}>{it.price_items?.name || 'Bundle Item'}</Text>
-                                <Text style={styles.bundleDetail}>For {it.vehicle_types?.type_name || 'All Categories'}</Text>
-                            </View>
-                            <View style={styles.bundleValue}>
-                                <Text style={styles.bundleValueText}>{it.is_unlimited ? '∞' : `x${it.quantity}`}</Text>
-                            </View>
-                        </View>
-                    ))}
-                </View>
+              <Text style={styles.sectionTitle}>Included Bundles</Text>
+              <View style={styles.bundlesList}>
+                {pkg.included_items.map((it: any) => (
+                  <View key={it.id} style={styles.bundleItem}>
+                    <View style={styles.bundleIconBg}>
+                      <Ionicons name="gift-outline" size={20} color={COLORS.primary} />
+                    </View>
+                    <View style={styles.bundleInfo}>
+                      <Text style={styles.bundleName}>{it.price_items?.name || 'Bundle Item'}</Text>
+                      <Text style={styles.bundleDetail}>For {it.vehicle_types?.type_name || 'All Categories'}</Text>
+                    </View>
+                    <View style={styles.bundleValue}>
+                      <Text style={styles.bundleValueText}>{it.is_unlimited ? '∞' : `x${it.quantity}`}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
             </View>
           )}
 
-          {pkg.description && (
-            <View style={styles.descriptionBox}>
-                <Text style={styles.descTitle}>About this Package</Text>
-                <Text style={styles.descText}>{pkg.description}</Text>
-            </View>
-          )}
 
         </ScrollView>
       </SafeAreaView>
@@ -395,7 +399,7 @@ const styles = StyleSheet.create({
   },
   heroDivider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#f1f5f9',
     marginVertical: 20,
   },
   heroBottom: {
@@ -441,21 +445,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
   },
-  cancelBtn: {
+  cancelBtnSmall: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#fee2e2',
     backgroundColor: '#fff',
-    gap: 10,
+    gap: 8,
+    alignSelf: 'center',
+    marginTop: 10,
   },
-  cancelBtnText: {
+  cancelBtnTextSmall: {
     color: '#ef4444',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
   },
   section: {
@@ -621,19 +627,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.primary,
   },
-  descriptionBox: {
-    paddingHorizontal: 4,
-  },
-  descTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
-    marginBottom: 8,
-  },
   descText: {
-    fontSize: 14,
-    color: '#64748b',
-    lineHeight: 22,
+    fontSize: 15,
+    color: '#475569',
+    lineHeight: 24,
     fontWeight: '500',
+    marginBottom: 20,
   }
 });

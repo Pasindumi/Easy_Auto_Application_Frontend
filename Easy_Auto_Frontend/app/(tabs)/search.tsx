@@ -1,9 +1,8 @@
-import Header from '@/components/Header';
-import Loading from '@/components/ui/Loading';
-import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
+﻿import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   StyleSheet,
@@ -13,24 +12,19 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
   Modal,
   Animated,
+  FlatList,
   RefreshControl,
   Image as RNImage,
-  InteractionManager,
 } from 'react-native';
-import { FlashList } from "@shopify/flash-list";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
-import LocationModal from '@/components/ui/LocationModal';
-import SkeletonCard from '@/components/ui/SkeletonCard';
-import EmptyState from '@/components/ui/EmptyState';
-import SortBar, { SortOption } from '@/components/ui/SortBar';
-import { useDebounce } from '@/hooks/useDebounce'; // Assuming a useDebounce hook, or we can just implement the delay inline
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -77,11 +71,11 @@ const YEAR_RANGES = [
 
 export default function SearchScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchFocused, setSearchFocused] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSort, setSelectedSort] = useState('relevance');
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
@@ -98,7 +92,6 @@ export default function SearchScreen() {
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [showLocationModal, setShowLocationModal] = useState(false);
 
   // Data States
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -111,12 +104,10 @@ export default function SearchScreen() {
   // Animation
   const filterSlideAnim = React.useRef(new Animated.Value(0)).current;
 
-  // Fetch initial data deferred to avoid blocking navigation animation
+  // Fetch initial data
   useEffect(() => {
-    const task = InteractionManager.runAfterInteractions(() => {
-      fetchVehicleTypes();
-    });
-    return () => task.cancel();
+    fetchVehicleTypes();
+    fetchConditions();
   }, []);
 
   // Fetch vehicle types
@@ -139,14 +130,9 @@ export default function SearchScreen() {
   };
 
   // Fetch conditions
-  const fetchConditions = async (typeId: string) => {
-    if (!typeId || typeId === 'all') {
-      setConditions([]);
-      setSelectedCondition('');
-      return;
-    }
+  const fetchConditions = async () => {
     try {
-      const res: any = await api.get(`/api/vehicle-config/conditions/${typeId}`);
+      const res: any = await api.get('/api/vehicle-config/conditions');
       if (Array.isArray(res)) {
         setConditions(res.map(c => ({ label: c.condition_name, value: c.id })));
       }
@@ -154,16 +140,6 @@ export default function SearchScreen() {
       console.error("Error fetching conditions:", error);
     }
   };
-
-  // Fetch conditions when category changes
-  useEffect(() => {
-    if (selectedCategory && selectedCategory !== 'all') {
-      fetchConditions(selectedCategory);
-    } else {
-      setConditions([]);
-      setSelectedCondition('');
-    }
-  }, [selectedCategory]);
 
   // Fetch brands when category changes
   useEffect(() => {
@@ -214,32 +190,32 @@ export default function SearchScreen() {
       const params: any = {};
 
       if (searchQuery) params.search = searchQuery;
-      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // ✅ was: vehicle_type_id
+      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // Γ£à was: vehicle_type_id
       if (locationFilter) params.location = locationFilter;
 
-      // Brand: backend expects brand NAME, not ID — resolve from list
+      // Brand: backend expects brand NAME, not ID ΓÇö resolve from list
       if (selectedBrand) {
         const brandObj = brands.find((b: any) => b.value === selectedBrand);
-        if (brandObj) params.brand = brandObj.label; // ✅ was: brand_id
+        if (brandObj) params.brand = brandObj.label; // Γ£à was: brand_id
       }
 
-      // Model: backend expects model NAME, not ID — resolve from list
+      // Model: backend expects model NAME, not ID ΓÇö resolve from list
       if (selectedModel) {
         const modelObj = models.find((m: any) => m.value === selectedModel);
-        if (modelObj) params.model = modelObj.label; // ✅ was: model_id
+        if (modelObj) params.model = modelObj.label; // Γ£à was: model_id
       }
 
-      if (selectedCondition) params.condition = selectedCondition; // ✅ was: condition_id
-      if (selectedFuelType) params.fuelType = selectedFuelType;     // ✅ was: fuel_type
+      if (selectedCondition) params.condition = selectedCondition; // Γ£à was: condition_id
+      if (selectedFuelType) params.fuelType = selectedFuelType;     // Γ£à was: fuel_type
       if (selectedTransmission) params.transmission = selectedTransmission;
 
       const priceRange = PRICE_RANGES[selectedPriceRange];
-      if (priceRange.min) params.minPrice = priceRange.min; // ✅ was: min_price
-      if (priceRange.max) params.maxPrice = priceRange.max; // ✅ was: max_price
+      if (priceRange.min) params.minPrice = priceRange.min; // Γ£à was: min_price
+      if (priceRange.max) params.maxPrice = priceRange.max; // Γ£à was: max_price
 
       const yearRange = YEAR_RANGES[selectedYearRange];
-      if (yearRange.min) params.minYear = yearRange.min; // ✅ was: min_year
-      if (yearRange.max) params.maxYear = yearRange.max; // ✅ was: max_year
+      if (yearRange.min) params.minYear = yearRange.min; // Γ£à was: min_year
+      if (yearRange.max) params.maxYear = yearRange.max; // Γ£à was: max_year
 
       if (selectedSort !== 'relevance') params.sort = selectedSort;
 
@@ -261,14 +237,14 @@ export default function SearchScreen() {
     selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange,
     selectedYearRange, selectedSort, brands, models]);
 
-  // Auto-search on ANY filter change with debounced search query
+  // Auto-search on ANY filter change (Fix 4: was missing brand/model/condition/fuel/transmission/location)
   useEffect(() => {
     const timer = setTimeout(() => {
       performSearch();
-    }, 300); // 300ms debounce
+    }, 500);
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedCategory, selectedBrand, selectedModel, selectedCondition,
-    selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange, selectedYearRange, selectedSort, performSearch]);
+  }, [performSearch]); // Γ£à performSearch already has all deps via useCallback
+
 
   // Calculate active filters
   useEffect(() => {
@@ -334,7 +310,7 @@ export default function SearchScreen() {
   };
 
   // Render search result card
-  const renderSearchCard = useCallback(({ item }: { item: any }) => {
+  const renderSearchCard = ({ item }: { item: any }) => {
     const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
       item.AdImage?.[0]?.image_url;
     const details = item.CarDetails?.[0] || item.CarDetails || {};
@@ -361,7 +337,6 @@ export default function SearchScreen() {
               style={styles.cardImage}
               contentFit="cover"
               transition={200}
-              cachePolicy="memory-disk"
             />
           ) : (
             <View style={styles.imagePlaceholder}>
@@ -414,12 +389,12 @@ export default function SearchScreen() {
         </View>
       </TouchableOpacity>
     );
-  }, [favorites, toggleFavorite, router]);
+  };
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
+      {/* ΓöÇΓöÇΓöÇ NEW PREMIUM BRANDED HEADER ΓöÇΓöÇΓöÇ */}
       <LinearGradient
         colors={[COLORS.primary, COLORS.primaryDark]}
         style={[styles.header, { paddingTop: insets.top + 8 }]}
@@ -428,7 +403,7 @@ export default function SearchScreen() {
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
-          
+
           <View pointerEvents="none" style={styles.logoCentre}>
             <RNImage
               source={require("@/assets/logoHome.png")}
@@ -441,25 +416,20 @@ export default function SearchScreen() {
         </View>
 
         <View style={styles.headerSearchArea}>
-           <View style={[styles.glassSearch, searchFocused && styles.searchBarFocused]}>
-            <Ionicons name="search" size={20} color={searchFocused ? COLORS.primary : COLORS.text.muted} />
+          <View style={styles.glassSearch}>
+            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
             <TextInput
               style={styles.headerSearchInput}
-              placeholder="Search cars, brands, models..."
-              placeholderTextColor="rgba(15,23,42,0.4)"
+              placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
+              placeholderTextColor="rgba(255,255,255,0.6)"
               value={searchQuery}
               onChangeText={setSearchQuery}
               returnKeyType="search"
               onSubmitEditing={performSearch}
-              onFocus={() => {
-                setSearchFocused(true);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-              onBlur={() => setSearchFocused(false)}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color={COLORS.text.muted} />
+                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.5)" />
               </TouchableOpacity>
             )}
           </View>
@@ -485,7 +455,7 @@ export default function SearchScreen() {
               color={activeFilterCount > 0 ? COLORS.white : COLORS.primary}
             />
             <Text style={[styles.filterChipText, activeFilterCount > 0 && styles.filterChipTextActive]}>
-              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+              {t("buy_car_screen.filter_vehicles", "Filters")} {activeFilterCount > 0 && `(${activeFilterCount})`}
             </Text>
           </TouchableOpacity>
 
@@ -518,55 +488,65 @@ export default function SearchScreen() {
           ))}
         </ScrollView>
 
-        <View style={{ paddingTop: 8 }}>
-          <SortBar
-            selected={selectedSort}
-            onSelect={setSelectedSort}
-            resultCount={searchResults.length}
-            options={SORT_OPTIONS.map(o => ({ key: o.value, label: o.label }))}
-          />
+        {/* Sort & Results Count */}
+        <View style={styles.resultsBar}>
+          <Text style={styles.resultsCount}>
+            {isSearching ? 'Searching...' : `${searchResults.length} ${t("buy_car_screen.results", "results found")}`}
+          </Text>
+          <TouchableOpacity
+            style={styles.sortButton}
+            onPress={() => {
+              // Could open a sort modal here
+            }}
+          >
+            <Ionicons name="swap-vertical" size={16} color={COLORS.primary} />
+            <Text style={styles.sortText}>{t("buy_car_screen.sort_by", "Sort")}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
       {/* Search Results */}
-      <BrandedRefreshOverlay refreshing={refreshing} top={120} />
-      <View style={{ flex: 1 }}>
-        <FlashList
-          data={searchResults}
-          renderItem={renderSearchCard}
-          keyExtractor={(item) => String(item.id)}
-          numColumns={2}
-          contentContainerStyle={styles.resultsGrid}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                performSearch();
-              }}
-              tintColor="transparent"
-              colors={["transparent"]}
-              progressBackgroundColor="transparent"
-            />
-          }
-          ListEmptyComponent={
-            isSearching ? (
-              <View style={styles.skeletonGrid}>
-                <SkeletonCard variant="grid" count={6} />
-              </View>
+      <FlatList
+        data={searchResults}
+        renderItem={renderSearchCard}
+        keyExtractor={(item) => String(item.id)}
+        numColumns={2}
+        contentContainerStyle={styles.resultsGrid}
+        columnWrapperStyle={styles.columnWrapper}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              performSearch();
+            }}
+            tintColor={COLORS.primary}
+          />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            {isSearching ? (
+              <ActivityIndicator size="large" color={COLORS.primary} />
             ) : (
-              <EmptyState
-                icon="search-outline"
-                title="No results found"
-                subtitle="Try adjusting your search query or removing some filters to see more cars."
-                ctaLabel={activeFilterCount > 0 ? "Clear All Filters" : undefined}
-                onCta={activeFilterCount > 0 ? clearAllFilters : undefined}
-              />
-            )
-          }
-        />
-      </View>
+              <>
+                <View style={styles.emptyIcon}>
+                  <Ionicons name="search-outline" size={64} color={COLORS.border} />
+                </View>
+                <Text style={styles.emptyTitle}>{t("buy_car_screen.no_vehicles_found", "No results found")}</Text>
+                <Text style={styles.emptyText}>
+                  Try adjusting your search or filters
+                </Text>
+                {activeFilterCount > 0 && (
+                  <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
+                    <Text style={styles.clearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+          </View>
+        }
+      />
 
       {/* Advanced Filters Modal */}
       <Modal
@@ -577,51 +557,17 @@ export default function SearchScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.filterModal}>
-            <View style={styles.sheetHandle} />
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Advanced Filters</Text>
-              <TouchableOpacity
-                style={styles.closeBtnCircle}
-                onPress={toggleFilters}
-              >
-                <Ionicons name="close" size={20} color={COLORS.text.primary} />
+              <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
+              <TouchableOpacity onPress={toggleFilters}>
+                <Ionicons name="close" size={24} color={COLORS.text.primary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
-              {/* Location & Sort Row */}
-              <View style={[styles.filterRow, { marginBottom: 24 }]}>
-                <View style={styles.filterCol}>
-                  <Text style={styles.filterLabel}>Location</Text>
-                  <TouchableOpacity
-                    style={styles.locationInputWrap}
-                    onPress={() => setShowLocationModal(true)}
-                  >
-                    <Ionicons
-                      name="location-outline"
-                      size={20}
-                      color={locationFilter ? COLORS.primary : COLORS.text.muted}
-                    />
-                    <Text style={[styles.locationInput, !locationFilter && { color: COLORS.text.muted }]} numberOfLines={1}>
-                      {locationFilter || "Select Location"}
-                    </Text>
-                    <Ionicons name="chevron-down" size={18} color={COLORS.text.muted} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.filterCol}>
-                  <SelectField
-                    label="Sort By"
-                    value={selectedSort}
-                    onSelect={setSelectedSort}
-                    options={SORT_OPTIONS}
-                  />
-                </View>
-              </View>
-
               {/* Price Range */}
               <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Price Range</Text>
+                <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View style={styles.rangeChips}>
                     {PRICE_RANGES.map((range, index) => (
@@ -675,30 +621,29 @@ export default function SearchScreen() {
                 </ScrollView>
               </View>
 
-              {/* Brand & Model Row */}
-              <View style={[styles.filterRow, { marginBottom: 8 }]}>
-                {brands.length > 0 && (
-                  <View style={styles.filterCol}>
-                    <SelectField
-                      label="Brand"
-                      value={selectedBrand}
-                      onSelect={setSelectedBrand}
-                      options={[{ label: 'All Brands', value: '' }, ...brands]}
-                    />
-                  </View>
-                )}
+              {/* Brand */}
+              {brands.length > 0 && (
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Brand"
+                    value={selectedBrand}
+                    onSelect={setSelectedBrand}
+                    options={[{ label: 'All Brands', value: '' }, ...brands]}
+                  />
+                </View>
+              )}
 
-                {models.length > 0 && (
-                  <View style={styles.filterCol}>
-                    <SelectField
-                      label="Model"
-                      value={selectedModel}
-                      onSelect={setSelectedModel}
-                      options={[{ label: 'All Models', value: '' }, ...models]}
-                    />
-                  </View>
-                )}
-              </View>
+              {/* Model */}
+              {models.length > 0 && (
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Model"
+                    value={selectedModel}
+                    onSelect={setSelectedModel}
+                    options={[{ label: 'All Models', value: '' }, ...models]}
+                  />
+                </View>
+              )}
 
               {/* Condition */}
               {conditions.length > 0 && (
@@ -748,7 +693,7 @@ export default function SearchScreen() {
                 style={styles.clearFiltersBtn}
                 onPress={clearAllFilters}
               >
-                <Text style={styles.clearFiltersText}>Clear All</Text>
+                <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.applyFiltersBtn}
@@ -757,18 +702,12 @@ export default function SearchScreen() {
                   toggleFilters();
                 }}
               >
-                <Text style={styles.applyFiltersText}>Apply Filters</Text>
+                <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-
-      <LocationModal
-        visible={showLocationModal}
-        onClose={() => setShowLocationModal(false)}
-        onSelect={setLocationFilter}
-      />
     </View>
   );
 }
@@ -822,33 +761,18 @@ const styles = StyleSheet.create({
   glassSearch: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    height: 42,
-    gap: 12,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 52,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    overflow: 'hidden',
-  },
-  searchBarFocused: {
-    borderColor: 'rgba(35, 92, 248, 0.3)',
-    backgroundColor: COLORS.white,
-    shadowColor: COLORS.shadowPremium || COLORS.primary,
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-  },
-  searchGradient: {
-    ...StyleSheet.absoluteFillObject,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   headerSearchInput: {
     flex: 1,
+    fontSize: 15,
+    color: 'white',
     marginLeft: 10,
-    fontSize: 13,
-    color: COLORS.text.primary,
-    fontWeight: '500',
     padding: 0,
   },
   filterStatsSection: {
@@ -908,7 +832,10 @@ const styles = StyleSheet.create({
   },
   resultsGrid: {
     padding: 16,
-    paddingBottom: 40,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
   resultCard: {
     width: CARD_WIDTH,
@@ -920,8 +847,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginRight: 16, // Required for FlashList numColumns gaps
-    marginBottom: 16,
   },
   cardImageContainer: {
     width: '100%',
@@ -1006,56 +931,67 @@ const styles = StyleSheet.create({
     color: COLORS.text.muted,
     flex: 1,
   },
-  skeletonGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 16,
-    paddingTop: 8,
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyIcon: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.text.muted,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  clearButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  clearButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
   filterModal: {
     backgroundColor: COLORS.white,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    maxHeight: '85%',
-    paddingTop: 12,
-    paddingBottom: 0,
-  },
-  sheetHandle: {
-    width: 40,
-    height: 5,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 2.5,
-    alignSelf: 'center',
-    marginBottom: 10,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,
   },
-  closeBtnCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: 'bold',
     color: COLORS.text.primary,
-    letterSpacing: -0.5,
   },
   filterContent: {
     padding: 20,
@@ -1064,10 +1000,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   filterLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#6B7280',
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text.secondary,
+    marginBottom: 12,
   },
   rangeChips: {
     flexDirection: 'row',
@@ -1095,66 +1031,34 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 10,
+    padding: 20,
     gap: 12,
     borderTopWidth: 1,
     borderTopColor: COLORS.divider,
-    backgroundColor: COLORS.white,
   },
   clearFiltersBtn: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
     alignItems: 'center',
   },
   clearFiltersText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.primary,
   },
   applyFiltersBtn: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 12,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
   },
   applyFiltersText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.white,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  filterCol: {
-    flex: 1,
-  },
-  locationInputWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  locationInput: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 14,
-    color: COLORS.text.primary,
-    fontWeight: '500',
   },
 });

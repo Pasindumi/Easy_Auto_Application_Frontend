@@ -1,4 +1,4 @@
-import COLORS from "@/constants/Colors";
+﻿import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
@@ -8,6 +8,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
     Image as RNImage,
     Dimensions,
+    FlatList,
     ScrollView,
     StyleSheet,
     Text,
@@ -19,6 +20,7 @@ import {
     StatusBar,
     Animated,
     RefreshControl,
+    Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api } from "../../utils/api";
@@ -26,23 +28,16 @@ import SelectField from "@/components/ui/SelectField";
 import LocationModal from "../../components/ui/LocationModal";
 
 const { width, height } = Dimensions.get("window");
+// App brand gradient colours (same as all other headers)
 const BRAND_GRAD: [string, string] = ["#235CF8", "#1E4DB7"];
 
 const PRICE_RANGES = [
     { label: "Any Price", min: "", max: "" },
     { label: "Under 1M", min: "", max: "1000000" },
-    { label: "1M – 3M", min: "1000000", max: "3000000" },
-    { label: "3M – 5M", min: "3000000", max: "5000000" },
-    { label: "5M – 10M", min: "5000000", max: "10000000" },
+    { label: "1M ΓÇô 3M", min: "1000000", max: "3000000" },
+    { label: "3M ΓÇô 5M", min: "3000000", max: "5000000" },
+    { label: "5M ΓÇô 10M", min: "5000000", max: "10000000" },
     { label: "Above 10M", min: "10000000", max: "" },
-];
-
-const SORT_OPTIONS = [
-    { value: "all", label: "Best Match" },
-    { value: "price-low", label: "Price: Low → High" },
-    { value: "price-high", label: "Price: High → Low" },
-    { value: "year-new", label: "Newest Year" },
-    { value: "year-old", label: "Classic First" },
 ];
 
 const getIconForType = (typeName: string) => {
@@ -70,6 +65,14 @@ const formatMileage = (m: any) => {
     if (n >= 1000) return `${(n / 1000).toFixed(0)}k km`;
     return `${n} km`;
 };
+
+const SORT_OPTIONS = [
+    { value: "all", label: "Best Match" },
+    { value: "price-low", label: "Price: Low ΓåÆ High" },
+    { value: "price-high", label: "Price: High ΓåÆ Low" },
+    { value: "year-new", label: "Newest Year" },
+    { value: "year-old", label: "Classic First" },
+];
 
 // Shimmer card for loading state
 const ShimmerCard = () => {
@@ -242,10 +245,42 @@ export default function BuyCarScreen() {
         return () => clearTimeout(t);
     }, [fetchAds]);
 
-    const toggleFavorite = (id: string) => {
+    const toggleFavorite = async (id: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+
+        // Optimistic UI update
+        const wasFavorite = favorites.includes(id);
+        setFavorites(prev => wasFavorite ? prev.filter(f => f !== id) : [...prev, id]);
+
+        try {
+            const res = await api.post<{ success: boolean; isFavorite: boolean }>('/api/favorites/toggle', { ad_id: id });
+            if (res.success) {
+                // Ensure local state matches server response
+                setFavorites(prev => {
+                    if (res.isFavorite) return prev.includes(id) ? prev : [...prev, id];
+                    return prev.filter(f => f !== id);
+                });
+            }
+        } catch (error: any) {
+            // Revert if unauthorized or error
+            setFavorites(prev => wasFavorite ? [...prev, id] : prev.filter(f => f !== id));
+        }
     };
+
+    // Fetch user's wishlist on mount
+    useEffect(() => {
+        const fetchUserFavorites = async () => {
+            try {
+                const res = await api.get<{ success: boolean; data: any[] }>('/api/favorites');
+                if (res.success && Array.isArray(res.data)) {
+                    setFavorites(res.data.map(f => f.id));
+                }
+            } catch (err) {
+                console.error("Error fetching wishlist:", err);
+            }
+        };
+        fetchUserFavorites();
+    }, []);
 
     const resetFilters = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -274,7 +309,7 @@ export default function BuyCarScreen() {
                     />
                     {item.is_featured && (
                         <View style={styles.featuredBadge}>
-                            <Text style={styles.featuredBadgeText}>⭐ Featured</Text>
+                            <Text style={styles.featuredBadgeText}>Γ¡É Featured</Text>
                         </View>
                     )}
                 </View>
@@ -291,7 +326,13 @@ export default function BuyCarScreen() {
                             <Ionicons name="location-outline" size={12} color="#94A3B8" />
                             <Text style={styles.locationText} numberOfLines={1}>{item.location?.split(",")[0] || "Sri Lanka"}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.favBtnSmall}>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(item.id);
+                            }}
+                            style={styles.favBtnSmall}
+                        >
                             <Ionicons name={isFav ? "heart" : "heart-outline"} size={18} color={isFav ? "#EF4444" : "#94A3B8"} />
                         </TouchableOpacity>
                     </View>
@@ -325,7 +366,13 @@ export default function BuyCarScreen() {
                     <View style={styles.gridPriceBadge}>
                         <Text style={styles.gridPriceText}>{formatPrice(item.price)}</Text>
                     </View>
-                    <TouchableOpacity style={styles.gridFavBtn} onPress={() => toggleFavorite(item.id)}>
+                    <TouchableOpacity
+                        style={styles.gridFavBtn}
+                        onPress={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(item.id);
+                        }}
+                    >
                         <Ionicons name={isFav ? "heart" : "heart-outline"} size={16} color={isFav ? "#EF4444" : "white"} />
                     </TouchableOpacity>
                     {item.is_featured && (
@@ -338,7 +385,7 @@ export default function BuyCarScreen() {
                     <Text style={styles.gridTitle} numberOfLines={1}>{details?.brand ? `${details.brand} ${details.model || ""}`.trim() : item.title}</Text>
                     <View style={styles.gridMetaRow}>
                         {details?.year ? <Text style={styles.gridMeta}>{details.year}</Text> : null}
-                        {details?.year && details?.mileage ? <Text style={styles.gridDot}>·</Text> : null}
+                        {details?.year && details?.mileage ? <Text style={styles.gridDot}>┬╖</Text> : null}
                         {details?.mileage ? <Text style={styles.gridMeta}>{formatMileage(details.mileage)}</Text> : null}
                     </View>
                     <View style={styles.gridLocationRow}>
@@ -354,6 +401,7 @@ export default function BuyCarScreen() {
         <Modal visible={showFilters} transparent animationType="slide">
             <View style={styles.filterOverlay}>
                 <View style={styles.filterSheet}>
+                    {/* Handle */}
                     <View style={styles.sheetHandle} />
                     <View style={styles.filterHeader}>
                         <View>
@@ -411,12 +459,12 @@ export default function BuyCarScreen() {
                         {/* Brand */}
                         <SelectField label="Make / Brand" value={selectedBrand} options={brands}
                             onSelect={setSelectedBrand} disabled={selectedCategory === "all" || isBrandsLoading}
-                            placeholder={isBrandsLoading ? "Loading…" : "Select Brand"} searchable />
+                            placeholder={isBrandsLoading ? "LoadingΓÇª" : "Select Brand"} searchable />
 
                         {/* Model */}
                         <SelectField label="Model" value={selectedModel} options={models}
                             onSelect={setSelectedModel} disabled={!selectedBrand || isModelsLoading}
-                            placeholder={isModelsLoading ? "Loading…" : "Select Model"} searchable />
+                            placeholder={isModelsLoading ? "LoadingΓÇª" : "Select Model"} searchable />
 
                         {/* Location */}
                         <Text style={styles.filterGroupLabel}>Location</Text>
@@ -431,7 +479,7 @@ export default function BuyCarScreen() {
                     </ScrollView>
 
                     <TouchableOpacity style={styles.applyBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowFilters(false); }}>
-                        <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.applyBtnGradient}>
+                        <LinearGradient colors={["#4F46E5", "#7C3AED"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.applyBtnGradient}>
                             <Text style={styles.applyBtnText}>Show {ads.length} Results</Text>
                         </LinearGradient>
                     </TouchableOpacity>
@@ -445,8 +493,9 @@ export default function BuyCarScreen() {
             <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ─── APP BRANDED HEADER ─── */}
-            <View
+            {/* ΓöÇΓöÇΓöÇ APP BRANDED HEADER ΓöÇΓöÇΓöÇ */}
+            <LinearGradient
+                colors={BRAND_GRAD}
                 style={[styles.header, { paddingTop: insets.top }]}
             >
                 {/* Row 1: Back chevron + Logo + View Toggle */}
@@ -525,9 +574,9 @@ export default function BuyCarScreen() {
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
-            </View>
+            </LinearGradient>
 
-            {/* ─── CONTENT ─── */}
+            {/* ΓöÇΓöÇΓöÇ CONTENT ΓöÇΓöÇΓöÇ */}
             <ScrollView
                 contentContainerStyle={[styles.scrollContent, { paddingTop: 10 }]}
                 showsVerticalScrollIndicator={false}
@@ -564,7 +613,7 @@ export default function BuyCarScreen() {
                 <View style={{ height: 120 }} />
             </ScrollView>
 
-            {/* ─── FILTER FAB ─── */}
+            {/* ΓöÇΓöÇΓöÇ FILTER FAB ΓöÇΓöÇΓöÇ */}
             <View style={[styles.filterFabWrap, { bottom: insets.bottom + 20 }]}>
                 <TouchableOpacity
                     style={styles.filterFab}
@@ -592,16 +641,15 @@ const styles = StyleSheet.create({
 
     // HEADER (app brand style)
     header: {
-        backgroundColor: COLORS.primary,
         paddingHorizontal: 16,
-        paddingBottom: 20,
-        borderBottomLeftRadius: 32,
-        borderBottomRightRadius: 32,
+        paddingBottom: 12,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        elevation: 8,
         shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
-        elevation: 14,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
         zIndex: 100,
     },
     headerRow1: {
@@ -631,7 +679,7 @@ const styles = StyleSheet.create({
     viewToggleBtn: { padding: 7, borderRadius: 8 },
     viewToggleBtnActive: { backgroundColor: "rgba(255,255,255,0.25)" },
 
-    // SEARCH BAR
+    // SEARCH BAR ΓÇö white glass effect on blue header
     searchBar: {
         flexDirection: "row", alignItems: "center", gap: 10,
         backgroundColor: "rgba(255,255,255,0.18)",
@@ -677,7 +725,7 @@ const styles = StyleSheet.create({
     gridGradient: { ...StyleSheet.absoluteFillObject },
     gridPriceBadge: {
         position: "absolute", bottom: 8, left: 8,
-        backgroundColor: COLORS.primary,
+        backgroundColor: "#4F46E5",
         paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8,
     },
     gridPriceText: { color: "white", fontSize: 11, fontWeight: "800" },
@@ -720,7 +768,7 @@ const styles = StyleSheet.create({
     featuredBadgeText: { fontSize: 9, fontWeight: "800", color: "white" },
     listCardBody: { flex: 1, padding: 12, justifyContent: "space-between" },
     listCardTitle: { fontSize: 14, fontWeight: "700", color: "#0F172A", lineHeight: 18 },
-    listCardPrice: { fontSize: 16, fontWeight: "900", color: COLORS.primary, marginTop: 3 },
+    listCardPrice: { fontSize: 16, fontWeight: "900", color: "#4F46E5", marginTop: 3 },
     listCardMeta: { flexDirection: "row", flexWrap: "wrap", gap: 5, marginTop: 5 },
     metaChip: {
         flexDirection: "row", alignItems: "center", gap: 3,
@@ -747,7 +795,7 @@ const styles = StyleSheet.create({
     emptyTitle: { fontSize: 20, fontWeight: "800", color: "#1E293B", marginTop: 16 },
     emptySub: { fontSize: 14, color: "#64748B", marginTop: 6, textAlign: "center", paddingHorizontal: 40 },
     emptyResetBtn: {
-        marginTop: 20, backgroundColor: COLORS.primary,
+        marginTop: 20, backgroundColor: "#4F46E5",
         paddingHorizontal: 28, paddingVertical: 12, borderRadius: 12,
     },
     emptyResetText: { color: "white", fontWeight: "700", fontSize: 14 },
@@ -786,9 +834,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
         backgroundColor: "#F1F5F9", borderWidth: 1.5, borderColor: "#E2E8F0",
     },
-    priceRangeChipActive: { backgroundColor: "#EEF2FF", borderColor: COLORS.primary },
+    priceRangeChipActive: { backgroundColor: "#EEF2FF", borderColor: "#4F46E5" },
     priceRangeChipText: { fontSize: 12, fontWeight: "600", color: "#64748B" },
-    priceRangeChipTextActive: { color: COLORS.primary },
+    priceRangeChipTextActive: { color: "#4F46E5" },
 
     customPriceRow: { flexDirection: "row", alignItems: "center", gap: 10 },
     priceInputField: {
@@ -803,9 +851,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
         backgroundColor: "#F1F5F9", borderWidth: 1.5, borderColor: "#E2E8F0",
     },
-    sortChipActive: { backgroundColor: "#EEF2FF", borderColor: COLORS.primary },
+    sortChipActive: { backgroundColor: "#EEF2FF", borderColor: "#4F46E5" },
     sortChipText: { fontSize: 12, fontWeight: "600", color: "#64748B" },
-    sortChipTextActive: { color: COLORS.primary },
+    sortChipTextActive: { color: "#4F46E5" },
 
     locationPickerBtn: {
         flexDirection: "row", alignItems: "center", gap: 10,

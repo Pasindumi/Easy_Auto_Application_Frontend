@@ -1,5 +1,4 @@
-import COLORS from "@/constants/Colors";
-import Loading from '@/components/ui/Loading';
+﻿import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -156,7 +155,6 @@ export default function AdDetailsScreen() {
                 <Stack.Screen options={{ headerShown: false }} />
                 <ActivityIndicator size="large" color={COLORS.primary} />
                 <Text style={styles.loadingText}>Loading vehicle details...</Text>
-                <Loading message="Loading vehicle details..." />
             </View>
         );
     }
@@ -190,8 +188,11 @@ export default function AdDetailsScreen() {
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ─── FLOATING HEADER (appears on scroll) ─── */}
-            <Animated.View style={[styles.floatingHeader, { paddingTop: insets.top + 8, opacity: headerOpacity }]}>
+            {/* ΓöÇΓöÇΓöÇ FLOATING HEADER (appears on scroll) ΓöÇΓöÇΓöÇ */}
+            <Animated.View
+                pointerEvents="box-none"
+                style={[styles.floatingHeader, { paddingTop: insets.top + 8, opacity: headerOpacity }]}
+            >
                 <TouchableOpacity style={styles.floatingBackBtn} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="white" />
                 </TouchableOpacity>
@@ -213,7 +214,7 @@ export default function AdDetailsScreen() {
                 onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
                 scrollEventThrottle={16}
             >
-                {/* ─── FULL SCREEN IMAGE GALLERY ─── */}
+                {/* ΓöÇΓöÇΓöÇ FULL SCREEN IMAGE GALLERY ΓöÇΓöÇΓöÇ */}
                 <View style={styles.galleryWrap}>
                     <FlatList
                         ref={galleryRef}
@@ -288,7 +289,7 @@ export default function AdDetailsScreen() {
                     </View>
                 </View>
 
-                {/* ─── MAIN INFO CARD ─── */}
+                {/* ΓöÇΓöÇΓöÇ MAIN INFO CARD ΓöÇΓöÇΓöÇ */}
                 <View style={styles.infoCard}>
                     {/* Price Badge */}
                     <View style={styles.priceRow}>
@@ -329,7 +330,7 @@ export default function AdDetailsScreen() {
                     )}
                 </View>
 
-                {/* ─── SPECS GRID ─── */}
+                {/* ΓöÇΓöÇΓöÇ SPECS GRID ΓöÇΓöÇΓöÇ */}
                 {specs.length > 0 && (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Vehicle Specifications</Text>
@@ -347,13 +348,13 @@ export default function AdDetailsScreen() {
                     </View>
                 )}
 
-                {/* ─── DESCRIPTION ─── */}
+                {/* ΓöÇΓöÇΓöÇ DESCRIPTION ΓöÇΓöÇΓöÇ */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Description</Text>
                     <Text style={styles.descText}>{ad.description || "No description provided."}</Text>
                 </View>
 
-                {/* ─── FEATURES ─── */}
+                {/* ΓöÇΓöÇΓöÇ FEATURES ΓöÇΓöÇΓöÇ */}
                 {activeAttrs.length > 0 && (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Features & Extras</Text>
@@ -370,7 +371,7 @@ export default function AdDetailsScreen() {
                     </View>
                 )}
 
-                {/* ─── SELLER CARD ─── */}
+                {/* ΓöÇΓöÇΓöÇ SELLER CARD ΓöÇΓöÇΓöÇ */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Listed By</Text>
                     <View style={styles.sellerCard}>
@@ -391,7 +392,7 @@ export default function AdDetailsScreen() {
                                     <Text style={styles.verifiedText}>Verified</Text>
                                 </View>
                             </View>
-                            <Text style={styles.sellerMeta}>Member since 2024 · Very Responsive</Text>
+                            <Text style={styles.sellerMeta}>Member since 2024 ┬╖ Very Responsive</Text>
                             {ad.users?.phone && (
                                 <Text style={styles.sellerPhone}>{ad.users.phone}</Text>
                             )}
@@ -399,7 +400,7 @@ export default function AdDetailsScreen() {
                     </View>
                 </View>
 
-                {/* ─── SHARE ─── */}
+                {/* ΓöÇΓöÇΓöÇ SHARE ΓöÇΓöÇΓöÇ */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Share this Vehicle</Text>
                     <View style={styles.shareRow}>
@@ -418,7 +419,7 @@ export default function AdDetailsScreen() {
                     </View>
                 </View>
 
-                {/* ─── REVIEWS ─── */}
+                {/* ΓöÇΓöÇΓöÇ REVIEWS ΓöÇΓöÇΓöÇ */}
                 <View style={styles.section}>
                     <View style={styles.reviewHeader}>
                         <Text style={styles.sectionTitle}>Reviews</Text>
@@ -465,7 +466,7 @@ export default function AdDetailsScreen() {
                 
             </Animated.ScrollView>
 
-            {/* ─── STICKY FOOTER ─── */}
+            {/* ΓöÇΓöÇΓöÇ STICKY FOOTER ΓöÇΓöÇΓöÇ */}
             <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
                 <TouchableOpacity style={styles.actionIconBtn} onPress={handleToggleFavorite} disabled={favoriteLoading}>
                     <Ionicons name={isFavorite ? "heart" : "heart"} size={22} color={isFavorite ? "#EF4444" : "#94A3B8"} />
@@ -489,7 +490,7 @@ export default function AdDetailsScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* ─── CONTACT MODAL ─── */}
+            {/* ΓöÇΓöÇΓöÇ CONTACT MODAL ΓöÇΓöÇΓöÇ */}
             <Modal visible={showContactModal} transparent animationType="slide" onRequestClose={() => setShowContactModal(false)}>
                 <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowContactModal(false)}>
                     <View style={[styles.contactSheet, { paddingBottom: insets.bottom + 20 }]}>

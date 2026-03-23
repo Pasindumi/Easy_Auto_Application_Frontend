@@ -71,5 +71,73 @@
         "select_location": "Select location",
         "select_brand": "Select Brand",
         "select_model": "Select Model"
+    },
+    "settings_screen": {
+        "title": "App Settings",
+        "personal_account": "Personal & Account",
+        "edit_profile": "Edit Profile",
+        "edit_profile_sub": "Manage name, email and contact details",
+        "addresses": "Addresses",
+        "addresses_sub": "Saved billing & shipping locations",
+        "security": "Security",
+        "security_sub": "Password and biometric login",
+        "communication": "Communication Preferences",
+        "push_notifications": "Push Notifications",
+        "push_notifications_sub": "Get alerts for messages and price drops",
+        "app_preferences": "App Preferences",
+        "language": "Language",
+        "appearance": "Appearance",
+        "appearance_sub": "Dark mode & themes",
+        "units": "Units",
+        "units_sub": "Kilometers (km)",
+        "privacy_data": "Privacy & Data",
+        "location_access": "Location Access",
+        "clear_cache": "Clear Cache",
+        "clear_cache_sub": "Free up 24.5 MB of space",
+        "privacy_policy": "Privacy Policy",
+        "more_about": "More about EasyAuto",
+        "about_version": "About Version",
+        "about_version_sub": "EasyAuto v2.4.1 (Stable)",
+        "help_center": "Help Center",
+        "share_friends": "Share with Friends",
+        "sign_out": "Sign Out",
+        "made_with_love": "Made with ❤️ in Sri Lanka",
+        "all_rights": "© 2024 EasyAuto Marketplace. All rights reserved.",
+        "clear_cache_alert_title": "Clear Cache",
+        "clear_cache_alert_msg": "Are you sure you want to clear app cache? This will free up 24.5 MB of space.",
+        "cancel": "Cancel",
+        "clear": "Clear",
+        "success": "Success",
+        "cache_cleared": "Cache cleared successfully."
+    },
+    "select_language": {
+        "title": "Select Language",
+        "preference": "PREFERENCE",
+        "confirm": "Confirm Language"
+    },
+    "tabs": {
+        "home": "Home",
+        "search": "Search",
+        "compare": "Compare",
+        "chat": "Chat",
+        "profile": "Profile"
+    },
+    "home_header": {
+        "greeting": "Find your dream car",
+        "good_morning": "Good morning ☀️",
+        "good_afternoon": "Good afternoon 🌤️",
+        "good_evening": "Good evening 🌙",
+        "filter": "Filter"
+    },
+    "home_screen": {
+        "explore": "Explore EasyAuto",
+        "trending": "Trending Now",
+        "recommended": "Recommended for you",
+        "new_arrivals": "New Arrivals",
+        "compare_cars": "Compare Cars",
+        "by_numbers": "Easy Auto by Numbers",
+        "explore_brand": "Explore by Brand",
+        "why_easyauto": "Why EasyAuto",
+        "testimonials": "User Testimonials"
     }
 }

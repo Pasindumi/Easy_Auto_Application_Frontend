@@ -1,4 +1,4 @@
-import COLORS from "@/constants/Colors";
+﻿import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
@@ -21,8 +21,6 @@ import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Footer from "../../components/Footer";
-
-import Header from "../../components/Header";
 import InputField from "../../components/InputField";
 import Button from "../../components/ui/button/Button";
 import SocialButton from "../../components/ui/button/SocialButton";
@@ -155,17 +153,6 @@ export default function LoginScreen() {
             >
               <Ionicons name="chevron-back" size={24} color="#fff" />
             </TouchableOpacity>
-          </View>
-
-          <View style={styles.contentContainer}>
-            {/* Toggle */}
-          <View style={styles.toggleRow}>
-            <TouchableOpacity
-              style={[styles.toggleBtn, styles.toggleInactive]}
-              onPress={() => router.push("/auth/signup")}
-            >
-              <Ionicons name="chevron-back" size={24} color="#fff" />
-            </TouchableOpacity>
             
             <TouchableOpacity 
               style={[styles.logoContainer, { marginTop: insets.top + 15 }]}
@@ -188,37 +175,6 @@ export default function LoginScreen() {
               <Text style={styles.subtitleText}>
                 {t('auth.sign_in_subtitle')}
               </Text>
-            </View>
-            {/* Social login */}
-            <SocialButton
-              icon="logo-apple"
-              text="Sign in With Apple"
-              onPress={() => handleSocialSignIn('apple')}
-              loading={socialLoading === 'apple'}
-              disabled={socialLoading !== null && socialLoading !== 'apple'}
-            />
-            <SocialButton
-              icon="logo-google"
-              text="Sign in With Google"
-              iconColor="#DB4437"
-              onPress={() => handleSocialSignIn('google')}
-              loading={socialLoading === 'google'}
-              disabled={socialLoading !== null && socialLoading !== 'google'}
-            />
-            <SocialButton
-              icon="logo-facebook"
-              text="Sign in With Facebook"
-              iconColor="#1877F2"
-              onPress={() => handleSocialSignIn('facebook')}
-              loading={socialLoading === 'facebook'}
-              disabled={socialLoading !== null && socialLoading !== 'facebook'}
-            />
-
-            {/* OR separator */}
-            <View style={styles.orRow}>
-              <View style={styles.orLine} />
-              <Text style={styles.orText}>{t('auth.or')}</Text>
-              <View style={styles.orLine} />
             </View>
 
             {/* Email/Password Fields */}
@@ -247,10 +203,9 @@ export default function LoginScreen() {
 
             {/* Login button */}
             <Button
-              title={t('login')}
+              title={loading ? "Logging in..." : t('login')}
               onPress={handleEmailLogin}
-              loading={loading}
-              disabled={socialLoading !== null}
+              disabled={loading || socialLoading !== null}
             />
 
             {/* OR separator */}
@@ -292,10 +247,9 @@ export default function LoginScreen() {
           </View>
           
           <Footer />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -353,56 +307,9 @@ const styles = StyleSheet.create({
     letterSpacing: -0.8,
     marginBottom: 4,
   },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    paddingTop: 20, // Added to ensure toggle is visible below header curves
-    justifyContent: 'flex-start' // Changed from space-between to avoid pushing top elements too high
-  },
-
-  toggleRow: {
-    flexDirection: "row",
-    alignSelf: "center",
-    marginTop: 10, // Reduced from 16 to ensure visibility
-    borderRadius: 20,
-    overflow: "hidden",
-    width: '85%',
-    backgroundColor: COLORS.backgroundMuted,
-    padding: 6,
-  },
-  toggleBtn: {
-    flex: 1,
-    paddingVertical: 10, // Reduced from 12
-    alignItems: "center",
-    borderRadius: 16,
-  },
-  toggleActive: {
-    backgroundColor: COLORS.white,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  toggleInactive: { backgroundColor: 'transparent' },
-  toggleText: { fontWeight: "800", fontSize: 15 },
-  whiteText: { color: COLORS.primary },
-  blueText: { color: COLORS.text.secondary },
-
-  form: { flex: 1, marginTop: 12 },
-
-  welcome: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: COLORS.text.primary,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
   subtitleText: {
     fontSize: 14,
     color: '#64748B',
-    marginBottom: 12,
     textAlign: 'center',
     lineHeight: 20,
   },

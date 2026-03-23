@@ -3,7 +3,8 @@ import Header from "../../components/Header";
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   StyleSheet,
   Text,
@@ -18,8 +19,13 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-na
 import COLORS from "@/constants/Colors";
 
 export default function SelectLanguage() {
-  const [selected, setSelected] = useState("en");
+  const { t, i18n } = useTranslation();
+  const [selected, setSelected] = useState(i18n.language || "en");
   const router = useRouter();
+
+  useEffect(() => {
+    setSelected(i18n.language || "en");
+  }, [i18n.language]);
 
   const saveScale = useSharedValue(1);
 
@@ -61,20 +67,21 @@ export default function SelectLanguage() {
   ];
 
   const handleSave = () => {
+    i18n.changeLanguage(selected);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    router.push('/(tabs)');
+    router.back();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <Header title="Select Language" showBack={true} />
+      <Header title={t('select_language.title')} showBack={true} />
 
       <View style={styles.headerSpacer} />
 
       <View style={styles.content}>
-        <Text style={styles.sectionHeader}>PREFERENCE</Text>
+        <Text style={styles.sectionHeader}>{t('select_language.preference')}</Text>
 
         <View style={styles.panel}>
           {languages.map((lang, index) => {
@@ -142,7 +149,7 @@ export default function SelectLanguage() {
               style={styles.buttonGradient}
             >
               <Ionicons name="save" size={20} color="#fff" />
-              <Text style={styles.saveText}>Confirm Language</Text>
+              <Text style={styles.saveText}>{t('select_language.confirm')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>

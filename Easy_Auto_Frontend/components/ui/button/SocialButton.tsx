@@ -1,6 +1,7 @@
+// components/SocialButton.tsx
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle, Platform, View } from "react-native";
 import COLORS from "@/constants/Colors";
 
 export default function SocialButton({
@@ -18,17 +19,14 @@ export default function SocialButton({
   disabled?: boolean;
   loading?: boolean;
 }) {
-  const Loading = require("../Loading").default;
   const isIconOnly = !text;
+
+  const Loading = require("../Loading").default;
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[
-        styles.btn, 
-        isIconOnly ? styles.btnIconOnly : styles.btnWithText,
-        (disabled || loading) && styles.btnDisabled
-      ]}
+      style={[styles.btn, (disabled || loading) && styles.btnDisabled]}
       activeOpacity={0.7}
       disabled={disabled || loading}
     >
@@ -36,15 +34,11 @@ export default function SocialButton({
         <Loading size="small" />
       ) : (
         <>
-          {!isIconOnly ? (
-            <View style={styles.iconContainer}>
-              <Ionicons name={icon} size={20} color={iconColor ?? COLORS.text.primary} />
-            </View>
-          ) : (
-            <Ionicons name={icon} size={24} color={iconColor ?? COLORS.text.primary} />
-          )}
-          {text && <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>}
-          {!isIconOnly && <View style={{ width: 24 }} />}
+          <View style={styles.iconContainer}>
+            <Ionicons name={icon} size={20} color={iconColor ?? COLORS.text.primary} />
+          </View>
+          <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>
+          <View style={{ width: 24 }} />
         </>
       )}
     </TouchableOpacity>
@@ -56,30 +50,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: COLORS.white,
+    backgroundColor: "#fff",
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border || '#E2E8F0',
-    shadowColor: COLORS.shadow || '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderColor: COLORS.border,
   },
   btnWithText: {
     paddingVertical: 12,
     paddingHorizontal: 14,
     marginBottom: 12,
-    borderRadius: 14,
   },
   btnIconOnly: {
     width: 60,
     height: 60,
     borderRadius: 30,
+    justifyContent: "space-between",
+    backgroundColor: COLORS.white,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   btnDisabled: {
     opacity: 0.5,
-    backgroundColor: COLORS.backgroundMuted || '#F1F5F9',
+    backgroundColor: COLORS.backgroundMuted,
   },
   iconContainer: {
     width: 24,
@@ -89,11 +89,12 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: "700",
     fontSize: 15,
-    color: COLORS.text.primary || '#0F172A',
+    color: COLORS.text.primary,
     flex: 1,
     textAlign: 'center',
   },
+  icon: { marginRight: 10 },
   textDisabled: {
-    color: COLORS.text.muted || '#64748B',
+    color: COLORS.text.muted,
   },
 });

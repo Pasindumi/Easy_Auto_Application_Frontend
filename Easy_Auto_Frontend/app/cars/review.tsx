@@ -169,7 +169,30 @@ export default function ReviewAdScreen() {
                         <Ionicons name="location-sharp" size={16} color={COLORS.text.muted} />
                         <Text style={styles.locationText}>{ad.location}</Text>
                         <View style={styles.dotSeparator} />
-                        <Text style={styles.timeText}>Just now</Text>
+                        <Text style={styles.timeText} numberOfLines={1}>Last updated: {formatDate(ad.updated_at || ad.created_at)}</Text>
+                    </View>
+
+                    {/* STATS SECTION */}
+                    <View style={styles.statsOverview}>
+                        <View style={styles.statBox}>
+                            <View style={[styles.statIconContainer, { backgroundColor: '#EEF2FF' }]}>
+                                <Ionicons name="eye-outline" size={20} color="#4F46E5" />
+                            </View>
+                            <View>
+                                <Text style={styles.statValue}>{ad.views_count || 0}</Text>
+                                <Text style={styles.statLabel}>Total Views</Text>
+                            </View>
+                        </View>
+                        <View style={styles.statDivider} />
+                        <View style={styles.statBox}>
+                            <View style={[styles.statIconContainer, { backgroundColor: '#FFF1F2' }]}>
+                                <Ionicons name="heart-outline" size={20} color="#E11D48" />
+                            </View>
+                            <View>
+                                <Text style={styles.statValue}>{ad.likes_count || 0}</Text>
+                                <Text style={styles.statLabel}>Wishlist Adds</Text>
+                            </View>
+                        </View>
                     </View>
 
                     {ad.active_boosts && ad.active_boosts.length > 0 && (
@@ -311,16 +334,18 @@ export default function ReviewAdScreen() {
                         <Text style={styles.editButtonText}>Edit Ad</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.publishButton}
-                        onPress={() => router.push({
-                            pathname: '/payments/payment',
-                            params: { adId: id }
-                        })}
-                    >
-                        <Ionicons name="card-outline" size={22} color="white" />
-                        <Text style={styles.publishButtonText}>Proceed & Payment</Text>
-                    </TouchableOpacity>
+                    {ad.status?.toUpperCase() !== 'ACTIVE' && (
+                        <TouchableOpacity
+                            style={styles.publishButton}
+                            onPress={() => router.push({
+                                pathname: '/payments/payment',
+                                params: { adId: id }
+                            })}
+                        >
+                            <Ionicons name="card-outline" size={22} color="white" />
+                            <Text style={styles.publishButtonText}>Proceed & Payment</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </ScrollView>
         </View>
@@ -386,6 +411,45 @@ const styles = StyleSheet.create({
     locationText: { color: COLORS.text.muted, fontSize: 14, marginLeft: 4 },
     dotSeparator: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#CBD5E1', marginHorizontal: 8 },
     timeText: { color: COLORS.text.muted, fontSize: 14 },
+    statsOverview: {
+        flexDirection: 'row',
+        backgroundColor: '#F8FAFC',
+        borderRadius: 16,
+        padding: 16,
+        marginTop: 20,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+    },
+    statBox: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    statIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    statValue: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#1E293B',
+    },
+    statLabel: {
+        fontSize: 12,
+        color: '#64748B',
+        fontWeight: '500',
+    },
+    statDivider: {
+        width: 1,
+        height: 30,
+        backgroundColor: '#E2E8F0',
+        marginHorizontal: 16,
+    },
     specsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',

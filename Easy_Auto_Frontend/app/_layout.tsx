@@ -15,6 +15,8 @@ import { tokenCache } from "../utils/tokenCache";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
+import { CustomThemeProvider, useTheme } from "../contexts/ThemeContext";
+
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
@@ -24,9 +26,48 @@ export const unstable_settings = {
   initialRouteName: "landing",
 };
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function InnerLayout() {
+  const { isDarkMode } = useTheme();
 
+  return (
+    <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
+        <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
+        <Stack.Screen name="packages/boost-ad" options={{ headerShown: false }} />
+        <Stack.Screen name="packages/packages" options={{ headerShown: false }} />
+        <Stack.Screen name="landing" options={{ headerShown: false, animation: 'fade' }} />
+
+        <Stack.Screen name="admin" options={{ headerShown: false }} />
+
+        {/* Payments Section */}
+        <Stack.Screen name="payments/payment-history" options={{ headerShown: false }} />
+        <Stack.Screen name="payments/payment" options={{ headerShown: false }} />
+        <Stack.Screen name="payments/invoice" options={{ headerShown: false }} />
+        <Stack.Screen name="payments/payment-detail" options={{ headerShown: false }} />
+        <Stack.Screen name="payments/payment-methods" options={{ headerShown: false }} />
+        <Stack.Screen name="payments/successful-payment" options={{ headerShown: false }} />
+        <Stack.Screen name="offers" options={{ headerShown: false }} />
+        <Stack.Screen name="support/about" options={{ headerShown: false }} />
+        <Stack.Screen name="support/privacy-policy" options={{ headerShown: false }} />
+        <Stack.Screen name="support/help-center" options={{ headerShown: false }} />
+        <Stack.Screen name="support/contact-us" options={{ headerShown: false }} />
+        <Stack.Screen name="support/help-support" options={{ headerShown: false }} />
+        <Stack.Screen name="cars/compare-cars-detail" options={{ headerShown: false }} />
+
+        <Stack.Screen
+          name="modals/modal"
+          options={{ presentation: "modal", title: "Modal" }}
+        />
+      </Stack>
+      <StatusBar style="auto" />
+      <Toast />
+    </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ClerkProvider
@@ -36,40 +77,9 @@ export default function RootLayout() {
         <ClerkLoaded>
           <AuthProvider>
             <ToastProvider>
-              <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-                <Stack>
-                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                  <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
-                   <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
-                  <Stack.Screen name="packages/boost-ad" options={{ headerShown: false }} />
-                  <Stack.Screen name="packages/packages" options={{ headerShown: false }} />
-                  <Stack.Screen name="landing" options={{ headerShown: false, animation: 'fade' }} />
-
-                  <Stack.Screen name="admin" options={{ headerShown: false }} />
-                  
-                  {/* Payments Section */}
-                  <Stack.Screen name="payments/payment-history" options={{ headerShown: false }} />
-                  <Stack.Screen name="payments/payment" options={{ headerShown: false }} />
-                  <Stack.Screen name="payments/invoice" options={{ headerShown: false }} />
-                  <Stack.Screen name="payments/payment-detail" options={{ headerShown: false }} />
-                  <Stack.Screen name="payments/payment-methods" options={{ headerShown: false }} />
-                  <Stack.Screen name="payments/successful-payment" options={{ headerShown: false }} />
-                   <Stack.Screen name="offers" options={{ headerShown: false }} />
-                  <Stack.Screen name="support/about" options={{ headerShown: false }} />
-                  <Stack.Screen name="support/privacy-policy" options={{ headerShown: false }} />
-                  <Stack.Screen name="support/help-center" options={{ headerShown: false }} />
-                  <Stack.Screen name="support/contact-us" options={{ headerShown: false }} />
-                  <Stack.Screen name="support/help-support" options={{ headerShown: false }} />
-                  <Stack.Screen name="cars/compare-cars-detail" options={{ headerShown: false }} />
-
-                  <Stack.Screen
-                    name="modals/modal"
-                    options={{ presentation: "modal", title: "Modal" }}
-                  />
-                </Stack>
-                <StatusBar style="auto" />
-                <Toast />
-              </ThemeProvider>
+              <CustomThemeProvider>
+                <InnerLayout />
+              </CustomThemeProvider>
             </ToastProvider>
           </AuthProvider>
         </ClerkLoaded>

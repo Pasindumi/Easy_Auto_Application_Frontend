@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Platform,
-  Alert
+  Alert,
 } from 'react-native';
 import Loading from "../../components/ui/Loading";
 import Header from "../../components/Header";
@@ -68,7 +68,7 @@ export default function SubscriptionsScreen() {
 
   const handleUnsubscribe = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    
+
     Alert.alert(
       "Cancel Subscription",
       "Are you sure you want to cancel your current premium subscription? You will lose access to premium features at the end of your billing cycle.",
@@ -119,25 +119,43 @@ export default function SubscriptionsScreen() {
     router.push('/payments/payment-history');
   };
 
+  const handleRowPress = (item: any) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push({
+      pathname: '/payments/payment-detail',
+      params: {
+        id: item.id,
+        date: item.date,
+        amount: item.amount,
+        plan: item.plan,
+        status: item.status,
+        adId: item.adId,
+        rentalAdId: item.rentalAdId,
+        packageId: item.packageId,
+        rawAmount: item.rawAmount
+      }
+    });
+  };
+
   const UsageItem = ({ label, used, limit, icon, color }: any) => (
     <View style={styles.usageItem}>
-        <View style={styles.usageHeader}>
-            <View style={styles.usageLabelRow}>
-                <View style={[styles.usageIconBg, { backgroundColor: `${color}15` }]}>
-                    <Ionicons name={icon} size={16} color={color} />
-                </View>
-                <Text style={styles.usageLabel}>{label}</Text>
-            </View>
-            <Text style={styles.usageText}>{used} / {limit}</Text>
+      <View style={styles.usageHeader}>
+        <View style={styles.usageLabelRow}>
+          <View style={[styles.usageIconBg, { backgroundColor: `${color}15` }]}>
+            <Ionicons name={icon} size={16} color={color} />
+          </View>
+          <Text style={styles.usageLabel}>{label}</Text>
         </View>
-        <View style={styles.progressBarBg}>
-            <View 
-                style={[
-                    styles.progressBarFill, 
-                    { backgroundColor: color, width: `${Math.min((used / limit) * 100, 100)}%` }
-                ]} 
-            />
-        </View>
+        <Text style={styles.usageText}>{used} / {limit}</Text>
+      </View>
+      <View style={styles.progressBarBg}>
+        <View
+          style={[
+            styles.progressBarFill,
+            { backgroundColor: color, width: `${Math.min((used / limit) * 100, 100)}%` }
+          ]}
+        />
+      </View>
     </View>
   );
 
@@ -147,46 +165,46 @@ export default function SubscriptionsScreen() {
       <Header title="My Subscription" showBack={true} />
 
       <SafeAreaView style={styles.safe}>
-        <ScrollView 
-            style={styles.container}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
           {loading ? (
             <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
-                <Text style={styles.loaderText}>Syncing subscription...</Text>
+              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Text style={styles.loaderText}>Syncing subscription...</Text>
             </View>
           ) : activeSub ? (
             <>
-                <CurrentPlanCard
-                    planName={activeSub.plan}
-                    expiryDate={`Next Renewal: ${new Date(activeSub.endDate).toLocaleDateString()}`}
-                    price={activeSub.amount}
-                    onManagePlan={handleManagePlan}
-                    onUnsubscribe={handleUnsubscribe}
-                />
+              <CurrentPlanCard
+                planName={activeSub.plan}
+                expiryDate={`Next Renewal: ${new Date(activeSub.endDate).toLocaleDateString()}`}
+                price={activeSub.amount}
+                onManagePlan={handleManagePlan}
+                onUnsubscribe={handleUnsubscribe}
+              />
 
-                {/* Plan Insights Card */}
-                <View style={styles.insightsCard}>
-                    <Text style={styles.insightsTitle}>Plan Insights</Text>
-                    <View style={styles.usageGrid}>
-                        <UsageItem 
-                            label="Ad Listings" 
-                            used={activeSub.usedAds || 2} 
-                            limit={activeSub.adLimit || 5} 
-                            icon="car-outline" 
-                            color="#3b82f6" 
-                        />
-                        <UsageItem 
-                            label="Featured Slots" 
-                            used={activeSub.usedFeatured || 1} 
-                            limit={activeSub.featuredLimit || 2} 
-                            icon="star-outline" 
-                            color="#f59e0b" 
-                        />
-                    </View>
+              {/* Plan Insights Card */}
+              <View style={styles.insightsCard}>
+                <Text style={styles.insightsTitle}>Plan Insights</Text>
+                <View style={styles.usageGrid}>
+                  <UsageItem
+                    label="Ad Listings"
+                    used={activeSub.usedAds || 2}
+                    limit={activeSub.adLimit || 5}
+                    icon="car-outline"
+                    color="#3b82f6"
+                  />
+                  <UsageItem
+                    label="Featured Slots"
+                    used={activeSub.usedFeatured || 1}
+                    limit={activeSub.featuredLimit || 2}
+                    icon="star-outline"
+                    color="#f59e0b"
+                  />
                 </View>
+              </View>
             </>
           ) : (
             <View style={styles.emptyCard}>
@@ -195,7 +213,7 @@ export default function SubscriptionsScreen() {
               </View>
               <Text style={styles.emptyTitle}>Standard Free Plan</Text>
               <Text style={styles.emptySubtitle}>You're currently on the basic plan. Upgrade now to unlock premium selling tools and reach more buyers.</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.upgradeBtn}
                 onPress={() => router.push('/packages/packages')}
               >
@@ -210,7 +228,9 @@ export default function SubscriptionsScreen() {
             onDownload={handleDownload}
             onDownloadAll={handleDownloadAll}
             onViewAll={handleViewAll}
+            onRowPress={handleRowPress}
           />
+          <SupportHelpCard onContactSupport={handleContactSupport} />
         </ScrollView>
       </SafeAreaView>
     </View>
