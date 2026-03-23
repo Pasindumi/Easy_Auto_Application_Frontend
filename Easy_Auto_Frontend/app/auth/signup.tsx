@@ -1,4 +1,4 @@
-﻿import COLORS from "@/constants/Colors";
+import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -143,36 +143,27 @@ export default function SignupScreen() {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          {/* Compressed Header Image */}
-          <View style={[styles.headerImageContainer, { height: 160 + insets.top }]}>
-            <Image
-              source={{ uri: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1983&auto=format&fit=crop" }}
-              style={StyleSheet.absoluteFillObject}
-              contentFit="cover"
-            />
-            <LinearGradient
-              colors={['rgba(15,23,42,0.8)', 'transparent', '#fff']}
-              style={StyleSheet.absoluteFillObject}
-            />
-            
-            <TouchableOpacity 
-              style={[styles.backButton, { top: insets.top + 10 }]} 
-              onPress={() => router.replace('/(tabs)')}
-            >
-              <Ionicons name="chevron-back" size={24} color="#fff" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.logoContainer, { marginTop: insets.top + 15 }]}
-              onPress={() => router.replace('/(tabs)')}
-              activeOpacity={0.7}
-            >
-              <Image
-                source={require("@/assets/logoHome.png")}
-                style={styles.logoImg}
-                contentFit="contain"
-              />
-            </TouchableOpacity>
+          {/* Premium Header */}
+          {/* Premium Header */}
+          <View style={[styles.cleanHeader, { paddingTop: insets.top + 10 }]}>
+            <View style={styles.headerTopRow}>
+              <TouchableOpacity 
+                style={styles.backButton} 
+                onPress={() => router.replace('/(tabs)')}
+              >
+                <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
+              </TouchableOpacity>
+              
+              <View style={styles.logoCentered}>
+                <Image
+                  source={require("@/assets/logoHome.png")}
+                  style={styles.logoImg}
+                  contentFit="contain"
+                />
+              </View>
+              
+              <View style={{ width: 42 }} />
+            </View>
           </View>
 
           {/* Custom Auth Form Area */}
@@ -251,32 +242,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFF',
   },
-  headerImageContainer: {
+  cleanHeader: {
     width: '100%',
-    position: 'relative',
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    paddingBottom: 15,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   backButton: {
-    position: 'absolute',
-    left: 20,
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#F8FAFF',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: '#E2E8F0',
   },
-  logoContainer: {
+  logoCentered: {
+    flex: 1,
     alignItems: 'center',
-    width: '100%',
-    position: 'absolute',
-    zIndex: 5,
   },
   logoImg: {
-    width: 130,
-    height: 38,
+    width: 120,
+    height: 36,
   },
   scrollContent: {
     flexGrow: 1,

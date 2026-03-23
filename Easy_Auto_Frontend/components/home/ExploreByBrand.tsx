@@ -20,7 +20,10 @@ import { Ionicons } from "@expo/vector-icons";
 import SectionHeader from "./SectionHeader";
 
 const { width } = Dimensions.get("window");
-const COL = (width - 40 - 30) / 4; // 4 cols
+const GAPPING = 14;
+const PADDING_H = 20;
+const COL_COUNT = 4;
+const COL_W = (width - (PADDING_H * 2) - (GAPPING * (COL_COUNT - 1))) / COL_COUNT;
 
 interface Brand { id: string; brand_name: string; brand_image: string | null; status: string }
 
@@ -176,19 +179,19 @@ const styles = StyleSheet.create({
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
-        paddingHorizontal: 20,
-        gap: 12, // Increased gap for premium feel
+        paddingHorizontal: PADDING_H,
+        justifyContent: 'space-between',
     },
     brandCell: {
-        width: COL,
+        width: COL_W,
         alignItems: "center",
-        marginBottom: 8,
+        marginBottom: 16,
     },
     brandCard: {
-        width: COL,
-        height: COL,
+        width: COL_W,
+        height: COL_W,
         backgroundColor: COLORS.white,
-        borderRadius: COL / 2, // Perfect circle for premium brand avatars
+        borderRadius: COL_W / 2, // Perfect circle for premium brand avatars
         justifyContent: "center",
         alignItems: "center",
         borderWidth: 1,
@@ -203,7 +206,7 @@ const styles = StyleSheet.create({
     placeholderGradient: {
         width: '100%',
         height: '100%',
-        borderRadius: COL / 2,
+        borderRadius: COL_W / 2,
         justifyContent: "center",
         alignItems: "center",
     },

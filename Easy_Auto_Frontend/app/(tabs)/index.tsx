@@ -102,10 +102,6 @@ export default function HomeScreen() {
                 notificationCount={notificationCount}
                 wishlistCount={wishlistCount}
                 setSidebarVisible={setSidebarVisible}
-                searchFocused={searchFocused}
-                setSearchFocused={setSearchFocused}
-                showSearchSuggestions={showSearchSuggestions}
-                setShowSearchSuggestions={setShowSearchSuggestions}
             />
 
 
@@ -206,16 +202,19 @@ const styles = StyleSheet.create({
     },
     section: {
         backgroundColor: "#fff",
+        paddingVertical: 4,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.02)',
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,
-        marginBottom: -16,
-        marginTop: 8,
+        marginBottom: -20,
+        marginTop: 12,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "800",
         color: "#0F172A",
-        letterSpacing: -0.5,
+        letterSpacing: -0.4,
     },
 });

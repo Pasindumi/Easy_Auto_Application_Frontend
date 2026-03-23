@@ -77,7 +77,7 @@ const HomeReviewsSlider = () => {
             <SectionHeader
                 title="⭐ User Testimonials"
                 subtitle="What our community says about us"
-                onViewAll={() => router.push("/reviews" as any)}
+                onViewAll={() => router.push("/testimonials" as any)}
             />
 
             <View style={styles.summaryBox}>

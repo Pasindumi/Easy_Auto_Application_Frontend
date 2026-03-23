@@ -236,7 +236,7 @@ export default function ChatScreen() {
 
       {/* ─── BRANDED GRADIENT HEADER ─── */}
       <LinearGradient
-        colors={["#235CF8", "#1E4DB7"]}
+        colors={[COLORS.primary, COLORS.primary]}
         style={[styles.header, { paddingTop: insets.top }]}
       >
         <View style={styles.headerRow}>
@@ -389,11 +389,11 @@ const styles = StyleSheet.create({
 
   listContainer: {
     flex: 1,
-    marginTop: -20, // Overlap the header slightly for a cleaner look
+    marginTop: -16, // Reduced overlap for better spacing
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     backgroundColor: '#fff',
-    paddingTop: 16,
+    paddingTop: 12, // Fine-tuned padding
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 0.08,
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
 
   fab: {
     position: 'absolute',
-    bottom: 100, // Above tab bar
+    bottom: 140, // Moved higher to avoid floating nav bar conflict
     right: 20,
     width: 62,
     height: 62,

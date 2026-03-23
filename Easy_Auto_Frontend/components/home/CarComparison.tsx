@@ -84,9 +84,16 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
 
                         {/* CTA bar */}
                         <View style={styles.ctaBar}>
-                            <Ionicons name="git-compare-outline" size={14} color={COLORS.primary} />
-                            <Text style={styles.ctaBarText}>Tap to compare now</Text>
-                            <Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
+                            <LinearGradient
+                                colors={[COLORS.primary, "#1E40AF"]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                style={styles.ctaGrad}
+                            >
+                                <Ionicons name="git-compare" size={16} color="#FFF" />
+                                <Text style={styles.ctaBarText}>Compare Specifications Now</Text>
+                                <Ionicons name="chevron-forward" size={16} color="#FFF" />
+                            </LinearGradient>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -153,16 +160,24 @@ const styles = StyleSheet.create({
     vsText: { color: "#fff", fontWeight: "900", fontSize: 11, fontStyle: "italic" },
     ctaBar: {
         width: "100%",
-        marginTop: 14,
+        marginTop: 18,
+        borderRadius: 14,
+        overflow: 'hidden',
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    ctaGrad: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        gap: 6,
-        backgroundColor: "#EEF3FF",
-        borderRadius: 12,
-        paddingVertical: 10,
+        gap: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
     },
-    ctaBarText: { fontSize: 13, fontWeight: "700", color: COLORS.primary },
+    ctaBarText: { fontSize: 13, fontWeight: "800", color: "#FFF", letterSpacing: 0.2 },
 });
 
 export default CarComparison;

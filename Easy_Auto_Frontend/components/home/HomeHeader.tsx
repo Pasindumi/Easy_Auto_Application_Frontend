@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import COLORS from "@/constants/Colors";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface HomeHeaderProps {
     initialHeaderOpacity: Animated.Value;
@@ -20,10 +21,6 @@ interface HomeHeaderProps {
     notificationCount: number;
     wishlistCount: number;
     setSidebarVisible: (v: boolean) => void;
-    searchFocused: boolean;
-    setSearchFocused: (v: boolean) => void;
-    showSearchSuggestions: boolean;
-    setShowSearchSuggestions: (v: boolean) => void;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -32,8 +29,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     notificationCount,
     wishlistCount,
     setSidebarVisible,
-    searchFocused,
-    setSearchFocused,
 }) => {
     const router = useRouter();
     const { t } = useTranslation();
@@ -69,12 +64,20 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
                     <View style={styles.rightRow}>
                         <TouchableOpacity onPress={() => tap("wish")} style={styles.iconBtn} activeOpacity={0.7}>
-                            <Ionicons name="heart-outline" size={22} color="#fff" />
-                            {wishlistCount > 0 && <View style={styles.badge} />}
+                            <Ionicons name="heart-outline" size={24} color="#fff" />
+                            {wishlistCount > 0 && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>{wishlistCount > 10 ? '9+' : wishlistCount}</Text>
+                                </View>
+                            )}
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => tap("notif")} style={styles.iconBtn} activeOpacity={0.7}>
-                            <Ionicons name="notifications-outline" size={22} color="#fff" />
-                            {notificationCount > 0 && <View style={styles.badge} />}
+                            <Ionicons name="notifications-outline" size={24} color="#fff" />
+                            {notificationCount > 0 && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>{notificationCount > 10 ? '9+' : notificationCount}</Text>
+                                </View>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -83,21 +86,34 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 <Text style={styles.greeting}>{getGreeting()} — {t("home_header.greeting", "Find your dream car")}</Text>
 
                 {/* ── Search bar ── */}
-                <TouchableOpacity
-                    style={[styles.searchBar, searchFocused && styles.searchBarFocused]}
-                    activeOpacity={0.9}
-                    onPress={() => {
-                        Haptics.selectionAsync();
-                        router.push("/(tabs)/search" as any);
-                    }}
-                >
-                    <Ionicons name="search" size={18} color="#94A3B8" />
-                    <Text style={styles.searchPlaceholder}>{t("home.search_placeholder", "Search make, model, year...")}</Text>
-                    <View style={styles.filterChip}>
-                        <Ionicons name="options-outline" size={15} color={COLORS.primary} />
-                        <Text style={styles.filterChipTxt}>{t("home_header.filter", "Filter")}</Text>
-                    </View>
-                </TouchableOpacity>
+                <View style={styles.searchRow}>
+                    <TouchableOpacity
+                        style={styles.searchBar}
+                        activeOpacity={0.9}
+                        onPress={() => {
+                            Haptics.selectionAsync();
+                            router.push("/search" as any);
+                        }}
+                    >
+                        <Ionicons name="search" size={18} color="#94A3B8" />
+                        <Text style={styles.searchPlaceholder}>{t("home.search_placeholder", "Search make, model, year...")}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.filterBtn}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.push({ pathname: "/search", params: { openFilters: 'true' } } as any);
+                        }}
+                    >
+                        <LinearGradient
+                            colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.15)']}
+                            style={styles.filterGrad}
+                        >
+                            <Ionicons name="filter" size={20} color="white" />
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </View>
 
             </View>
         </Animated.View>
@@ -135,148 +151,71 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     badge: {
-        position: "absolute", top: 6, right: 6,
-        width: 7, height: 7, borderRadius: 4,
+        position: "absolute", top: 4, right: 4,
+        minWidth: 14, height: 14, borderRadius: 7,
         backgroundColor: "#FCD34D",
         borderWidth: 1.5, borderColor: COLORS.primary,
+        alignItems: 'center', justifyContent: 'center',
+        paddingHorizontal: 2,
+    },
+    badgeText: {
+        color: COLORS.primary,
+        fontSize: 8,
+        fontWeight: "900",
     },
 
     // Greeting
     greeting: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "rgba(255,255,255,0.80)",
-        marginBottom: 10,
-        letterSpacing: 0.1,
+        fontSize: 14,
+        fontWeight: "800",
+        color: "rgba(255,255,255,0.95)",
+        marginBottom: 14,
+        letterSpacing: -0.3,
     },
 
     // Search
+    searchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 8,
+    },
     searchBar: {
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#fff",
-        borderRadius: 14,
+        backgroundColor: "rgba(255,255,255,0.15)",
+        borderRadius: 12,
         paddingHorizontal: 14,
-        height: 44,
+        height: 46,
         gap: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.07,
-        shadowRadius: 8,
-        elevation: 4,
-        marginBottom: 12,
-    },
-    searchBarFocused: {
-        borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.8)',
-        shadowOpacity: 0.1,
-        elevation: 6,
-        backgroundColor: COLORS.white,
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.2)",
     },
     searchPlaceholder: {
         flex: 1,
-        fontSize: 14,
-        color: "#94A3B8",
-        fontWeight: "500",
-    },
-    filterChip: {
-        backgroundColor: "rgba(255,255,255,0.7)",
-        borderRadius: 12,
-        paddingLeft: 8,
-        paddingRight: 6,
-        height: 42,
-        gap: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 4,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.4)',
-    },
-    searchGradient: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    searchIconBox: {
-        width: 30,
-        height: 30,
-        borderRadius: 8,
-        backgroundColor: 'rgba(243, 244, 246, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    searchInput: {
-        flex: 1,
         fontSize: 13,
-        color: COLORS.text.primary,
-        fontWeight: "500",
+        color: "rgba(255,255,255,0.75)",
+        fontWeight: "600",
     },
     filterBtn: {
-        width: 34,
-        height: 34,
-        borderRadius: 10,
-        backgroundColor: COLORS.white,
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: 46,
+        height: 46,
+        borderRadius: 12,
+        overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.4)',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 6,
-        elevation: 2,
+        borderColor: "rgba(255,255,255,0.2)",
     },
-    suggestionsContainer: {
-        position: 'absolute',
-        top: 64,
-        left: 0,
-        right: 0,
-        backgroundColor: COLORS.white,
-        borderRadius: 24,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 20 },
-        shadowOpacity: 0.15,
-        shadowRadius: 30,
-        elevation: 15,
-        zIndex: 2000,
-    },
-    suggestionHeaderRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    filterGrad: {
+        flex: 1,
         alignItems: 'center',
-        marginBottom: 12,
-    },
-    suggestionsHeader: {
-        fontSize: 12,
-        fontWeight: "800",
-        color: COLORS.text.muted,
-        textTransform: "uppercase",
-        letterSpacing: 1,
-    },
-    clearAllText: {
-        fontSize: 12,
-        fontWeight: "700",
-        color: COLORS.primary,
-    },
-    suggestionRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 3,
-        backgroundColor: "#EEF2FF",
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 10,
+        justifyContent: 'center',
     },
     filterChipTxt: {
         fontSize: 12,
         fontWeight: "700",
         color: COLORS.primary,
     },
-
-
 });
 
 export default HomeHeader;
