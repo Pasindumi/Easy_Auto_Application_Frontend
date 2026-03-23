@@ -245,10 +245,42 @@ export default function BuyCarScreen() {
         return () => clearTimeout(t);
     }, [fetchAds]);
 
-    const toggleFavorite = (id: string) => {
+    const toggleFavorite = async (id: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+
+        // Optimistic UI update
+        const wasFavorite = favorites.includes(id);
+        setFavorites(prev => wasFavorite ? prev.filter(f => f !== id) : [...prev, id]);
+
+        try {
+            const res = await api.post<{ success: boolean; isFavorite: boolean }>('/api/favorites/toggle', { ad_id: id });
+            if (res.success) {
+                // Ensure local state matches server response
+                setFavorites(prev => {
+                    if (res.isFavorite) return prev.includes(id) ? prev : [...prev, id];
+                    return prev.filter(f => f !== id);
+                });
+            }
+        } catch (error: any) {
+            // Revert if unauthorized or error
+            setFavorites(prev => wasFavorite ? [...prev, id] : prev.filter(f => f !== id));
+        }
     };
+
+    // Fetch user's wishlist on mount
+    useEffect(() => {
+        const fetchUserFavorites = async () => {
+            try {
+                const res = await api.get<{ success: boolean; data: any[] }>('/api/favorites');
+                if (res.success && Array.isArray(res.data)) {
+                    setFavorites(res.data.map(f => f.id));
+                }
+            } catch (err) {
+                console.error("Error fetching wishlist:", err);
+            }
+        };
+        fetchUserFavorites();
+    }, []);
 
     const resetFilters = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -294,7 +326,13 @@ export default function BuyCarScreen() {
                             <Ionicons name="location-outline" size={12} color="#94A3B8" />
                             <Text style={styles.locationText} numberOfLines={1}>{item.location?.split(",")[0] || "Sri Lanka"}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.favBtnSmall}>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(item.id);
+                            }}
+                            style={styles.favBtnSmall}
+                        >
                             <Ionicons name={isFav ? "heart" : "heart-outline"} size={18} color={isFav ? "#EF4444" : "#94A3B8"} />
                         </TouchableOpacity>
                     </View>
@@ -328,7 +366,13 @@ export default function BuyCarScreen() {
                     <View style={styles.gridPriceBadge}>
                         <Text style={styles.gridPriceText}>{formatPrice(item.price)}</Text>
                     </View>
-                    <TouchableOpacity style={styles.gridFavBtn} onPress={() => toggleFavorite(item.id)}>
+                    <TouchableOpacity
+                        style={styles.gridFavBtn}
+                        onPress={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(item.id);
+                        }}
+                    >
                         <Ionicons name={isFav ? "heart" : "heart-outline"} size={16} color={isFav ? "#EF4444" : "white"} />
                     </TouchableOpacity>
                     {item.is_featured && (
@@ -571,7 +615,7 @@ export default function BuyCarScreen() {
 
             {/* ΓöÇΓöÇΓöÇ FILTER FAB ΓöÇΓöÇΓöÇ */}
             <View style={[styles.filterFabWrap, { bottom: insets.bottom + 20 }]}>
-                    <TouchableOpacity
+                <TouchableOpacity
                     style={styles.filterFab}
                     onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowFilters(true); }}
                 >

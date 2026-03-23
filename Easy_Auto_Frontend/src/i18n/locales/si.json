@@ -71,5 +71,73 @@
         "select_location": "ස්ථානය තෝරන්න",
         "select_brand": "වෙළඳ නාමය තෝරන්න",
         "select_model": "මාදිලිය තෝරන්න"
+    },
+    "settings_screen": {
+        "title": "යෙදුම් සැකසුම්",
+        "personal_account": "පුද්ගලික සහ ගිණුම්",
+        "edit_profile": "පැතිකඩ සංස්කරණය කරන්න",
+        "edit_profile_sub": "නම, විද්‍යුත් තැපෑල සහ සම්බන්ධතා කළමනාකරණය කරන්න",
+        "addresses": "ලිපින",
+        "addresses_sub": "සුරැකි බිල්පත් සහ නැව්ගත කිරීමේ ස්ථාන",
+        "security": "ආරක්ෂාව",
+        "security_sub": "මුරපදය සහ ජීවමිතික පිවිසුම",
+        "communication": "සන්නිවේදන මනාපයන්",
+        "push_notifications": "තල්ලු ලුහුඬු",
+        "push_notifications_sub": "පණිවිඩ සහ මිල අඩුවීම් සඳහා ඇඟවීම් ලබා ගන්න",
+        "app_preferences": "යෙදුම් මනාපයන්",
+        "language": "භාෂාව",
+        "appearance": "පෙනුම",
+        "appearance_sub": "අඳුරු මාදිලිය සහ තේමා",
+        "units": "ඒකක",
+        "units_sub": "කිලෝමීටර් (km)",
+        "privacy_data": "රහස්‍යතාව සහ දත්ත",
+        "location_access": "ස්ථානය ප්‍රවේශය",
+        "clear_cache": "හැඹිලිය හිස් කරන්න",
+        "clear_cache_sub": "24.5 MB ඉඩක් නිදහස් කරන්න",
+        "privacy_policy": "රහස්‍යතා ප්‍රතිපත්තිය",
+        "more_about": "EasyAuto ගැන තවත්",
+        "about_version": "අනුවාදය ගැන",
+        "about_version_sub": "EasyAuto v2.4.1 (Stable)",
+        "help_center": "උපකාරක මධ්‍යස්ථානය",
+        "share_friends": "මිතුරන් සමඟ බෙදා ගන්න",
+        "sign_out": "ඉවත් වන්න",
+        "made_with_love": "❤️ සමඟ ශ්‍රී ලංකාවේ සාදන ලදී",
+        "all_rights": "© 2024 EasyAuto Marketplace. සියලුම හිමිකම් ඇවිරිණි.",
+        "clear_cache_alert_title": "හැඹිලිය හිස් කරන්න",
+        "clear_cache_alert_msg": "ඔබට යෙදුම් හැඹිලිය ඉවත් කිරීමට විශ්වාසද? මෙය 24.5 MB ඉඩක් නිදහස් කරනු ඇත.",
+        "cancel": "අවලංගු කරන්න",
+        "clear": "ඉවත් කරන්න",
+        "success": "සාර්ථකයි",
+        "cache_cleared": "හැඹිලිය සාර්ථකව හිස් කරන ලදි."
+    },
+    "select_language": {
+        "title": "භාෂාව තෝරන්න",
+        "preference": "මනාපය",
+        "confirm": "භාෂාව තහවුරු කරන්න"
+    },
+    "tabs": {
+        "home": "මුල් පිටුව",
+        "search": "සොයන්න",
+        "compare": "සසඳන්න",
+        "chat": "කතාබස්",
+        "profile": "පැතිකඩ"
+    },
+    "home_header": {
+        "greeting": "ඔබේ සිහින මෝටර් රථය සොයා ගන්න",
+        "good_morning": "සුභ උදෑසනක් ☀️",
+        "good_afternoon": "සුභ දහවලක් 🌤️",
+        "good_evening": "සුභ සන්ධ්‍යාවක් 🌙",
+        "filter": "පෙරහන් කරන්න"
+    },
+    "home_screen": {
+        "explore": "EasyAuto පිරික්සන්න",
+        "trending": "දැන් ජනප්‍රිය",
+        "recommended": "ඔබ සඳහා නිර්දේශිත",
+        "new_arrivals": "නව පැමිණීම්",
+        "compare_cars": "මෝටර් රථ සසඳන්න",
+        "by_numbers": "සංඛ්‍යා අනුව Easy Auto",
+        "explore_brand": "වෙළඳ නාමය අනුව පිරික්සන්න",
+        "why_easyauto": "ඇයි EasyAuto",
+        "testimonials": "පරිශීලක සහතික"
     }
 }

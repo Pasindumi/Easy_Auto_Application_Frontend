@@ -2,6 +2,7 @@
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   StyleSheet,
@@ -70,6 +71,7 @@ const YEAR_RANGES = [
 
 export default function SearchScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   // Search & Filter States
@@ -401,7 +403,7 @@ export default function SearchScreen() {
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
-          
+
           <View pointerEvents="none" style={styles.logoCentre}>
             <RNImage
               source={require("@/assets/logoHome.png")}
@@ -414,11 +416,11 @@ export default function SearchScreen() {
         </View>
 
         <View style={styles.headerSearchArea}>
-           <View style={styles.glassSearch}>
+          <View style={styles.glassSearch}>
             <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
             <TextInput
               style={styles.headerSearchInput}
-              placeholder="Search cars, brands, models..."
+              placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
               placeholderTextColor="rgba(255,255,255,0.6)"
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -453,7 +455,7 @@ export default function SearchScreen() {
               color={activeFilterCount > 0 ? COLORS.white : COLORS.primary}
             />
             <Text style={[styles.filterChipText, activeFilterCount > 0 && styles.filterChipTextActive]}>
-              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+              {t("buy_car_screen.filter_vehicles", "Filters")} {activeFilterCount > 0 && `(${activeFilterCount})`}
             </Text>
           </TouchableOpacity>
 
@@ -489,7 +491,7 @@ export default function SearchScreen() {
         {/* Sort & Results Count */}
         <View style={styles.resultsBar}>
           <Text style={styles.resultsCount}>
-            {isSearching ? 'Searching...' : `${searchResults.length} results found`}
+            {isSearching ? 'Searching...' : `${searchResults.length} ${t("buy_car_screen.results", "results found")}`}
           </Text>
           <TouchableOpacity
             style={styles.sortButton}
@@ -498,7 +500,7 @@ export default function SearchScreen() {
             }}
           >
             <Ionicons name="swap-vertical" size={16} color={COLORS.primary} />
-            <Text style={styles.sortText}>Sort</Text>
+            <Text style={styles.sortText}>{t("buy_car_screen.sort_by", "Sort")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -531,13 +533,13 @@ export default function SearchScreen() {
                 <View style={styles.emptyIcon}>
                   <Ionicons name="search-outline" size={64} color={COLORS.border} />
                 </View>
-                <Text style={styles.emptyTitle}>No results found</Text>
+                <Text style={styles.emptyTitle}>{t("buy_car_screen.no_vehicles_found", "No results found")}</Text>
                 <Text style={styles.emptyText}>
                   Try adjusting your search or filters
                 </Text>
                 {activeFilterCount > 0 && (
                   <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
-                    <Text style={styles.clearButtonText}>Clear All Filters</Text>
+                    <Text style={styles.clearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
                   </TouchableOpacity>
                 )}
               </>
@@ -556,7 +558,7 @@ export default function SearchScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.filterModal}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Advanced Filters</Text>
+              <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
               <TouchableOpacity onPress={toggleFilters}>
                 <Ionicons name="close" size={24} color={COLORS.text.primary} />
               </TouchableOpacity>
@@ -565,7 +567,7 @@ export default function SearchScreen() {
             <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
               {/* Price Range */}
               <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Price Range</Text>
+                <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View style={styles.rangeChips}>
                     {PRICE_RANGES.map((range, index) => (
@@ -691,7 +693,7 @@ export default function SearchScreen() {
                 style={styles.clearFiltersBtn}
                 onPress={clearAllFilters}
               >
-                <Text style={styles.clearFiltersText}>Clear All</Text>
+                <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.applyFiltersBtn}
@@ -700,7 +702,7 @@ export default function SearchScreen() {
                   toggleFilters();
                 }}
               >
-                <Text style={styles.applyFiltersText}>Apply Filters</Text>
+                <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
               </TouchableOpacity>
             </View>
           </View>

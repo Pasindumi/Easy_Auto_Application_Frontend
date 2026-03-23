@@ -16,6 +16,13 @@ interface User {
   location?: string;
   gender?: string;
   birthday?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  district?: string;
+  postal_code?: string;
+  two_fa_enabled?: boolean;
+  two_fa_method?: string | null;
 }
 
 interface AuthContextType {

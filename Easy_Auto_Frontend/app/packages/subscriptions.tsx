@@ -119,6 +119,24 @@ export default function SubscriptionsScreen() {
     router.push('/payments/payment-history');
   };
 
+  const handleRowPress = (item: any) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push({
+      pathname: '/payments/payment-detail',
+      params: {
+        id: item.id,
+        date: item.date,
+        amount: item.amount,
+        plan: item.plan,
+        status: item.status,
+        adId: item.adId,
+        rentalAdId: item.rentalAdId,
+        packageId: item.packageId,
+        rawAmount: item.rawAmount
+      }
+    });
+  };
+
   const UsageItem = ({ label, used, limit, icon, color }: any) => (
     <View style={styles.usageItem}>
       <View style={styles.usageHeader}>
@@ -210,6 +228,7 @@ export default function SubscriptionsScreen() {
             onDownload={handleDownload}
             onDownloadAll={handleDownloadAll}
             onViewAll={handleViewAll}
+            onRowPress={handleRowPress}
           />
           <SupportHelpCard onContactSupport={handleContactSupport} />
         </ScrollView>

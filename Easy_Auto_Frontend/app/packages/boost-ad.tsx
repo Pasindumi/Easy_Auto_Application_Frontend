@@ -54,30 +54,27 @@ export default function BoostAdScreen() {
 
   const handleBoost = (adId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push({
-      pathname: '/packages/packages',
-      params: { adId }
-    });
+    router.push(`/ads/boost/${adId}`);
   };
 
   const renderAdItem = ({ item }: { item: any }) => (
     <View style={styles.adCard}>
-      <Image 
-        source={{ uri: item.AdImage?.[0]?.image_url || 'https://via.placeholder.com/150' }} 
-        style={styles.adImage} 
+      <Image
+        source={{ uri: item.AdImage?.[0]?.image_url || 'https://via.placeholder.com/150' }}
+        style={styles.adImage}
       />
       <View style={styles.adInfo}>
         <Text style={styles.adTitle} numberOfLines={1}>{item.title}</Text>
         <Text style={styles.adPrice}>Rs. {Number(item.price).toLocaleString()}</Text>
         <View style={styles.adMeta}>
-            <View style={styles.statusBadge}>
-                <View style={styles.statusDot} />
-                <Text style={styles.statusText}>{item.status}</Text>
-            </View>
-            <Text style={styles.viewsText}>{item.views_count || 0} views</Text>
+          <View style={styles.statusBadge}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusText}>{item.status}</Text>
+          </View>
+          <Text style={styles.viewsText}>{item.views_count || 0} views</Text>
         </View>
       </View>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.boostBtn}
         onPress={() => handleBoost(item.id)}
       >
@@ -94,13 +91,13 @@ export default function BoostAdScreen() {
 
       <SafeAreaView style={styles.safe}>
         <View style={styles.instructionCard}>
-            <View style={styles.iconCircle}>
-                <Ionicons name="flash-sharp" size={24} color={COLORS.primary} />
-            </View>
-            <View style={styles.instructionTexts}>
-                <Text style={styles.instructionTitle}>Select an Ad to Boost</Text>
-                <Text style={styles.instructionSub}>Choose a listing to increase its visibility and reach more buyers.</Text>
-            </View>
+          <View style={styles.iconCircle}>
+            <Ionicons name="flash-sharp" size={24} color={COLORS.primary} />
+          </View>
+          <View style={styles.instructionTexts}>
+            <Text style={styles.instructionTitle}>Select an Ad to Boost</Text>
+            <Text style={styles.instructionSub}>Choose a listing to increase its visibility and reach more buyers.</Text>
+          </View>
         </View>
 
         {loading && !refreshing ? (
@@ -111,16 +108,16 @@ export default function BoostAdScreen() {
         ) : ads.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconBg}>
-                <Ionicons name="megaphone-outline" size={48} color="#cbd5e1" />
+              <Ionicons name="megaphone-outline" size={48} color="#cbd5e1" />
             </View>
             <Text style={styles.emptyTitle}>No Active Ads Found</Text>
             <Text style={styles.emptyText}>You need an active advertisement to apply a boost. Post an ad first or check your drafts.</Text>
-            <TouchableOpacity 
-                style={styles.postAdBtn}
-                onPress={() => router.push('/cars/select-type')}
+            <TouchableOpacity
+              style={styles.postAdBtn}
+              onPress={() => router.push('/cars/select-type')}
             >
-                <Text style={styles.postAdBtnText}>Create Advertisement</Text>
-                <Ionicons name="add-circle" size={20} color="#fff" />
+              <Text style={styles.postAdBtnText}>Create Advertisement</Text>
+              <Ionicons name="add-circle" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
         ) : (
