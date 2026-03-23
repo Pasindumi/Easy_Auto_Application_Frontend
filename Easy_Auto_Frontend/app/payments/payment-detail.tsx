@@ -16,15 +16,37 @@ import {
 export default function PaymentDetailScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
-    const { id, date, amount, plan, status, card, type } = params;
+    const { id, date, amount, plan, status, card, type, adId, rentalAdId, packageId, rawAmount } = params;
+    const isPending = String(status).toLowerCase() === 'pending';
 
     const statusConfig: Record<string, { color: string; bg: string; icon: any }> = {
         Successful: { color: '#059669', bg: '#ecfdf5', icon: 'checkmark-circle' },
+        Pending: { color: '#6366f1', bg: '#eef2ff', icon: 'time-outline' },
         Failed: { color: '#dc2626', bg: '#fef2f2', icon: 'close-circle' },
         Refunded: { color: '#d97706', bg: '#fffbeb', icon: 'refresh-circle' },
     };
 
     const config = statusConfig[String(status)] || statusConfig.Successful;
+
+    const handleCompletePayment = () => {
+        const targetParams: any = {
+            amount: rawAmount as string || '2500',
+            planName: plan as string || 'Standard Ad'
+        };
+
+        if (adId) {
+            targetParams.adId = adId as string;
+        } else if (packageId) {
+            targetParams.packageId = packageId as string;
+        } else if (rentalAdId) {
+            targetParams.rentalAdId = rentalAdId as string;
+        }
+
+        router.push({
+            pathname: "/payments/payment",
+            params: targetParams
+        });
+    };
 
     return (
         <View style={styles.outerContainer}>
@@ -32,8 +54,8 @@ export default function PaymentDetailScreen() {
             <Header showBack={true} title="Payment Detail" />
 
             <SafeAreaView style={styles.safe}>
-                <ScrollView 
-                    style={styles.container} 
+                <ScrollView
+                    style={styles.container}
                     contentContainerStyle={styles.contentContainer}
                     showsVerticalScrollIndicator={false}
                 >
@@ -83,13 +105,22 @@ export default function PaymentDetailScreen() {
                     </View>
 
                     <View style={styles.actions}>
-                        <TouchableOpacity style={styles.downloadBtn} activeOpacity={0.8}>
-                            <Ionicons name="download-outline" size={20} color="#fff" />
-                            <Text style={styles.downloadBtnText}>Download Receipt</Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity 
-                            style={styles.outlineBtn} 
+                        {isPending ? (
+                            <TouchableOpacity style={styles.completeBtn} activeOpacity={0.8} onPress={handleCompletePayment}>
+                                <Ionicons name="card-outline" size={20} color="#fff" />
+                                <Text style={styles.completeBtnText}>Complete Payment</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            status === 'Successful' && (
+                                <TouchableOpacity style={styles.downloadBtn} activeOpacity={0.8}>
+                                    <Ionicons name="download-outline" size={20} color="#fff" />
+                                    <Text style={styles.downloadBtnText}>Download Receipt</Text>
+                                </TouchableOpacity>
+                            )
+                        )}
+
+                        <TouchableOpacity
+                            style={styles.outlineBtn}
                             onPress={() => router.back()}
                         >
                             <Text style={styles.outlineBtnText}>Back to History</Text>
@@ -218,6 +249,25 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     downloadBtnText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    completeBtn: {
+        backgroundColor: '#4F46E5', // Indigo for Complete Payment
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        borderRadius: 14,
+        gap: 8,
+        shadowColor: '#4F46E5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    completeBtnText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: '700',

@@ -155,20 +155,12 @@ export default function PackageDetailScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Top Banner Card */}
-          <LinearGradient
-            colors={[themeColor, themeColor + 'CC']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroCard}
-          >
+          {/* Top Banner Card - Neutral Theme */}
+          <View style={styles.heroCard}>
             <View style={styles.heroTop}>
-              <View style={styles.statusBadge}>
-                <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color="#fff" />
-                <Text style={styles.statusText}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
-              </View>
-              <View style={styles.heroIconBg}>
-                <Ionicons name="diamond-outline" size={24} color="#fff" />
+              <View style={[styles.statusBadge, { backgroundColor: '#f1f5f9' }]}>
+                <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color={COLORS.primary} />
+                <Text style={[styles.statusText, { color: COLORS.primary }]}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
               </View>
             </View>
 
@@ -186,17 +178,22 @@ export default function PackageDetailScreen() {
                 <Text style={styles.durationText}>{duration} Days Boost</Text>
               </View>
             </View>
-          </LinearGradient>
+          </View>
+
+          {/* Package Description Paragraph */}
+          {pkg.description && (
+            <Text style={styles.descText}>{pkg.description}</Text>
+          )}
 
           {/* Action Area */}
           <View style={styles.actionContainer}>
             {isCurrentPlan ? (
               <TouchableOpacity
-                style={styles.cancelBtn}
+                style={styles.cancelBtnSmall}
                 onPress={handleUnsubscribe}
               >
-                <Ionicons name="close-circle-outline" size={20} color="#ef4444" />
-                <Text style={styles.cancelBtnText}>Cancel Subscription</Text>
+                <Ionicons name="close-circle-outline" size={16} color="#ef4444" />
+                <Text style={styles.cancelBtnTextSmall}>Cancel Subscription</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -232,41 +229,53 @@ export default function PackageDetailScreen() {
                     <Ionicons name="checkmark" size={14} color={themeColor} />
                   </View>
                   <View style={styles.featureContent}>
-                    <Text style={styles.featureTitle}>{f.feature_description || f.feature_key}</Text>
+                    <Text style={styles.featureTitle}>{f.feature_key}</Text>
                     {f.feature_value && <Text style={styles.featureValue}>{f.feature_value}</Text>}
                   </View>
                 </View>
               ))}
+              {pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' && (
+                <View style={styles.featureItem}>
+                  <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
+                    <Ionicons name="checkmark" size={14} color={themeColor} />
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>Allow unlimited ads across all types</Text>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
 
           {/* Ad Limits Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Publishing Limits</Text>
-            <Text style={styles.sectionSubtitle}>Categorized posting limits for your account</Text>
+          {((pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true') || (pkg.ad_limits && pkg.ad_limits.length > 0)) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Publishing Limits</Text>
+              <Text style={styles.sectionSubtitle}>Categorized posting limits for your account</Text>
 
-            <View style={styles.limitsGrid}>
-              {pkg.config?.IS_UNLIMITED_ADS === 'true' ? (
-                <View style={styles.unlimitedBox}>
-                  <Ionicons name="infinite-outline" size={32} color={themeColor} />
-                  <Text style={styles.unlimitedText}>Unlimited Ad Postings</Text>
-                </View>
-              ) : pkg.ad_limits?.map((l: any) => {
-                const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
-                return (
-                  <View key={l.id} style={styles.limitCard}>
-                    <View style={styles.limitTag}>
-                      <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
-                    </View>
-                    <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
-                    {isCurrentPlan && usage && (
-                      <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
-                    )}
+              <View style={styles.limitsGrid}>
+                {pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' ? (
+                  <View style={styles.unlimitedBox}>
+                    <Ionicons name="infinite-outline" size={32} color={themeColor} />
+                    <Text style={styles.unlimitedText}>Unlimited Ad Postings</Text>
                   </View>
-                );
-              })}
+                ) : pkg.ad_limits?.map((l: any) => {
+                  const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
+                  return (
+                    <View key={l.id} style={styles.limitCard}>
+                      <View style={styles.limitTag}>
+                        <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
+                      </View>
+                      <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
+                      {isCurrentPlan && usage && (
+                        <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Extra Items Section */}
           {pkg.included_items?.length > 0 && (
@@ -291,12 +300,6 @@ export default function PackageDetailScreen() {
             </View>
           )}
 
-          {pkg.description && (
-            <View style={styles.descriptionBox}>
-              <Text style={styles.descTitle}>About this Package</Text>
-              <Text style={styles.descText}>{pkg.description}</Text>
-            </View>
-          )}
 
         </ScrollView>
       </SafeAreaView>
@@ -399,7 +402,7 @@ const styles = StyleSheet.create({
   },
   heroDivider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#f1f5f9',
     marginVertical: 20,
   },
   heroBottom: {
@@ -445,21 +448,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
   },
-  cancelBtn: {
+  cancelBtnSmall: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#fee2e2',
     backgroundColor: '#fff',
-    gap: 10,
+    gap: 8,
+    alignSelf: 'center',
+    marginTop: 10,
   },
-  cancelBtnText: {
+  cancelBtnTextSmall: {
     color: '#ef4444',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
   },
   section: {
@@ -625,19 +630,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.primary,
   },
-  descriptionBox: {
-    paddingHorizontal: 4,
-  },
-  descTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
-    marginBottom: 8,
-  },
   descText: {
-    fontSize: 14,
-    color: '#64748b',
-    lineHeight: 22,
+    fontSize: 15,
+    color: '#475569',
+    lineHeight: 24,
     fontWeight: '500',
+    marginBottom: 20,
   }
 });

@@ -39,8 +39,12 @@ export default function PaymentHistoryScreen() {
           plan: p.plan,
           type: 'Ad Post',
           amount: p.amount,
-          status: p.status === 'SUCCESS' ? 'Successful' : p.status === 'FAILED' ? 'Failed' : p.status,
-          card: 'PayHere'
+          status: p.status === 'SUCCESS' ? 'Successful' : p.status === 'FAILED' ? 'Failed' : p.status === 'PENDING' ? 'Pending' : p.status,
+          card: 'PayHere',
+          adId: p.adId,
+          rentalAdId: p.rentalAdId,
+          packageId: p.packageId,
+          rawAmount: p.rawAmount
         }));
         setPayments(mapped);
       }
@@ -115,7 +119,11 @@ export default function PaymentHistoryScreen() {
         plan: item.plan,
         status: item.status,
         card: item.card,
-        type: item.type
+        type: item.type,
+        adId: (item as any).adId,
+        rentalAdId: (item as any).rentalAdId,
+        packageId: (item as any).packageId,
+        rawAmount: (item as any).rawAmount
       },
     } as any);
   };

@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
     Animated,
     ScrollView,
@@ -28,6 +29,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     setTrendingCategory,
 }) => {
     const router = useRouter();
+    const { t } = useTranslation();
     const [trendingAds, setTrendingAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -63,7 +65,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
         >
             <View style={styles.header}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Trending Ads 🔥</Text>
+                    <Text style={styles.title}>{t("home_screen.trending", "Trending Ads 🔥")}</Text>
                     <Text style={styles.subtitle}>Most popular this week</Text>
                 </View>
             </View>

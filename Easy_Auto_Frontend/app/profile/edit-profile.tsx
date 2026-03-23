@@ -39,6 +39,7 @@ export default function EditProfileScreen() {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -140,19 +141,10 @@ export default function EditProfileScreen() {
 
         if (response.success) {
           if (response.data) {
-            await updateUser({
-              name: response.data.name,
-              email: response.data.email,
-              phone: response.data.phone,
-              avatar: response.data.avatar,
-              bio: response.data.bio,
-              location: response.data.location,
-              gender: response.data.gender,
-              birthday: response.data.birthday,
-            });
+            await updateUser(response.data);
           }
           showToast({ message: 'Profile updated successfully!', type: 'success' });
-          router.back();
+          setIsEditing(false); // Go back to read-only
           setProfilePhoto(null);
         } else {
           showToast({ message: response.message || 'Failed to update profile', type: 'error' });
@@ -180,18 +172,10 @@ export default function EditProfileScreen() {
 
         if (response.success) {
           if (response.data) {
-            await updateUser({
-              name: response.data.name,
-              email: response.data.email,
-              phone: response.data.phone,
-              bio: response.data.bio,
-              location: response.data.location,
-              gender: response.data.gender,
-              birthday: response.data.birthday,
-            });
+            await updateUser(response.data);
           }
           showToast({ message: 'Profile updated successfully!', type: 'success' });
-          router.back();
+          setIsEditing(false); // Go back to read-only
         } else {
           showToast({ message: response.message || 'Failed to update profile', type: 'error' });
         }
@@ -207,7 +191,17 @@ export default function EditProfileScreen() {
   return (
     <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} title="Edit Profile" />
+      <Header
+        showBack={true}
+        title="Edit Profile"
+        rightElement={
+          !isEditing && (
+            <TouchableOpacity onPress={() => setIsEditing(true)}>
+              <Text style={{ color: '#fff', fontWeight: '700' }}>Edit</Text>
+            </TouchableOpacity>
+          )
+        }
+      />
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -257,14 +251,18 @@ export default function EditProfileScreen() {
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Display Name</Text>
-                  <View style={styles.fieldBox}>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
                     <Ionicons name="person-outline" size={18} color="#64748B" />
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={name}
-                      onChangeText={setName}
-                      placeholder="Your full name"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={name}
+                        onChangeText={setName}
+                        placeholder="Your full name"
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{name || "Not set"}</Text>
+                    )}
                   </View>
                 </View>
 
@@ -274,14 +272,18 @@ export default function EditProfileScreen() {
                     <Text style={styles.charCount}>{bio.length}/150</Text>
                   </View>
                   <View style={[styles.fieldBox, styles.bioBox]}>
-                    <TextInput
-                      style={[styles.fieldInput, styles.bioInput]}
-                      value={bio}
-                      onChangeText={setBio}
-                      placeholder="Write a short bio..."
-                      multiline
-                      maxLength={150}
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={[styles.fieldInput, styles.bioInput]}
+                        value={bio}
+                        onChangeText={setBio}
+                        placeholder="Write a short bio..."
+                        multiline
+                        maxLength={150}
+                      />
+                    ) : (
+                      <Text style={[styles.fieldInput, styles.bioInput]}>{bio || "No bio yet"}</Text>
+                    )}
                   </View>
                 </View>
               </View>
@@ -291,28 +293,36 @@ export default function EditProfileScreen() {
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Email Address</Text>
-                  <View style={styles.fieldBox}>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
                     <Ionicons name="mail-outline" size={18} color="#64748B" />
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={email}
-                      onChangeText={setEmail}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{email || "Not set"}</Text>
+                    )}
                   </View>
                 </View>
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Phone Number</Text>
-                  <View style={styles.fieldBox}>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
                     <Ionicons name="call-outline" size={18} color="#64748B" />
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={phone}
-                      onChangeText={setPhone}
-                      keyboardType="phone-pad"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={phone}
+                        onChangeText={setPhone}
+                        keyboardType="phone-pad"
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{phone || "Not set"}</Text>
+                    )}
                   </View>
                 </View>
               </View>
@@ -322,38 +332,50 @@ export default function EditProfileScreen() {
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Home/Office Location</Text>
-                  <View style={styles.fieldBox}>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
                     <Ionicons name="location-outline" size={18} color="#64748B" />
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={location}
-                      onChangeText={setLocation}
-                      placeholder="Colombo, Sri Lanka"
-                    />
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={location}
+                        onChangeText={setLocation}
+                        placeholder="Colombo, Sri Lanka"
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{location || "Not set"}</Text>
+                    )}
                   </View>
                 </View>
 
                 <View style={styles.rowFieldContainer}>
                   <View style={[styles.fieldItem, { flex: 1 }]}>
                     <Text style={styles.fieldLabel}>Gender</Text>
-                    <View style={styles.fieldBox}>
-                      <TextInput
-                        style={styles.fieldInput}
-                        value={gender}
-                        onChangeText={setGender}
-                        placeholder="e.g. Male"
-                      />
+                    <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
+                      {isEditing ? (
+                        <TextInput
+                          style={styles.fieldInput}
+                          value={gender}
+                          onChangeText={setGender}
+                          placeholder="e.g. Male"
+                        />
+                      ) : (
+                        <Text style={styles.fieldInput}>{gender || "Not set"}</Text>
+                      )}
                     </View>
                   </View>
                   <View style={[styles.fieldItem, { flex: 1 }]}>
                     <Text style={styles.fieldLabel}>Birthday</Text>
-                    <View style={styles.fieldBox}>
-                      <TextInput
-                        style={styles.fieldInput}
-                        value={birthday}
-                        onChangeText={setBirthday}
-                        placeholder="YYYY-MM-DD"
-                      />
+                    <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
+                      {isEditing ? (
+                        <TextInput
+                          style={styles.fieldInput}
+                          value={birthday}
+                          onChangeText={setBirthday}
+                          placeholder="YYYY-MM-DD"
+                        />
+                      ) : (
+                        <Text style={styles.fieldInput}>{birthday || "Not set"}</Text>
+                      )}
                     </View>
                   </View>
                 </View>
@@ -362,42 +384,44 @@ export default function EditProfileScreen() {
             </View>
 
             {/* Action Buttons */}
-            <View style={styles.actionSection}>
-              <TouchableOpacity
-                style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-                activeOpacity={0.8}
-                onPress={handleSaveChanges}
-                disabled={saving}
-              >
-                <LinearGradient
-                  colors={saving ? ['#9CA3AF', '#6B7280'] : [COLORS.primary, '#1E40AF']}
-                  style={styles.saveGradient}
+            {isEditing && (
+              <View style={styles.actionSection}>
+                <TouchableOpacity
+                  style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+                  activeOpacity={0.8}
+                  onPress={handleSaveChanges}
+                  disabled={saving}
                 >
-                  {saving ? (
-                    <>
-                      <ActivityIndicator size="small" color={COLORS.white} style={{ marginRight: 8 }} />
-                      <Text style={styles.saveButtonText}>Saving...</Text>
-                    </>
-                  ) : (
-                    <>
-                      <Ionicons name="checkmark-circle" size={20} color={COLORS.white} style={{ marginRight: 8 }} />
-                      <Text style={styles.saveButtonText}>Save Changes</Text>
-                    </>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={saving ? ['#9CA3AF', '#6B7280'] : [COLORS.primary, '#1E40AF']}
+                    style={styles.saveGradient}
+                  >
+                    {saving ? (
+                      <>
+                        <ActivityIndicator size="small" color={COLORS.white} style={{ marginRight: 8 }} />
+                        <Text style={styles.saveButtonText}>Saving...</Text>
+                      </>
+                    ) : (
+                      <>
+                        <Ionicons name="checkmark-circle" size={20} color={COLORS.white} style={{ marginRight: 8 }} />
+                        <Text style={styles.saveButtonText}>Save Changes</Text>
+                      </>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  router.back();
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setIsEditing(false);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </ScrollView>
         </KeyboardAvoidingView>
       )}
@@ -500,6 +524,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#F1F5F9',
     height: 54,
+  },
+  fieldBoxReadOnly: {
+    backgroundColor: '#F8FAFC',
+    borderColor: 'transparent',
   },
   fieldInput: {
     flex: 1,

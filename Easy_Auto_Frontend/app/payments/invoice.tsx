@@ -23,7 +23,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 export default function PackageInvoice() {
   useProtectedRoute();
   const router = useRouter();
-  const { plan, price, days, packageId } = useLocalSearchParams();
+  const { plan, price, days, packageId, adId } = useLocalSearchParams();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
@@ -33,6 +33,7 @@ export default function PackageInvoice() {
   const planPrice = parseFloat(Array.isArray(price) ? price[0] : price || '0');
   const planDays = parseInt(Array.isArray(days) ? days[0] : days || '0');
   const pkgIdString = Array.isArray(packageId) ? packageId[0] : packageId;
+  const adIdString = Array.isArray(adId) ? adId[0] : adId;
 
   useEffect(() => {
     fetchDiscounts();
@@ -78,6 +79,7 @@ export default function PackageInvoice() {
         amount: total.toFixed(2),
         userId: user.id,
         packageId: pkgIdString,
+        adId: adIdString,
         planName: planName
       });
 

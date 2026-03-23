@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ScrollView,
   StyleSheet,
@@ -16,28 +17,26 @@ import {
 } from 'react-native';
 import { COLORS } from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false);
+  const { t, i18n } = useTranslation();
+  const { isDarkMode: darkMode, toggleTheme: setDarkMode } = useTheme();
+
   const [notifications, setNotifications] = useState(true);
   const [biometric, setBiometric] = useState(false);
-  const [locationSharing, setLocationSharing] = useState(true);
 
-  const clearCache = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert(
-      "Clear Cache",
-      "Are you sure you want to clear app cache? This will free up 24.5 MB of space.",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Clear", 
-          onPress: () => Alert.alert("Success", "Cache cleared successfully.") 
-        }
-      ]
-    );
+  const themeConfig = {
+    bg: darkMode ? '#0f172a' : '#f8fafc',
+    cardBg: darkMode ? '#1e293b' : '#fff',
+    text: darkMode ? '#f8fafc' : '#1e293b',
+    textMuted: darkMode ? '#94a3b8' : '#64748b',
+    border: darkMode ? '#334155' : '#f1f5f9',
+    iconBgMod: darkMode ? '20' : '10', // hex opacity
   };
+
+  const clearCache = () => { };
 
   const SettingItem = ({
     icon,
@@ -63,12 +62,12 @@ export default function SettingsScreen() {
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={[styles.settingIcon, { backgroundColor: isDestructive ? '#FEF2F2' : `${color}10` }]}>
+        <View style={[styles.settingIcon, { backgroundColor: isDestructive ? '#FEF2F2' : `${color}${themeConfig.iconBgMod}` }]}>
           <Ionicons name={icon} size={20} color={isDestructive ? '#EF4444' : color} />
         </View>
         <View style={styles.settingTextContainer}>
-          <Text style={[styles.settingTitle, isDestructive && { color: '#EF4444' }]}>{title}</Text>
-          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.settingTitle, { color: themeConfig.text }, isDestructive && { color: '#EF4444' }]}>{title}</Text>
+          {subtitle && <Text style={[styles.settingSubtitle, { color: themeConfig.textMuted }]}>{subtitle}</Text>}
         </View>
       </View>
 
@@ -81,11 +80,11 @@ export default function SettingsScreen() {
   );
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, { backgroundColor: themeConfig.bg }]}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header title="App Settings" showBack={true} />
+      <Header title={t('settings_screen.title')} showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, { backgroundColor: themeConfig.bg }]}>
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.scrollContent}
@@ -94,29 +93,29 @@ export default function SettingsScreen() {
 
           {/* Account Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Personal & Account</Text>
-            <View style={styles.card}>
+            <Text style={styles.sectionLabel}>{t('settings_screen.personal_account')}</Text>
+            <View style={[styles.card, { backgroundColor: themeConfig.cardBg, borderColor: themeConfig.border }]}>
               <SettingItem
                 icon="person-outline"
-                title="Edit Profile"
-                subtitle="Manage name, email and contact details"
+                title={t('settings_screen.edit_profile')}
+                subtitle={t('settings_screen.edit_profile_sub')}
                 onPress={() => router.push('/profile/edit-profile')}
                 color="#3b82f6"
               />
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
                 icon="location-outline"
-                title="Addresses"
-                subtitle="Saved billing & shipping locations"
+                title={t('settings_screen.addresses')}
+                subtitle={t('settings_screen.addresses_sub')}
                 onPress={() => router.push('/profile/address')}
                 color="#6366f1"
               />
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
                 icon="shield-checkmark-outline"
-                title="Security"
-                subtitle="Password and biometric login"
-                onPress={() => {}}
+                title={t('settings_screen.security')}
+                subtitle={t('settings_screen.security_sub')}
+                onPress={() => router.push('/settings/security')}
                 color="#10b981"
               />
             </View>
@@ -124,12 +123,12 @@ export default function SettingsScreen() {
 
           {/* Notifications Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Communication Preferences</Text>
-            <View style={styles.card}>
+            <Text style={styles.sectionLabel}>{t('settings_screen.communication')}</Text>
+            <View style={[styles.card, { backgroundColor: themeConfig.cardBg, borderColor: themeConfig.border }]}>
               <SettingItem
                 icon="notifications-outline"
-                title="Push Notifications"
-                subtitle="Get alerts for messages and price drops"
+                title={t('settings_screen.push_notifications')}
+                subtitle={t('settings_screen.push_notifications_sub')}
                 color="#f59e0b"
                 rightElement={
                   <Switch
@@ -143,39 +142,25 @@ export default function SettingsScreen() {
                   />
                 }
               />
-              <View style={styles.divider} />
-              <SettingItem
-                icon="mail-outline"
-                title="Email Marketing"
-                color="#06b6d4"
-                rightElement={
-                    <Switch
-                      value={true}
-                      onValueChange={() => {}}
-                      thumbColor="#fff"
-                      trackColor={{ true: COLORS.primary, false: '#E2E8F0' }}
-                    />
-                }
-              />
             </View>
           </View>
 
           {/* App Settings */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>App Preferences</Text>
-            <View style={styles.card}>
+            <Text style={styles.sectionLabel}>{t('settings_screen.app_preferences')}</Text>
+            <View style={[styles.card, { backgroundColor: themeConfig.cardBg, borderColor: themeConfig.border }]}>
               <SettingItem
                 icon="globe-outline"
-                title="Language"
-                subtitle="English (US)"
+                title={t('settings_screen.language')}
+                subtitle={i18n.language === 'si' ? 'Sinhala' : i18n.language === 'ta' ? 'Tamil' : 'English (US)'}
                 onPress={() => router.push('/settings/select-language')}
                 color="#8b5cf6"
               />
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
                 icon="moon-outline"
-                title="Appearance"
-                subtitle="Dark mode & themes"
+                title={t('settings_screen.appearance')}
+                subtitle={t('settings_screen.appearance_sub')}
                 color="#475569"
                 rightElement={
                   <Switch
@@ -189,100 +174,54 @@ export default function SettingsScreen() {
                   />
                 }
               />
-              <View style={styles.divider} />
-              <SettingItem
-                icon="speedometer-outline"
-                title="Units"
-                subtitle="Kilometers (km)"
-                onPress={() => {}}
-                color="#ec4899"
-              />
-            </View>
-          </View>
-
-          {/* Privacy & Data */}
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Privacy & Data</Text>
-            <View style={styles.card}>
-              <SettingItem
-                icon="location-sharp"
-                title="Location Access"
-                color="#f43f5e"
-                rightElement={
-                    <Switch
-                      value={locationSharing}
-                      onValueChange={(val) => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        setLocationSharing(val);
-                      }}
-                      thumbColor="#fff"
-                      trackColor={{ true: COLORS.primary, false: '#E2E8F0' }}
-                    />
-                }
-              />
-              <View style={styles.divider} />
-              <SettingItem
-                icon="trash-outline"
-                title="Clear Cache"
-                subtitle="Free up 24.5 MB of space"
-                onPress={clearCache}
-                color="#64748b"
-              />
-              <View style={styles.divider} />
-              <SettingItem
-                icon="document-text-outline"
-                title="Privacy Policy"
-                onPress={() => router.push('/support/privacy-policy')}
-                color="#94a3b8"
-              />
             </View>
           </View>
 
           {/* About */}
           <View style={styles.section}>
-             <Text style={styles.sectionLabel}>More about EasyAuto</Text>
-             <View style={styles.card}>
-               <SettingItem
-                 icon="information-circle-outline"
-                 title="About Version"
-                 subtitle="EasyAuto v2.4.1 (Stable)"
-                 onPress={() => router.push('/settings/about-app')}
-                 color="#64748b"
-               />
-               <View style={styles.divider} />
-               <SettingItem
-                 icon="help-circle-outline"
-                 title="Help Center"
-                 onPress={() => router.push('/support/help-center')}
-                 color="#64748b"
-               />
-               <View style={styles.divider} />
-               <SettingItem
-                 icon="share-outline"
-                 title="Share with Friends"
-                 onPress={() => router.push('/settings/invite-friends')}
-                 color="#64748b"
-               />
-             </View>
+            <Text style={styles.sectionLabel}>{t('settings_screen.more_about', "More about Easy Auto")}</Text>
+            <View style={[styles.card, { backgroundColor: themeConfig.cardBg, borderColor: themeConfig.border }]}>
+              <SettingItem
+                icon="document-text-outline"
+                title={t('settings_screen.privacy_policy')}
+                onPress={() => router.push('/support/privacy-policy')}
+                color="#94a3b8"
+              />
+              <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
+              <SettingItem
+                icon="information-circle-outline"
+                title={t('settings_screen.about_version')}
+                subtitle={t('settings_screen.about_version_sub')}
+                onPress={() => router.push('/settings/about-app')}
+                color="#64748b"
+              />
+              <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
+              <SettingItem
+                icon="help-circle-outline"
+                title={t('settings_screen.help_center')}
+                onPress={() => router.push('/support/help-center')}
+                color="#64748b"
+              />
+            </View>
           </View>
 
           {/* Actions */}
           <View style={styles.actionSection}>
-             <TouchableOpacity 
-                style={styles.logoutBtn}
-                onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
-             >
-                <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-                <Text style={styles.logoutBtnText}>Sign Out</Text>
-             </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.logoutBtn, { backgroundColor: themeConfig.cardBg, borderColor: themeConfig.border }]}
+              onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
+            >
+              <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+              <Text style={styles.logoutBtnText}>{t('settings_screen.sign_out')}</Text>
+            </TouchableOpacity>
 
           </View>
 
           <View style={styles.footer}>
-             <Text style={styles.footerText}>Made with ❤️ in Sri Lanka</Text>
-             <Text style={styles.footerSub}>© 2024 EasyAuto Marketplace. All rights reserved.</Text>
+            <Text style={styles.footerText}>{t('settings_screen.made_with_love')}</Text>
+            <Text style={styles.footerSub}>{t('settings_screen.all_rights')}</Text>
           </View>
-          
+
           <View style={{ height: 40 }} />
         </ScrollView>
       </SafeAreaView>

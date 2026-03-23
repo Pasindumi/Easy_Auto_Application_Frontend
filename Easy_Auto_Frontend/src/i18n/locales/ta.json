@@ -71,5 +71,73 @@
         "select_location": "இடத்தைத் தேர்ந்தெடுக்கவும்",
         "select_brand": "பிராண்டைத் தேர்ந்தெடுக்கவும்",
         "select_model": "மாதிரியைத் தேர்ந்தெடுக்கவும்"
+    },
+    "settings_screen": {
+        "title": "பயன்பாட்டு அமைப்புகள்",
+        "personal_account": "தனிப்பட்ட மற்றும் கணக்கு",
+        "edit_profile": "சுயவிவரத்தை திருத்து",
+        "edit_profile_sub": "பெயர், மின்னஞ்சல் மற்றும் தொடர்பு விவரங்களை நிர்வகிக்கவும்",
+        "addresses": "முகவரிகள்",
+        "addresses_sub": "சேமித்த பில்லிங் மற்றும் ஷிப்பிங் இடங்கள்",
+        "security": "பாதுகாப்பு",
+        "security_sub": "கடவுச்சொல் மற்றும் பயோமெட்ரிக் உள்நுழைவு",
+        "communication": "தொடர்பு விருப்பங்கள்",
+        "push_notifications": "தள்ளு அறிவிப்புகள்",
+        "push_notifications_sub": "செய்திகள் மற்றும் விலை குறைப்புகளுக்கான விழிப்பூட்டல்களைப் பெறவும்",
+        "app_preferences": "பயன்பாட்டு பயன்பாடுகள்",
+        "language": "மொழி",
+        "appearance": "தோற்றம்",
+        "appearance_sub": "இருண்ட பயன்முறை மற்றும் கருப்பொருள்கள்",
+        "units": "அலகுகள்",
+        "units_sub": "கிலோமீட்டர்கள் (km)",
+        "privacy_data": "தனியுரிமை மற்றும் தரவு",
+        "location_access": "இட அணுகல்",
+        "clear_cache": "தற்காலிக சேமிப்பை அழிக்கவும்",
+        "clear_cache_sub": "24.5 MB இடத்தை விடுவிக்கவும்",
+        "privacy_policy": "தனியுரிமைக் கொள்கை",
+        "more_about": "EasyAuto பற்றி மேலும்",
+        "about_version": "பதிப்பு பற்றி",
+        "about_version_sub": "EasyAuto v2.4.1 (Stable)",
+        "help_center": "உதவி மையம்",
+        "share_friends": "நண்பர்களுடன் பகிரவும்",
+        "sign_out": "வெளியேறு",
+        "made_with_love": "❤️ உடன் இலங்கையில் உருவாக்கப்பட்டது",
+        "all_rights": "© 2024 EasyAuto Marketplace. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+        "clear_cache_alert_title": "தற்காலிக சேமிப்பை அழிக்கவும்",
+        "clear_cache_alert_msg": "கட்டாயம் பயன்பாட்டு தற்காலிக சேமிப்பை அழிக்க வேண்டுமா? இது 24.5 MB இடத்தை விடுவிக்கும்.",
+        "cancel": "ரத்துசெய்",
+        "clear": "அழி",
+        "success": "வெற்றி",
+        "cache_cleared": "தற்காலிக சேமிப்பு வெற்றிகரமாக அழிக்கப்பட்டது."
+    },
+    "select_language": {
+        "title": "மொழியைத் தேர்ந்தெடுக்கவும்",
+        "preference": "விருப்பம்",
+        "confirm": "மொழியை உறுதிப்படுத்தவும்"
+    },
+    "tabs": {
+        "home": "முகப்பு",
+        "search": "தேடல்",
+        "compare": "ஒப்பிடு",
+        "chat": "அரட்டை",
+        "profile": "சுயவிவரம்"
+    },
+    "home_header": {
+        "greeting": "உங்கள் கனவு காரைக் கண்டறியவும்",
+        "good_morning": "காலை வணக்கம் ☀️",
+        "good_afternoon": "மதிய வணக்கம் 🌤️",
+        "good_evening": "மாலை வணக்கம் 🌙",
+        "filter": "வடிகட்டி"
+    },
+    "home_screen": {
+        "explore": "EasyAuto ஐ ஆராயுங்கள்",
+        "trending": "இப்போது பிரபலமானது",
+        "recommended": "உங்களுக்காக பரிந்துரைக்கப்பட்டது",
+        "new_arrivals": "புதிய வருகைகள்",
+        "compare_cars": "கார்களை ஒப்பிடுக",
+        "by_numbers": "எண்களின்படி Easy Auto",
+        "explore_brand": "பிராண்ட் மூலம் ஆராயுங்கள்",
+        "why_easyauto": "ஏன் EasyAuto",
+        "testimonials": "பயனர் சான்றுகள்"
     }
 }

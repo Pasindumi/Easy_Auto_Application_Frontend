@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
     Animated,
     StyleSheet,
@@ -35,19 +36,20 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     setSearchFocused,
 }) => {
     const router = useRouter();
+    const { t } = useTranslation();
 
     const getGreeting = () => {
         const h = new Date().getHours();
-        if (h < 12) return "Good morning ☀️";
-        if (h < 17) return "Good afternoon 🌤️";
-        return "Good evening 🌙";
+        if (h < 12) return t("home_header.good_morning", "Good morning ☀️");
+        if (h < 17) return t("home_header.good_afternoon", "Good afternoon 🌤️");
+        return t("home_header.good_evening", "Good evening 🌙");
     };
 
     const tap = (type: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        if (type === "menu")  setSidebarVisible(true);
+        if (type === "menu") setSidebarVisible(true);
         if (type === "notif") router.push("/notifications/notifications" as any);
-        if (type === "wish")  router.push("/wishlist/wishlist" as any);
+        if (type === "wish") router.push("/wishlist/wishlist" as any);
     };
 
     return (
@@ -78,7 +80,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 </View>
 
                 {/* ── Greeting ── */}
-                <Text style={styles.greeting}>{getGreeting()} — Find your dream car</Text>
+                <Text style={styles.greeting}>{getGreeting()} — {t("home_header.greeting", "Find your dream car")}</Text>
 
                 {/* ── Search bar ── */}
                 <TouchableOpacity
@@ -90,10 +92,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     }}
                 >
                     <Ionicons name="search" size={18} color="#94A3B8" />
-                    <Text style={styles.searchPlaceholder}>Search make, model, year...</Text>
+                    <Text style={styles.searchPlaceholder}>{t("home.search_placeholder", "Search make, model, year...")}</Text>
                     <View style={styles.filterChip}>
                         <Ionicons name="options-outline" size={15} color={COLORS.primary} />
-                        <Text style={styles.filterChipTxt}>Filter</Text>
+                        <Text style={styles.filterChipTxt}>{t("home_header.filter", "Filter")}</Text>
                     </View>
                 </TouchableOpacity>
 

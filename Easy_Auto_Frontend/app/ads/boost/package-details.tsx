@@ -55,30 +55,17 @@ export default function BoostPackageDetailScreen() {
         }
     };
 
-    const handleActivate = async () => {
-        try {
-            setActivating(true);
-            const price = pkg?.rules?.[0]?.price || 0;
-
-            const res: any = await api.post('/api/boosts/apply', {
-                adId: adId,
+    const handleActivate = () => {
+        router.push({
+            pathname: '/payments/invoice',
+            params: {
                 packageId: packageId,
-                amount: price
-            });
-
-            if (res.success) {
-                Alert.alert("Success", "Boost applied successfully!", [
-                    { text: "OK", onPress: () => router.replace('/ads/my-ads') }
-                ]);
-            } else {
-                throw new Error(res.error || res.message || "Failed to apply boost");
+                adId: adId,
+                plan: pkg.name,
+                price: price,
+                days: duration
             }
-        } catch (error: any) {
-            console.error("Activation failed:", error);
-            Alert.alert("Error", error.message || "Failed to activate boost.");
-        } finally {
-            setActivating(false);
-        }
+        });
     };
 
     if (loading) {

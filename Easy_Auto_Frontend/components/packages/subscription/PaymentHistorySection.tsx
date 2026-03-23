@@ -16,6 +16,7 @@ interface PaymentHistorySectionProps {
     onDownload: (id: string) => void;
     onDownloadAll: () => void;
     onViewAll: () => void;
+    onRowPress?: (item: any) => void;
 }
 
 const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
@@ -23,6 +24,7 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
     onDownload,
     onDownloadAll,
     onViewAll,
+    onRowPress,
 }) => {
     return (
         <View style={styles.container}>
@@ -42,9 +44,10 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
                 {payments.length > 0 ? (
                     payments.slice(0, 3).map((item, index) => (
                         <View key={item.id}>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 style={styles.paymentRow}
                                 activeOpacity={0.7}
+                                onPress={() => onRowPress?.(item)}
                             >
                                 <View style={styles.paymentLeft}>
                                     <View style={styles.iconBg}>
@@ -58,7 +61,7 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
 
                                 <View style={styles.paymentRight}>
                                     <Text style={styles.amount}>{item.amount}</Text>
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         style={styles.downloadBtn}
                                         onPress={() => onDownload(item.id)}
                                     >

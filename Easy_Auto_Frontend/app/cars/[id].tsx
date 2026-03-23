@@ -183,7 +183,10 @@ export default function AdDetailsScreen() {
             <Stack.Screen options={{ headerShown: false }} />
 
             {/* ΓöÇΓöÇΓöÇ FLOATING HEADER (appears on scroll) ΓöÇΓöÇΓöÇ */}
-            <Animated.View style={[styles.floatingHeader, { paddingTop: insets.top + 8, opacity: headerOpacity }]}>
+            <Animated.View
+                pointerEvents="box-none"
+                style={[styles.floatingHeader, { paddingTop: insets.top + 8, opacity: headerOpacity }]}
+            >
                 <TouchableOpacity style={styles.floatingBackBtn} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="white" />
                 </TouchableOpacity>
