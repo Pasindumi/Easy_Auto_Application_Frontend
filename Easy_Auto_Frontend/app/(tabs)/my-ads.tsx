@@ -310,24 +310,10 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   searchFilterContainer: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 16,
+    marginTop: 4,
+    marginBottom: 4,
   },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 10,
-    elevation: 2,
-  },
+
   filterTabs: {
     flexDirection: 'row',
     paddingHorizontal: 20,

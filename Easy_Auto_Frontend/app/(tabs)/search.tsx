@@ -25,6 +25,7 @@ import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
+import SearchBar from '@/components/SearchBar';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -400,50 +401,17 @@ export default function SearchScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      {/* ΓöÇΓöÇΓöÇ NEW PREMIUM BRANDED HEADER ΓöÇΓöÇΓöÇ */}
-      <LinearGradient
-        colors={[COLORS.primary, COLORS.primary]}
-        style={[styles.header, { paddingTop: insets.top + 8 }]}
-      >
-        <View style={styles.headerTopRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={26} color="white" />
-          </TouchableOpacity>
+      <Header title={t("buy_car_screen.search", "Search Vehicles")} />
 
-          <View pointerEvents="none" style={styles.logoCentre}>
-            <RNImage
-              source={require("@/assets/logoHome.png")}
-              resizeMode="contain"
-              style={styles.logoImg}
-            />
-          </View>
+      <View style={styles.mainContentContainer}>
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
+        />
 
-          <View style={styles.headerRightSpacer} />
-        </View>
-
-        <View style={styles.headerSearchArea}>
-          <View style={styles.glassSearch}>
-            <Ionicons name="search" size={18} color="rgba(255,255,255,0.7)" />
-            <TextInput
-              style={styles.headerSearchInput}
-              placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
-              placeholderTextColor="rgba(255,255,255,0.6)"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              returnKeyType="search"
-              onSubmitEditing={performSearch}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.5)" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      </LinearGradient>
-
-      {/* Filter and stats section */}
-      <View style={styles.filterStatsSection}>
+        {/* Filter and stats section */}
+        <View style={styles.filterStatsSection}>
 
         {/* Quick Filters */}
         <ScrollView
@@ -714,6 +682,7 @@ export default function SearchScreen() {
           </View>
         </View>
       </Modal>
+      </View>
     </View>
   );
 }
@@ -723,63 +692,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  header: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    elevation: 8,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    zIndex: 100,
-  },
-  headerTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 40,
-    marginBottom: 12,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  logoCentre: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoImg: {
-    width: 100,
-    height: 24,
-  },
-  headerRightSpacer: {
-    width: 40,
-  },
-  headerSearchArea: {
-    width: '100%',
-  },
-  glassSearch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 46,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  headerSearchInput: {
+  mainContentContainer: {
     flex: 1,
-    fontSize: 14,
-    color: 'white',
-    marginLeft: 10,
-    padding: 0,
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
   },
   filterStatsSection: {
     backgroundColor: COLORS.white,
@@ -793,9 +710,7 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    backgroundColor: '#F1F5F9',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -804,12 +719,11 @@ const styles = StyleSheet.create({
   },
   filterChipActive: {
     backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
   },
   filterChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: '#64748B',
   },
   filterChipTextActive: {
     color: COLORS.white,

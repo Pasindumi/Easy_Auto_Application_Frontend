@@ -198,18 +198,18 @@ const styles = StyleSheet.create({
     scrollContent: { paddingBottom: 110 },
     inner: {
         backgroundColor: "#F8FAFF",
-        gap: 16, // Reduced space for a tighter layout
+        gap: 12, 
     },
     section: {
         backgroundColor: "#fff",
-        paddingVertical: 4,
+        paddingVertical: 8,
         borderBottomWidth: 1.5,
-        borderBottomColor: 'rgba(0,0,0,0.05)', // Slightly more visible divider
+        borderBottomColor: 'rgba(0,0,0,0.05)', 
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,
-        marginBottom: -12,
-        marginTop: 12,
+        marginBottom: 8,
+        marginTop: 16,
     },
     sectionTitle: {
         fontSize: 16,

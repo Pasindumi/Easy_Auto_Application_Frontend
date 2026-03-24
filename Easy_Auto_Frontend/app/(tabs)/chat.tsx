@@ -3,7 +3,7 @@ import Loading from '@/components/ui/Loading';
 import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState, useCallback } from 'react';
-import { FlatList, Image as RNImage, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, RefreshControl, Alert, StatusBar } from 'react-native';
+import { Animated, FlatList, Image as RNImage, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, RefreshControl, Alert, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../utils/api';
@@ -14,6 +14,9 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import COLORS from '@/constants/Colors';
 import EmptyState from '@/components/ui/EmptyState';
+import Header from '@/components/Header';
+import { Swipeable, RectButton } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 interface User {
   id: string;
@@ -163,107 +166,106 @@ export default function ChatScreen() {
     conv.last_message?.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderItem = ({ item }: { item: Conversation }) => (
-    <TouchableOpacity
-      style={styles.chatItem}
-      activeOpacity={0.7}
-      onPress={() => {
-        // Mark as read locally and navigate
-        const updatedConversations = conversations.map(c =>
-          c.id === item.id ? { ...c, unread_count: 0 } : c
-        );
-        setConversations(updatedConversations);
-        router.push(`/chat/${item.id}` as any);
-      }}
-      onLongPress={() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        handleDeleteConversation(item.id, item.other_user.name);
-      }}
-    >
-      <View style={styles.avatarContainer}>
-        {item.other_user.avatar ? (
-          <Image source={{ uri: item.other_user.avatar }} style={styles.avatar} />
-        ) : (
-          <View style={[styles.avatar, styles.placeholderAvatar]}>
-            <Text style={styles.avatarText}>{item.other_user.name[0]}</Text>
-          </View>
-        )}
-        <View style={styles.onlineStatusRing}>
-          <View style={styles.onlineDot} />
-        </View>
-      </View>
+  const renderRightActions = (conversationId: string, otherUserName: string) => {
+    return (
+      <RectButton
+        style={styles.deleteAction}
+        onPress={() => handleDeleteConversation(conversationId, otherUserName)}
+      >
+        <Animated.View style={styles.actionIcon}>
+          <Ionicons name="trash-outline" size={30} color="#fff" />
+          <Text style={styles.actionText}>Delete</Text>
+        </Animated.View>
+      </RectButton>
+    );
+  };
 
-      <View style={styles.chatContent}>
-        <View style={styles.chatHeader}>
-          <Text style={styles.name} numberOfLines={1}>{item.other_user.name}</Text>
-          {item.last_message && (
-            <Text style={[styles.time, item.unread_count > 0 && styles.unreadTime]}>
-              {formatTime(item.last_message.created_at)}
-            </Text>
-          )}
-        </View>
-        <View style={styles.chatFooter}>
-          {typingDict[item.id] ? (
-            <Text style={[styles.lastMessage, { color: COLORS.primary, fontWeight: '700', fontStyle: 'italic' }]} numberOfLines={1}>
-              typing...
-            </Text>
+  const renderItem = ({ item }: { item: Conversation }) => (
+    <Swipeable
+      renderRightActions={() => renderRightActions(item.id, item.other_user.name)}
+      friction={2}
+      rightThreshold={40}
+    >
+      <TouchableOpacity
+        style={styles.chatItem}
+        activeOpacity={0.7}
+        onPress={() => {
+          // Mark as read locally and navigate
+          const updatedConversations = conversations.map(c =>
+            c.id === item.id ? { ...c, unread_count: 0 } : c
+          );
+          setConversations(updatedConversations);
+          router.push(`/chat/${item.id}` as any);
+        }}
+      >
+        <View style={styles.avatarContainer}>
+          {item.other_user.avatar ? (
+            <Image source={{ uri: item.other_user.avatar }} style={styles.avatar} />
           ) : (
-            <Text
-              style={[
-                styles.lastMessage,
-                item.unread_count > 0 && styles.lastMessageBold
-              ]}
-              numberOfLines={1}
-            >
-              {item.last_message?.content || 'No messages yet'}
-            </Text>
-          )}
-          
-          {item.unread_count > 0 && (
-            <View style={[styles.unreadBadge, { backgroundColor: COLORS.primary }]}>
-              <Text style={styles.unreadText}>{item.unread_count > 9 ? '9+' : item.unread_count}</Text>
+            <View style={[styles.avatar, styles.placeholderAvatar]}>
+              <Text style={styles.avatarText}>{item.other_user.name[0]}</Text>
             </View>
           )}
+          <View style={styles.onlineStatusRing}>
+            <View style={styles.onlineDot} />
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+
+        <View style={styles.chatContent}>
+          <View style={styles.chatHeader}>
+            <Text style={styles.name} numberOfLines={1}>{item.other_user.name}</Text>
+            {item.last_message && (
+              <Text style={[styles.time, item.unread_count > 0 && styles.unreadTime]}>
+                {formatTime(item.last_message.created_at)}
+              </Text>
+            )}
+          </View>
+          <View style={styles.chatFooter}>
+            {typingDict[item.id] ? (
+              <Text style={[styles.lastMessage, { color: COLORS.primary, fontWeight: '700', fontStyle: 'italic' }]} numberOfLines={1}>
+                typing...
+              </Text>
+            ) : (
+              <Text
+                style={[
+                  styles.lastMessage,
+                  item.unread_count > 0 && styles.lastMessageBold
+                ]}
+                numberOfLines={1}
+              >
+                {item.last_message?.content || 'No messages yet'}
+              </Text>
+            )}
+            
+            {item.unread_count > 0 && (
+              <View style={[styles.unreadBadge, { backgroundColor: COLORS.primary }]}>
+                <Text style={styles.unreadText}>{item.unread_count > 9 ? '9+' : item.unread_count}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
   );
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
-      {/* ─── BRANDED GRADIENT HEADER ─── */}
-      <LinearGradient
-        colors={[COLORS.primary, COLORS.primary]}
-        style={[styles.header, { paddingTop: insets.top }]}
-      >
-        <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={26} color="white" />
-          </TouchableOpacity>
-
-          <View pointerEvents="none" style={styles.logoCentre}>
-            <RNImage
-              source={require("@/assets/logoHome.png")}
-              resizeMode="contain"
-              style={styles.logoImg}
-            />
-          </View>
-
+      <Header
+        title="Messages"
+        rightElement={
           <TouchableOpacity
-            style={styles.composeBtn}
+            style={styles.composeBtnHeader}
             onPress={() => setSearchVisible(true)}
           >
             <Ionicons name="create-outline" size={22} color="white" />
           </TouchableOpacity>
-        </View>
-        <Text style={styles.headerTitle}>Messages</Text>
-        <Text style={styles.headerSub}>
-          {conversations.length > 0 ? `${conversations.length} conversations` : "No conversations yet"}
-        </Text>
-      </LinearGradient>
+        }
+      />
+
 
       <View style={styles.listContainer}>
         <View style={styles.searchBarWrapper}>
@@ -313,7 +315,13 @@ export default function ChatScreen() {
                 onCta={() => setSearchVisible(true)}
               />
             )}
-            ListHeaderComponent={() => <View style={{ height: 10 }} />}
+            ListHeaderComponent={() => (
+              conversations.length > 0 ? (
+                <View style={styles.listHeaderContainer}>
+                  <Text style={styles.listHeaderTitle}>Active Conversations ({conversations.length})</Text>
+                </View>
+              ) : <View style={{ height: 10 }} />
+            )}
           />
           </>
         )}
@@ -336,7 +344,8 @@ export default function ChatScreen() {
         onClose={() => setSearchVisible(false)}
         onSelectUser={handleStartChat}
       />
-    </View >
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -346,62 +355,52 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FB',
   },
 
-  // BRANDED HEADER
-  header: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    elevation: 8,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
+  composeBtnHeader: {
+    padding: 8,
   },
-  headerRow: {
-    flexDirection: 'row',
+  listHeaderContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginBottom: 4,
+  },
+  listHeaderTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  deleteAction: {
+    backgroundColor: '#EF4444',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 52,
+    width: 90,
+    height: '100%',
+    borderRadius: 24,
+    marginBottom: 12,
+    // Add some margin to separate from the item being swiped
+    marginLeft: 10,
   },
-  logoCentre: {
-    ...StyleSheet.absoluteFillObject,
+  actionIcon: {
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 5,
   },
-  logoImg: { width: 100, height: 22 },
-  backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'flex-start',
-    zIndex: 10,
-  },
-  composeBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'flex-end',
-    zIndex: 10,
-  },
-  headerTitle: {
-    fontSize: 22, fontWeight: '800', color: 'white',
-    letterSpacing: -0.5, marginTop: 4,
-  },
-  headerSub: {
-    fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2,
+  actionText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '800',
+    marginTop: 4,
   },
 
   listContainer: {
     flex: 1,
-    marginTop: -16, // Reduced overlap for better spacing
+    backgroundColor: '#fff',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    backgroundColor: '#fff',
-    paddingTop: 12, // Fine-tuned padding
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 20,
+    paddingTop: 16, 
   },
   searchBarWrapper: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
@@ -409,12 +408,10 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 20,
     paddingHorizontal: 16,
-    height: 52,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    height: 48,
   },
   searchInput: {
     flex: 1,
@@ -431,17 +428,11 @@ const styles = StyleSheet.create({
   chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
     backgroundColor: '#fff',
-    borderRadius: 24,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
-    borderWidth: 1.5,
-    borderColor: '#F8FAFC',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
   avatarContainer: {
     position: 'relative',
@@ -464,24 +455,20 @@ const styles = StyleSheet.create({
   },
   onlineStatusRing: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    bottom: 0,
+    right: 0,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   onlineDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#10B981', // Premium emerald green
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#10B981', 
   },
 
   chatContent: {
@@ -564,12 +551,13 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   emptySubtitle: {
-    fontSize: 16,
-    color: '#64748B',
+    fontSize: 15,
+    color: '#94A3B8',
     textAlign: 'center',
     marginTop: 12,
-    paddingHorizontal: 48,
-    lineHeight: 24,
+    paddingHorizontal: 40,
+    lineHeight: 22,
+    fontWeight: '500',
   },
   startBtn: {
     marginTop: 36,
