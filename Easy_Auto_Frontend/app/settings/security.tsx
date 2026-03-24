@@ -214,9 +214,9 @@ export default function SecurityScreen() {
     return (
         <View style={styles.outerContainer}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header title="Security Settings" showBack={true} />
+            <Header title="Security Center" showBack={true} />
 
-            <SafeAreaView style={styles.safe}>
+            <View style={styles.safe}>
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                     {/* Main Security Options */}
@@ -288,7 +288,7 @@ export default function SecurityScreen() {
 
                     <View style={{ height: 40 }} />
                 </ScrollView>
-            </SafeAreaView>
+            </View>
 
             {/* Password Modal */}
             <Modal visible={passwordModalVisible} animationType="slide" transparent={true}>

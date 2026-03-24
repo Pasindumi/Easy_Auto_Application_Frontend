@@ -11,8 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
@@ -73,7 +71,7 @@ export default function SelectLanguage() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
       <Header title={t('select_language.title')} showBack={true} />
@@ -154,7 +152,7 @@ export default function SelectLanguage() {
           </TouchableOpacity>
         </Animated.View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

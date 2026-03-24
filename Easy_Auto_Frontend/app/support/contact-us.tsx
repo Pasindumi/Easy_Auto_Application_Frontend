@@ -16,7 +16,6 @@ import {
     TouchableOpacity,
     View,
     ActivityIndicator,
-    SafeAreaView,
     Alert,
 } from "react-native";
 import api from "@/utils/api";
@@ -81,7 +80,7 @@ export default function ContactUsScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <Header title={mode === "INQUIRY" ? "Contact Support" : "Submit Complaint"} showBack={true} />
 
-            <SafeAreaView style={styles.safe}>
+            <View style={styles.safe}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : undefined}
                     style={{ flex: 1 }}
@@ -239,7 +238,7 @@ export default function ContactUsScreen() {
                         <View style={{ height: 40 }} />
                     </ScrollView>
                 </KeyboardAvoidingView>
-            </SafeAreaView>
+            </View>
         </View>
     );
 }

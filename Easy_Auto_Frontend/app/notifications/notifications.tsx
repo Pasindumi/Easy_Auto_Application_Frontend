@@ -95,8 +95,8 @@ export default function NotificationsScreen() {
         });
 
         return (
-            <TouchableOpacity 
-                style={styles.deleteAction} 
+            <TouchableOpacity
+                style={styles.deleteAction}
                 onPress={() => remove(id)}
                 activeOpacity={0.8}
             >
@@ -112,17 +112,17 @@ export default function NotificationsScreen() {
             <StatusBar barStyle="light-content" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            <Header 
-                title="Notifications" 
+            <Header
+                title="Notifications"
                 rightElement={
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.headerActionBtn}
                         onPress={() => router.push("/notifications/notifications-setting")}
                     >
                         <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
                     </TouchableOpacity>
                 }
-            />      
+            />
 
             {/* ── Filter Strip (Now Outside Header) ── */}
             <View style={styles.filterStrip}>
@@ -147,7 +147,7 @@ export default function NotificationsScreen() {
                         </View>
                     </TouchableOpacity>
                 </View>
-                
+
                 {unreadCount > 0 ? (
                     <TouchableOpacity onPress={readAll} style={styles.markAllLink}>
                         <Text style={styles.markAllText}>Mark all as read</Text>
@@ -174,11 +174,11 @@ export default function NotificationsScreen() {
                         </View>
                         <Text style={styles.emptyTitle}>Nothing to show</Text>
                         <Text style={styles.emptyText}>You've read all your notifications. We'll update you when there's something new.</Text>
-                        <TouchableOpacity 
-                            style={styles.backHomeBtn} 
+                        <TouchableOpacity
+                            style={styles.backHomeBtn}
                             onPress={() => router.replace("/(tabs)")}
                         >
-                             <Text style={styles.backHomeText}>Go back home</Text>
+                            <Text style={styles.backHomeText}>Go back home</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
