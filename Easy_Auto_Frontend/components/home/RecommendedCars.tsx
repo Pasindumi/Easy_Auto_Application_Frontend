@@ -1,7 +1,7 @@
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import {
     Animated,
     ScrollView,
@@ -23,7 +23,7 @@ interface RecommendedCarsProps {
     slideAnim: Animated.Value;
 }
 
-const RecommendedCars: React.FC<RecommendedCarsProps> = ({
+const RecommendedCars: React.FC<RecommendedCarsProps> = memo(({
     fadeAnim,
     slideAnim,
 }) => {
@@ -101,7 +101,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
                     decelerationRate="fast"
-                    snapToInterval={230 + 16}
+                    snapToInterval={270 + 16}
                 >
                     {ads.map((car, index) => {
                         // CarDetails can be an object (list endpoint) or array (some Supabase versions)
@@ -165,7 +165,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = ({
             )}
         </Animated.View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -210,19 +210,19 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     card: {
-        width: 230,
+        width: 270,
         backgroundColor: COLORS.white,
         borderRadius: 20,
-        shadowColor: COLORS.shadow, // Use specialized shadow color
+        shadowColor: COLORS.shadow,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.12,
         shadowRadius: 16,
         elevation: 6,
         borderWidth: 1,
-        borderColor: COLORS.border, // Subtle border
+        borderColor: COLORS.border,
     },
     imageContainer: {
-        height: 140,
+        height: 160,
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,

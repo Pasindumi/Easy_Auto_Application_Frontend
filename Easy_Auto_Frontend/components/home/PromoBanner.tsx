@@ -253,6 +253,11 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                                         <Text style={styles.adBadgeText}>Featured</Text>
                                     </View>
                                 )}
+                                {banner.isDiscount && (
+                                    <View style={[styles.adBadge, { backgroundColor: '#EF4444' }]}>
+                                        <Text style={styles.adBadgeText}>Offer</Text>
+                                    </View>
+                                )}
                                 <Text style={styles.title} numberOfLines={2}>{banner.title}</Text>
                                 <Text style={styles.subtitle} numberOfLines={1}>{banner.subtitle}</Text>
 
@@ -317,6 +322,7 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         height: '100%',
+        borderRadius: 20,
     },
     contentContainer: {
         position: 'absolute',
@@ -370,7 +376,7 @@ const styles = StyleSheet.create({
     ctaText: {
         color: COLORS.white,
         fontSize: 13,
-        fontWeight: '600',
+        fontWeight: '700',
     },
     pagination: {
         flexDirection: 'row',

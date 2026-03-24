@@ -31,12 +31,12 @@ interface SidebarProps {
 }
 
 const USER_ITEMS = [
-  { icon: "megaphone-outline",          label: "My Ads",          sub: "Manage your listings",    route: "/ads/my-ads",                color: COLORS.primary, bg: "#EEF2FF" },
-  { icon: "wallet-outline",             label: "Payments",         sub: "Transaction history",     route: "/payments/payment-history",  color: "#F59E0B", bg: "#FFFBEB" },
-  { icon: "ribbon-outline",             label: "Subscriptions",    sub: "Your active plans",       route: "/packages/subscriptions",    color: "#7C3AED", bg: "#F5F3FF" },
-  { icon: "rocket-outline",             label: "Boost an Ad",      sub: "Get more visibility",     route: "/packages/boost-ad",         color: "#0891B2", bg: "#ECFEFF" },
-  { icon: "help-circle-outline",        label: "Help Centre",      sub: "FAQs & guides",           route: "/support/help-center",        color: "#64748B", bg: "#F8FAFC" },
-  { icon: "shield-checkmark-outline",   label: "Privacy & Policy", sub: "Data & terms",            route: "/support/privacy-policy",     color: "#64748B", bg: "#F8FAFC" },
+  { icon: "list",                 label: "My Ads",          sub: "Manage your listings",    route: "/(tabs)/my-ads",             color: COLORS.primary, bg: "#EEF2FF" },
+  { icon: "wallet",               label: "Payments",         sub: "Transaction history",     route: "/payments/payment-history",  color: "#10B981", bg: "#ECFDF5" },
+  { icon: "ribbon",               label: "Subscriptions",    sub: "Your active plans",       route: "/packages/subscriptions",    color: "#7C3AED", bg: "#F5F3FF" },
+  { icon: "rocket",               label: "Boost an Ad",      sub: "Get more visibility",     route: "/packages/boost-ad",         color: "#F59E0B", bg: "#FFFBEB" },
+  { icon: "help-circle",          label: "Help Centre",      sub: "FAQs & guides",           route: "/support/help-center",        color: "#64748B", bg: "#F8FAFC" },
+  { icon: "shield-checkmark",     label: "Privacy & Policy", sub: "Data & terms",            route: "/support/privacy-policy",     color: "#64748B", bg: "#F8FAFC" },
 ];
 
 const GUEST_ITEMS = [

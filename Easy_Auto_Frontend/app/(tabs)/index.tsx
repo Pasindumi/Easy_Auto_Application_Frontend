@@ -8,6 +8,8 @@ import HomeDrawers from "@/components/home/HomeDrawers";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeReviewsSlider from "@/components/home/HomeReviewsSlider";
 import MarketInsightsBanner from "@/components/home/MarketInsightsBanner";
+import NearYouCars from "@/components/home/NearYouCars";
+import PriceDropAlert from "@/components/home/PriceDropAlert";
 import PromoBanner from "@/components/home/PromoBanner";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 import RecommendedCars from "@/components/home/RecommendedCars";
@@ -100,10 +102,6 @@ export default function HomeScreen() {
                 notificationCount={notificationCount}
                 wishlistCount={wishlistCount}
                 setSidebarVisible={setSidebarVisible}
-                searchFocused={searchFocused}
-                setSearchFocused={setSearchFocused}
-                showSearchSuggestions={showSearchSuggestions}
-                setShowSearchSuggestions={setShowSearchSuggestions}
             />
 
 
@@ -137,42 +135,52 @@ export default function HomeScreen() {
                         />
                     </View>
 
-                    {/* 3. Recommended for you */}
+                    {/* 3. Price Drop Alert */}
+                    <View>
+                        <PriceDropAlert fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 4. Near You Cars */}
+                    <View style={styles.section}>
+                        <NearYouCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
+                    </View>
+
+                    {/* 5. Recommended for you */}
                     <View style={styles.section}>
                         <RecommendedCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 4. Advertisement section */}
+                    {/* 6. Advertisement section */}
                     <View style={styles.section}>
                         <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
                     </View>
 
-                    {/* 5. New Arrivals */}
+                    {/* 7. New Arrivals */}
                     <View style={styles.section}>
                         <RecentlyViewed fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 6. Compare Cars */}
+                    {/* 8. Compare Cars */}
                     <View style={styles.section}>
                         <CarComparison fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 7. Easy Auto by Numbers */}
+                    {/* 9. Easy Auto by Numbers */}
                     <View style={styles.section}>
                         <ValueProps fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 8. Explore by Brand */}
+                    {/* 10. Explore by Brand */}
                     <View style={styles.section}>
                         <ExploreByBrand fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
-                    {/* 9. Why EasyAuto Section */}
+                    {/* 11. Why EasyAuto Section */}
                     <View style={styles.section}>
                         <MarketInsightsBanner fadeAnim={fadeAnim} />
                     </View>
 
-                    {/* 10. User Testimonials */}
+                    {/* 12. User Testimonials */}
                     <View style={[styles.section, { marginBottom: 20 }]}>
                         <HomeReviewsSlider />
                     </View>
@@ -194,16 +202,19 @@ const styles = StyleSheet.create({
     },
     section: {
         backgroundColor: "#fff",
+        paddingVertical: 4,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.02)',
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,
-        marginBottom: -16,
-        marginTop: 8,
+        marginBottom: -20,
+        marginTop: 12,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "800",
         color: "#0F172A",
-        letterSpacing: -0.5,
+        letterSpacing: -0.4,
     },
 });

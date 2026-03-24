@@ -181,7 +181,7 @@ export default function CompareScreen() {
       <FlatList
         data={SAMPLE_COMPARISONS}
         keyExtractor={(item: any) => item.id}
-        renderItem={({ item }) => <ComparisonCard item={item} />}
+        renderItem={useCallback(({ item }: any) => <ComparisonCard item={item} />, [])}
         ListHeaderComponent={
           <>
             {renderSelectionHeader()}

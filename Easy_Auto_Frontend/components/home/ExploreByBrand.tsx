@@ -14,12 +14,16 @@ import Loading from "../ui/Loading";
 import api from "@/utils/api";
 import { useRouter } from "expo-router";
 import COLORS from "@/constants/Colors";
+import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
 import SectionHeader from "./SectionHeader";
 
 const { width } = Dimensions.get("window");
-const COL = (width - 40 - 30) / 4; // 4 cols
+const GAPPING = 14;
+const PADDING_H = 20;
+const COL_COUNT = 4;
+const COL_W = (width - (PADDING_H * 2) - (GAPPING * (COL_COUNT - 1))) / COL_COUNT;
 
 interface Brand { id: string; brand_name: string; brand_image: string | null; status: string }
 
@@ -131,7 +135,12 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
                                 {brand.brand_image ? (
                                     <Image source={{ uri: brand.brand_image }} style={styles.brandImg} contentFit="contain" transition={200} />
                                 ) : (
-                                    <Text style={styles.brandInitial}>{brand.brand_name.substring(0, 2).toUpperCase()}</Text>
+                                    <LinearGradient
+                                        colors={[COLORS.primary, COLORS.primaryDark]}
+                                        style={styles.placeholderGradient}
+                                    >
+                                        <Text style={styles.brandInitial}>{brand.brand_name.substring(0, 1).toUpperCase()}</Text>
+                                    </LinearGradient>
                                 )}
                             </View>
                             <Text style={styles.brandName} numberOfLines={1}>{brand.brand_name}</Text>
@@ -170,33 +179,40 @@ const styles = StyleSheet.create({
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
-        paddingHorizontal: 20,
-        gap: 10,
+        paddingHorizontal: PADDING_H,
+        justifyContent: 'space-between',
     },
     brandCell: {
-        width: COL,
+        width: COL_W,
         alignItems: "center",
-        marginBottom: 4,
+        marginBottom: 16,
     },
     brandCard: {
-        width: COL,
-        height: COL,
-        backgroundColor: "#fff",
-        borderRadius: 20,
+        width: COL_W,
+        height: COL_W,
+        backgroundColor: COLORS.white,
+        borderRadius: COL_W / 2, // Perfect circle for premium brand avatars
         justifyContent: "center",
         alignItems: "center",
         borderWidth: 1,
-        borderColor: "#E8EEFF",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.07,
+        borderColor: COLORS.border,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
         shadowRadius: 8,
         elevation: 3,
-        marginBottom: 6,
+        marginBottom: 8,
     },
-    brandImg: { width: "68%", height: "68%" },
-    brandInitial: { fontSize: 18, fontWeight: "800", color: COLORS.primary },
-    brandName: { fontSize: 11, fontWeight: "600", color: "#475569", textAlign: "center" },
+    placeholderGradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: COL_W / 2,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    brandImg: { width: "60%", height: "60%" },
+    brandInitial: { fontSize: 18, fontWeight: "800", color: COLORS.white },
+    brandName: { fontSize: 12, fontWeight: "600", color: COLORS.text.secondary, textAlign: "center" },
 });
 
 export default ExploreByBrand;

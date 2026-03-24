@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import COLORS from "@/constants/Colors";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface ActionGridProps {
     fadeAnim: Animated.Value;
@@ -191,9 +192,12 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                         }}
                     >
                         <View style={styles.cardContent}>
-                            <View style={[styles.iconBox, { backgroundColor: action.bgColor }]}>
+                            <LinearGradient
+                                colors={[action.bgColor, action.bgColor + 'CC']}
+                                style={styles.iconBox}
+                            >
                                 <action.iconFamily name={action.icon as any} size={26} color={action.color} />
-                            </View>
+                            </LinearGradient>
 
                             {action.badge && (
                                 <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>

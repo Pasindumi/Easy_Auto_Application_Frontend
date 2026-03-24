@@ -35,10 +35,10 @@ export default function SocialButton({
       ) : (
         <>
           <View style={styles.iconContainer}>
-            <Ionicons name={icon} size={20} color={iconColor ?? COLORS.text.primary} />
+            <Ionicons name={icon} size={22} color={iconColor ?? COLORS.text.primary} />
           </View>
-          <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>
-          <View style={{ width: 24 }} />
+          {text && <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>}
+          {text && <View style={{ width: 24 }} />}
         </>
       )}
     </TouchableOpacity>
@@ -51,31 +51,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 16, // More rounded for premium feel
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#E2E8F0',
+    width: 64, // Standardized icon-only width
+    height: 64, // Standardized icon-only height
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   btnWithText: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    width: '100%',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     marginBottom: 12,
   },
   btnIconOnly: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "space-between",
-    backgroundColor: COLORS.white,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    // Shared with btn
   },
   btnDisabled: {
     opacity: 0.5,

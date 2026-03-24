@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Loading from '../../../components/ui/Loading';
 import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import {
@@ -22,6 +24,7 @@ import { headerSectionStylesWhite } from '../../../styles/headerSectionStyles';
 export default function BoostSelectionScreen() {
     const router = useRouter();
     const { id: adId } = useLocalSearchParams();
+    const insets = useSafeAreaInsets();
 
     const [loading, setLoading] = useState(true);
     const [packages, setPackages] = useState<any[]>([]);
@@ -152,16 +155,26 @@ export default function BoostSelectionScreen() {
     return (
         <View style={styles.safe}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header showBack={true} title="Boost Your Ad" />
-
-            {/* Inline Sub-Header Section */}
-            <View style={headerSectionStylesWhite.headerWrap}>
-                <View style={headerSectionStylesWhite.header}>
-                    <Ionicons name="rocket-outline" size={22} color="#235CF8" style={{ marginRight: 8 }} />
-                    <Text style={headerSectionStylesWhite.headerTitle}>Select a Boost Package</Text>
+            
+            <LinearGradient
+                colors={[COLORS.primary, COLORS.primary]}
+                style={[styles.premiumHeader, { paddingTop: insets.top + 10 }]}
+            >
+                <TouchableOpacity 
+                    style={styles.backBtn}
+                    onPress={() => router.back()}
+                >
+                    <Ionicons name="chevron-back" size={24} color="#FFF" />
+                </TouchableOpacity>
+                <View style={styles.headerTitleRow}>
+                    <Text style={styles.headerTitle}>Premium Visibility</Text>
+                    <Text style={styles.headerSub}>Boost your ad to reach thousands of buyers</Text>
                 </View>
-                <Text style={styles.subText}>Make your ad stand out and sell faster!</Text>
-            </View>
+                
+                <View style={styles.rocketIconContainer}>
+                    <Ionicons name="rocket" size={64} color="rgba(255,255,255,0.15)" />
+                </View>
+            </LinearGradient>
 
             <BrandedRefreshOverlay refreshing={refreshing} top={150} />
             <ScrollView
@@ -224,37 +237,69 @@ export default function BoostSelectionScreen() {
 const styles = StyleSheet.create({
     safe: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#F8FAFF',
+    },
+    premiumHeader: {
+        paddingHorizontal: 20,
+        paddingBottom: 32,
+        borderBottomLeftRadius: 36,
+        borderBottomRightRadius: 36,
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    backBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+    },
+    headerTitleRow: {
+        marginTop: 4,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: '900',
+        color: '#FFF',
+        letterSpacing: -0.8,
+    },
+    headerSub: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.7)',
+        marginTop: 4,
+        fontWeight: '600',
+    },
+    rocketIconContainer: {
+        position: 'absolute',
+        right: -10,
+        bottom: -10,
     },
     container: {
-        padding: 16,
+        padding: 20,
+        paddingTop: 10,
         paddingBottom: 40,
     },
-    subText: {
-        fontSize: 14,
-        color: '#666',
-        marginLeft: 38, // align with title
-        marginBottom: 8
-    },
     loaderContainer: {
-        padding: 40,
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    loaderText: {
-        marginTop: 12,
-        color: '#666',
-        fontSize: 14,
+        paddingTop: 60,
     },
     emptyContainer: {
-        padding: 40,
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        paddingTop: 60,
+        paddingHorizontal: 40,
     },
     emptyText: {
-        marginTop: 12,
-        color: '#999',
-        fontSize: 14,
+        marginTop: 16,
+        color: '#94A3B8',
+        fontSize: 15,
         textAlign: 'center',
+        lineHeight: 22,
+        fontWeight: '500',
     },
 });

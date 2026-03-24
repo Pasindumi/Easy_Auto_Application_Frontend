@@ -7,6 +7,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useRef, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Animated,
   ActivityIndicator,

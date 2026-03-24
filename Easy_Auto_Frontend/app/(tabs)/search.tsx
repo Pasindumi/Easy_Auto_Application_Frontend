@@ -1,7 +1,7 @@
-﻿import Header from '@/components/Header';
+import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
@@ -104,11 +104,17 @@ export default function SearchScreen() {
   // Animation
   const filterSlideAnim = React.useRef(new Animated.Value(0)).current;
 
+  const params = useLocalSearchParams<{ openFilters?: string }>();
+
   // Fetch initial data
   useEffect(() => {
     fetchVehicleTypes();
     fetchConditions();
-  }, []);
+
+    if (params.openFilters === 'true') {
+      setShowFilters(true);
+    }
+  }, [params.openFilters]);
 
   // Fetch vehicle types
   const fetchVehicleTypes = async () => {
@@ -396,7 +402,7 @@ export default function SearchScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       {/* ΓöÇΓöÇΓöÇ NEW PREMIUM BRANDED HEADER ΓöÇΓöÇΓöÇ */}
       <LinearGradient
-        colors={[COLORS.primary, COLORS.primaryDark]}
+        colors={[COLORS.primary, COLORS.primary]}
         style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <View style={styles.headerTopRow}>

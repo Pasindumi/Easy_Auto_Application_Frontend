@@ -1,0 +1,268 @@
+app/(tabs)/search.tsx(411,6): error TS17008: JSX element 'View' has no corresponding closing tag.
+app/(tabs)/search.tsx(414,8): error TS17008: JSX element 'LinearGradient' has no corresponding closing tag.
+app/(tabs)/search.tsx(434,10): error TS17008: JSX element 'View' has no corresponding closing tag.
+app/(tabs)/search.tsx(441,72): error TS1005: '...' expected.
+app/(tabs)/search.tsx(442,7): error TS1003: Identifier expected.
+app/(tabs)/search.tsx(476,9): error TS17002: Expected corresponding JSX closing tag for 'View'.
+app/(tabs)/search.tsx(796,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(799,12): error TS1005: '}' expected.
+app/(tabs)/search.tsx(800,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(802,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(804,22): error TS1005: '}' expected.
+app/(tabs)/search.tsx(810,26): error TS1005: '}' expected.
+app/(tabs)/search.tsx(810,41): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(814,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(816,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(821,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(823,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(828,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(831,15): error TS1005: '}' expected.
+app/(tabs)/search.tsx(833,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(835,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(837,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(839,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(840,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(842,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(843,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(845,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(861,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(863,16): error TS1005: '}' expected.
+app/(tabs)/search.tsx(868,26): error TS1005: '}' expected.
+app/(tabs)/search.tsx(868,41): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(870,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(873,3): error TS1109: Expression expected.
+app/(tabs)/search.tsx(875,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(883,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(885,20): error TS1005: '}' expected.
+app/(tabs)/search.tsx(887,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(889,22): error TS1005: '}' expected.
+app/(tabs)/search.tsx(892,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(894,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(904,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(906,20): error TS1005: '}' expected.
+app/(tabs)/search.tsx(908,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(910,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(913,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(915,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(916,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(918,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(923,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(925,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(928,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(930,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(933,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(935,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(938,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(940,12): error TS1005: '}' expected.
+app/(tabs)/search.tsx(941,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(943,19): error TS1005: '}' expected.
+app/(tabs)/search.tsx(945,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(947,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(953,26): error TS1005: '}' expected.
+app/(tabs)/search.tsx(953,41): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(956,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(958,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(961,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(963,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(965,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(967,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(972,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(974,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(983,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(985,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(995,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(997,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1000,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1002,12): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1003,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1005,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1009,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1011,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1015,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1017,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1020,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1022,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1025,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1027,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1029,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1031,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1034,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1036,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1039,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1041,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1045,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1047,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1054,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1056,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1060,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1062,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1066,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1068,20): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1072,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1074,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1077,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1079,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1082,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1084,20): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1090,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1092,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1098,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1100,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1107,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1109,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1115,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1117,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1121,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1123,12): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1124,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1126,17): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1127,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1129,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1133,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1135,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1137,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1139,22): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1145,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1147,20): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1149,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1151,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1154,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1156,10): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1157,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1159,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1167,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1169,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1175,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1177,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1180,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1182,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1187,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1189,13): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1192,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1194,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1196,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1198,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1199,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1201,18): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1210,26): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1210,41): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1214,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1216,9): error TS1005: '}' expected.
+app/(tabs)/search.tsx(1221,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1222,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/(tabs)/search.tsx(1223,1): error TS1005: '</' expected.
+app/cars/[id].tsx(448,18): error TS17008: JSX element 'TouchableOpacity' has no corresponding closing tag.
+app/packages/packages.tsx(93,11): error TS1005: ')' expected.
+app/packages/subscriptions.tsx(15,3): error TS1005: ',' expected.
+app/packages/subscriptions.tsx(151,10): error TS17008: JSX element 'ScrollView' has no corresponding closing tag.
+app/packages/subscriptions.tsx(214,39): error TS1005: '...' expected.
+app/packages/subscriptions.tsx(215,7): error TS1003: Identifier expected.
+app/packages/subscriptions.tsx(226,11): error TS2657: JSX expressions must have one parent element.
+app/packages/subscriptions.tsx(235,9): error TS1005: ')' expected.
+app/payments/payment.tsx(250,5): error TS1005: ',' expected.
+app/payments/payment.tsx(356,8): error TS17008: JSX element 'View' has no corresponding closing tag.
+app/payments/payment.tsx(363,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(416,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(419,17): error TS1005: '}' expected.
+app/payments/payment.tsx(420,9): error TS1005: '}' expected.
+app/payments/payment.tsx(422,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(424,9): error TS1005: '}' expected.
+app/payments/payment.tsx(426,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(428,9): error TS1005: '}' expected.
+app/payments/payment.tsx(432,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(434,14): error TS1005: '}' expected.
+app/payments/payment.tsx(438,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(440,18): error TS1005: '}' expected.
+app/payments/payment.tsx(448,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(450,13): error TS1005: '}' expected.
+app/payments/payment.tsx(455,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(457,9): error TS1005: '}' expected.
+app/payments/payment.tsx(458,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(460,18): error TS1005: '}' expected.
+app/payments/payment.tsx(461,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(463,12): error TS1005: '}' expected.
+app/payments/payment.tsx(464,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(466,20): error TS1005: '}' expected.
+app/payments/payment.tsx(473,26): error TS1005: '}' expected.
+app/payments/payment.tsx(473,42): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(477,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(479,18): error TS1005: '}' expected.
+app/payments/payment.tsx(482,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(484,13): error TS1005: '}' expected.
+app/payments/payment.tsx(488,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(490,13): error TS1005: '}' expected.
+app/payments/payment.tsx(493,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(495,20): error TS1005: '}' expected.
+app/payments/payment.tsx(503,26): error TS1005: '}' expected.
+app/payments/payment.tsx(503,41): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(507,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(509,10): error TS1005: '}' expected.
+app/payments/payment.tsx(512,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(514,18): error TS1005: '}' expected.
+app/payments/payment.tsx(516,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(518,9): error TS1005: '}' expected.
+app/payments/payment.tsx(527,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(529,10): error TS1005: '}' expected.
+app/payments/payment.tsx(532,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(534,16): error TS1005: '}' expected.
+app/payments/payment.tsx(535,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(537,10): error TS1005: '}' expected.
+app/payments/payment.tsx(538,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(539,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+app/payments/payment.tsx(540,1): error TS1005: '</' expected.
+app/profile/edit-profile.tsx(22,1): error TS1109: Expression expected.
+app/profile/edit-profile.tsx(22,3): error TS1434: Unexpected keyword or identifier.
+app/profile/edit-profile.tsx(381,21): error TS2657: JSX expressions must have one parent element.
+app/support/contact-us.tsx(20,5): error TS1005: ',' expected.
+app/support/contact-us.tsx(80,9): error TS2657: JSX expressions must have one parent element.
+app/support/contact-us.tsx(84,14): error TS17008: JSX element 'SafeAreaView' has no corresponding closing tag.
+app/support/contact-us.tsx(253,31): error TS17002: Expected corresponding JSX closing tag for 'ScrollView'.
+app/support/contact-us.tsx(254,27): error TS17002: Expected corresponding JSX closing tag for 'KeyboardAvoidingView'.
+app/support/contact-us.tsx(259,21): error TS1005: ')' expected.
+app/support/contact-us.tsx(260,17): error TS1109: Expression expected.
+app/support/contact-us.tsx(261,13): error TS1109: Expression expected.
+app/support/contact-us.tsx(262,9): error TS1109: Expression expected.
+app/support/contact-us.tsx(263,5): error TS1109: Expression expected.
+components/home/ExploreByBrand.tsx(116,17): error TS2657: JSX expressions must have one parent element.
+components/home/HomeHeader.tsx(140,15): error TS17002: Expected corresponding JSX closing tag for 'Animated.View'.
+components/home/HomeHeader.tsx(141,9): error TS1005: ')' expected.
+components/home/HomeHeader.tsx(142,5): error TS1109: Expression expected.
+components/home/HomeHeader.tsx(143,1): error TS1128: Declaration or statement expected.
+components/home/RecentlyViewed.tsx(64,17): error TS2657: JSX expressions must have one parent element.
+components/ui/button/Button.tsx(29,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(35,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(37,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(43,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(45,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(47,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(53,6): error TS1005: '</' expected.
+components/ui/button/Button.tsx(54,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(68,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(73,1): error TS1185: Merge conflict marker encountered.
+components/ui/button/Button.tsx(75,5): error TS1128: Declaration or statement expected.
+components/ui/button/Button.tsx(76,3): error TS1109: Expression expected.
+components/ui/button/SocialButton.tsx(27,6): error TS17008: JSX element 'TouchableOpacity' has no corresponding closing tag.
+components/ui/button/SocialButton.tsx(65,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(68,6): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(69,18): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(76,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(78,20): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(81,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(83,10): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(95,26): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(95,41): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(99,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(101,12): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(103,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(105,10): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(108,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(110,15): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(115,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(116,22): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(116,27): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(117,21): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(117,47): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(119,10): error TS1005: '}' expected.
+components/ui/button/SocialButton.tsx(120,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(121,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/ui/button/SocialButton.tsx(122,1): error TS1005: '</' expected.
