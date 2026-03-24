@@ -17,7 +17,6 @@ import {
   Platform,
 } from "react-native";
 import Loading from "@/components/ui/Loading";
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from "@/contexts/AuthContext";
 import * as ImagePicker from "expo-image-picker";
 import { api } from "@/utils/api";

@@ -20,7 +20,6 @@ import Loading from "../../components/ui/Loading";
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
 import COLORS from "../../constants/Colors";
 import { useAuth } from '../../contexts/AuthContext';
@@ -143,10 +142,10 @@ export default function Address() {
   );
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header
-        title="Delivery Address"
+        title="My Address"
         showBack={true}
         rightElement={
           !isEditing && (
@@ -389,7 +388,7 @@ export default function Address() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

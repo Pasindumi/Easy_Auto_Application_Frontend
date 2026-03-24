@@ -212,8 +212,11 @@ export default function SearchScreen() {
         if (modelObj) params.model = modelObj.label; // Γ£à was: model_id
       }
 
-      if (selectedCondition) params.condition = selectedCondition; // Γ£à was: condition_id
-      if (selectedFuelType) params.fuelType = selectedFuelType;     // Γ£à was: fuel_type
+      if (selectedCondition) {
+        const condObj = conditions.find((c: any) => c.value === selectedCondition);
+        if (condObj) params.condition = condObj.label;
+      }
+      if (selectedFuelType) params.fuelType = selectedFuelType;     // ✅ was: fuel_type
       if (selectedTransmission) params.transmission = selectedTransmission;
 
       const priceRange = PRICE_RANGES[selectedPriceRange];
@@ -531,128 +534,165 @@ export default function SearchScreen() {
                 <Ionicons name="close" size={24} color={COLORS.text.primary} />
               </TouchableOpacity>
             </View>
+          }
+        />
 
-            <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
-              {/* Price Range */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
-                    {PRICE_RANGES.map((range, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.rangeChip,
-                          selectedPriceRange === index && styles.rangeChipActive
-                        ]}
-                        onPress={() => setSelectedPriceRange(index)}
-                      >
-                        <Text
+        {/* Advanced Filters Modal */}
+        <Modal
+          visible={showFilters}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={toggleFilters}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.filterModal}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
+                <TouchableOpacity onPress={toggleFilters}>
+                  <Ionicons name="close" size={24} color={COLORS.text.primary} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
+                {/* Price Range */}
+                <View style={styles.filterSection}>
+                  <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={styles.rangeChips}>
+                      {PRICE_RANGES.map((range, index) => (
+                        <TouchableOpacity
+                          key={index}
                           style={[
-                            styles.rangeChipText,
-                            selectedPriceRange === index && styles.rangeChipTextActive
+                            styles.rangeChip,
+                            selectedPriceRange === index && styles.rangeChipActive
                           ]}
+                          onPress={() => setSelectedPriceRange(index)}
                         >
-                          {range.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
+                          <Text
+                            style={[
+                              styles.rangeChipText,
+                              selectedPriceRange === index && styles.rangeChipTextActive
+                            ]}
+                          >
+                            {range.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                </View>
 
-              {/* Year Range */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Year</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
-                    {YEAR_RANGES.map((range, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.rangeChip,
-                          selectedYearRange === index && styles.rangeChipActive
-                        ]}
-                        onPress={() => setSelectedYearRange(index)}
-                      >
-                        <Text
+                {/* Year Range */}
+                <View style={styles.filterSection}>
+                  <Text style={styles.filterLabel}>Year</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={styles.rangeChips}>
+                      {YEAR_RANGES.map((range, index) => (
+                        <TouchableOpacity
+                          key={index}
                           style={[
-                            styles.rangeChipText,
-                            selectedYearRange === index && styles.rangeChipTextActive
+                            styles.rangeChip,
+                            selectedYearRange === index && styles.rangeChipActive
                           ]}
+                          onPress={() => setSelectedYearRange(index)}
                         >
-                          {range.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
+                          <Text
+                            style={[
+                              styles.rangeChipText,
+                              selectedYearRange === index && styles.rangeChipTextActive
+                            ]}
+                          >
+                            {range.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                </View>
+
+                {/* Brand */}
+                {brands.length > 0 && (
+                  <View style={styles.filterSection}>
+                    <SelectField
+                      label="Brand"
+                      value={selectedBrand}
+                      onSelect={setSelectedBrand}
+                      options={[{ label: 'All Brands', value: '' }, ...brands]}
+                    />
                   </View>
-                </ScrollView>
-              </View>
+                )}
 
-              {/* Brand */}
-              {brands.length > 0 && (
+                {/* Model */}
+                {models.length > 0 && (
+                  <View style={styles.filterSection}>
+                    <SelectField
+                      label="Model"
+                      value={selectedModel}
+                      onSelect={setSelectedModel}
+                      options={[{ label: 'All Models', value: '' }, ...models]}
+                    />
+                  </View>
+                )}
+
+                {/* Condition */}
+                {conditions.length > 0 && (
+                  <View style={styles.filterSection}>
+                    <SelectField
+                      label="Condition"
+                      value={selectedCondition}
+                      onSelect={setSelectedCondition}
+                      options={[{ label: 'Any Condition', value: '' }, ...conditions]}
+                    />
+                  </View>
+                )}
+
+                {/* Fuel Type */}
                 <View style={styles.filterSection}>
                   <SelectField
-                    label="Brand"
-                    value={selectedBrand}
-                    onSelect={setSelectedBrand}
-                    options={[{ label: 'All Brands', value: '' }, ...brands]}
+                    label="Fuel Type"
+                    value={selectedFuelType}
+                    onSelect={setSelectedFuelType}
+                    options={[
+                      { label: 'Any Fuel Type', value: '' },
+                      { label: 'Petrol', value: 'Petrol' },
+                      { label: 'Diesel', value: 'Diesel' },
+                      { label: 'Electric', value: 'Electric' },
+                      { label: 'Hybrid', value: 'Hybrid' },
+                    ]}
                   />
                 </View>
-              )}
 
-              {/* Model */}
-              {models.length > 0 && (
+                {/* Transmission */}
                 <View style={styles.filterSection}>
                   <SelectField
-                    label="Model"
-                    value={selectedModel}
-                    onSelect={setSelectedModel}
-                    options={[{ label: 'All Models', value: '' }, ...models]}
+                    label="Transmission"
+                    value={selectedTransmission}
+                    onSelect={setSelectedTransmission}
+                    options={[
+                      { label: 'Any Transmission', value: '' },
+                      { label: 'Automatic', value: 'Automatic' },
+                      { label: 'Manual', value: 'Manual' },
+                    ]}
                   />
                 </View>
-              )}
+              </ScrollView>
 
-              {/* Condition */}
-              {conditions.length > 0 && (
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Condition"
-                    value={selectedCondition}
-                    onSelect={setSelectedCondition}
-                    options={[{ label: 'Any Condition', value: '' }, ...conditions]}
-                  />
-                </View>
-              )}
-
-              {/* Fuel Type */}
-              <View style={styles.filterSection}>
-                <SelectField
-                  label="Fuel Type"
-                  value={selectedFuelType}
-                  onSelect={setSelectedFuelType}
-                  options={[
-                    { label: 'Any Fuel Type', value: '' },
-                    { label: 'Petrol', value: 'Petrol' },
-                    { label: 'Diesel', value: 'Diesel' },
-                    { label: 'Electric', value: 'Electric' },
-                    { label: 'Hybrid', value: 'Hybrid' },
-                  ]}
-                />
-              </View>
-
-              {/* Transmission */}
-              <View style={styles.filterSection}>
-                <SelectField
-                  label="Transmission"
-                  value={selectedTransmission}
-                  onSelect={setSelectedTransmission}
-                  options={[
-                    { label: 'Any Transmission', value: '' },
-                    { label: 'Automatic', value: 'Automatic' },
-                    { label: 'Manual', value: 'Manual' },
-                  ]}
-                />
+              <View style={styles.modalFooter}>
+                <TouchableOpacity
+                  style={styles.clearFiltersBtn}
+                  onPress={clearAllFilters}
+                >
+                  <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.applyFiltersBtn}
+                  onPress={() => {
+                    performSearch();
+                    toggleFilters();
+                  }}
+                >
+                  <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
+                </TouchableOpacity>
               </View>
             </ScrollView>
 

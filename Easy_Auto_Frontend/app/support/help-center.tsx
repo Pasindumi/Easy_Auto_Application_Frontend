@@ -7,7 +7,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  SafeAreaView,
   TextInput,
   Platform
 } from 'react-native';
@@ -45,24 +44,24 @@ export default function HelpCenterScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Header title="Help Center" showBack={true} />
 
-      <SafeAreaView style={styles.safe}>
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
+      <View style={styles.safe}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
           {/* Search Header */}
           <View style={styles.searchSection}>
             <Text style={styles.heroTitle}>How can we help you?</Text>
             <View style={styles.searchBar}>
-                <Ionicons name="search-outline" size={20} color="#94a3b8" />
-                <TextInput 
-                    placeholder="Search for articles, guides..." 
-                    style={styles.searchInput}
-                    value={search}
-                    onChangeText={setSearch}
-                    placeholderTextColor="#94a3b8"
-                />
+              <Ionicons name="search-outline" size={20} color="#94a3b8" />
+              <TextInput
+                placeholder="Search for articles, guides..."
+                style={styles.searchInput}
+                value={search}
+                onChangeText={setSearch}
+                placeholderTextColor="#94a3b8"
+              />
             </View>
           </View>
 
@@ -70,17 +69,17 @@ export default function HelpCenterScreen() {
           <Text style={styles.sectionTitle}>Browse by Category</Text>
           <View style={styles.categoriesGrid}>
             {FAQ_CATEGORIES.map((cat) => (
-                <TouchableOpacity 
-                    key={cat.id} 
-                    style={styles.categoryCard}
-                    onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-                >
-                    <View style={[styles.categoryIconBg, { backgroundColor: cat.color + '15' }]}>
-                        <Ionicons name={cat.icon as any} size={24} color={cat.color} />
-                    </View>
-                    <Text style={styles.categoryTitle}>{cat.title}</Text>
-                    <Text style={styles.categoryCount}>{cat.count} articles</Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                key={cat.id}
+                style={styles.categoryCard}
+                onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              >
+                <View style={[styles.categoryIconBg, { backgroundColor: cat.color + '15' }]}>
+                  <Ionicons name={cat.icon as any} size={24} color={cat.color} />
+                </View>
+                <Text style={styles.categoryTitle}>{cat.title}</Text>
+                <Text style={styles.categoryCount}>{cat.count} articles</Text>
+              </TouchableOpacity>
             ))}
           </View>
 
@@ -88,59 +87,59 @@ export default function HelpCenterScreen() {
           <View style={styles.faqSection}>
             <Text style={styles.sectionTitle}>Popular Questions</Text>
             <View style={styles.faqList}>
-                {TOP_FAQS.map((faq, index) => (
-                    <TouchableOpacity 
-                        key={index} 
-                        style={styles.faqItem}
-                        onPress={() => toggleFaq(index)}
-                        activeOpacity={0.7}
-                    >
-                        <View style={styles.faqHeader}>
-                            <Text style={styles.faqQuestion}>{faq.question}</Text>
-                            <Ionicons 
-                                name={expandedFaq === index ? "chevron-up" : "chevron-down"} 
-                                size={20} 
-                                color="#64748b" 
-                            />
-                        </View>
-                        {expandedFaq === index && (
-                            <Text style={styles.faqAnswer}>{faq.answer}</Text>
-                        )}
-                    </TouchableOpacity>
-                ))}
+              {TOP_FAQS.map((faq, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.faqItem}
+                  onPress={() => toggleFaq(index)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.faqHeader}>
+                    <Text style={styles.faqQuestion}>{faq.question}</Text>
+                    <Ionicons
+                      name={expandedFaq === index ? "chevron-up" : "chevron-down"}
+                      size={20}
+                      color="#64748b"
+                    />
+                  </View>
+                  {expandedFaq === index && (
+                    <Text style={styles.faqAnswer}>{faq.answer}</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
 
           {/* Contact Channels */}
           <View style={styles.contactSection}>
-             <Text style={styles.sectionTitle}>Still need assistance?</Text>
-             <View style={styles.contactGrid}>
-                <TouchableOpacity style={styles.contactCard} onPress={() => router.push('/support/contact-us')}>
-                    <View style={[styles.contactIconBg, { backgroundColor: '#eff6ff' }]}>
-                        <Ionicons name="mail-outline" size={22} color={COLORS.primary} />
-                    </View>
-                    <Text style={styles.contactLabel}>Email Support</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.contactCard} onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}>
-                    <View style={[styles.contactIconBg, { backgroundColor: '#ecfdf5' }]}>
-                        <Ionicons name="chatbubbles-outline" size={22} color="#10b981" />
-                    </View>
-                    <Text style={styles.contactLabel}>Live Chat</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.contactCard} onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}>
-                    <View style={[styles.contactIconBg, { backgroundColor: '#fff7ed' }]}>
-                        <Ionicons name="call-outline" size={22} color="#f59e0b" />
-                    </View>
-                    <Text style={styles.contactLabel}>Call Center</Text>
-                </TouchableOpacity>
-             </View>
+            <Text style={styles.sectionTitle}>Still need assistance?</Text>
+            <View style={styles.contactGrid}>
+              <TouchableOpacity style={styles.contactCard} onPress={() => router.push('/support/contact-us')}>
+                <View style={[styles.contactIconBg, { backgroundColor: '#eff6ff' }]}>
+                  <Ionicons name="mail-outline" size={22} color={COLORS.primary} />
+                </View>
+                <Text style={styles.contactLabel}>Email Support</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.contactCard} onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}>
+                <View style={[styles.contactIconBg, { backgroundColor: '#ecfdf5' }]}>
+                  <Ionicons name="chatbubbles-outline" size={22} color="#10b981" />
+                </View>
+                <Text style={styles.contactLabel}>Live Chat</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.contactCard} onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}>
+                <View style={[styles.contactIconBg, { backgroundColor: '#fff7ed' }]}>
+                  <Ionicons name="call-outline" size={22} color="#f59e0b" />
+                </View>
+                <Text style={styles.contactLabel}>Call Center</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.footer}>
-             <Text style={styles.footerText}>EasyAuto Support Hub v2.0</Text>
+            <Text style={styles.footerText}>EasyAuto Support Hub v2.0</Text>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

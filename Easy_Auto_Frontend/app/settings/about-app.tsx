@@ -11,7 +11,7 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View as RNView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, type SharedValue } from 'react-native-reanimated';
@@ -65,9 +65,9 @@ export default function AboutApp() {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header title="About Application" showBack={true} />
+      <Header title="About Easy Auto" showBack={true} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.topSpacer} />
@@ -201,7 +201,7 @@ export default function AboutApp() {
         <Text style={styles.copyrightText}>© 2024 Easy Auto. All rights reserved.</Text>
         <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
