@@ -166,6 +166,81 @@ export default function CreateRentalAdScreen() {
         fetchConfig();
     }, [vehicleTypeId]);
 
+    // 3. Fetch Existing Ad Data (if editing)
+    useEffect(() => {
+        if (!params.id || !isAuthenticated) return;
+
+        const fetchAdData = async () => {
+            setLoading(true);
+            try {
+                const response = await api.get<{ success: boolean; data: any }>(`/api/rentals/${params.id}`);
+                if (response.success) {
+                    const ad = response.data;
+                    const details = ad.details?.[0] || ad.details || {};
+
+                    setCarDetails({
+                        title: ad.title || '',
+                        description: ad.description || '',
+                        brand: details.brand || '',
+                        model: details.model || '',
+                        year: String(details.year || ''),
+                        condition: details.condition || '',
+                        mileage: String(details.mileage || ''),
+                        fuelType: details.fuel_type || '',
+                        transmission: details.transmission || '',
+                        engineCapacity: String(details.engine_capacity || ''),
+                        bodyType: details.body_type || '',
+                        location: ad.location || '',
+                        price: String(ad.price_per_day || '0'),
+                        contactNumber: ad.users?.phone || '',
+                        email: ad.users?.email || '',
+                        negotiable: ad.negotiable || false,
+                        hidePhoneNumber: ad.hide_phone_number || false,
+                        dynamicAttributes: ad.attributes || []
+                    });
+
+                    setRentalPricing({
+                        pricePerDay: String(ad.price_per_day || ''),
+                        pricePerWeek: String(ad.price_per_week || ''),
+                        pricePerMonth: String(ad.price_per_month || ''),
+                        extraMileageFee: String(ad.extra_mileage_fee || ''),
+                        securityDeposit: String(ad.security_deposit || '')
+                    });
+
+                    setRentalConditions({
+                        minAge: String(ad.min_age || '21'),
+                        mileageLimit: String(ad.daily_mileage_limit || '100'),
+                        allowSmoking: ad.allow_smoking || false,
+                        allowPets: ad.allow_pets || false,
+                        reqDeposit: ad.req_deposit || true,
+                        other_conditions: ad.other_conditions || ''
+                    });
+
+                    setRentalDocuments({
+                        idType: ad.documents?.[0]?.document_type || 'NIC',
+                        idFrontUrl: ad.documents?.find((d: any) => d.document_type === 'ID Front')?.document_url || '',
+                        idBackUrl: ad.documents?.find((d: any) => d.document_type === 'ID Back')?.document_url || '',
+                        ownershipUrl: ad.documents?.find((d: any) => d.document_type === 'Ownership Document')?.document_url || ''
+                    });
+
+                    setSelectedImages(ad.images?.map((img: any) => img.image_url) || []);
+
+                    if (ad.vehicle_type_id) {
+                        setVehicleTypeId(ad.vehicle_type_id);
+                        setVehicleType(ad.vehicle_type?.type_name || '');
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching ad for edit:", error);
+                Alert.alert("Error", "Could not load ad data for editing.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAdData();
+    }, [params.id, isAuthenticated]);
+
     // Handlers
     const handleCarInputChange = (field: string, value: any) => {
         setCarDetails(prev => ({ ...prev, [field]: value }));
@@ -273,38 +348,48 @@ export default function CreateRentalAdScreen() {
             formData.append('other_conditions', rentalConditions.otherConditions);
 
             // 4. Photos
-            selectedImages.forEach((uri, index) => {
+            const newImages = selectedImages.filter(uri => uri.startsWith('file://') || uri.startsWith('content://'));
+            const existingImages = selectedImages.filter(uri => uri.startsWith('http'));
+
+            newImages.forEach((uri, index) => {
                 const filename = uri.split('/').pop() || `photo_${index}.jpg`;
                 const type = `image/${filename.split('.').pop() || 'jpeg'}`;
                 // @ts-ignore
                 formData.append('images', { uri, name: filename, type });
             });
 
-            // 5. Documents
-            if (rentalDocuments.idFrontUrl) {
+            formData.append('existing_images', JSON.stringify(existingImages));
+
+            // 5. Documents (only append if they are new local URIs)
+            if (rentalDocuments.idFrontUrl && !rentalDocuments.idFrontUrl.startsWith('http')) {
                 // @ts-ignore
                 formData.append('doc_id_front', { uri: rentalDocuments.idFrontUrl, name: 'id_front.jpg', type: 'image/jpeg' });
             }
-            if (rentalDocuments.idBackUrl) {
+            if (rentalDocuments.idBackUrl && !rentalDocuments.idBackUrl.startsWith('http')) {
                 // @ts-ignore
                 formData.append('doc_id_back', { uri: rentalDocuments.idBackUrl, name: 'id_back.jpg', type: 'image/jpeg' });
             }
-            if (rentalDocuments.ownershipUrl) {
+            if (rentalDocuments.ownershipUrl && !rentalDocuments.ownershipUrl.startsWith('http')) {
                 // @ts-ignore
                 formData.append('doc_ownership', { uri: rentalDocuments.ownershipUrl, name: 'ownership.jpg', type: 'image/jpeg' });
             }
 
-            const response = await api.post<{ success: boolean; data: any; message?: string }>('/api/rentals', formData);
+            let response;
+            if (params.id) {
+                response = await api.put<{ success: boolean; data: any; message?: string }>(`/api/rentals/${params.id}`, formData);
+            } else {
+                response = await api.post<{ success: boolean; data: any; message?: string }>('/api/rentals', formData);
+            }
 
             if (response.success) {
-                Alert.alert("Success", "Rental ad created. Please proceed to payment to publish.");
+                Alert.alert("Success", params.id ? "Rental ad updated." : "Rental ad created. Please proceed to payment to publish.");
                 // Route to a payment screen or review screen
                 router.replace({
-                    pathname: '/payments/payment-methods', // Sample route
-                    params: { rentalAdId: response.data.id, amount: rentalPricing.pricePerDay } // Placeholder price logic
+                    pathname: '/payments/payment' as any,
+                    params: { rentalAdId: params.id || response.data.id }
                 });
             } else {
-                Alert.alert("Error", response.message || "Failed to create rental ad.");
+                Alert.alert("Error", response.message || "Failed to save rental ad.");
             }
         } catch (error) {
             console.error("Submission Error:", error);
@@ -317,7 +402,7 @@ export default function CreateRentalAdScreen() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
-            
+
             {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
             <LinearGradient
                 colors={[COLORS.primary, COLORS.primaryDark]}
@@ -327,7 +412,7 @@ export default function CreateRentalAdScreen() {
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <Ionicons name="chevron-back" size={26} color="white" />
                     </TouchableOpacity>
-                    
+
                     <View pointerEvents="none" style={styles.logoCentre}>
                         <RNImage
                             source={require("@/assets/logoHome.png")}
@@ -375,6 +460,7 @@ export default function CreateRentalAdScreen() {
                             carDetails={carDetails}
                             handleInputChange={handleCarInputChange}
                             descriptionLimit={1000}
+                            hidePrice={true}
                         />
                     )}
 

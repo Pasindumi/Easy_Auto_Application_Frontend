@@ -47,8 +47,8 @@ export default function RentalAdDetailsScreen() {
             const response = await api.get<{ success: boolean; data: any }>(`/api/rentals/${id}`);
             if (response.success) {
                 setAd(response.data);
-                if (response.data.rental_ad_images && response.data.rental_ad_images.length > 0) {
-                    setMainImage(response.data.rental_ad_images[0].image_url);
+                if (response.data.images && response.data.images.length > 0) {
+                    setMainImage(response.data.images[0].image_url);
                 }
             } else {
                 Alert.alert("Error", "Failed to load rental details.");
@@ -73,7 +73,7 @@ export default function RentalAdDetailsScreen() {
 
     if (!ad) return null;
 
-    const images = ad.rental_ad_images || [];
+    const images = ad.images || [];
     const details = ad.rental_ad_details || {};
     const isVerified = ad.verification_status === 'VERIFIED';
 
@@ -250,33 +250,71 @@ export default function RentalAdDetailsScreen() {
 
                     {/* SELLER */}
                     <View style={styles.divider} />
-                    <View style={styles.sellerBox}>
+                    <TouchableOpacity
+                        style={styles.sellerBox}
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            if (ad.users?.id) {
+                                router.push({
+                                    pathname: `/seller/${ad.users.id}` as any,
+                                    params: { sellerData: JSON.stringify(ad.users) }
+                                });
+                            }
+                        }}
+                    >
                         <View style={styles.sellerAvatar}>
-                            <Text style={styles.sellerInitial}>{ad.users?.name?.charAt(0) || 'U'}</Text>
+                            {ad.users?.avatar ? (
+                                <Image source={{ uri: ad.users.avatar }} style={styles.sellerAvatarImg} resizeMode="cover" />
+                            ) : (
+                                <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} style={styles.sellerAvatarGrad}>
+                                    <Text style={styles.sellerInitial}>{ad.users?.name?.charAt(0)?.toUpperCase() || 'U'}</Text>
+                                </LinearGradient>
+                            )}
                         </View>
                         <View style={styles.sellerInfo}>
                             <Text style={styles.sellerName}>{ad.users?.name || "Verified Owner"}</Text>
-                            <Text style={styles.sellerSub}>Joined {new Date(ad.users?.created_at).getFullYear()}</Text>
+                            <Text style={styles.sellerSub}>Joined {ad.users?.created_at ? new Date(ad.users.created_at).getFullYear() : 'Unknown'}</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 </View>
                 <View style={{ height: 100 }} />
             </ScrollView>
 
             {/* FOOTER ACTIONS */}
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.callBtn} onPress={() => setShowContactModal(true)}>
-                    <Ionicons name="call" size={20} color={COLORS.primary} />
-                    <Text style={styles.callText}>Contact</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.bookBtn} onPress={handleChatWithSeller} disabled={sendingChat}>
-                    {sendingChat ? <ActivityIndicator color="white" /> : (
-                        <>
-                            <Ionicons name="chatbubble-ellipses" size={20} color="white" />
-                            <Text style={styles.bookText}>Chat to Rent</Text>
-                        </>
-                    )}
-                </TouchableOpacity>
+                {user?.id === ad.seller_id && ad.status !== 'ACTIVE' ? (
+                    <>
+                        <TouchableOpacity
+                            style={[styles.callBtn, { borderColor: COLORS.primary }]}
+                            onPress={() => router.push({ pathname: '/cars/create-rental-ad', params: { id: id as string } } as any)}
+                        >
+                            <Ionicons name="create-outline" size={20} color={COLORS.primary} />
+                            <Text style={styles.callText}>Edit Details</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.bookBtn}
+                            onPress={() => router.push({ pathname: '/payments/payment', params: { rentalAdId: id as string } } as any)}
+                        >
+                            <Ionicons name="checkmark-circle-outline" size={20} color="white" />
+                            <Text style={styles.bookText}>Complete Ad</Text>
+                        </TouchableOpacity>
+                    </>
+                ) : (
+                    <>
+                        <TouchableOpacity style={styles.callBtn} onPress={() => setShowContactModal(true)}>
+                            <Ionicons name="call" size={20} color={COLORS.primary} />
+                            <Text style={styles.callText}>Contact</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.bookBtn} onPress={handleChatWithSeller} disabled={sendingChat}>
+                            {sendingChat ? <ActivityIndicator color="white" /> : (
+                                <>
+                                    <Ionicons name="chatbubble-ellipses" size={20} color="white" />
+                                    <Text style={styles.bookText}>Chat to Rent</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    </>
+                )}
             </View>
 
             {/* CONTACT MODAL */}
@@ -346,7 +384,9 @@ const styles = StyleSheet.create({
     depositText: { fontSize: 13, fontWeight: '600', color: COLORS.primary },
     descriptionText: { fontSize: 14, color: '#555', lineHeight: 22 },
     sellerBox: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-    sellerAvatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
+    sellerAvatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: COLORS.primary, overflow: 'hidden' },
+    sellerAvatarImg: { width: '100%', height: '100%' },
+    sellerAvatarGrad: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' },
     sellerInitial: { color: 'white', fontSize: 20, fontWeight: 'bold' },
     sellerInfo: { flex: 1 },
     sellerName: { fontSize: 16, fontWeight: 'bold', color: '#111' },

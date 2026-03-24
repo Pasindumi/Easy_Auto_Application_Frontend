@@ -23,7 +23,7 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
   const mapStatus: 'active' | 'draft' | 'paused' | 'expired' | 'banned' =
     ad.status === 'active'
       ? 'active'
-      : ad.status === 'draft'
+      : (ad.status === 'draft' || ad.status === 'pending_payment')
         ? 'draft'
         : ad.status === 'paused'
           ? 'paused'
@@ -40,16 +40,16 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
             source={typeof ad.image === 'string' ? { uri: ad.image } : ad.image}
             style={styles.image}
           />
-          
+
           {/* Selection Overlay */}
           <TouchableOpacity
             onPress={() => toggleSelect(ad.id)}
             style={[styles.selectionOverlay, selected && styles.selectionOverlayActive]}
           >
-            <Ionicons 
-              name={selected ? "checkmark-circle" : "ellipse-outline"} 
-              size={22} 
-              color={selected ? COLORS.primary : "rgba(255,255,255,0.8)"} 
+            <Ionicons
+              name={selected ? "checkmark-circle" : "ellipse-outline"}
+              size={22}
+              color={selected ? COLORS.primary : "rgba(255,255,255,0.8)"}
             />
           </TouchableOpacity>
 
@@ -75,7 +75,7 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
           </View>
 
           <Text style={styles.price}>{ad.price}</Text>
-          
+
           <View style={styles.locationRow}>
             <Ionicons name="location-outline" size={12} color="#94A3B8" />
             <Text style={styles.locationText} numberOfLines={1}>{ad.location || "Sri Lanka"}</Text>
@@ -99,41 +99,56 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
 
       {/* Action Buttons */}
       <View style={styles.actionSection}>
-        <TouchableOpacity
-          style={styles.mainAction}
-          onPress={() => router.push(`/cars/review?id=${ad.id}`)}
-        >
-          <Ionicons name="eye-outline" size={18} color={COLORS.primary} />
-          <Text style={styles.mainActionText}>View Ad</Text>
-        </TouchableOpacity>
-
-        <View style={styles.actionDivider} />
-
-        {mapStatus === 'active' ? (
-          <TouchableOpacity
-            style={[styles.mainAction, styles.boostAction]}
-            onPress={() => router.push({ pathname: '/ads/boost/[id]', params: { id: ad.id } })}
-          >
-            <View style={styles.boostIconContainer}>
-              <Ionicons name="rocket" size={16} color="#0891B2" />
-            </View>
-            <Text style={[styles.mainActionText, { color: '#0891B2' }]}>Boost Ad</Text>
-          </TouchableOpacity>
-        ) : (
+        {ad.status === 'pending_payment' ? (
           <TouchableOpacity
             style={styles.mainAction}
-            onPress={() => router.push(`/ads/edit-car?id=${ad.id}`)}
+            onPress={() => router.push({
+              pathname: '/payments/payment' as any,
+              params: ad.adType === 'rental' ? { rentalAdId: ad.id } : { adId: ad.id }
+            })}
           >
-            <Ionicons name="create-outline" size={18} color="#64748B" />
-            <Text style={[styles.mainActionText, { color: '#64748B' }]}>Edit</Text>
+            <Ionicons name="card-outline" size={18} color={COLORS.primary} />
+            <Text style={styles.mainActionText}>Resume Payment</Text>
           </TouchableOpacity>
+        ) : (
+          <>
+            <TouchableOpacity
+              style={styles.mainAction}
+              onPress={() => router.push(ad.adType === 'rental' ? (`/cars/rental/${ad.id}` as any) : (`/cars/review?id=${ad.id}` as any))}
+            >
+              <Ionicons name="eye-outline" size={18} color={COLORS.primary} />
+              <Text style={styles.mainActionText}>View Ad</Text>
+            </TouchableOpacity>
+
+            <View style={styles.actionDivider} />
+
+            {mapStatus === 'active' ? (
+              <TouchableOpacity
+                style={[styles.mainAction, styles.boostAction]}
+                onPress={() => router.push({ pathname: '/ads/boost/[id]' as any, params: { id: ad.id } })}
+              >
+                <View style={styles.boostIconContainer}>
+                  <Ionicons name="rocket" size={16} color="#0891B2" />
+                </View>
+                <Text style={[styles.mainActionText, { color: '#0891B2' }]}>Boost Ad</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.mainAction}
+                onPress={() => router.push(ad.adType === 'rental' ? (`/cars/create-rental-ad?id=${ad.id}` as any) : (`/ads/edit-car?id=${ad.id}` as any))}
+              >
+                <Ionicons name="create-outline" size={18} color="#64748B" />
+                <Text style={[styles.mainActionText, { color: '#64748B' }]}>Edit</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
 
         <View style={styles.actionDivider} />
 
         <TouchableOpacity
           style={styles.deleteAction}
-          onPress={() => router.push(`/ads/delete-car?id=${ad.id}`)}
+          onPress={() => router.push(ad.adType === 'rental' ? (`/ads/delete-rental?id=${ad.id}` as any) : (`/ads/delete-car?id=${ad.id}` as any))}
         >
           <Ionicons name="trash-outline" size={18} color="#EF4444" />
         </TouchableOpacity>
