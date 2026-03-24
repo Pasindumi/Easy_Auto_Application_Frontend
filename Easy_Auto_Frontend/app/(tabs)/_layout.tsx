@@ -81,7 +81,19 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                         <Animated.View
                             style={[
                                 styles.indicator,
-                                { width: tabWidth - 10, transform: [{ translateX: Animated.add(translateX, 5) }] }
+                                {
+                                    left: 0,
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: 24,
+                                    transform: [
+                                        { translateX: Animated.add(translateX, (tabWidth - 48) / 2) },
+                                        { 
+                                            // Lift the indicator if the active slot is the FAB
+                                            translateY: activeRouteName === "my-ads" ? -10 : 0 
+                                        }
+                                    ]
+                                }
                             ]}
                         />
                     )}
@@ -156,15 +168,17 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                             >
                                 <Ionicons
                                     name={getIcon(isFocused) as any}
-                                    size={isFocused ? 24 : 22}
+                                    size={isFocused ? 26 : 22} // Slightly larger icon when focused
                                     color={isFocused ? "#FFF" : INACTIVE}
                                 />
-                                <Text style={[
-                                    styles.label,
-                                    { color: isFocused ? "#FFF" : INACTIVE, fontWeight: isFocused ? "800" : "600" }
-                                ]}>
-                                    {getLabel(route.name, options.title)}
-                                </Text>
+                                {!isFocused && (
+                                    <Text style={[
+                                        styles.label,
+                                        { color: INACTIVE, fontWeight: "600" }
+                                    ]}>
+                                        {getLabel(route.name, options.title)}
+                                    </Text>
+                                )}
                             </Pressable>
                         );
                     })}
@@ -227,14 +241,13 @@ const styles = StyleSheet.create({
     glassBar: {
         flexDirection: "row",
         flex: 1,
-        paddingHorizontal: 5,
+        // Removed horizontal padding as it causes calculation offsets for absolute positioned children
         alignItems: "center",
     },
     indicator: {
         position: "absolute",
-        height: 50,
+        top: 8, // Center vertically in the 64px bar
         backgroundColor: PRIMARY,
-        borderRadius: 22,
         zIndex: -1,
         // Indicator Shadow
         shadowColor: PRIMARY,

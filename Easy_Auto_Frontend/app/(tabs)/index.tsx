@@ -9,7 +9,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import HomeReviewsSlider from "@/components/home/HomeReviewsSlider";
 import MarketInsightsBanner from "@/components/home/MarketInsightsBanner";
 import NearYouCars from "@/components/home/NearYouCars";
-import PriceDropAlert from "@/components/home/PriceDropAlert";
+// import PriceDropAlert from "@/components/home/PriceDropAlert";
 import PromoBanner from "@/components/home/PromoBanner";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 import RecommendedCars from "@/components/home/RecommendedCars";
@@ -135,10 +135,10 @@ export default function HomeScreen() {
                         />
                     </View>
 
-                    {/* 3. Price Drop Alert */}
-                    <View>
+                    {/* 3. Price Drop Alert - REMOVED AS PER USER REQUEST */}
+                    {/* <View>
                         <PriceDropAlert fadeAnim={fadeAnim} slideAnim={slideAnim} />
-                    </View>
+                    </View> */}
 
                     {/* 4. Near You Cars */}
                     <View style={styles.section}>
@@ -198,13 +198,13 @@ const styles = StyleSheet.create({
     scrollContent: { paddingBottom: 110 },
     inner: {
         backgroundColor: "#F8FAFF",
-        gap: 32, // Consistent space between sections
+        gap: 16, // Reduced space for a tighter layout
     },
     section: {
         backgroundColor: "#fff",
         paddingVertical: 4,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,0.02)',
+        borderBottomWidth: 1.5,
+        borderBottomColor: 'rgba(0,0,0,0.05)', // Slightly more visible divider
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,
