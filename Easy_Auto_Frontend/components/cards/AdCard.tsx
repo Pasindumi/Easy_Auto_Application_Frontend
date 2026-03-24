@@ -111,11 +111,13 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
 
         {mapStatus === 'active' ? (
           <TouchableOpacity
-            style={styles.mainAction}
+            style={[styles.mainAction, styles.boostAction]}
             onPress={() => router.push({ pathname: '/ads/boost/[id]', params: { id: ad.id } })}
           >
-            <Ionicons name="rocket-outline" size={18} color="#0891B2" />
-            <Text style={[styles.mainActionText, { color: '#0891B2' }]}>Boost</Text>
+            <View style={styles.boostIconContainer}>
+              <Ionicons name="rocket" size={16} color="#0891B2" />
+            </View>
+            <Text style={[styles.mainActionText, { color: '#0891B2' }]}>Boost Ad</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
@@ -326,5 +328,19 @@ const styles = StyleSheet.create({
     color: '#B91C1C',
     fontWeight: '600',
     flex: 1,
+  },
+  boostAction: {
+    backgroundColor: '#0891B208',
+    borderRadius: 12,
+    marginHorizontal: 4,
+    paddingVertical: 4,
+  },
+  boostIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#0891B215',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

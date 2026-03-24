@@ -231,12 +231,15 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle case where session might be invalid but status isn't 401 (sometimes backend returns 400/403 for invalid tokens)
+        // Handle case where session might be invalid but status isn't 401
         if (data.error === 'SESSION_EXPIRED' || data.message === 'SESSION_EXPIRED' || data.code === 'SESSION_EXPIRED') {
           await this.clearAuthAndRedirect();
           throw new Error('SESSION_EXPIRED');
         }
-        throw new Error(data.error || data.message || 'Request failed');
+        
+        const errorObj: any = new Error(data.error || data.message || 'Request failed');
+        errorObj.status = response.status;
+        throw errorObj;
       }
 
       return data as T;

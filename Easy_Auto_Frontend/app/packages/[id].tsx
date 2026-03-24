@@ -141,167 +141,189 @@ export default function PackageDetailScreen() {
   const duration = parseInt(pkg?.config?.DURATION_DAYS || '0');
   const themeColor = pkg.config?.COLOR_THEME || COLORS.primary;
 
-  return (
-    <View style={styles.outerContainer}>
-      <Stack.Screen options={{ headerShown: false }} />
-      <Header title="Manage Plan" showBack={true} />
-
-      <SafeAreaView style={styles.safe}>
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Top Banner Card - Neutral Theme */}
-          <View style={styles.heroCard}>
-            <View style={styles.heroTop}>
-              <View style={[styles.statusBadge, { backgroundColor: '#f1f5f9' }]}>
-                <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color={COLORS.primary} />
-                <Text style={[styles.statusText, { color: COLORS.primary }]}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
+    return (
+      <View style={styles.outerContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Header title="Manage Plan" showBack={true} />
+  
+        <SafeAreaView style={styles.safe}>
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Top Banner Card - Premium Gradient */}
+            <LinearGradient
+                colors={[themeColor, themeColor + 'CC' || '#1e40af']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.heroCard}
+            >
+              <View style={styles.heroVibeIcon}>
+                 <Ionicons name="sparkles" size={140} color="rgba(255,255,255,0.08)" />
               </View>
-            </View>
 
-            <Text style={styles.heroTitle}>{pkg.name}</Text>
-            <Text style={styles.heroCode}>{pkg.code}</Text>
-
-            <View style={styles.heroDivider} />
-
-            <View style={styles.heroBottom}>
-              <View>
-                <Text style={styles.priceLabel}>Package Value</Text>
-                <Text style={styles.priceValue}>Rs. {price.toLocaleString()}</Text>
+              <View style={styles.heroTop}>
+                <View style={[styles.statusBadge, { backgroundColor: isCurrentPlan ? '#10b981' : 'rgba(255,255,255,0.2)' }]}>
+                  <Ionicons name={isCurrentPlan ? "checkmark-circle" : "sparkles"} size={14} color="#fff" />
+                  <Text style={styles.statusText}>{isCurrentPlan ? "Current Plan" : "Premium Upgrade"}</Text>
+                </View>
+                <View style={styles.heroIconBg}>
+                  <Ionicons name="shield-checkmark" size={24} color="#fff" />
+                </View>
               </View>
-              <View style={styles.durationBadge}>
-                <Text style={styles.durationText}>{duration} Days Boost</Text>
+  
+              <Text style={styles.heroTitle}>{pkg.name}</Text>
+              <Text style={styles.heroCode}>{pkg.code}</Text>
+  
+              <View style={[styles.heroDivider, { backgroundColor: 'rgba(255,255,255,0.2)' }]} />
+  
+              <View style={styles.heroBottom}>
+                <View>
+                  <Text style={styles.priceLabel}>Package Value</Text>
+                  <Text style={styles.priceValue}>Rs. {price.toLocaleString()}</Text>
+                </View>
+                <View style={styles.durationBadge}>
+                  <Text style={[styles.durationText, { color: themeColor }]}>{duration} Days Boost</Text>
+                </View>
               </View>
-            </View>
-          </View>
-
-          {/* Package Description Paragraph */}
-          {pkg.description && (
-            <Text style={styles.descText}>{pkg.description}</Text>
-          )}
-
-          {/* Action Area */}
-          <View style={styles.actionContainer}>
-            {isCurrentPlan ? (
-              <TouchableOpacity
-                style={styles.cancelBtnSmall}
-                onPress={handleUnsubscribe}
-              >
-                <Ionicons name="close-circle-outline" size={16} color="#ef4444" />
-                <Text style={styles.cancelBtnTextSmall}>Cancel Subscription</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[styles.buyBtn, { backgroundColor: themeColor }]}
-                onPress={() => router.push({
-                  pathname: '/payments/invoice',
-                  params: {
-                    packageId: pkg.id,
-                    plan: pkg.name,
-                    price: price,
-                    days: duration
-                  }
-                })}
-              >
-                <Text style={styles.buyBtnText}>Upgrade Now</Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" />
-              </TouchableOpacity>
+            </LinearGradient>
+  
+            {/* Package Description Paragraph */}
+            {pkg.description && (
+              <View style={styles.descContainer}>
+                <Text style={styles.descTitle}>About this plan</Text>
+                <Text style={styles.descText}>{pkg.description}</Text>
+              </View>
             )}
-          </View>
-
-          {/* Features Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Key Benefits</Text>
-              <View style={styles.sectionBadge}>
-                <Text style={styles.sectionBadgeText}>{pkg.features?.length || 0}</Text>
-              </View>
-            </View>
-            <View style={styles.featuresList}>
-              {pkg.features?.map((f: any, idx: number) => (
-                <View key={idx} style={styles.featureItem}>
-                  <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
-                    <Ionicons name="checkmark" size={14} color={themeColor} />
-                  </View>
-                  <View style={styles.featureContent}>
-                    <Text style={styles.featureTitle}>{f.feature_key}</Text>
-                    {f.feature_value && <Text style={styles.featureValue}>{f.feature_value}</Text>}
-                  </View>
-                </View>
-              ))}
-              {pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' && (
-                <View style={styles.featureItem}>
-                  <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
-                    <Ionicons name="checkmark" size={14} color={themeColor} />
-                  </View>
-                  <View style={styles.featureContent}>
-                    <Text style={styles.featureTitle}>Allow unlimited ads across all types</Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          </View>
-
-          {/* Ad Limits Section */}
-          {((pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true') || (pkg.ad_limits && pkg.ad_limits.length > 0)) && (
+  
+            {/* Features Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Publishing Limits</Text>
-              <Text style={styles.sectionSubtitle}>Categorized posting limits for your account</Text>
-
-              <View style={styles.limitsGrid}>
-                {pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' ? (
-                  <View style={styles.unlimitedBox}>
-                    <Ionicons name="infinite-outline" size={32} color={themeColor} />
-                    <Text style={styles.unlimitedText}>Unlimited Ad Postings</Text>
-                  </View>
-                ) : pkg.ad_limits?.map((l: any) => {
-                  const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
-                  return (
-                    <View key={l.id} style={styles.limitCard}>
-                      <View style={styles.limitTag}>
-                        <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
-                      </View>
-                      <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
-                      {isCurrentPlan && usage && (
-                        <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
-                      )}
-                    </View>
-                  );
-                })}
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Key Benefits</Text>
+                <View style={styles.sectionBadge}>
+                  <Text style={styles.sectionBadgeText}>{pkg.features?.length || 0} Perks</Text>
+                </View>
               </View>
-            </View>
-          )}
-
-          {/* Extra Items Section */}
-          {pkg.included_items?.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Included Bundles</Text>
-              <View style={styles.bundlesList}>
-                {pkg.included_items.map((it: any) => (
-                  <View key={it.id} style={styles.bundleItem}>
-                    <View style={styles.bundleIconBg}>
-                      <Ionicons name="gift-outline" size={20} color={COLORS.primary} />
+              <View style={styles.featuresList}>
+                {pkg.features?.map((f: any, idx: number) => (
+                  <View key={idx} style={styles.featureItem}>
+                    <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
+                      <Ionicons name="checkmark-circle" size={18} color={themeColor} />
                     </View>
-                    <View style={styles.bundleInfo}>
-                      <Text style={styles.bundleName}>{it.price_items?.name || 'Bundle Item'}</Text>
-                      <Text style={styles.bundleDetail}>For {it.vehicle_types?.type_name || 'All Categories'}</Text>
-                    </View>
-                    <View style={styles.bundleValue}>
-                      <Text style={styles.bundleValueText}>{it.is_unlimited ? '∞' : `x${it.quantity}`}</Text>
+                    <View style={styles.featureContent}>
+                      <Text style={styles.featureTitle}>{f.feature_description || f.feature_key}</Text>
+                      {f.feature_value && <Text style={styles.featureValue}>{f.feature_value}</Text>}
                     </View>
                   </View>
                 ))}
+                {pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' && (
+                  <View style={styles.featureItem}>
+                    <View style={[styles.checkBg, { backgroundColor: themeColor + '15' }]}>
+                      <Ionicons name="infinite" size={18} color={themeColor} />
+                    </View>
+                    <View style={styles.featureContent}>
+                      <Text style={styles.featureTitle}>Unlimited postings across all vehicle types</Text>
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
-          )}
+  
+            {/* Ad Limits Section */}
+            {((pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true') || (pkg.ad_limits && pkg.ad_limits.length > 0)) && (
+              <View style={styles.section}>
+                 <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Publishing Quota</Text>
+                 </View>
+                <Text style={styles.sectionSubtitle}>Standardized posting limits for your account tier</Text>
+  
+                <View style={styles.limitsGrid}>
+                  {pkg.config?.IS_UNLIMITED_ADS === 'true' && pkg.config?.ALLOW_UNLIMITED_ACROSS_ALL === 'true' ? (
+                    <View style={styles.unlimitedBox}>
+                      <Ionicons name="infinite-outline" size={32} color={themeColor} />
+                      <Text style={styles.unlimitedText}>Full Unlimited Access</Text>
+                    </View>
+                  ) : pkg.ad_limits?.map((l: any) => {
+                    const usage = usageLimits.find(u => String(u.vehicle_type_id) === String(l.vehicle_type_id));
+                    return (
+                      <View key={l.id} style={styles.limitCard}>
+                        <View style={styles.limitTag}>
+                          <Text style={styles.limitTagText}>{l.vehicle_types?.type_name || 'General'}</Text>
+                        </View>
+                        <Text style={styles.limitMainValue}>{l.is_unlimited ? '∞' : l.quantity}</Text>
+                        {isCurrentPlan && usage && (
+                          <Text style={styles.usageStat}>{usage.remaining_count} Remaining</Text>
+                        )}
+                        <Text style={styles.limitUnitLabel}>AD POSTS</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+  
+            {/* Extra Items Section */}
+            {pkg.included_items?.length > 0 && (
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Included Bundles</Text>
+                 </View>
+                <View style={styles.bundlesList}>
+                  {pkg.included_items.map((it: any) => (
+                    <View key={it.id} style={styles.bundleItem}>
+                      <View style={styles.bundleIconBg}>
+                        <Ionicons name="gift" size={20} color={COLORS.primary} />
+                      </View>
+                      <View style={styles.bundleInfo}>
+                        <Text style={styles.bundleName}>{it.price_items?.name || 'Bundle Item'}</Text>
+                        <Text style={styles.bundleDetail}>For {it.vehicle_types?.type_name || 'All Categories'}</Text>
+                      </View>
+                      <View style={styles.bundleValue}>
+                        <Text style={styles.bundleValueText}>{it.is_unlimited ? '∞' : `x${it.quantity}`}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
 
-
-        </ScrollView>
-      </SafeAreaView>
-    </View>
-  );
+            {/* Action Area */}
+            <View style={styles.actionContainer}>
+              {isCurrentPlan ? (
+                <View style={styles.cancelArea}>
+                    <Text style={styles.cancelHint}>Want to change your plan?</Text>
+                    <TouchableOpacity
+                    style={styles.cancelBtnSmall}
+                    onPress={handleUnsubscribe}
+                    >
+                    <Ionicons name="log-out-outline" size={16} color="#ef4444" />
+                    <Text style={styles.cancelBtnTextSmall}>Unsubscribe Current Plan</Text>
+                    </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.buyBtn, { backgroundColor: themeColor }]}
+                  onPress={() => router.push({
+                    pathname: '/payments/invoice',
+                    params: {
+                      packageId: pkg.id,
+                      plan: pkg.name,
+                      price: price,
+                      days: duration
+                    }
+                  })}
+                >
+                  <Text style={styles.buyBtnText}>Upgrade Now</Text>
+                  <Ionicons name="rocket" size={20} color="#fff" />
+                </TouchableOpacity>
+              )}
+            </View>
+  
+          </ScrollView>
+        </SafeAreaView>
+      </View>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -355,18 +377,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 20,
     elevation: 8,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  heroVibeIcon: {
+    position: 'absolute',
+    right: -40,
+    top: -20,
+    transform: [{ rotate: '15deg' }],
   },
   heroTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
+    zIndex: 2,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -374,7 +404,7 @@ const styles = StyleSheet.create({
   statusText: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     textTransform: 'uppercase',
   },
   heroIconBg: {
@@ -386,26 +416,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   heroTitle: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '900',
     color: '#fff',
     letterSpacing: -1,
+    zIndex: 2,
   },
   heroCode: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-    fontWeight: '600',
+    color: 'rgba(255,255,255,0.8)',
+    fontWeight: '700',
     marginTop: 2,
+    zIndex: 2,
   },
   heroDivider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
     marginVertical: 20,
+    zIndex: 2,
   },
   heroBottom: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    zIndex: 2,
   },
   priceLabel: {
     fontSize: 12,
@@ -445,19 +478,43 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
   },
+  descContainer: {
+    marginBottom: 32,
+    paddingHorizontal: 4,
+  },
+  descTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 8,
+  },
+  descText: {
+    fontSize: 15,
+    color: '#475569',
+    lineHeight: 24,
+    fontWeight: '500',
+  },
+  cancelArea: {
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 20,
+  },
+  cancelHint: {
+    fontSize: 13,
+    color: '#94a3b8',
+    fontWeight: '600',
+  },
   cancelBtnSmall: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 16,
     borderWidth: 1.5,
     borderColor: '#fee2e2',
     backgroundColor: '#fff',
     gap: 8,
-    alignSelf: 'center',
-    marginTop: 10,
   },
   cancelBtnTextSmall: {
     color: '#ef4444',
@@ -467,10 +524,15 @@ const styles = StyleSheet.create({
   section: {
     backgroundColor: '#fff',
     borderRadius: 24,
-    padding: 20,
+    padding: 24,
     marginBottom: 24,
     borderWidth: 1,
     borderColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.02,
+    shadowRadius: 10,
+    elevation: 2,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -486,30 +548,33 @@ const styles = StyleSheet.create({
   sectionBadge: {
     backgroundColor: '#eff6ff',
     paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   sectionBadgeText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.primary,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: COLORS.text.muted,
+    color: '#64748b',
+    lineHeight: 20,
     marginBottom: 20,
+    fontWeight: '500',
   },
   featuresList: {
-    gap: 16,
+    gap: 20,
   },
   featureItem: {
     flexDirection: 'row',
-    gap: 14,
+    gap: 16,
+    alignItems: 'flex-start',
   },
   checkBg: {
-    width: 24,
-    height: 24,
-    borderRadius: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -519,12 +584,14 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#334155',
+    color: '#1e293b',
+    lineHeight: 22,
   },
   featureValue: {
-    fontSize: 12,
-    color: COLORS.text.muted,
-    marginTop: 2,
+    fontSize: 13,
+    color: '#64748b',
+    marginTop: 4,
+    fontWeight: '500',
   },
   limitsGrid: {
     flexDirection: 'row',
@@ -534,53 +601,59 @@ const styles = StyleSheet.create({
   unlimitedBox: {
     flex: 1,
     backgroundColor: '#f8fafc',
-    padding: 24,
-    borderRadius: 20,
+    padding: 32,
+    borderRadius: 24,
     alignItems: 'center',
     borderStyle: 'dashed',
-    borderWidth: 1.5,
-    borderColor: '#cbd5e1',
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
   },
   unlimitedText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#64748b',
-    marginTop: 12,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#475569',
+    marginTop: 16,
   },
   limitCard: {
-    width: '48%',
+    width: '48.2%',
     backgroundColor: '#f8fafc',
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#e2e8f0',
   },
   limitTag: {
     alignSelf: 'flex-start',
     backgroundColor: '#fff',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#f1f5f9',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   limitTagText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '800',
     color: '#64748b',
     textTransform: 'uppercase',
   },
   limitMainValue: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '900',
     color: '#1e293b',
+  },
+  limitUnitLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#94a3b8',
+    marginTop: 2,
   },
   usageStat: {
     fontSize: 12,
     color: '#10b981',
-    fontWeight: '700',
-    marginTop: 4,
+    fontWeight: '800',
+    marginTop: 6,
   },
   bundlesList: {
     gap: 12,
@@ -588,50 +661,51 @@ const styles = StyleSheet.create({
   bundleItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 16,
     backgroundColor: '#f8fafc',
-    borderRadius: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
   },
   bundleIconBg: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: '#eff6ff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   bundleInfo: {
     flex: 1,
   },
   bundleName: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#1e293b',
   },
   bundleDetail: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#64748b',
-    marginTop: 2,
+    marginTop: 4,
+    fontWeight: '500',
   },
   bundleValue: {
     backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   bundleValueText: {
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '900',
     color: COLORS.primary,
   },
-  descText: {
-    fontSize: 15,
-    color: '#475569',
-    lineHeight: 24,
-    fontWeight: '500',
-    marginBottom: 20,
-  }
 });

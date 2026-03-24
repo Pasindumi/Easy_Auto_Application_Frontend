@@ -80,21 +80,18 @@ const RentalPricingSection: React.FC<RentalPricingSectionProps> = ({ pricing, ha
 const styles = StyleSheet.create({
     section: {
         backgroundColor: COLORS.white,
+        borderRadius: 20,
         padding: 20,
-        marginVertical: 10,
-        borderRadius: 15,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        marginBottom: 16,
+        elevation: 2,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        borderWidth: 1,
+        borderColor: COLORS.border
     },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.primary,
-        marginBottom: 15,
-    },
+    sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary, marginBottom: 16 },
     inputGroup: {
         marginBottom: 15,
     },
@@ -103,17 +100,19 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 14,
-        color: COLORS.text?.primary || '#333',
-        marginBottom: 5,
-        fontWeight: '500',
+        fontWeight: '600',
+        color: COLORS.text.primary,
+        marginBottom: 8
     },
     input: {
         borderWidth: 1,
-        borderColor: COLORS.divider || '#ddd',
-        borderRadius: 8,
-        padding: 12,
-        fontSize: 16,
-        color: '#000',
+        borderColor: COLORS.border,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        backgroundColor: '#F9FAFB',
+        color: COLORS.text.primary
     },
 });
 
