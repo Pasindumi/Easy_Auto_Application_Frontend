@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, Image as RNImage, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator,
-    Linking, RefreshControl, StatusBar, Alert
+    Linking, RefreshControl, StatusBar, Alert, Share
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import * as Haptics from 'expo-haptics';
 import COLORS from '@/constants/Colors';
 import { api } from '@/utils/api';
 import AdCard from '@/components/cards/AdCard';
+import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
@@ -29,6 +30,7 @@ export default function SellerProfileScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [stats, setStats] = useState({ active: 0, totalViews: 0 });
     const [sendingChat, setSendingChat] = useState(false);
+    const [notFound, setNotFound] = useState(false);
 
     const fetchSellerData = useCallback(async () => {
         if (!refreshing) setLoading(true);
@@ -61,8 +63,11 @@ export default function SellerProfileScreen() {
             fetchedAds.forEach((a: any) => { totalViews += (a.views_count || 0) });
             setStats({ active: fetchedAds.length, totalViews });
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error fetching seller details:", error);
+            if (error.message?.includes("not found") || error.status === 404) {
+                setNotFound(true);
+            }
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -112,6 +117,18 @@ export default function SellerProfileScreen() {
         }
     };
 
+    const handleShareProfile = async () => {
+        try {
+            const shareUrl = `https://easyauto.lk/seller/${id}`;
+            await Share.share({
+                message: `Check out ${sellerName}'s profile on EasyAuto!\n${shareUrl}`,
+            });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } catch (error) {
+            console.error("Share error:", error);
+        }
+    };
+
     const formatPrice = (price: number) => {
         if (!price) return "N/A";
         if (price >= 1000000) return `Rs. ${(price / 1000000).toFixed(1)}M`;
@@ -119,7 +136,23 @@ export default function SellerProfileScreen() {
         return `Rs. ${price}`;
     };
 
-    if (loading) {
+    if (notFound && !seller) {
+        return (
+            <View style={styles.root}>
+                <Header title="Seller Profile" showBack={true} />
+                <View style={styles.emptyStateContainer}>
+                    <Ionicons name="person-remove-outline" size={64} color="#CBD5E1" />
+                    <Text style={styles.emptyHeader}>Seller Not Found</Text>
+                    <Text style={styles.emptySub}>The seller account you are looking for may have been deleted or moved.</Text>
+                    <TouchableOpacity style={styles.backButtonAction} onPress={() => router.back()}>
+                        <Text style={styles.backButtonActionText}>Go Back</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    }
+
+    if (loading && !seller) {
         return (
             <View style={styles.loadingWrapper}>
                 <Stack.Screen options={{ headerShown: false }} />
@@ -138,18 +171,15 @@ export default function SellerProfileScreen() {
     return (
         <View style={styles.root}>
             <Stack.Screen options={{ headerShown: false }} />
-            <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-
-            {/* HEADER */}
-            <LinearGradient colors={BRAND_GRAD} style={[styles.header, { paddingTop: insets.top }]}>
-                <View style={styles.headerRow}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <Ionicons name="chevron-back" size={26} color="white" />
+            <Header 
+                title="Seller Profile" 
+                showBack={true} 
+                rightElement={
+                    <TouchableOpacity onPress={handleShareProfile}>
+                        <Ionicons name="share-social-outline" size={22} color="white" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Seller Profile</Text>
-                    <View style={{ width: 40 }} />
-                </View>
-            </LinearGradient>
+                }
+            />
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -166,96 +196,75 @@ export default function SellerProfileScreen() {
                                 <Text style={styles.avatarInitial}>{initial}</Text>
                             </LinearGradient>
                         )}
-                    </View>
-
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <Text style={styles.sellerName}>{sellerName}</Text>
                         {seller?.verification_status === 'VERIFIED' && (
-                            <MaterialIcons name="verified" size={20} color="#10B981" />
-                        )}
-                    </View>
-
-                    <Text style={styles.sellerSub}>{stats.active} Active Ads</Text>
-
-                    {/* DETAILED INFO LIST */}
-                    <View style={styles.detailsContainer}>
-                        {seller?.verification_status === 'VERIFIED' && (
-                            <View style={styles.detailRow}>
-                                <MaterialIcons name="verified-user" size={18} color="#10B981" />
-                                <Text style={[styles.detailText, { color: '#10B981', fontWeight: '700' }]}>Verified Seller</Text>
-                            </View>
-                        )}
-                        <View style={styles.detailRow}>
-                            <Ionicons name="calendar-outline" size={18} color="#64748B" />
-                            <Text style={styles.detailText}>Joined on {joinedDate}</Text>
-                        </View>
-                        {seller?.phone && (
-                            <View style={styles.detailRow}>
-                                <Ionicons name="call-outline" size={18} color="#64748B" />
-                                <Text style={styles.detailText}>{seller.phone}</Text>
-                            </View>
-                        )}
-                        {seller?.email && (
-                            <View style={styles.detailRow}>
-                                <Ionicons name="mail-outline" size={18} color="#64748B" />
-                                <Text style={styles.detailText}>{seller.email}</Text>
-                            </View>
-                        )}
-                        {seller?.address && (
-                            <View style={styles.detailRow}>
-                                <Ionicons name="location-outline" size={18} color="#64748B" />
-                                <Text style={styles.detailText}>{seller.address}</Text>
+                            <View style={styles.verifiedBadgeAbsolute}>
+                                <Ionicons name="checkmark-sharp" size={14} color="white" />
                             </View>
                         )}
                     </View>
 
-                    <View style={styles.contactRow}>
-                        <TouchableOpacity style={styles.contactBtn} onPress={handleCall} disabled={!seller?.phone}>
-                            <Ionicons name="call" size={20} color={seller?.phone ? COLORS.primary : "#94A3B8"} />
-                            <Text style={[styles.contactBtnText, !seller?.phone && { color: "#94A3B8" }]}>Call</Text>
+                    <Text style={styles.sellerName}>{sellerName}</Text>
+                    <View style={styles.joinedBadge}>
+                        <Ionicons name="calendar-outline" size={12} color="#64748B" />
+                        <Text style={styles.joinedText}>Member Since {joinedDate}</Text>
+                    </View>
+
+                    <View style={styles.contactActions}>
+                        <TouchableOpacity style={styles.contactIconBtn} onPress={handleCall} disabled={!seller?.phone}>
+                            <View style={[styles.iconBox, { backgroundColor: '#F0F9FF' }]}>
+                                <Ionicons name="call" size={20} color={COLORS.primary} />
+                            </View>
+                            <Text style={styles.iconLabel}>Call</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.contactBtn} onPress={handleWhatsApp} disabled={!seller?.phone}>
-                            <Ionicons name="logo-whatsapp" size={20} color={seller?.phone ? "#10B981" : "#94A3B8"} />
-                            <Text style={[styles.contactBtnText, !seller?.phone && { color: "#94A3B8" }]}>WhatsApp</Text>
+
+                        <TouchableOpacity style={styles.contactIconBtn} onPress={handleWhatsApp} disabled={!seller?.phone}>
+                            <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}>
+                                <Ionicons name="logo-whatsapp" size={22} color="#10B981" />
+                            </View>
+                            <Text style={styles.iconLabel}>WhatsApp</Text>
                         </TouchableOpacity>
+
                         <TouchableOpacity
-                            style={[styles.contactBtn, sendingChat && { opacity: 0.7 }]}
+                            style={[styles.contactIconBtn, sendingChat && { opacity: 0.7 }]}
                             onPress={handleChat}
                             disabled={sendingChat || !id}
                         >
-                            {sendingChat ? (
-                                <ActivityIndicator size="small" color={COLORS.primary} />
-                            ) : (
-                                <>
-                                    <Ionicons name="chatbubble" size={20} color={COLORS.primary} />
-                                    <Text style={styles.contactBtnText}>Chat</Text>
-                                </>
-                            )}
+                            <View style={[styles.iconBox, { backgroundColor: '#FFF7ED' }]}>
+                                {sendingChat ? (
+                                    <ActivityIndicator size="small" color="#F97316" />
+                                ) : (
+                                    <Ionicons name="chatbubbles" size={20} color="#F97316" />
+                                )}
+                            </View>
+                            <Text style={styles.iconLabel}>Chat</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* STATS ROW */}
-                <View style={styles.statsWrap}>
-                    <View style={styles.statBox}>
-                        <Text style={styles.statVal}>{stats.active}</Text>
-                        <Text style={styles.statLabel}>Active Listings</Text>
+                {/* STATS OVERVIEW */}
+                <View style={styles.statsOverview}>
+                    <View style={styles.statItem}>
+                        <Text style={styles.statNumber}>{stats.active}</Text>
+                        <Text style={styles.statTitle}>Active Ads</Text>
                     </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statBox}>
-                        <Text style={styles.statVal}>98%</Text>
-                        <Text style={styles.statLabel}>Response Rate</Text>
+                    <View style={styles.vDivider} />
+                    <View style={styles.statItem}>
+                        <Text style={styles.statNumber}>98%</Text>
+                        <Text style={styles.statTitle}>Resp. Rate</Text>
                     </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statBox}>
-                        <Ionicons name="star" size={18} color="#F59E0B" />
-                        <Text style={styles.statLabel}>Top Seller</Text>
+                    <View style={styles.vDivider} />
+                    <View style={styles.statItem}>
+                        <View style={styles.ratingRow}>
+                            <Ionicons name="star" size={16} color="#F59E0B" />
+                            <Text style={styles.statNumber}>4.9</Text>
+                        </View>
+                        <Text style={styles.statTitle}>Top Seller</Text>
                     </View>
                 </View>
 
                 {/* ADS SECTION */}
-                <View style={styles.adsSection}>
-                    <Text style={styles.sectionTitle}>Vehicles For Sale</Text>
+                <View style={[styles.adsSection, { marginTop: 12 }]}>
+                    <Text style={styles.sectionHeader}>Vehicles for Sale</Text>
 
                     {ads.length === 0 ? (
                         <View style={styles.emptyState}>
@@ -309,79 +318,277 @@ export default function SellerProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: "#F8FAFC" },
-    loadingWrapper: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },
-
-    header: {
-        paddingHorizontal: 16,
-        paddingBottom: 16,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-    },
-    headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 44, marginTop: 10 },
-    backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
-    headerTitle: { fontSize: 18, fontWeight: '700', color: 'white' },
-
-    scrollContent: { paddingBottom: 60, paddingTop: 16, paddingHorizontal: 16 },
+    root: { flex: 1, backgroundColor: "#F8FAFF" },
+    loadingWrapper: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFF' },
+    scrollContent: { padding: 20, paddingBottom: 60 },
 
     profileCard: {
         backgroundColor: 'white',
-        borderRadius: 24,
+        borderRadius: 32,
         padding: 24,
         alignItems: 'center',
         marginTop: 10,
-        elevation: 6, shadowColor: COLORS.primary, shadowOpacity: 0.08, shadowOffset: { width: 0, height: 4 }, shadowRadius: 12,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.05,
+        shadowRadius: 20,
+        elevation: 10,
     },
-    avatarWrap: { position: 'relative', marginBottom: 16 },
-    avatarImg: { width: 90, height: 90, borderRadius: 45, borderWidth: 3, borderColor: '#F1F5F9' },
-    avatarGrad: { width: 90, height: 90, borderRadius: 45, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#F1F5F9' },
-    avatarInitial: { fontSize: 36, color: 'white', fontWeight: '800' },
-    verifiedBadgeAbsolute: { position: 'absolute', bottom: 2, right: 2, backgroundColor: '#10B981', width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'white' },
-
-    sellerName: { fontSize: 22, fontWeight: '800', color: '#0F172A' },
-    sellerSub: { fontSize: 13, color: '#64748B', fontWeight: '500', marginBottom: 16 },
-
-    detailsContainer: { width: '100%', backgroundColor: '#F8FAFC', padding: 16, borderRadius: 16, marginBottom: 20, gap: 12 },
-    detailRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    detailText: { fontSize: 13, color: '#334155', fontWeight: '500', flex: 1 },
-
-    contactRow: { flexDirection: 'row', gap: 12, width: '100%' },
-    contactBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#F1F5F9', paddingVertical: 12, borderRadius: 16 },
-    contactBtnText: { fontSize: 13, fontWeight: '700', color: '#334155' },
-
-    statsWrap: {
-        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        backgroundColor: 'white', borderRadius: 20, padding: 20, marginTop: 16,
-        elevation: 3, shadowColor: '#94A3B8', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 3 }, shadowRadius: 8,
-    },
-    statBox: { flex: 1, alignItems: 'center' },
-    statVal: { fontSize: 20, fontWeight: '800', color: COLORS.primary, marginBottom: 2 },
-    statLabel: { fontSize: 11, color: '#64748B', fontWeight: '600' },
-    statDivider: { width: 1, height: 24, backgroundColor: '#E2E8F0' },
-
-    adsSection: { marginTop: 24 },
-    sectionTitle: { fontSize: 18, fontWeight: '800', color: '#0F172A', marginBottom: 16 },
-
-    emptyState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 40, backgroundColor: 'white', borderRadius: 20 },
-    emptyText: { fontSize: 14, color: '#94A3B8', textAlign: 'center', marginTop: 12, paddingHorizontal: 30 },
-
-    adsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-    adCard: {
-        width: (width - 44) / 2,
-        backgroundColor: 'white',
-        borderRadius: 16,
+    avatarWrap: { 
+        position: 'relative', 
         marginBottom: 16,
-        overflow: 'hidden',
-        elevation: 3, shadowColor: '#0F172A', shadowOpacity: 0.05, shadowOffset: { width: 0, height: 3 }, shadowRadius: 8,
+        padding: 4,
+        borderRadius: 55,
+        borderWidth: 2,
+        borderColor: COLORS.primary + '20',
     },
-    adImgWrap: { height: 110, position: 'relative' },
+    avatarImg: { 
+        width: 100, 
+        height: 100, 
+        borderRadius: 50,
+    },
+    avatarGrad: { 
+        width: 100, 
+        height: 100, 
+        borderRadius: 50, 
+        alignItems: 'center', 
+        justifyContent: 'center',
+    },
+    avatarInitial: { fontSize: 40, color: 'white', fontWeight: '900' },
+    verifiedBadgeAbsolute: { 
+        position: 'absolute', 
+        bottom: 2, 
+        right: 2, 
+        backgroundColor: '#10B981', 
+        width: 28, 
+        height: 28, 
+        borderRadius: 14, 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        borderWidth: 3, 
+        borderColor: 'white' 
+    },
+
+    sellerName: { 
+        fontSize: 24, 
+        fontWeight: '900', 
+        color: '#0F172A', 
+        letterSpacing: -0.8 
+    },
+    joinedBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#F1F5F9',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 20,
+        marginTop: 8,
+    },
+    joinedText: {
+        fontSize: 11,
+        color: '#64748B',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+
+    contactActions: {
+        flexDirection: 'row',
+        gap: 20,
+        width: '100%',
+        marginTop: 24,
+        justifyContent: 'center',
+    },
+    contactIconBtn: {
+        alignItems: 'center',
+        gap: 8,
+    },
+    iconBox: {
+        width: 56,
+        height: 56,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.02)',
+    },
+    iconLabel: {
+        fontSize: 12,
+        fontWeight: '800',
+        color: '#1E293B',
+    },
+
+    statsOverview: {
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        borderRadius: 24,
+        padding: 20,
+        marginTop: 20,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.03,
+        shadowRadius: 10,
+        elevation: 2,
+    },
+    statItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    statNumber: {
+        fontSize: 22,
+        fontWeight: '900',
+        color: '#0F172A',
+    },
+    statTitle: {
+        fontSize: 11,
+        color: '#94A3B8',
+        fontWeight: '700',
+        marginTop: 4,
+        textTransform: 'uppercase',
+    },
+    vDivider: {
+        width: 1,
+        height: 30,
+        backgroundColor: '#F1F5F9',
+    },
+    ratingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+
+    adsSection: {
+        marginTop: 32,
+    },
+    sectionHeader: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: '#0F172A',
+        marginBottom: 20,
+        letterSpacing: -0.5,
+    },
+
+    emptyState: { 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        paddingVertical: 60, 
+        backgroundColor: 'white', 
+        borderRadius: 24,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: '#CBD5E1',
+    },
+    emptyText: { 
+        fontSize: 14, 
+        color: '#94A3B8', 
+        textAlign: 'center', 
+        marginTop: 16, 
+        fontWeight: '500', 
+        lineHeight: 20,
+        paddingHorizontal: 40 
+    },
+
+    adsGrid: { 
+        flexDirection: 'row', 
+        flexWrap: 'wrap', 
+        justifyContent: 'space-between' 
+    },
+    adCard: {
+        width: (width - 56) / 2,
+        backgroundColor: 'white',
+        borderRadius: 24,
+        marginBottom: 20,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+    },
+    adImgWrap: { 
+        height: 120, 
+        position: 'relative' 
+    },
     adImg: { width: '100%', height: '100%' },
-    priceBadge: { position: 'absolute', bottom: 8, left: 8, backgroundColor: COLORS.primary, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-    priceText: { color: 'white', fontSize: 11, fontWeight: '800' },
-    adBody: { padding: 10 },
-    adTitle: { fontSize: 13, fontWeight: '700', color: '#0F172A', marginBottom: 4 },
-    adMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 2 },
-    adMetaText: { fontSize: 11, color: '#64748B', fontWeight: '500' },
-    adMetaDot: { fontSize: 11, color: '#CBD5E1' },
-    adLocationText: { fontSize: 11, color: '#94A3B8', flex: 1 },
+    priceBadge: { 
+        position: 'absolute', 
+        bottom: 10, 
+        left: 10, 
+        backgroundColor: COLORS.primary, 
+        paddingHorizontal: 10, 
+        paddingVertical: 5, 
+        borderRadius: 12 
+    },
+    priceText: { color: 'white', fontSize: 12, fontWeight: '900' },
+    adBody: { padding: 12 },
+    adTitle: { 
+        fontSize: 14, 
+        fontWeight: '800', 
+        color: '#0F172A', 
+        marginBottom: 6 
+    },
+    adMetaRow: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        gap: 4, 
+        marginBottom: 4 
+    },
+    adMetaText: { 
+        fontSize: 11, 
+        color: '#64748B', 
+        fontWeight: '600' 
+    },
+    adMetaDot: { 
+        fontSize: 11, 
+        color: '#CBD5E1' 
+    },
+    adLocationText: { 
+        fontSize: 11, 
+        color: '#94A3B8', 
+        flex: 1,
+        fontWeight: '500' 
+    },
+
+    emptyStateContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 40,
+        backgroundColor: 'white',
+    },
+    emptyHeader: {
+        fontSize: 22,
+        fontWeight: '900',
+        color: '#1E293B',
+        marginTop: 20,
+    },
+    emptySub: {
+        fontSize: 15,
+        color: '#64748B',
+        textAlign: 'center',
+        marginTop: 10,
+        lineHeight: 22,
+    },
+    backButtonAction: {
+        marginTop: 30,
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 16,
+    },
+    backButtonActionText: {
+        color: 'white',
+        fontWeight: '800',
+        fontSize: 15,
+    },
 });
+
+

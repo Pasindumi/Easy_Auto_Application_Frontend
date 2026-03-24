@@ -423,7 +423,7 @@ export default function SearchScreen() {
 
         <View style={styles.headerSearchArea}>
           <View style={styles.glassSearch}>
-            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
+            <Ionicons name="search" size={18} color="rgba(255,255,255,0.7)" />
             <TextInput
               style={styles.headerSearchInput}
               placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
@@ -435,7 +435,7 @@ export default function SearchScreen() {
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.5)" />
+                <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.5)" />
               </TouchableOpacity>
             )}
           </View>
@@ -725,22 +725,22 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     elevation: 8,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     zIndex: 100,
   },
   headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 44,
-    marginBottom: 16,
+    height: 40,
+    marginBottom: 12,
   },
   backBtn: {
     width: 40,
@@ -768,15 +768,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 16,
+    borderRadius: 14,
     paddingHorizontal: 16,
-    height: 52,
+    height: 46,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
   },
   headerSearchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: 'white',
     marginLeft: 10,
     padding: 0,
@@ -787,7 +787,7 @@ const styles = StyleSheet.create({
   },
   quickFilters: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     gap: 8,
   },
   filterChip: {

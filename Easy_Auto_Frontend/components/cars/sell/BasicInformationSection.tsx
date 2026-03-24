@@ -120,8 +120,8 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border
     },
     sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary },
-    limitPill: { backgroundColor: COLORS.secondary, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
-    limitPillText: { fontSize: 11, color: COLORS.text.secondary, fontWeight: '600' },
+    limitPill: { backgroundColor: COLORS.primary + '12', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+    limitPillText: { fontSize: 11, color: COLORS.primary, fontWeight: '700' },
     label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
     input: {
         borderWidth: 1,

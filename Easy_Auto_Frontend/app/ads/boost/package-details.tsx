@@ -104,103 +104,321 @@ export default function BoostPackageDetailScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <Header showBack={true} title="Boost Details" />
 
-            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-                <View style={styles.topRow}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.iconWrap}>
-                        <Ionicons name="chevron-back" size={22} color="#111" />
-                    </TouchableOpacity>
-                    <Text style={styles.title}>Package Details</Text>
-                </View>
-
-                <View style={[styles.card, { backgroundColor: pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}15` : '#EAF2FF' }]}>
-                    <Text style={styles.cardTitle}>{pkg.name}</Text>
-                    <Text style={styles.cardSubtitle}>Code: {pkg.code}</Text>
-
-                    <View style={styles.priceRow}>
-                        <Text style={styles.price}>LKR {price}</Text>
-                        <Text style={styles.durationText}>for {duration} days</Text>
+            <ScrollView 
+                contentContainerStyle={styles.scrollContent} 
+                showsVerticalScrollIndicator={false}
+                style={styles.scrollView}
+            >
+                {/* Hero Package Info */}
+                <View style={[styles.heroCard, { backgroundColor: pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}15` : '#EEF2FF' }]}>
+                    <View style={styles.heroHeader}>
+                        <View style={styles.heroInfo}>
+                            <Text style={[styles.packageCode, { color: pkg.config?.COLOR_THEME || COLORS.primary }]}>{pkg.code}</Text>
+                            <Text style={styles.packageName}>{pkg.name}</Text>
+                        </View>
+                        <View style={[styles.badgeIcon, { backgroundColor: pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}20` : '#E0E7FF' }]}>
+                            <Ionicons name="rocket" size={28} color={pkg.config?.COLOR_THEME || COLORS.primary} />
+                        </View>
                     </View>
 
-                    <TouchableOpacity
-                        style={[styles.buyButton, { backgroundColor: pkg.config?.COLOR_THEME || COLORS.primary }]}
-                        onPress={handleActivate}
-                        disabled={activating}
-                    >
-                        {activating ? (
-                            <Loading size="small" />
-                        ) : (
-                            <Text style={styles.buyText}>Proceed to Payment</Text>
-                        )}
-                    </TouchableOpacity>
+                    <View style={styles.divider} />
+
+                    <View style={styles.priceContainer}>
+                        <View>
+                            <Text style={styles.priceLabel}>Total Investment</Text>
+                            <Text style={styles.priceValue}>LKR {price.toLocaleString()}</Text>
+                        </View>
+                        <View style={styles.durationBadge}>
+                            <Ionicons name="time-outline" size={14} color="#64748b" />
+                            <Text style={styles.durationValue}>{duration} Days</Text>
+                        </View>
+                    </View>
                 </View>
 
+                {/* Ad Context - Applying to */}
+                {adDetails && (
+                    <View style={styles.contextSection}>
+                        <Text style={styles.sectionHeading}>Target Advertisement</Text>
+                        <View style={styles.adRefCard}>
+                            <View style={styles.adIconBox}>
+                                <Ionicons name="car" size={20} color={COLORS.primary} />
+                            </View>
+                            <View style={styles.adInfo}>
+                                <Text style={styles.adRefTitle} numberOfLines={1}>{adDetails.title}</Text>
+                                <Text style={styles.adRefLocation}>{adDetails.location || "Sri Lanka"}</Text>
+                            </View>
+                        </View>
+                    </View>
+                )}
+
                 {/* Features */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>What's Included</Text>
+                <View style={styles.featuresSection}>
+                    <Text style={styles.sectionHeading}>Performance Features</Text>
                     {pkg.included_items && pkg.included_items.length > 0 ? (
                         pkg.included_items.map((it: any) => (
-                            <View key={it.id} style={styles.featureRow}>
-                                <Ionicons name="checkmark-circle" size={18} color={pkg.config?.COLOR_THEME || COLORS.primary} />
-                                <View style={{ marginLeft: 10 }}>
-                                    <Text style={styles.featureTitle}>{it.price_items?.name || 'Boost Item'}</Text>
-                                    <Text style={styles.featureMeta}>
-                                        {it.is_unlimited ? 'Active for full duration' : `Includes ${it.quantity} slot(s)`}
+                            <View key={it.id} style={styles.featureItem}>
+                                <View style={[styles.checkCircle, { backgroundColor: pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}10` : '#f0f9ff' }]}>
+                                    <Ionicons name="checkmark" size={16} color={pkg.config?.COLOR_THEME || COLORS.primary} />
+                                </View>
+                                <View style={styles.featureTextContainer}>
+                                    <Text style={styles.featureName}>{it.price_items?.name || 'Boost Item'}</Text>
+                                    <Text style={styles.featureDescription}>
+                                        {it.is_unlimited ? 'Premium placement for full duration' : `Includes ${it.quantity} prioritized slot(s)`}
                                     </Text>
                                 </View>
                             </View>
                         ))
                     ) : (
-                        <Text style={styles.emptyText}>No items listed for this package.</Text>
+                        <View style={styles.emptyBox}>
+                            <Text style={styles.emptyText}>Standard boost performance included.</Text>
+                        </View>
                     )}
                 </View>
 
                 {/* Description */}
                 {pkg.description ? (
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Description</Text>
+                    <View style={styles.descriptionSection}>
+                        <Text style={styles.sectionHeading}>Strategic Overview</Text>
                         <Text style={styles.descriptionText}>{pkg.description}</Text>
                     </View>
                 ) : null}
 
-                {/* Ad Context */}
-                {adDetails && (
-                    <View style={styles.adContext}>
-                        <Text style={styles.contextTitle}>Applying to:</Text>
-                        <Text style={styles.adTitle}>{adDetails.title}</Text>
-                        <Text style={styles.adLocation}>{adDetails.location}</Text>
-                    </View>
-                )}
+                <TouchableOpacity
+                    style={[styles.primaryButton, { backgroundColor: pkg.config?.COLOR_THEME || COLORS.primary }]}
+                    onPress={handleActivate}
+                    disabled={activating}
+                    activeOpacity={0.8}
+                >
+                    {activating ? (
+                        <Loading size="small" />
+                    ) : (
+                        <>
+                            <Text style={styles.primaryButtonText}>Proceed to Payment</Text>
+                            <Ionicons name="arrow-forward" size={20} color="#fff" />
+                        </>
+                    )}
+                </TouchableOpacity>
             </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: '#F9FAFB' },
-    container: { padding: 16, paddingBottom: 40 },
+    safe: { flex: 1, backgroundColor: '#F8FAFF' },
+    scrollView: { flex: 1 },
+    scrollContent: { padding: 20, paddingBottom: 40 },
     centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
-    backButton: { marginTop: 16, paddingVertical: 10, paddingHorizontal: 20, backgroundColor: COLORS.primary, borderRadius: 8 },
-    backText: { color: '#fff', fontWeight: '700' },
-    topRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-    iconWrap: { padding: 6, borderRadius: 10, backgroundColor: '#fff', elevation: 2 },
-    title: { fontSize: 18, fontWeight: '800' },
-    card: { padding: 20, borderRadius: 16, marginBottom: 18 },
-    cardTitle: { fontSize: 22, fontWeight: '900' },
-    cardSubtitle: { marginTop: 4, color: '#666', fontSize: 12 },
-    priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginTop: 16 },
-    price: { fontSize: 26, fontWeight: '900' },
-    durationText: { fontSize: 14, color: '#666', marginBottom: 4 },
-    buyButton: { marginTop: 20, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
-    buyText: { color: '#fff', fontWeight: '800', fontSize: 16 },
-    section: { marginTop: 8, padding: 16, backgroundColor: '#fff', borderRadius: 12 },
-    sectionTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
-    featureRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
-    featureTitle: { fontWeight: '700', fontSize: 14 },
-    featureMeta: { color: '#666', fontSize: 12, marginTop: 1 },
-    emptyText: { color: '#999', fontSize: 13 },
-    descriptionText: { color: '#444', lineHeight: 22, fontSize: 14 },
-    adContext: { marginTop: 24, padding: 16, borderTopWidth: 1, borderColor: '#EEE' },
-    contextTitle: { fontSize: 12, color: '#888', fontWeight: '600', textTransform: 'uppercase' },
-    adTitle: { fontSize: 16, fontWeight: '700', marginTop: 4 },
-    adLocation: { fontSize: 13, color: '#666', marginTop: 2 },
+    heroCard: {
+        padding: 24,
+        borderRadius: 32,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.03)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.05,
+        shadowRadius: 20,
+        elevation: 5,
+    },
+    heroHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    heroInfo: {
+        flex: 1,
+    },
+    packageCode: {
+        fontSize: 12,
+        fontWeight: '800',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 4,
+    },
+    packageName: {
+        fontSize: 26,
+        fontWeight: '900',
+        color: '#0f172a',
+        letterSpacing: -0.8,
+    },
+    badgeIcon: {
+        width: 64,
+        height: 64,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        marginVertical: 20,
+    },
+    priceContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    priceLabel: {
+        fontSize: 12,
+        color: '#64748b',
+        fontWeight: '600',
+        marginBottom: 4,
+    },
+    priceValue: {
+        fontSize: 28,
+        fontWeight: '900',
+        color: '#0f172a',
+    },
+    durationBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        gap: 6,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+    },
+    durationValue: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#64748b',
+    },
+    contextSection: {
+        marginBottom: 24,
+    },
+    sectionHeading: {
+        fontSize: 14,
+        fontWeight: '800',
+        color: '#94a3b8',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 12,
+        marginLeft: 4,
+    },
+    adRefCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+    },
+    adIconBox: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: COLORS.primary + '10',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    adInfo: {
+        flex: 1,
+    },
+    adRefTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1e293b',
+    },
+    adRefLocation: {
+        fontSize: 13,
+        color: '#64748b',
+        marginTop: 2,
+    },
+    featuresSection: {
+        marginBottom: 24,
+    },
+    featureItem: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 20,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+    },
+    checkCircle: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+        marginTop: 2,
+    },
+    featureTextContainer: {
+        flex: 1,
+    },
+    featureName: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#1e293b',
+    },
+    featureDescription: {
+        fontSize: 13,
+        color: '#64748b',
+        marginTop: 2,
+        lineHeight: 18,
+    },
+    descriptionSection: {
+        marginBottom: 32,
+    },
+    descriptionText: {
+        fontSize: 15,
+        color: '#475569',
+        lineHeight: 24,
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+    },
+    primaryButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 18,
+        borderRadius: 20,
+        gap: 12,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+        elevation: 8,
+        marginBottom: 20,
+    },
+    primaryButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '800',
+    },
+    emptyBox: {
+        padding: 20,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: '#cbd5e1',
+    },
+    emptyText: {
+        color: '#94a3b8',
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    backButton: {
+        marginTop: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 14,
+        backgroundColor: COLORS.primary,
+    },
+    backText: {
+        color: '#fff',
+        fontWeight: '700',
+    },
 });

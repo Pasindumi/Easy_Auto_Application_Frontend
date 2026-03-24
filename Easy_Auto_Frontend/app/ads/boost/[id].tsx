@@ -155,38 +155,29 @@ export default function BoostSelectionScreen() {
     return (
         <View style={styles.safe}>
             <Stack.Screen options={{ headerShown: false }} />
-            
-            <LinearGradient
-                colors={[COLORS.primary, COLORS.primary]}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 10 }]}
-            >
-                <TouchableOpacity 
-                    style={styles.backBtn}
-                    onPress={() => router.back()}
-                >
-                    <Ionicons name="chevron-back" size={24} color="#FFF" />
-                </TouchableOpacity>
-                <View style={styles.headerTitleRow}>
-                    <Text style={styles.headerTitle}>Premium Visibility</Text>
-                    <Text style={styles.headerSub}>Boost your ad to reach thousands of buyers</Text>
-                </View>
-                
-                <View style={styles.rocketIconContainer}>
-                    <Ionicons name="rocket" size={64} color="rgba(255,255,255,0.15)" />
-                </View>
-            </LinearGradient>
+            <Header title="Boost Ad" showBack={true} />
 
-            <BrandedRefreshOverlay refreshing={refreshing} top={150} />
+            <View style={styles.boostIntroSection}>
+                <View style={styles.boostIntroContent}>
+                    <Text style={styles.boostIntroTitle}>Premium Visibility</Text>
+                    <Text style={styles.boostIntroSub}>Boost your ad to reach thousands of buyers and sell faster than ever.</Text>
+                </View>
+                <View style={styles.boostIntroIcon}>
+                    <Ionicons name="rocket" size={32} color={COLORS.primary} />
+                </View>
+            </View>
+
+            <BrandedRefreshOverlay refreshing={refreshing} top={200} />
             <ScrollView
+                style={styles.scrollView}
                 contentContainerStyle={styles.container}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl 
                         refreshing={refreshing} 
                         onRefresh={onRefresh} 
-                        tintColor="transparent"
-                        colors={["transparent"]}
-                        progressBackgroundColor="transparent"
+                        tintColor={COLORS.primary}
+                        colors={[COLORS.primary]}
                     />
                 }
             >
@@ -239,42 +230,50 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F8FAFF',
     },
-    premiumHeader: {
-        paddingHorizontal: 20,
-        paddingBottom: 32,
-        borderBottomLeftRadius: 36,
-        borderBottomRightRadius: 36,
-        position: 'relative',
-        overflow: 'hidden',
+    boostIntroSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#fff',
+        margin: 20,
+        marginBottom: 10,
+        padding: 20,
+        borderRadius: 28,
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.06,
+        shadowRadius: 12,
+        elevation: 3,
     },
-    backBtn: {
-        width: 40,
-        height: 40,
+    boostIntroContent: {
+        flex: 1,
+        paddingRight: 16,
+    },
+    boostIntroTitle: {
+        fontSize: 22,
+        fontWeight: '900',
+        color: '#0f172a',
+        letterSpacing: -0.6,
+    },
+    boostIntroSub: {
+        fontSize: 13,
+        color: '#64748b',
+        marginTop: 6,
+        lineHeight: 19,
+        fontWeight: '500',
+    },
+    boostIntroIcon: {
+        width: 60,
+        height: 60,
         borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.15)',
+        backgroundColor: COLORS.primary + '10',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
     },
-    headerTitleRow: {
-        marginTop: 4,
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '900',
-        color: '#FFF',
-        letterSpacing: -0.8,
-    },
-    headerSub: {
-        fontSize: 14,
-        color: 'rgba(255,255,255,0.7)',
-        marginTop: 4,
-        fontWeight: '600',
-    },
-    rocketIconContainer: {
-        position: 'absolute',
-        right: -10,
-        bottom: -10,
+    scrollView: {
+        flex: 1,
     },
     container: {
         padding: 20,
