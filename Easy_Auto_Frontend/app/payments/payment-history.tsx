@@ -15,13 +15,11 @@ import {
 import { COLORS } from '@/constants/Colors';
 import Header from "../../components/Header";
 import PaymentCard from '../../components/payments/history/PaymentCard';
-import PaymentSearch from '../../components/payments/history/PaymentSearch';
 import { Payment, PaymentSummaryData } from '../../types/payment.types';
 import { api } from '@/utils/api';
 
 export default function PaymentHistoryScreen() {
   const router = useRouter();
-  const [searchText, setSearchText] = useState('');
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -103,12 +101,6 @@ export default function PaymentHistoryScreen() {
 
   const summaryData = calculateSummary();
 
-  const filteredPayments = payments.filter(p =>
-    p.plan.toLowerCase().includes(searchText.toLowerCase()) ||
-    p.status.toLowerCase().includes(searchText.toLowerCase()) ||
-    p.date.toLowerCase().includes(searchText.toLowerCase())
-  );
-
   const handleCardPress = (item: Payment) => {
     router.push({
       pathname: '/payments/payment-detail',
@@ -164,15 +156,13 @@ export default function PaymentHistoryScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
             <View style={styles.badgeContainer}>
-              <Text style={styles.sectionBadge}>{filteredPayments.length}</Text>
+              <Text style={styles.sectionBadge}>{payments.length}</Text>
             </View>
           </View>
 
-          <PaymentSearch value={searchText} onChangeText={setSearchText} />
-
           <View style={styles.listContainer}>
-            {filteredPayments.length > 0 ? (
-              filteredPayments.map((item) => (
+            {payments.length > 0 ? (
+              payments.map((item) => (
                 <PaymentCard key={item.id} item={item} onPress={handleCardPress} />
               ))
             ) : (
@@ -223,7 +213,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   investmentValue: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '900',
     color: '#1e293b',
   },
@@ -265,7 +255,6 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   listContainer: {
-    paddingHorizontal: 16,
     gap: 12,
   },
   loadingContainer: {

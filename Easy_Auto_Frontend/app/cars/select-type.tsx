@@ -12,8 +12,11 @@ import {
     View,
     Alert,
     Dimensions,
-    Image as RNImage
+    Image as RNImage,
+    Animated,
+    Pressable
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ENDPOINTS } from '../../constants/API';
 import { useAuth } from '../../contexts/AuthContext';
@@ -107,41 +110,71 @@ export default function SelectVehicleTypeScreen() {
         return { lib: Ionicons, name: 'car' };
     };
 
-    const renderItem = ({ item }: { item: any }) => {
+    const CategoryCard = ({ item, index, onSelect }: { item: any, index: number, onSelect: (item: any) => void }) => {
+        const scaleAnim = React.useRef(new Animated.Value(1)).current;
         const iconData = getIcon(item.type_name);
         const IconLib = iconData.lib;
 
+        const handlePressIn = () => {
+            Animated.spring(scaleAnim, {
+                toValue: 0.97,
+                useNativeDriver: true,
+                speed: 20
+            }).start();
+        };
+
+        const handlePressOut = () => {
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                useNativeDriver: true,
+                friction: 4,
+                tension: 40
+            }).start();
+        };
+
+        const onPress = () => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onSelect(item);
+        };
+
         return (
-            <TouchableOpacity
-                style={styles.card}
-                onPress={() => handleSelect(item)}
-                activeOpacity={0.9}
-            >
-                <RNImage 
-                    source={{ uri: CATEGORY_IMAGES[item.type_name] || CATEGORY_IMAGES['default'] }}
-                    style={StyleSheet.absoluteFillObject}
-                />
-                <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.8)']}
-                    style={styles.cardGradient}
+            <Animated.View style={[styles.cardContainer, { transform: [{ scale: scaleAnim }] }]}>
+                <Pressable
+                    style={styles.card}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    onPress={onPress}
                 >
-                    <View style={styles.iconContainer}>
+                    <View style={styles.cardImageContainer}>
+                        <RNImage
+                            source={{ uri: CATEGORY_IMAGES[item.type_name] || CATEGORY_IMAGES['default'] }}
+                            style={styles.cardImage}
+                        />
                         <LinearGradient
-                            colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
-                            style={styles.iconBackground}
-                        >
-                            <IconLib name={iconData.name as any} size={28} color="white" />
-                        </LinearGradient>
+                            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)']}
+                            style={StyleSheet.absoluteFill}
+                        />
                     </View>
 
-                    <View style={styles.textContainer}>
+                    <View style={styles.cardContent}>
+                        <View style={styles.categoryIconCircle}>
+                            <IconLib name={iconData.name as any} size={24} color={COLORS.primary} />
+                        </View>
                         <Text style={styles.cardTitle}>{item.type_name}</Text>
-                        <Text style={styles.cardSubtitle}>{mode === 'rent' ? 'Rent your' : 'Sell your'} {item.type_name}</Text>
+                        <Text style={styles.cardSubtitle}>{mode === 'rent' ? 'Rent' : 'Sell'}</Text>
                     </View>
-                </LinearGradient>
-            </TouchableOpacity>
+                </Pressable>
+            </Animated.View>
         );
     };
+
+    const renderItem = ({ item, index }: { item: any, index: number }) => (
+        <CategoryCard 
+            item={item} 
+            index={index} 
+            onSelect={handleSelect} 
+        />
+    );
 
     if (!isAuthenticated) {
         return (
@@ -181,11 +214,11 @@ export default function SelectVehicleTypeScreen() {
             {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
             <LinearGradient
                 colors={[COLORS.primary, COLORS.primaryDark]}
-                style={[styles.header, { paddingTop: insets.top + 8 }]}
+                style={[styles.header, { paddingTop: insets.top + 4 }]}
             >
                 <View style={styles.headerTopRow}>
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <Ionicons name="chevron-back" size={26} color="white" />
+                        <Ionicons name="chevron-back" size={24} color="white" />
                     </TouchableOpacity>
                     
                     <View pointerEvents="none" style={styles.logoCentre}>
@@ -195,8 +228,6 @@ export default function SelectVehicleTypeScreen() {
                             style={styles.logoImg}
                         />
                     </View>
-
-                    <View style={styles.headerRightSpacer} />
                 </View>
 
                 <View style={styles.headerTitleArea}>
@@ -256,64 +287,66 @@ const styles = StyleSheet.create({
         shadowRadius: 20,
         zIndex: 100,
     },
-    headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 44, marginBottom: 12 },
-    backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.2)' },
+    headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 40, marginBottom: 8 },
+    backBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
     logoCentre: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
-    logoImg: { width: 100, height: 24 },
-    headerRightSpacer: { width: 40 },
-    headerTitleArea: { alignItems: 'center', justifyContent: 'center', marginTop: 8 },
-    headerTitleText: { color: 'white', fontSize: 24, fontWeight: '900', letterSpacing: -0.5 },
-    headerSubtitleText: { color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 4, fontWeight: '500' },
+    logoImg: { width: 90, height: 22 },
+    headerTitleArea: { alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+    headerTitleText: { color: 'white', fontSize: 22, fontWeight: '900', letterSpacing: -0.5 },
+    headerSubtitleText: { color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 2, fontWeight: '500' },
     listContent: {
-        padding: 20,
+        padding: 16,
         paddingBottom: 40,
     },
     columnWrapper: {
         justifyContent: 'space-between',
         marginBottom: 16,
     },
+    cardContainer: {
+        width: (width - 48) / 2, // 16px padding * 2, 16px gap
+    },
     card: {
-        width: (width - 56) / 2, // 20px padding * 2, 16px gap
         borderRadius: 24,
         backgroundColor: COLORS.white,
-        borderWidth: 1, borderColor: '#E2E8F0',
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 16,
-        elevation: 8,
+        borderWidth: 1, borderColor: '#F1F5F9',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 4,
         overflow: 'hidden',
     },
-    cardGradient: {
-        padding: 20,
+    cardImageContainer: {
+        height: 110,
+        backgroundColor: '#F1F5F9',
+    },
+    cardImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    cardContent: {
+        padding: 16,
         alignItems: 'center',
-        height: 170,
-        justifyContent: 'space-between',
     },
-    iconContainer: {
-        marginBottom: 12,
-    },
-    iconBackground: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
+    categoryIconCircle: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: COLORS.primary + '10',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    textContainer: {
-        alignItems: 'center',
+        marginBottom: 10,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '800',
-        color: 'white',
+        color: COLORS.text.primary,
         marginBottom: 2,
-        textAlign: 'center',
     },
     cardSubtitle: {
         fontSize: 12,
-        color: 'rgba(255,255,255,0.7)',
-        textAlign: 'center',
+        color: COLORS.text.muted,
         fontWeight: '600',
     },
     arrowContainer: {

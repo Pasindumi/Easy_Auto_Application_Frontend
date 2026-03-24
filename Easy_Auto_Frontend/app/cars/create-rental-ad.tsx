@@ -98,6 +98,15 @@ export default function CreateRentalAdScreen() {
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const [availability, setAvailability] = useState([]);
 
+    const [currentStep, setCurrentStep] = useState(1);
+    const steps = [
+        { id: 1, title: 'Intro', icon: 'information-circle' },
+        { id: 2, title: 'Vehicle', icon: 'car' },
+        { id: 3, title: 'Pricing', icon: 'cash' },
+        { id: 4, title: 'Media', icon: 'camera' },
+        { id: 5, title: 'Finish', icon: 'calendar' }
+    ];
+
     // Config Data
     const [brands, setBrands] = useState([]);
     const [models, setModels] = useState([]);
@@ -156,6 +165,81 @@ export default function CreateRentalAdScreen() {
 
         fetchConfig();
     }, [vehicleTypeId]);
+
+    // 3. Fetch Existing Ad Data (if editing)
+    useEffect(() => {
+        if (!params.id || !isAuthenticated) return;
+
+        const fetchAdData = async () => {
+            setLoading(true);
+            try {
+                const response = await api.get<{ success: boolean; data: any }>(`/api/rentals/${params.id}`);
+                if (response.success) {
+                    const ad = response.data;
+                    const details = ad.details?.[0] || ad.details || {};
+
+                    setCarDetails({
+                        title: ad.title || '',
+                        description: ad.description || '',
+                        brand: details.brand || '',
+                        model: details.model || '',
+                        year: String(details.year || ''),
+                        condition: details.condition || '',
+                        mileage: String(details.mileage || ''),
+                        fuelType: details.fuel_type || '',
+                        transmission: details.transmission || '',
+                        engineCapacity: String(details.engine_capacity || ''),
+                        bodyType: details.body_type || '',
+                        location: ad.location || '',
+                        price: String(ad.price_per_day || '0'),
+                        contactNumber: ad.users?.phone || '',
+                        email: ad.users?.email || '',
+                        negotiable: ad.negotiable || false,
+                        hidePhoneNumber: ad.hide_phone_number || false,
+                        dynamicAttributes: ad.attributes || []
+                    });
+
+                    setRentalPricing({
+                        pricePerDay: String(ad.price_per_day || ''),
+                        pricePerWeek: String(ad.price_per_week || ''),
+                        pricePerMonth: String(ad.price_per_month || ''),
+                        extraMileageFee: String(ad.extra_mileage_fee || ''),
+                        securityDeposit: String(ad.security_deposit || '')
+                    });
+
+                    setRentalConditions({
+                        minAge: String(ad.min_age || '21'),
+                        mileageLimit: String(ad.daily_mileage_limit || '100'),
+                        allowSmoking: ad.allow_smoking || false,
+                        allowPets: ad.allow_pets || false,
+                        reqDeposit: ad.req_deposit || true,
+                        other_conditions: ad.other_conditions || ''
+                    });
+
+                    setRentalDocuments({
+                        idType: ad.documents?.[0]?.document_type || 'NIC',
+                        idFrontUrl: ad.documents?.find((d: any) => d.document_type === 'ID Front')?.document_url || '',
+                        idBackUrl: ad.documents?.find((d: any) => d.document_type === 'ID Back')?.document_url || '',
+                        ownershipUrl: ad.documents?.find((d: any) => d.document_type === 'Ownership Document')?.document_url || ''
+                    });
+
+                    setSelectedImages(ad.images?.map((img: any) => img.image_url) || []);
+
+                    if (ad.vehicle_type_id) {
+                        setVehicleTypeId(ad.vehicle_type_id);
+                        setVehicleType(ad.vehicle_type?.type_name || '');
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching ad for edit:", error);
+                Alert.alert("Error", "Could not load ad data for editing.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAdData();
+    }, [params.id, isAuthenticated]);
 
     // Handlers
     const handleCarInputChange = (field: string, value: any) => {
@@ -264,38 +348,48 @@ export default function CreateRentalAdScreen() {
             formData.append('other_conditions', rentalConditions.otherConditions);
 
             // 4. Photos
-            selectedImages.forEach((uri, index) => {
+            const newImages = selectedImages.filter(uri => uri.startsWith('file://') || uri.startsWith('content://'));
+            const existingImages = selectedImages.filter(uri => uri.startsWith('http'));
+
+            newImages.forEach((uri, index) => {
                 const filename = uri.split('/').pop() || `photo_${index}.jpg`;
                 const type = `image/${filename.split('.').pop() || 'jpeg'}`;
                 // @ts-ignore
                 formData.append('images', { uri, name: filename, type });
             });
 
-            // 5. Documents
-            if (rentalDocuments.idFrontUrl) {
+            formData.append('existing_images', JSON.stringify(existingImages));
+
+            // 5. Documents (only append if they are new local URIs)
+            if (rentalDocuments.idFrontUrl && !rentalDocuments.idFrontUrl.startsWith('http')) {
                 // @ts-ignore
                 formData.append('doc_id_front', { uri: rentalDocuments.idFrontUrl, name: 'id_front.jpg', type: 'image/jpeg' });
             }
-            if (rentalDocuments.idBackUrl) {
+            if (rentalDocuments.idBackUrl && !rentalDocuments.idBackUrl.startsWith('http')) {
                 // @ts-ignore
                 formData.append('doc_id_back', { uri: rentalDocuments.idBackUrl, name: 'id_back.jpg', type: 'image/jpeg' });
             }
-            if (rentalDocuments.ownershipUrl) {
+            if (rentalDocuments.ownershipUrl && !rentalDocuments.ownershipUrl.startsWith('http')) {
                 // @ts-ignore
                 formData.append('doc_ownership', { uri: rentalDocuments.ownershipUrl, name: 'ownership.jpg', type: 'image/jpeg' });
             }
 
-            const response = await api.post<{ success: boolean; data: any; message?: string }>('/api/rentals', formData);
+            let response;
+            if (params.id) {
+                response = await api.put<{ success: boolean; data: any; message?: string }>(`/api/rentals/${params.id}`, formData);
+            } else {
+                response = await api.post<{ success: boolean; data: any; message?: string }>('/api/rentals', formData);
+            }
 
             if (response.success) {
-                Alert.alert("Success", "Rental ad created. Please proceed to payment to publish.");
+                Alert.alert("Success", params.id ? "Rental ad updated." : "Rental ad created. Please proceed to payment to publish.");
                 // Route to a payment screen or review screen
                 router.replace({
-                    pathname: '/payments/payment-methods', // Sample route
-                    params: { rentalAdId: response.data.id, amount: rentalPricing.pricePerDay } // Placeholder price logic
+                    pathname: '/payments/payment' as any,
+                    params: { rentalAdId: params.id || response.data.id }
                 });
             } else {
-                Alert.alert("Error", response.message || "Failed to create rental ad.");
+                Alert.alert("Error", response.message || "Failed to save rental ad.");
             }
         } catch (error) {
             console.error("Submission Error:", error);
@@ -308,7 +402,7 @@ export default function CreateRentalAdScreen() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
-            
+
             {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
             <LinearGradient
                 colors={[COLORS.primary, COLORS.primaryDark]}
@@ -318,7 +412,7 @@ export default function CreateRentalAdScreen() {
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <Ionicons name="chevron-back" size={26} color="white" />
                     </TouchableOpacity>
-                    
+
                     <View pointerEvents="none" style={styles.logoCentre}>
                         <RNImage
                             source={require("@/assets/logoHome.png")}
@@ -335,6 +429,23 @@ export default function CreateRentalAdScreen() {
                 </View>
             </LinearGradient>
 
+            <View style={styles.stepperContainer}>
+                {steps.map((step, index) => (
+                    <View key={step.id} style={styles.stepWrapper}>
+                        <TouchableOpacity
+                            style={[styles.stepCircle, currentStep >= step.id ? styles.stepCircleActive : null]}
+                            onPress={() => setCurrentStep(step.id)}
+                        >
+                            <Ionicons name={step.icon as any} size={16} color={currentStep >= step.id ? '#FFF' : '#94A3B8'} />
+                        </TouchableOpacity>
+                        <Text style={[styles.stepText, currentStep >= step.id ? styles.stepTextActive : null]}>{step.title}</Text>
+                        {index < steps.length - 1 && (
+                            <View style={[styles.stepLine, currentStep > step.id ? styles.stepLineActive : null]} />
+                        )}
+                    </View>
+                ))}
+            </View>
+
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -344,69 +455,92 @@ export default function CreateRentalAdScreen() {
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
                 >
-                    <View style={styles.headerBox}>
-                        <Text style={styles.headerTitle}>Vehicle Details</Text>
-                        <Text style={styles.headerSubtitle}>Tell us about your {vehicleType}</Text>
+                    {currentStep === 1 && (
+                        <BasicInformationSection
+                            carDetails={carDetails}
+                            handleInputChange={handleCarInputChange}
+                            descriptionLimit={1000}
+                            hidePrice={true}
+                        />
+                    )}
+
+                    {currentStep === 2 && (
+                        <CarDetailsSection
+                            carDetails={carDetails}
+                            handleInputChange={handleCarInputChange}
+                            vehicleType={vehicleType}
+                            brands={brands}
+                            models={models}
+                            conditions={conditions}
+                            attributes={attributes}
+                            handleDynamicAttributeChange={handleDynamicAttributeChange}
+                        />
+                    )}
+
+                    {currentStep === 3 && (
+                        <>
+                            <RentalPricingSection
+                                pricing={rentalPricing}
+                                handleInputChange={handlePricingChange}
+                            />
+                            <RentalConditionsSection
+                                conditions={rentalConditions}
+                                handleInputChange={handleConditionsChange}
+                            />
+                        </>
+                    )}
+
+                    {currentStep === 4 && (
+                        <>
+                            <PhotoUploadSection
+                                selectedImages={selectedImages}
+                                removeImage={(index) => setSelectedImages(prev => prev.filter((_, i) => i !== index))}
+                                addImage={pickImage}
+                                freeImageCount={10}
+                                onViewPackages={() => { }}
+                            />
+                            <RentalDocumentSection
+                                documents={rentalDocuments}
+                                pickDocument={pickDocument}
+                                removeDocument={removeDocument}
+                            />
+                        </>
+                    )}
+
+                    {currentStep === 5 && (
+                        <>
+                            <RentalCalendarSection
+                                availability={availability}
+                                handleAvailabilityUpdate={setAvailability}
+                            />
+                            <ContactDetailsSection
+                                userName={user?.name || ''}
+                                email={user?.email || ''}
+                                contactNumber={carDetails.contactNumber}
+                                hidePhoneNumber={carDetails.hidePhoneNumber || false}
+                                handleInputChange={handleCarInputChange as any}
+                                setHidePhoneNumber={(val) => handleCarInputChange('hidePhoneNumber', val)}
+                            />
+                            <SubmitSection
+                                onSubmit={handleSubmit}
+                            />
+                        </>
+                    )}
+
+                    <View style={styles.stepNavigation}>
+                        {currentStep > 1 && (
+                            <TouchableOpacity style={styles.stepBackBtn} onPress={() => setCurrentStep(currentStep - 1)}>
+                                <Text style={styles.stepBackText}>Back</Text>
+                            </TouchableOpacity>
+                        )}
+                        <View style={{ flex: 1 }} />
+                        {currentStep < 5 ? (
+                            <TouchableOpacity style={styles.stepNextBtn} onPress={() => setCurrentStep(currentStep + 1)}>
+                                <Text style={styles.stepNextText}>Next Step</Text>
+                                <Ionicons name="arrow-forward" size={16} color="white" />
+                            </TouchableOpacity>
+                        ) : null}
                     </View>
-
-                    <BasicInformationSection
-                        carDetails={carDetails}
-                        handleInputChange={handleCarInputChange}
-                        descriptionLimit={1000}
-                    />
-
-                    <CarDetailsSection
-                        carDetails={carDetails}
-                        handleInputChange={handleCarInputChange}
-                        vehicleType={vehicleType}
-                        brands={brands}
-                        models={models}
-                        conditions={conditions}
-                        attributes={attributes}
-                        handleDynamicAttributeChange={handleDynamicAttributeChange}
-                    />
-
-                    <RentalPricingSection
-                        pricing={rentalPricing}
-                        handleInputChange={handlePricingChange}
-                    />
-
-                    <RentalConditionsSection
-                        conditions={rentalConditions}
-                        handleInputChange={handleConditionsChange}
-                    />
-
-                    <PhotoUploadSection
-                        selectedImages={selectedImages}
-                        removeImage={(index) => setSelectedImages(prev => prev.filter((_, i) => i !== index))}
-                        addImage={pickImage}
-                        freeImageCount={10}
-                        onViewPackages={() => { }}
-                    />
-
-                    <RentalDocumentSection
-                        documents={rentalDocuments}
-                        pickDocument={pickDocument}
-                        removeDocument={removeDocument}
-                    />
-
-                    <RentalCalendarSection
-                        availability={availability}
-                        handleAvailabilityUpdate={setAvailability}
-                    />
-
-                    <ContactDetailsSection
-                        userName={user?.name || ''}
-                        email={user?.email || ''}
-                        contactNumber={carDetails.contactNumber}
-                        hidePhoneNumber={carDetails.hidePhoneNumber || false}
-                        handleInputChange={handleCarInputChange as any}
-                        setHidePhoneNumber={(val) => handleCarInputChange('hidePhoneNumber', val)}
-                    />
-
-                    <SubmitSection
-                        onSubmit={handleSubmit}
-                    />
 
                     {loading && (
                         <View style={styles.overlay}>
@@ -477,5 +611,51 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: COLORS.primary,
-    }
+    },
+    stepperContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        backgroundColor: COLORS.white,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
+        elevation: 2,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        zIndex: 50,
+    },
+    stepWrapper: {
+        alignItems: 'center',
+        position: 'relative',
+        flex: 1,
+    },
+    stepCircle: {
+        width: 36, height: 36, borderRadius: 18,
+        backgroundColor: '#F1F5F9',
+        alignItems: 'center', justifyContent: 'center',
+        marginBottom: 6, zIndex: 2,
+        borderWidth: 2, borderColor: '#FFF',
+    },
+    stepCircleActive: {
+        backgroundColor: COLORS.primary,
+        shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
+    },
+    stepText: { fontSize: 10, color: '#94A3B8', fontWeight: '600' },
+    stepTextActive: { color: COLORS.primary, fontWeight: '800' },
+    stepLine: {
+        position: 'absolute', top: 16, left: '60%', right: '-40%', height: 3,
+        backgroundColor: '#F1F5F9', zIndex: 1, borderRadius: 2,
+    },
+    stepLineActive: { backgroundColor: COLORS.primary },
+    stepNavigation: {
+        flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingHorizontal: 16, paddingBottom: 20
+    },
+    stepBackBtn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: 'white' },
+    stepBackText: { color: '#64748B', fontWeight: '700', fontSize: 14 },
+    stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, backgroundColor: COLORS.primary, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+    stepNextText: { color: 'white', fontWeight: '800', fontSize: 14 },
 });

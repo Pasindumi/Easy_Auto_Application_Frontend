@@ -1,39 +1,96 @@
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Animated, StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { api } from "@/utils/api";
 
 interface ValuePropsProps {
     fadeAnim: Animated.Value;
     slideAnim: Animated.Value;
 }
 
-const STATS = [
-    { value: "10k+", label: "Listings",  icon: "car-outline"      as const, color: "#235CF8", bg: "#EEF2FF" },
-    { value: "500+", label: "Dealers",   icon: "business-outline" as const, color: "#10B981", bg: "#ECFDF5" },
-    { value: "4.8★", label: "Rating",    icon: "star"             as const, color: "#F59E0B", bg: "#FFFBEB" },
-    { value: "50k+", label: "Users",     icon: "people"           as const, color: "#7C3AED", bg: "#F5F3FF" },
-];
+const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => (
-    <Animated.View style={[styles.wrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-        <View style={styles.header}>
-            <Text style={styles.title}>EasyAuto by the Numbers</Text>
-            <Text style={styles.sub}>Trusted by thousands across Sri Lanka</Text>
-        </View>
-        <View style={styles.row}>
-            {STATS.map((s, i) => (
-                <View key={i} style={styles.card}>
-                    <View style={[styles.iconWrap, { backgroundColor: s.bg }]}>
-                        <Ionicons name={s.icon} size={20} color={s.color} />
+    useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const fetchStats = async () => {
+        try {
+            const res = await api.get<any>("/api/stats");
+            if (res.success) {
+                setStats(res.data);
+            }
+        } catch (error) {
+            console.error("Error fetching app stats:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const STAT_ITEMS = [
+        {
+            value: stats ? (stats.listings >= 1000 ? `${(stats.listings / 1000).toFixed(1)}k+` : stats.listings) : "0",
+            label: "Listings",
+            icon: "car-outline" as const,
+            color: "#235CF8",
+            bg: "#EEF2FF"
+        },
+        {
+            value: stats ? (stats.dealers >= 1000 ? `${(stats.dealers / 1000).toFixed(1)}k+` : stats.dealers) : "0",
+            label: "Dealers",
+            icon: "business-outline" as const,
+            color: "#10B981",
+            bg: "#ECFDF5"
+        },
+        {
+            value: stats ? (stats.rating ? `${stats.rating}★` : "No rating") : "N/A",
+            label: "Rating",
+            icon: "star" as const,
+            color: "#F59E0B",
+            bg: "#FFFBEB"
+        },
+        {
+            value: stats ? (stats.users >= 1000 ? `${(stats.users / 1000).toFixed(1)}k+` : stats.users) : "0",
+            label: "Users",
+            icon: "people" as const,
+            color: "#7C3AED",
+            bg: "#F5F3FF"
+        },
+    ];
+
+    return (
+        <Animated.View style={[styles.wrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            <View style={styles.header}>
+                <Text style={styles.title}>EasyAuto by the Numbers</Text>
+                <Text style={styles.sub}>Trusted by thousands across Sri Lanka</Text>
+            </View>
+            <View style={styles.row}>
+                {STAT_ITEMS.map((s, i) => (
+                    <View key={i} style={styles.card}>
+                        <View style={[styles.iconWrap, { backgroundColor: s.bg }]}>
+                            {loading && !stats ? (
+                                <ActivityIndicator size="small" color={s.color} />
+                            ) : (
+                                <Ionicons name={s.icon} size={20} color={s.color} />
+                            )}
+                        </View>
+                        <Text
+                            style={[styles.val, { color: s.color, fontSize: s.value.toString().length > 5 ? 12 : 16 }]}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                        >
+                            {s.value}
+                        </Text>
+                        <Text style={styles.lbl}>{s.label}</Text>
                     </View>
-                    <Text style={[styles.val, { color: s.color }]}>{s.value}</Text>
-                    <Text style={styles.lbl}>{s.label}</Text>
-                </View>
-            ))}
-        </View>
-    </Animated.View>
-);
+                ))}
+            </View>
+        </Animated.View>
+    );
+};
 
 const styles = StyleSheet.create({
     wrap: {

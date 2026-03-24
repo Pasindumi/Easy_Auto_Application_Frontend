@@ -193,6 +193,25 @@ export default function AdDetailsScreen() {
         );
     };
 
+    // Auto-play gallery effect
+    useEffect(() => {
+        const adImages = ad?.AdImage || [];
+        if (adImages.length <= 1) return;
+
+        const timer = setInterval(() => {
+            let nextIndex = activeImageIndex + 1;
+            if (nextIndex >= adImages.length) {
+                nextIndex = 0;
+            }
+            if (galleryRef.current) {
+                galleryRef.current.scrollToOffset({ offset: nextIndex * width, animated: true });
+                setActiveImageIndex(nextIndex);
+            }
+        }, 3000);
+
+        return () => clearInterval(timer);
+    }, [ad, activeImageIndex, width]);
+
     const headerOpacity = scrollY.interpolate({ inputRange: [GALLERY_HEIGHT - 100, GALLERY_HEIGHT - 60], outputRange: [0, 1], extrapolate: 'clamp' });
 
     if (loading) {
@@ -369,9 +388,8 @@ export default function AdDetailsScreen() {
                     </View>
                 </View>
 
-                {/* ΓöÇΓöÇΓöÇ DESCRIPTION ΓöÇΓöÇΓöÇ */}
+                {/* ─── DESCRIPTION ─── */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Description</Text>
                     <Text style={styles.descText}>{ad.description || "No description provided."}</Text>
                 </View>
 
@@ -404,7 +422,18 @@ export default function AdDetailsScreen() {
                 {/* ─── SELLER CARD ─── */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Listed By</Text>
-                    <View style={styles.sellerCard}>
+                    <TouchableOpacity
+                        style={styles.sellerCard}
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            if (ad.users?.id) {
+                                router.push({
+                                    pathname: `/seller/${ad.users.id}` as any,
+                                    params: { sellerData: JSON.stringify(ad.users) }
+                                });
+                            }
+                        }}
+                    >
                         <View style={styles.sellerAvatar}>
                             {ad.users?.avatar ? (
                                 <Image source={{ uri: ad.users.avatar }} style={styles.sellerAvatarImg} contentFit="cover" />

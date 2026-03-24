@@ -13,23 +13,25 @@ const RentalCalendarSection: React.FC<RentalCalendarSectionProps> = ({ availabil
         <View style={styles.section}>
             <View style={styles.header}>
                 <Ionicons name="calendar-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
-                <Text style={styles.sectionTitle}>Availability Calendar</Text>
+                <Text style={styles.sectionTitle}>Availability & Blackout Dates</Text>
             </View>
             <Text style={styles.infoText}>
-                Set your vehicle's availability. By default, it's marked as available for all dates.
+                By default, your vehicle is marked as available from the publish date until the ad expires.
+                You only need to set 'Blackout Dates' if there are specific days the vehicle is unavailable.
             </Text>
 
             <View style={styles.placeholderContainer}>
+                <Ionicons name="shield-checkmark-outline" size={40} color="#E2E8F0" style={{ marginBottom: 12 }} />
                 <Text style={styles.placeholderText}>
-                    [ Calendar Integration Placeholder ]
+                    Available by Default
                 </Text>
                 <Text style={styles.subText}>
-                    You can manage specific blackout dates once the ad is published from the 'Manage Ads' dashboard.
+                    You can manage specific blackout (unavailable) dates below or once the ad is published.
                 </Text>
             </View>
 
             <TouchableOpacity style={styles.btnSecondary}>
-                <Text style={styles.btnText}>Set Available Dates</Text>
+                <Text style={styles.btnText}>Set Blackout (Unavailable) Dates</Text>
             </TouchableOpacity>
         </View>
     );
@@ -38,40 +40,42 @@ const RentalCalendarSection: React.FC<RentalCalendarSectionProps> = ({ availabil
 const styles = StyleSheet.create({
     section: {
         backgroundColor: COLORS.white,
+        borderRadius: 20,
         padding: 20,
-        marginVertical: 10,
-        borderRadius: 15,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        marginBottom: 16,
+        elevation: 2,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        borderWidth: 1,
+        borderColor: COLORS.border
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.primary,
+        fontWeight: '800',
+        color: COLORS.text.primary,
     },
     infoText: {
         fontSize: 13,
-        color: '#666',
+        color: COLORS.text.muted,
         marginBottom: 20,
         lineHeight: 18,
     },
     placeholderContainer: {
         padding: 30,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F9FAFB',
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 15,
         borderWidth: 1,
-        borderColor: '#eee',
+        borderColor: COLORS.border,
     },
     placeholderText: {
         fontSize: 16,

@@ -39,19 +39,44 @@ export default function MyAdsScreen() {
   const fetchAllAds = async () => {
     try {
       if (!refreshing) setLoading(true);
-      const response = await api.get<{ success: boolean; data: any[] }>(`/api/cars/my-ads`);
-      if (response.success) {
-        const mappedAds = response.data.map((ad: any) => ({
+
+      const [carsRes, rentalsRes] = await Promise.all([
+        api.get<{ success: boolean; data: any[] }>(`/api/cars/my-ads`),
+        api.get<{ success: boolean; data: any[] }>(`/api/rentals/my-ads`)
+      ]);
+
+      let allMappedAds: any[] = [];
+
+      if (carsRes.success) {
+        const mappedCars = carsRes.data.map((ad: any) => ({
           ...ad,
           price: ad.price ? `Rs. ${Number(ad.price).toLocaleString()}` : "Contact for Price",
           status: ad.status ? ad.status.toLowerCase() : "draft",
           image: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=300&h=200",
           views: ad.views_count || 0,
           likes: ad.likes_count || 0,
-          messages: 0
+          adType: 'car'
         }));
-        setAds(mappedAds);
+        allMappedAds = [...allMappedAds, ...mappedCars];
       }
+
+      if (rentalsRes.success) {
+        const mappedRentals = rentalsRes.data.map((ad: any) => ({
+          ...ad,
+          price: ad.price_per_day ? `Rs. ${Number(ad.price_per_day).toLocaleString()}/day` : "Contact for Pricing",
+          status: ad.status ? ad.status.toLowerCase() : "draft",
+          image: ad.images?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=300&h=200",
+          views: ad.views_count || 0,
+          likes: ad.likes_count || 0,
+          adType: 'rental'
+        }));
+        allMappedAds = [...allMappedAds, ...mappedRentals];
+      }
+
+      // Sort by creation date descending
+      allMappedAds.sort((a, b) => new Date(b.created_at || b.createdAt).getTime() - new Date(a.created_at || a.createdAt).getTime());
+
+      setAds(allMappedAds);
     } catch (error) {
       console.error("Error fetching ads:", error);
     } finally {
@@ -67,14 +92,14 @@ export default function MyAdsScreen() {
   const counts = {
     total: ads.length,
     active: ads.filter(a => a.status === 'active').length,
-    draft: ads.filter(a => a.status === 'draft').length,
+    draft: ads.filter(a => a.status === 'draft' || a.status === 'pending_payment').length,
     paused: ads.filter(a => a.status === 'expired' || a.status === 'paused' || a.status === 'banned').length,
   };
 
   const clientFilteredAds = ads.filter(ad => {
     let statusMatch = true;
     if (selectedFilter === 'active') statusMatch = ad.status === 'active';
-    if (selectedFilter === 'draft') statusMatch = ad.status === 'draft';
+    if (selectedFilter === 'draft') statusMatch = ad.status === 'draft' || ad.status === 'pending_payment';
     if (selectedFilter === 'expired') statusMatch = ad.status === 'expired' || ad.status === 'paused' || ad.status === 'banned';
 
     const searchMatch = !searchQuery || (ad.title && ad.title.toLowerCase().includes(searchQuery.toLowerCase()));

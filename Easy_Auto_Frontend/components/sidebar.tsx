@@ -32,20 +32,20 @@ interface SidebarProps {
 
 const USER_ITEMS = [
   { icon: "list",                 label: "My Ads",          sub: "Manage your listings",    route: "/(tabs)/my-ads",             color: COLORS.primary, bg: "#EEF2FF" },
-  { icon: "wallet",               label: "Payments",         sub: "Transaction history",     route: "/payments/payment-history",  color: "#10B981", bg: "#ECFDF5" },
-  { icon: "ribbon",               label: "Subscriptions",    sub: "Your active plans",       route: "/packages/subscriptions",    color: "#7C3AED", bg: "#F5F3FF" },
-  { icon: "rocket",               label: "Boost an Ad",      sub: "Get more visibility",     route: "/packages/boost-ad",         color: "#F59E0B", bg: "#FFFBEB" },
-  { icon: "help-circle",          label: "Help Centre",      sub: "FAQs & guides",           route: "/support/help-center",        color: "#64748B", bg: "#F8FAFC" },
-  { icon: "shield-checkmark",     label: "Privacy & Policy", sub: "Data & terms",            route: "/support/privacy-policy",     color: "#64748B", bg: "#F8FAFC" },
+  { icon: "wallet",               label: "Payments",         sub: "Transaction history",     route: "/payments/payment-history",  color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "ribbon",               label: "Subscriptions",    sub: "Your active plans",       route: "/packages/subscriptions",    color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "rocket",               label: "Boost an Ad",      sub: "Get more visibility",     route: "/packages/boost-ad",         color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "help-circle",          label: "Help Centre",      sub: "FAQs & guides",           route: "/support/help-center",        color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "shield-checkmark",     label: "Privacy & Policy", sub: "Data & terms",            route: "/support/privacy-policy",     color: COLORS.primary, bg: "#F8FAFC" },
 ];
 
 const GUEST_ITEMS = [
   { icon: "search-outline",      label: "Find Cars",   sub: "Search new & used",       route: "/(tabs)/search",     color: COLORS.primary, bg: "#EEF2FF" },
-  { icon: "car-sport-outline",   label: "Buy a Car",   sub: "Browse our collection",   route: "/cars/buy-car",      color: "#F59E0B", bg: "#FFFBEB" },
-  { icon: "add-circle-outline",  label: "Sell a Car",  sub: "Post an ad quickly",      route: "/cars/select-type",  color: "#10B981", bg: "#ECFDF5" },
-  { icon: "pricetag-outline",    label: "Offers",      sub: "View latest deals",       route: "/offers",            color: "#0891B2", bg: "#ECFEFF" },
-  { icon: "call-outline",        label: "Contact Us",  sub: "We're here to help",      route: "/support/contact-us",color: "#64748B", bg: "#F8FAFC" },
-  { icon: "information-outline", label: "About App",   sub: "Learn about EasyAuto",    route: "/support/about",     color: "#64748B", bg: "#F8FAFC" },
+  { icon: "car-sport-outline",   label: "Buy a Car",   sub: "Browse our collection",   route: "/cars/buy-car",      color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "add-circle-outline",  label: "Sell a Car",  sub: "Post an ad quickly",      route: "/cars/select-type",  color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "pricetag-outline",    label: "Offers",      sub: "View latest deals",       route: "/offers",            color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "call-outline",        label: "Contact Us",  sub: "We're here to help",      route: "/support/contact-us",color: COLORS.primary, bg: "#F8FAFC" },
+  { icon: "information-outline", label: "About App",   sub: "Learn about EasyAuto",    route: "/support/about",     color: COLORS.primary, bg: "#F8FAFC" },
 ];
 
 export default function Sidebar({ visible, onClose }: SidebarProps) {
@@ -190,7 +190,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                     activeOpacity={0.7}
                   >
                     <View style={[styles.menuIconBox, { backgroundColor: "#F8FAFC" }]}>
-                      <Ionicons name="settings-outline" size={19} color="#64748B" />
+                      <Ionicons name="settings-outline" size={19} color={COLORS.primary} />
                     </View>
                     <View style={styles.menuMeta}>
                       <Text style={styles.menuLabel}>App Settings</Text>
@@ -207,11 +207,11 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
               {isAuthenticated && (
                 <TouchableOpacity style={styles.logoutBtnFixed} onPress={confirmLogout} activeOpacity={0.8}>
                   <LinearGradient
-                    colors={["#FEF2F2", "#FFF1F1"]}
+                    colors={["#F8FAFC", "#F1F5F9"]}
                     style={styles.logoutGradientFixed}
                   >
                     <View style={styles.logoutIconFrameFixed}>
-                      <Ionicons name="log-out" size={20} color="#EF4444" />
+                      <Ionicons name="log-out-outline" size={18} color="#64748B" />
                     </View>
                     <Text style={styles.logoutTxtFixed}>Sign Out</Text>
                   </LinearGradient>
@@ -541,11 +541,11 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   logoutBtnFixed: {
-    borderRadius: 18,
+    borderRadius: 20,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#FEE2E2",
-    marginBottom: 12,
+    borderColor: "#E2E8F0",
+    marginBottom: 16,
   },
   logoutGradientFixed: {
     flexDirection: "row",
@@ -554,22 +554,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   logoutIconFrameFixed: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#EF4444",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   logoutTxtFixed: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#EF4444",
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#475569",
     letterSpacing: -0.2,
   },
   footerMin: {

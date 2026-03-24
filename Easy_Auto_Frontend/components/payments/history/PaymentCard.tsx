@@ -64,7 +64,6 @@ const PaymentCard: React.FC<PaymentCardProps> = ({ item, onPress }) => {
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 16,
         marginBottom: 12,
     },
     card: {

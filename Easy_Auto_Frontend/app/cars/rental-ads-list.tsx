@@ -212,7 +212,7 @@ export default function RentalAdsListScreen() {
     );
 
     const renderRentalCard = (item: any) => {
-        const imageUrl = item.rental_ad_images?.[0]?.image_url;
+        const imageUrl = item.images?.[0]?.image_url;
         const formattedPrice = item.price_per_day ? `Rs. ${item.price_per_day.toLocaleString()}` : 'N/A';
         const isVerified = item.verification_status === 'VERIFIED';
 

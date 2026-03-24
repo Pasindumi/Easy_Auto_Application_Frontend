@@ -304,40 +304,27 @@ export default function Payment() {
 
       const amountFormatted = total.toFixed(2);
       const orderId = displaySummary.invoice;
-      const items = (displaySummary.title || "Advertisement").substring(0, 100).replace(/[^a-zA-Z0-9 ]/g, "");
 
-      const paymentObj = {
-        order_id: orderId,
-        items: items,
-        amount: amountFormatted,
-        currency: "LKR",
-        first_name: displaySeller.name ? displaySeller.name.split(' ')[0] : "User",
-        last_name: displaySeller.name
-          ? displaySeller.name.split(' ')[1] || "User"
-          : "User",
-        email: displaySeller.email || "customer@example.com",
-        phone: displaySeller.contact || "0771234567",
-        address: displaySeller.address || "No 1, Galle Road",
-        city: "Colombo",
-        country: "Sri Lanka",
-        packageId: activePackageId,
-        rentalAdId: rentalAdId, // Pass rentalAdId to backend
-        sandbox: true
+      const mockPaymentObj = {
+        userId: adDetails?.seller_id || adDetails?.users?.id,
+        adId: adId || undefined,
+        rentalAdId: rentalAdId || undefined,
+        packageId: activePackageId || undefined,
+        amount: parseFloat(amountFormatted),
+        orderId: orderId,
       };
 
-      const response = await api.post<{ success: boolean; html: string }>(
-        '/api/payment/initiate',
-        paymentObj
+      const response = await api.post<{ success: boolean; message: string }>(
+        '/api/payment/mock-success',
+        mockPaymentObj
       );
 
-      if (!response.success || !response.html) {
-        throw new Error("Failed to initiate payment. Server returned invalid response.");
+      if (!response.success) {
+        throw new Error(response.message || "Failed to process payment.");
       }
 
-      router.push({
-        pathname: '/payments/payhere-gateway',
-        params: { html: response.html },
-      });
+      Alert.alert("Success", "Payment successful and ad activated.");
+      router.push('/payments/successful-payment' as any);
 
     } catch (error: any) {
       console.error("Payment initiation failed:", error);

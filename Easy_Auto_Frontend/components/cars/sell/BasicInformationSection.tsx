@@ -11,9 +11,10 @@ interface Props {
     descriptionLimit?: number;
     extraLetterPrice?: number;
     isUnlimited?: boolean;
+    hidePrice?: boolean;
 }
 
-const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChange, descriptionLimit = 500, extraLetterPrice = 0, isUnlimited = false }) => {
+const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChange, descriptionLimit = 500, extraLetterPrice = 0, isUnlimited = false, hidePrice = false }) => {
     const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
     const isOverLimit = !isUnlimited && (carDetails.description?.length || 0) > descriptionLimit;
 
@@ -34,27 +35,31 @@ const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChang
                 onChangeText={(value) => handleInputChange('title', value)}
             />
 
-            <Text style={styles.label}>Price (Rs.)</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <TextInput
-                    style={[styles.input, { width: 150, marginBottom: 0, marginRight: 12 }]}
-                    placeholder="125,500,000"
-                    value={carDetails.price}
-                    onChangeText={(value) => handleInputChange('price', value)}
-                    keyboardType="numeric"
-                />
-                <TouchableOpacity
-                    style={styles.checkboxContainer}
-                    onPress={() => handleInputChange('negotiable', !carDetails.negotiable)}
-                >
-                    <View style={[styles.checkbox, carDetails.negotiable && styles.checkboxChecked]}>
-                        {carDetails.negotiable && (
-                            <View style={styles.checkboxInner} />
-                        )}
+            {!hidePrice && (
+                <>
+                    <Text style={styles.label}>Price (Rs.)</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                        <TextInput
+                            style={[styles.input, { width: 150, marginBottom: 0, marginRight: 12 }]}
+                            placeholder="125,500,000"
+                            value={carDetails.price}
+                            onChangeText={(value) => handleInputChange('price', value)}
+                            keyboardType="numeric"
+                        />
+                        <TouchableOpacity
+                            style={styles.checkboxContainer}
+                            onPress={() => handleInputChange('negotiable', !carDetails.negotiable)}
+                        >
+                            <View style={[styles.checkbox, carDetails.negotiable && styles.checkboxChecked]}>
+                                {carDetails.negotiable && (
+                                    <View style={styles.checkboxInner} />
+                                )}
+                            </View>
+                            <Text style={styles.negotiableText}>Negotiable</Text>
+                        </TouchableOpacity>
                     </View>
-                    <Text style={styles.negotiableText}>Negotiable</Text>
-                </TouchableOpacity>
-            </View>
+                </>
+            )}
 
             <Text style={styles.label}>Location</Text>
             <TouchableOpacity
@@ -120,8 +125,8 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border
     },
     sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary },
-    limitPill: { backgroundColor: COLORS.secondary, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
-    limitPillText: { fontSize: 11, color: COLORS.text.secondary, fontWeight: '600' },
+    limitPill: { backgroundColor: COLORS.primary + '12', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+    limitPillText: { fontSize: 11, color: COLORS.primary, fontWeight: '700' },
     label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
     input: {
         borderWidth: 1,

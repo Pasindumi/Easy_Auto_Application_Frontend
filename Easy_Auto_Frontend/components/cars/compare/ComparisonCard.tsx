@@ -1,37 +1,48 @@
-import { Comparison } from '@/types/compare.types';
+import { SimilarComparison } from '@/types/compare-detail.types';
 import React from 'react';
 import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 
 interface ComparisonCardProps {
-    item: Comparison;
+    item: SimilarComparison;
 }
 
 const ComparisonCard: React.FC<ComparisonCardProps> = ({ item }) => {
+    const router = useRouter();
+
+    const handlePress = () => {
+        router.push({
+            pathname: '/cars/compare-cars-detail',
+            params: { id1: item.id1, id2: item.id2 }
+        });
+    };
+
     return (
-        <TouchableOpacity 
+        <TouchableOpacity
             style={styles.container}
             activeOpacity={0.9}
+            onPress={handlePress}
         >
             <View style={styles.cardHeader}>
-                <View style={[styles.badge, { backgroundColor: '#EFF6FF' }]}>
-                    <Text style={styles.badgeText}>TRENDING</Text>
+                <View style={[styles.badge, { backgroundColor: '#F8FAFC' }]}>
+                    <Text style={styles.badgeText}>PREVIOUS</Text>
                 </View>
                 <View style={styles.viewsContainer}>
-                    <Ionicons name="eye-outline" size={12} color="#94A3B8" />
-                    <Text style={styles.viewsText}>2.4k views</Text>
+                    <Ionicons name="time-outline" size={12} color="#94A3B8" />
+                    <Text style={styles.viewsText}>Recently compared</Text>
                 </View>
             </View>
 
             <View style={styles.compareBody}>
                 <View style={styles.carSide}>
                     <View style={styles.imgWrapper}>
-                        <Image source={item.left.img} style={styles.carImage} resizeMode="cover" />
+                        <Image source={{ uri: item.leftImage }} style={styles.carImage} resizeMode="cover" />
                     </View>
-                    <Text style={styles.carName} numberOfLines={1}>{item.left.name}</Text>
-                    <Text style={styles.carYear}>{item.left.year || '2023'}</Text>
+                    <Text style={styles.carName} numberOfLines={1}>{item.leftName}</Text>
+                    <Text style={styles.carYear}>Vehicle A</Text>
                 </View>
 
                 <View style={styles.vsCenter}>
@@ -50,10 +61,10 @@ const ComparisonCard: React.FC<ComparisonCardProps> = ({ item }) => {
 
                 <View style={styles.carSide}>
                     <View style={styles.imgWrapper}>
-                        <Image source={item.right.img} style={styles.carImage} resizeMode="cover" />
+                        <Image source={{ uri: item.rightImage }} style={styles.carImage} resizeMode="cover" />
                     </View>
-                    <Text style={styles.carName} numberOfLines={1}>{item.right.name}</Text>
-                    <Text style={styles.carYear}>{item.right.year || '2023'}</Text>
+                    <Text style={styles.carName} numberOfLines={1}>{item.rightName}</Text>
+                    <Text style={styles.carYear}>Vehicle B</Text>
                 </View>
             </View>
 
@@ -111,9 +122,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
     },
-    carSide: { 
-        flex: 1, 
-        alignItems: "center" 
+    carSide: {
+        flex: 1,
+        alignItems: "center"
     },
     imgWrapper: {
         width: '100%',
@@ -125,24 +136,24 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#F1F5F9',
     },
-    carImage: { 
-        width: '100%', 
+    carImage: {
+        width: '100%',
         height: '100%',
     },
-    carName: { 
+    carName: {
         fontSize: 13,
-        fontWeight: "800", 
-        color: "#1E293B", 
-        textAlign: "center" 
+        fontWeight: "800",
+        color: "#1E293B",
+        textAlign: "center"
     },
-    carYear: { 
+    carYear: {
         fontSize: 11,
-        color: "#94A3B8", 
+        color: "#94A3B8",
         fontWeight: '600',
-        marginTop: 2 
+        marginTop: 2
     },
-    vsCenter: { 
-        width: 50, 
+    vsCenter: {
+        width: 50,
         alignItems: "center",
         justifyContent: 'center',
     },
@@ -161,10 +172,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginVertical: 4,
     },
-    vsText: { 
-        color: "#CBD5E1", 
+    vsText: {
+        color: "#CBD5E1",
         fontSize: 10,
-        fontWeight: "900" 
+        fontWeight: "900"
     },
     cardFooter: {
         marginTop: 16,
