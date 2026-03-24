@@ -117,8 +117,8 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             desc: "Get instant quotes",
             icon: "cash-outline",
             iconFamily: Ionicons,
-            color: "#059669",
-            bgColor: "#ECFDF5",
+            color: "#235CF8",
+            bgColor: "#EEF3FF",
             onPress: () => {
                 if (isAuthenticated) {
                     router.push("/cars/select-type");
@@ -132,8 +132,8 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             desc: "Flexible options",
             icon: "key-outline",
             iconFamily: Ionicons,
-            color: "#D97706",
-            bgColor: "#FFFBEB",
+            color: "#235CF8",
+            bgColor: "#EEF3FF",
             route: "/cars/rent-car",
         },
         {
@@ -141,8 +141,8 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             desc: "Side by side",
             icon: "git-compare-outline",
             iconFamily: Ionicons,
-            color: "#7C3AED",
-            bgColor: "#F5F3FF",
+            color: "#235CF8",
+            bgColor: "#EEF3FF",
             route: "/(tabs)/compare",
             badge: compareCount > 0 ? (compareCount > 9 ? "9+" : compareCount) : null,
             badgeColor: COLORS.status.danger
@@ -152,8 +152,8 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             desc: `${newListingsCount}+ Listings`,
             icon: "storefront-outline",
             iconFamily: Ionicons,
-            color: "#DC2626",
-            bgColor: "#FEF2F2",
+            color: "#235CF8",
+            bgColor: "#EEF3FF",
             route: "/find-dealers",
         },
         {
@@ -161,8 +161,8 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             desc: "Boost ads",
             icon: "rocket-outline",
             iconFamily: Ionicons,
-            color: "#0891B2",
-            bgColor: "#ECFEFF",
+            color: "#235CF8",
+            bgColor: "#EEF3FF",
             route: "/packages/packages",
         },
     ];
