@@ -216,25 +216,21 @@ export default function ProfileScreen() {
               icon="location-outline"
               title="Saved Addresses"
               onPress={() => handleMenuItemPress('/profile/address')}
-              color="#8B5CF6"
             />
             <SettingItem
               icon="shield-checkmark-outline"
               title="Identity Verification"
               onPress={() => { }}
-              color="#10B981"
             />
             <View style={styles.itemDivider} />
             <SettingItem
               icon="notifications-outline"
               title="Notifications"
               onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
-              color="#F59E0B"
             />
             <SettingItem
               icon="moon-outline"
               title="Dark Mode"
-              color="#64748B"
               rightElement={
                 <Switch
                   value={darkMode}
@@ -251,20 +247,17 @@ export default function ProfileScreen() {
               icon="globe-outline"
               title="App Language"
               onPress={() => handleMenuItemPress('/settings/select-language')}
-              color="#3B82F6"
             />
             <View style={styles.itemDivider} />
             <SettingItem
               icon="lock-closed-outline"
               title="Privacy & Security"
               onPress={() => handleMenuItemPress('/settings/privacy-policy')}
-              color="#EF4444"
             />
             <SettingItem
               icon="chatbubbles-outline"
               title="Help & Support"
               onPress={() => handleMenuItemPress('/support/contact-us')}
-              color="#10B981"
             />
           </View>
 

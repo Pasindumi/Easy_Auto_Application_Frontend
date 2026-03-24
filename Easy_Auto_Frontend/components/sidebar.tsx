@@ -101,7 +101,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                   <View style={styles.profileSection}>
                     <TouchableOpacity onPress={() => go("/(tabs)/profile")} activeOpacity={0.9} style={styles.profileAvatarFrame}>
                       <Image
-                        source={{ uri: user?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop" }}
+                        source={user?.avatar ? { uri: user.avatar } : require('@/assets/images/user.jpeg')}
                         style={styles.avatarCircle}
                         contentFit="cover"
                       />
