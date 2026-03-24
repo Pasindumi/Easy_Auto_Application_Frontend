@@ -104,7 +104,6 @@ export default function Address() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
-          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({
           name: fullName,

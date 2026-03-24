@@ -68,7 +68,6 @@ export default function VerifyOTPScreen() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
           userId,
@@ -88,10 +87,10 @@ export default function VerifyOTPScreen() {
           onPress: () =>
             router.push({
               pathname: "/auth/reset-password",
-              params: { 
+              params: {
                 identifier,
                 userId,
-                otp: otp.trim() 
+                otp: otp.trim()
               },
             }),
         },
@@ -207,8 +206,8 @@ export default function VerifyOTPScreen() {
                     {resendLoading
                       ? "Sending..."
                       : resendDisabled
-                      ? `Resend (${countdown}s)`
-                      : "Resend"}
+                        ? `Resend (${countdown}s)`
+                        : "Resend"}
                   </Text>
                 </TouchableOpacity>
               </View>

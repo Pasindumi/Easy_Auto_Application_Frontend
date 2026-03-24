@@ -52,7 +52,7 @@ export default function SelectVehicleTypeScreen() {
         try {
             const response = await fetch(ENDPOINTS.VEHICLE_CONFIG.TYPES, {
                 headers: {
-                    'ngrok-skip-browser-warning': 'true',
+                    'Content-Type': 'application/json',
                 },
             });
             if (!response.ok) throw new Error(`Server returned ${response.status}`);
@@ -169,10 +169,10 @@ export default function SelectVehicleTypeScreen() {
     };
 
     const renderItem = ({ item, index }: { item: any, index: number }) => (
-        <CategoryCard 
-            item={item} 
-            index={index} 
-            onSelect={handleSelect} 
+        <CategoryCard
+            item={item}
+            index={index}
+            onSelect={handleSelect}
         />
     );
 
@@ -210,7 +210,7 @@ export default function SelectVehicleTypeScreen() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
-            
+
             {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
             <LinearGradient
                 colors={[COLORS.primary, COLORS.primaryDark]}
@@ -220,7 +220,7 @@ export default function SelectVehicleTypeScreen() {
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <Ionicons name="chevron-back" size={24} color="white" />
                     </TouchableOpacity>
-                    
+
                     <View pointerEvents="none" style={styles.logoCentre}>
                         <RNImage
                             source={require("@/assets/logoHome.png")}
