@@ -217,6 +217,7 @@ export default function ProfileScreen() {
               title="Saved Addresses"
               onPress={() => handleMenuItemPress('/profile/address')}
             />
+
             <View style={styles.itemDivider} />
             <SettingItem
               icon="notifications-outline"

@@ -95,6 +95,18 @@ export default function EditProfileScreen() {
     }
   };
 
+  const handleBirthdayChange = (text: string) => {
+    const cleaned = text.replace(/[^0-9]/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = cleaned.slice(0, 4) + '-' + cleaned.slice(4);
+    }
+    if (cleaned.length > 6) {
+      formatted = formatted.slice(0, 7) + '-' + cleaned.slice(6, 8);
+    }
+    setBirthday(formatted);
+  };
+
   const handleSaveChanges = async () => {
     if (!name.trim() || !email.trim()) {
       showToast({ message: 'Please fill in name and email fields', type: 'error' });
@@ -246,18 +258,24 @@ export default function EditProfileScreen() {
             <View style={styles.formFlow}>
 
               <View style={styles.formSection}>
-                <Text style={styles.sectionSlug}>Identity & Bio</Text>
+                <View style={styles.sectionHeaderRow}>
+                  <View style={styles.sectionBlueBar} />
+                  <Text style={styles.sectionSlug}>Identity & Bio</Text>
+                </View>
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Display Name</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="person-outline" size={18} color="#64748B" />
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    <View style={styles.inputIconWrapper}>
+                      <Ionicons name="person" size={16} color={COLORS.primary} />
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
                         value={name}
                         onChangeText={setName}
                         placeholder="Your full name"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{name || "Not set"}</Text>
@@ -270,13 +288,17 @@ export default function EditProfileScreen() {
                     <Text style={styles.fieldLabel}>Tell us about yourself</Text>
                     <Text style={styles.charCount}>{bio.length}/150</Text>
                   </View>
-                  <View style={[styles.fieldBox, styles.bioBox]}>
+                  <View style={[styles.fieldBox, styles.bioBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    <View style={[styles.inputIconWrapper, { marginTop: 4 }]}>
+                      <Ionicons name="information-circle" size={16} color={COLORS.primary} />
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={[styles.fieldInput, styles.bioInput]}
                         value={bio}
                         onChangeText={setBio}
                         placeholder="Write a short bio..."
+                        placeholderTextColor="#94A3B8"
                         multiline
                         maxLength={150}
                       />
@@ -288,12 +310,17 @@ export default function EditProfileScreen() {
               </View>
 
               <View style={styles.formSection}>
-                <Text style={styles.sectionSlug}>Contact Details</Text>
+                <View style={styles.sectionHeaderRow}>
+                  <View style={styles.sectionBlueBar} />
+                  <Text style={styles.sectionSlug}>Contact Details</Text>
+                </View>
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Email Address</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="mail-outline" size={18} color="#64748B" />
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    <View style={styles.inputIconWrapper}>
+                      <Ionicons name="mail" size={16} color={COLORS.primary} />
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -301,6 +328,7 @@ export default function EditProfileScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{email || "Not set"}</Text>
@@ -310,14 +338,17 @@ export default function EditProfileScreen() {
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Phone Number</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="call-outline" size={18} color="#64748B" />
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    <View style={styles.inputIconWrapper}>
+                      <Ionicons name="call" size={16} color={COLORS.primary} />
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
                         value={phone}
                         onChangeText={setPhone}
                         keyboardType="phone-pad"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{phone || "Not set"}</Text>
@@ -327,18 +358,24 @@ export default function EditProfileScreen() {
               </View>
 
               <View style={styles.formSection}>
-                <Text style={styles.sectionSlug}>Regional & Preferences</Text>
+                <View style={styles.sectionHeaderRow}>
+                  <View style={styles.sectionBlueBar} />
+                  <Text style={styles.sectionSlug}>Regional & Preferences</Text>
+                </View>
 
                 <View style={styles.fieldItem}>
                   <Text style={styles.fieldLabel}>Home/Office Location</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="location-outline" size={18} color="#64748B" />
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    <View style={styles.inputIconWrapper}>
+                      <Ionicons name="location" size={16} color={COLORS.primary} />
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
                         value={location}
                         onChangeText={setLocation}
                         placeholder="Colombo, Sri Lanka"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{location || "Not set"}</Text>
@@ -346,36 +383,45 @@ export default function EditProfileScreen() {
                   </View>
                 </View>
 
-                <View style={styles.rowFieldContainer}>
-                  <View style={[styles.fieldItem, { flex: 1 }]}>
-                    <Text style={styles.fieldLabel}>Gender</Text>
-                    <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                      {isEditing ? (
-                        <TextInput
-                          style={styles.fieldInput}
-                          value={gender}
-                          onChangeText={setGender}
-                          placeholder="e.g. Male"
-                        />
-                      ) : (
-                        <Text style={styles.fieldInput}>{gender || "Not set"}</Text>
-                      )}
+                <View style={styles.fieldItem}>
+                  <Text style={styles.fieldLabel}>Gender</Text>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    <View style={styles.inputIconWrapper}>
+                      <Ionicons name="people" size={16} color={COLORS.primary} />
                     </View>
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={gender}
+                        onChangeText={setGender}
+                        placeholder="e.g. Male"
+                        placeholderTextColor="#94A3B8"
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{gender || "Not set"}</Text>
+                    )}
                   </View>
-                  <View style={[styles.fieldItem, { flex: 1 }]}>
-                    <Text style={styles.fieldLabel}>Birthday</Text>
-                    <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                      {isEditing ? (
-                        <TextInput
-                          style={styles.fieldInput}
-                          value={birthday}
-                          onChangeText={setBirthday}
-                          placeholder="YYYY-MM-DD"
-                        />
-                      ) : (
-                        <Text style={styles.fieldInput}>{birthday || "Not set"}</Text>
-                      )}
+                </View>
+
+                <View style={styles.fieldItem}>
+                  <Text style={styles.fieldLabel}>Birthday</Text>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    <View style={styles.inputIconWrapper}>
+                      <Ionicons name="calendar" size={16} color={COLORS.primary} />
                     </View>
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={birthday}
+                        onChangeText={handleBirthdayChange}
+                        placeholder="YYYY-MM-DD"
+                        placeholderTextColor="#94A3B8"
+                        keyboardType="numeric"
+                        maxLength={10}
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{birthday || "Not set"}</Text>
+                    )}
                   </View>
                 </View>
               </View>
@@ -455,8 +501,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#F1F5F9',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
   },
   avatarMaster: {
     position: 'relative',
@@ -490,22 +542,41 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   formFlow: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   formSection: {
-    marginBottom: 28,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 8,
+  },
+  sectionBlueBar: {
+    width: 4,
+    height: 18,
+    backgroundColor: COLORS.primary,
+    borderRadius: 2,
   },
   sectionSlug: {
-    fontSize: 11,
-    color: '#64748B',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    fontWeight: '800',
-    marginBottom: 16,
-    marginLeft: 4,
+    fontSize: 16,
+    color: '#0F172A',
+    fontWeight: '900',
+    letterSpacing: -0.3,
   },
   fieldItem: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   fieldLabel: {
     fontSize: 13,
@@ -519,18 +590,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8, // reduced slightly to fit the inner icon wrapper nicely
     borderWidth: 1.5,
-    borderColor: '#F1F5F9',
-    height: 54,
+    borderColor: '#E2E8F0',
+    height: 52,
+  },
+  fieldBoxEditing: {
+    borderColor: `${COLORS.primary}80`, // subtle blue border when editing
+    backgroundColor: '#FFFFFF',
   },
   fieldBoxReadOnly: {
     backgroundColor: '#F8FAFC',
-    borderColor: 'transparent',
+    borderColor: '#F1F5F9',
+  },
+  inputIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: `${COLORS.primary}12`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 4,
   },
   fieldInput: {
     flex: 1,
-    paddingLeft: 12,
+    paddingLeft: 8,
     fontSize: 14,
     color: '#0F172A',
     fontWeight: '600',
@@ -549,11 +633,11 @@ const styles = StyleSheet.create({
   bioBox: {
     height: 100,
     alignItems: 'flex-start',
-    paddingTop: 12,
+    paddingTop: 8,
   },
   bioInput: {
     height: '100%',
-    paddingTop: 0,
+    paddingTop: 4,
     textAlignVertical: 'top',
   },
   rowFieldContainer: {

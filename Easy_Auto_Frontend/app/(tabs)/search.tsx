@@ -470,15 +470,6 @@ export default function SearchScreen() {
             <Text style={styles.resultsCount}>
               {isSearching ? 'Searching...' : `${searchResults.length} ${t("buy_car_screen.results", "results found")}`}
             </Text>
-            <TouchableOpacity
-              style={styles.sortButton}
-              onPress={() => {
-                // Could open a sort modal here
-              }}
-            >
-              <Ionicons name="swap-vertical" size={16} color={COLORS.primary} />
-              <Text style={styles.sortText}>{t("buy_car_screen.sort_by", "Sort")}</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -521,6 +512,27 @@ export default function SearchScreen() {
                   )}
                 </>
               )}
+            </View>
+          }
+        />
+
+      </View>
+
+      {/* Advanced Filters Modal */}
+      <Modal
+        visible={showFilters}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={toggleFilters}
+        statusBarTranslucent
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.filterModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
+              <TouchableOpacity onPress={toggleFilters}>
+                <Ionicons name="close" size={24} color={COLORS.text.primary} />
+              </TouchableOpacity>
             </View>
           }
         />
@@ -682,10 +694,28 @@ export default function SearchScreen() {
                   <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
                 </TouchableOpacity>
               </View>
+            </ScrollView>
+
+            <View style={[styles.modalFooter, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+              <TouchableOpacity
+                style={styles.clearFiltersBtn}
+                onPress={clearAllFilters}
+              >
+                <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.applyFiltersBtn}
+                onPress={() => {
+                  performSearch();
+                  toggleFilters();
+                }}
+              >
+                <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
-      </View>
+        </View>
+      </Modal>
     </View>
   );
 }
