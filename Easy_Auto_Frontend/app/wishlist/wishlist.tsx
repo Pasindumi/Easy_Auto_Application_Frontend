@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Swipeable } from "react-native-gesture-handler";
+import Header from "@/components/Header";
 
 export default function WishlistScreen() {
     const insets = useSafeAreaInsets();
@@ -103,36 +104,16 @@ export default function WishlistScreen() {
             <StatusBar barStyle="light-content" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ── Professional Header (Home Match) ── */}
-            <View style={[styles.header, { paddingTop: insets.top }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.back();
-                        }} 
-                        style={styles.backBtn}
-                    >
-                        <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    
-                    <View style={styles.headerTitleContainer}>
-                         <Text style={styles.headerTitle}>My Wishlist</Text>
+            <Header title="My Wishlist" />
+
+            {/* Sub-Header: Item Count */}
+            {items.length > 0 && (
+                <View style={styles.subHeader}>
+                    <View style={styles.countBadge}>
+                        <Text style={styles.countText}>{items.length} {items.length === 1 ? 'Item' : 'Items'} Saved</Text>
                     </View>
-
-                    <View style={styles.headerRightPlaceholder} />
                 </View>
-
-                {/* Subtitle & Count */}
-                <View style={styles.headerInfo}>
-                    <View />
-                    {items.length > 0 && (
-                        <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{items.length} {items.length === 1 ? 'Item' : 'Items'}</Text>
-                        </View>
-                    )}
-                </View>
-            </View>
+            )}
 
             {loading && !refreshing ? (
                 <View style={styles.centerBox}>
@@ -224,65 +205,26 @@ const styles = StyleSheet.create({
         backgroundColor: "#FDFDFD",
     },
     // Header Style
-    header: {
-        backgroundColor: COLORS.primary,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        paddingBottom: 25,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.2,
-        shadowRadius: 18,
-        elevation: 12,
-        zIndex: 100,
-    },
-    headerTop: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 16,
-        height: 56,
-    },
-    headerTitleContainer: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: "#FFFFFF",
-        letterSpacing: -0.4,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        justifyContent: "center",
-    },
-    headerRightPlaceholder: {
-        width: 44,
-    },
-    headerInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+    subHeader: {
         paddingHorizontal: 20,
-        marginTop: 5,
-    },
-    headerSub: {
-        fontSize: 14,
-        color: "rgba(255,255,255,0.75)",
-        fontWeight: '600',
+        paddingTop: 16,
+        paddingBottom: 8,
     },
     countBadge: {
-        backgroundColor: "rgba(255,255,255,0.2)",
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
+        backgroundColor: "rgba(35, 92, 248, 0.08)",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 14,
+        alignSelf: 'flex-start',
+        borderWidth: 1,
+        borderColor: "rgba(35, 92, 248, 0.12)",
     },
     countText: {
-        color: "#FFFFFF",
+        color: COLORS.primary,
         fontSize: 12,
         fontWeight: "800",
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
 
     content: {

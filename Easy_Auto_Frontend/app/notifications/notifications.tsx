@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Swipeable } from "react-native-gesture-handler";
+import Header from "@/components/Header";
 
 interface NotificationItem {
     id: number;
@@ -111,32 +112,17 @@ export default function NotificationsScreen() {
             <StatusBar barStyle="light-content" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ── Professional Header (Exact Home Theme) ── */}
-            <View style={[styles.header, { paddingTop: insets.top }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            router.back();
-                        }} 
-                        style={styles.backBtn}
-                    >
-                        <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    
-                    <View style={styles.headerTitleContainer}>
-                         <Text style={styles.headerTitle}>Notifications</Text>
-                    </View>
-
-                    {/* Placeholder for balance/alignment or a settings icon */}
+            <Header 
+                title="Notifications" 
+                rightElement={
                     <TouchableOpacity 
                         style={styles.headerActionBtn}
                         onPress={() => router.push("/notifications/notifications-setting")}
                     >
                         <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
                     </TouchableOpacity>
-                </View>
-            </View>
+                }
+            />      
 
             {/* ── Filter Strip (Now Outside Header) ── */}
             <View style={styles.filterStrip}>
@@ -252,44 +238,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#F9FAFB",
     },
     // Header Style
-    header: {
-        backgroundColor: COLORS.primary,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        paddingBottom: 20,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.22,
-        shadowRadius: 15,
-        elevation: 12,
-        zIndex: 100,
-    },
-    headerTop: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 20,
-        height: 64,
-    },
-    headerTitleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 21,
-        fontWeight: "800",
-        color: "#FFFFFF",
-        letterSpacing: -0.5,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        justifyContent: "center",
-    },
     headerActionBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 38,
+        height: 38,
+        borderRadius: 19,
         backgroundColor: "rgba(255,255,255,0.15)",
         alignItems: "center",
         justifyContent: "center",
