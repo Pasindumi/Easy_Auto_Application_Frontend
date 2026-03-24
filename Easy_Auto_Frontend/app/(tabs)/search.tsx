@@ -413,275 +413,266 @@ export default function SearchScreen() {
         {/* Filter and stats section */}
         <View style={styles.filterStatsSection}>
 
-        {/* Quick Filters */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.quickFilters}
-        >
-          <TouchableOpacity
-            style={[styles.filterChip, activeFilterCount > 0 && styles.filterChipActive]}
-            onPress={toggleFilters}
+          {/* Quick Filters */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.quickFilters}
           >
-            <Ionicons
-              name="options-outline"
-              size={16}
-              color={activeFilterCount > 0 ? COLORS.white : COLORS.primary}
-            />
-            <Text style={[styles.filterChipText, activeFilterCount > 0 && styles.filterChipTextActive]}>
-              {t("buy_car_screen.filter_vehicles", "Filters")} {activeFilterCount > 0 && `(${activeFilterCount})`}
-            </Text>
-          </TouchableOpacity>
-
-          {vehicleTypes.slice(0, 5).map((type) => (
             <TouchableOpacity
-              key={type.key}
-              style={[
-                styles.filterChip,
-                selectedCategory === type.key && styles.filterChipActive
-              ]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setSelectedCategory(selectedCategory === type.key ? 'all' : type.key);
-              }}
+              style={[styles.filterChip, activeFilterCount > 0 && styles.filterChipActive]}
+              onPress={toggleFilters}
             >
               <Ionicons
-                name={type.icon as any}
+                name="options-outline"
                 size={16}
-                color={selectedCategory === type.key ? COLORS.white : COLORS.primary}
+                color={activeFilterCount > 0 ? COLORS.white : COLORS.primary}
               />
-              <Text
-                style={[
-                  styles.filterChipText,
-                  selectedCategory === type.key && styles.filterChipTextActive
-                ]}
-              >
-                {type.label}
+              <Text style={[styles.filterChipText, activeFilterCount > 0 && styles.filterChipTextActive]}>
+                {t("buy_car_screen.filter_vehicles", "Filters")} {activeFilterCount > 0 && `(${activeFilterCount})`}
               </Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
 
-        {/* Sort & Results Count */}
-        <View style={styles.resultsBar}>
-          <Text style={styles.resultsCount}>
-            {isSearching ? 'Searching...' : `${searchResults.length} ${t("buy_car_screen.results", "results found")}`}
-          </Text>
-          <TouchableOpacity
-            style={styles.sortButton}
-            onPress={() => {
-              // Could open a sort modal here
-            }}
-          >
-            <Ionicons name="swap-vertical" size={16} color={COLORS.primary} />
-            <Text style={styles.sortText}>{t("buy_car_screen.sort_by", "Sort")}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Search Results */}
-      <FlatList
-        data={searchResults}
-        renderItem={renderSearchCard}
-        keyExtractor={(item) => String(item.id)}
-        numColumns={2}
-        contentContainerStyle={styles.resultsGrid}
-        columnWrapperStyle={styles.columnWrapper}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              performSearch();
-            }}
-            tintColor={COLORS.primary}
-          />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            {isSearching ? (
-              <ActivityIndicator size="large" color={COLORS.primary} />
-            ) : (
-              <>
-                <View style={styles.emptyIcon}>
-                  <Ionicons name="search-outline" size={64} color={COLORS.border} />
-                </View>
-                <Text style={styles.emptyTitle}>{t("buy_car_screen.no_vehicles_found", "No results found")}</Text>
-                <Text style={styles.emptyText}>
-                  Try adjusting your search or filters
-                </Text>
-                {activeFilterCount > 0 && (
-                  <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
-                    <Text style={styles.clearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
-          </View>
-        }
-      />
-
-      {/* Advanced Filters Modal */}
-      <Modal
-        visible={showFilters}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={toggleFilters}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.filterModal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
-              <TouchableOpacity onPress={toggleFilters}>
-                <Ionicons name="close" size={24} color={COLORS.text.primary} />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
-              {/* Price Range */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
-                    {PRICE_RANGES.map((range, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.rangeChip,
-                          selectedPriceRange === index && styles.rangeChipActive
-                        ]}
-                        onPress={() => setSelectedPriceRange(index)}
-                      >
-                        <Text
-                          style={[
-                            styles.rangeChipText,
-                            selectedPriceRange === index && styles.rangeChipTextActive
-                          ]}
-                        >
-                          {range.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-
-              {/* Year Range */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Year</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
-                    {YEAR_RANGES.map((range, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.rangeChip,
-                          selectedYearRange === index && styles.rangeChipActive
-                        ]}
-                        onPress={() => setSelectedYearRange(index)}
-                      >
-                        <Text
-                          style={[
-                            styles.rangeChipText,
-                            selectedYearRange === index && styles.rangeChipTextActive
-                          ]}
-                        >
-                          {range.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-
-              {/* Brand */}
-              {brands.length > 0 && (
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Brand"
-                    value={selectedBrand}
-                    onSelect={setSelectedBrand}
-                    options={[{ label: 'All Brands', value: '' }, ...brands]}
-                  />
-                </View>
-              )}
-
-              {/* Model */}
-              {models.length > 0 && (
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Model"
-                    value={selectedModel}
-                    onSelect={setSelectedModel}
-                    options={[{ label: 'All Models', value: '' }, ...models]}
-                  />
-                </View>
-              )}
-
-              {/* Condition */}
-              {conditions.length > 0 && (
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Condition"
-                    value={selectedCondition}
-                    onSelect={setSelectedCondition}
-                    options={[{ label: 'Any Condition', value: '' }, ...conditions]}
-                  />
-                </View>
-              )}
-
-              {/* Fuel Type */}
-              <View style={styles.filterSection}>
-                <SelectField
-                  label="Fuel Type"
-                  value={selectedFuelType}
-                  onSelect={setSelectedFuelType}
-                  options={[
-                    { label: 'Any Fuel Type', value: '' },
-                    { label: 'Petrol', value: 'Petrol' },
-                    { label: 'Diesel', value: 'Diesel' },
-                    { label: 'Electric', value: 'Electric' },
-                    { label: 'Hybrid', value: 'Hybrid' },
-                  ]}
-                />
-              </View>
-
-              {/* Transmission */}
-              <View style={styles.filterSection}>
-                <SelectField
-                  label="Transmission"
-                  value={selectedTransmission}
-                  onSelect={setSelectedTransmission}
-                  options={[
-                    { label: 'Any Transmission', value: '' },
-                    { label: 'Automatic', value: 'Automatic' },
-                    { label: 'Manual', value: 'Manual' },
-                  ]}
-                />
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
+            {vehicleTypes.slice(0, 5).map((type) => (
               <TouchableOpacity
-                style={styles.clearFiltersBtn}
-                onPress={clearAllFilters}
-              >
-                <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.applyFiltersBtn}
+                key={type.key}
+                style={[
+                  styles.filterChip,
+                  selectedCategory === type.key && styles.filterChipActive
+                ]}
                 onPress={() => {
-                  performSearch();
-                  toggleFilters();
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setSelectedCategory(selectedCategory === type.key ? 'all' : type.key);
                 }}
               >
-                <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
+                <Ionicons
+                  name={type.icon as any}
+                  size={16}
+                  color={selectedCategory === type.key ? COLORS.white : COLORS.primary}
+                />
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    selectedCategory === type.key && styles.filterChipTextActive
+                  ]}
+                >
+                  {type.label}
+                </Text>
               </TouchableOpacity>
-            </View>
+            ))}
+          </ScrollView>
+
+          {/* Sort & Results Count */}
+          <View style={styles.resultsBar}>
+            <Text style={styles.resultsCount}>
+              {isSearching ? 'Searching...' : `${searchResults.length} ${t("buy_car_screen.results", "results found")}`}
+            </Text>
           </View>
         </View>
-      </Modal>
+
+        {/* Search Results */}
+        <FlatList
+          data={searchResults}
+          renderItem={renderSearchCard}
+          keyExtractor={(item) => String(item.id)}
+          numColumns={2}
+          contentContainerStyle={styles.resultsGrid}
+          columnWrapperStyle={styles.columnWrapper}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                performSearch();
+              }}
+              tintColor={COLORS.primary}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              {isSearching ? (
+                <ActivityIndicator size="large" color={COLORS.primary} />
+              ) : (
+                <>
+                  <View style={styles.emptyIcon}>
+                    <Ionicons name="search-outline" size={64} color={COLORS.border} />
+                  </View>
+                  <Text style={styles.emptyTitle}>{t("buy_car_screen.no_vehicles_found", "No results found")}</Text>
+                  <Text style={styles.emptyText}>
+                    Try adjusting your search or filters
+                  </Text>
+                  {activeFilterCount > 0 && (
+                    <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
+                      <Text style={styles.clearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              )}
+            </View>
+          }
+        />
+
+        {/* Advanced Filters Modal */}
+        <Modal
+          visible={showFilters}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={toggleFilters}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.filterModal}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
+                <TouchableOpacity onPress={toggleFilters}>
+                  <Ionicons name="close" size={24} color={COLORS.text.primary} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
+                {/* Price Range */}
+                <View style={styles.filterSection}>
+                  <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={styles.rangeChips}>
+                      {PRICE_RANGES.map((range, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          style={[
+                            styles.rangeChip,
+                            selectedPriceRange === index && styles.rangeChipActive
+                          ]}
+                          onPress={() => setSelectedPriceRange(index)}
+                        >
+                          <Text
+                            style={[
+                              styles.rangeChipText,
+                              selectedPriceRange === index && styles.rangeChipTextActive
+                            ]}
+                          >
+                            {range.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                </View>
+
+                {/* Year Range */}
+                <View style={styles.filterSection}>
+                  <Text style={styles.filterLabel}>Year</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={styles.rangeChips}>
+                      {YEAR_RANGES.map((range, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          style={[
+                            styles.rangeChip,
+                            selectedYearRange === index && styles.rangeChipActive
+                          ]}
+                          onPress={() => setSelectedYearRange(index)}
+                        >
+                          <Text
+                            style={[
+                              styles.rangeChipText,
+                              selectedYearRange === index && styles.rangeChipTextActive
+                            ]}
+                          >
+                            {range.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                </View>
+
+                {/* Brand */}
+                {brands.length > 0 && (
+                  <View style={styles.filterSection}>
+                    <SelectField
+                      label="Brand"
+                      value={selectedBrand}
+                      onSelect={setSelectedBrand}
+                      options={[{ label: 'All Brands', value: '' }, ...brands]}
+                    />
+                  </View>
+                )}
+
+                {/* Model */}
+                {models.length > 0 && (
+                  <View style={styles.filterSection}>
+                    <SelectField
+                      label="Model"
+                      value={selectedModel}
+                      onSelect={setSelectedModel}
+                      options={[{ label: 'All Models', value: '' }, ...models]}
+                    />
+                  </View>
+                )}
+
+                {/* Condition */}
+                {conditions.length > 0 && (
+                  <View style={styles.filterSection}>
+                    <SelectField
+                      label="Condition"
+                      value={selectedCondition}
+                      onSelect={setSelectedCondition}
+                      options={[{ label: 'Any Condition', value: '' }, ...conditions]}
+                    />
+                  </View>
+                )}
+
+                {/* Fuel Type */}
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Fuel Type"
+                    value={selectedFuelType}
+                    onSelect={setSelectedFuelType}
+                    options={[
+                      { label: 'Any Fuel Type', value: '' },
+                      { label: 'Petrol', value: 'Petrol' },
+                      { label: 'Diesel', value: 'Diesel' },
+                      { label: 'Electric', value: 'Electric' },
+                      { label: 'Hybrid', value: 'Hybrid' },
+                    ]}
+                  />
+                </View>
+
+                {/* Transmission */}
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Transmission"
+                    value={selectedTransmission}
+                    onSelect={setSelectedTransmission}
+                    options={[
+                      { label: 'Any Transmission', value: '' },
+                      { label: 'Automatic', value: 'Automatic' },
+                      { label: 'Manual', value: 'Manual' },
+                    ]}
+                  />
+                </View>
+              </ScrollView>
+
+              <View style={styles.modalFooter}>
+                <TouchableOpacity
+                  style={styles.clearFiltersBtn}
+                  onPress={clearAllFilters}
+                >
+                  <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.applyFiltersBtn}
+                  onPress={() => {
+                    performSearch();
+                    toggleFilters();
+                  }}
+                >
+                  <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </View>
   );
