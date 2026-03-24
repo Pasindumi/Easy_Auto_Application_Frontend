@@ -1,9 +1,11 @@
 import Header from '@/components/Header';
 import COLORS from "@/constants/Colors";
+import { ENDPOINTS } from '@/constants/API';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   ScrollView,
@@ -16,89 +18,83 @@ import {
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-const DEALERS = [
-  {
-    id: '1',
-    name: 'AutoMax Dealers',
-    rating: 4.8,
-    reviews: 245,
-    distance: '2.5 km',
-    address: '123 Main Street, Colombo',
-    specialties: ['Luxury Cars', 'SUVs', 'Electric'],
-    image: require('@/assets/images/car.jpg'),
-    listings: 156,
-  },
-  {
-    id: '2',
-    name: 'Premium Motors',
-    rating: 4.9,
-    reviews: 389,
-    distance: '5.1 km',
-    address: '456 High Street, Kandy',
-    specialties: ['Sedans', 'Hatchbacks'],
-    image: require('@/assets/images/car.jpg'),
-    listings: 203,
-  },
-  {
-    id: '3',
-    name: 'City Auto Center',
-    rating: 4.7,
-    reviews: 178,
-    distance: '3.8 km',
-    address: '789 Business Park, Galle',
-    specialties: ['Budget Cars', 'Used Cars'],
-    image: require('@/assets/images/car.jpg'),
-    listings: 98,
-  },
-  {
-    id: '4',
-    name: 'Elite Car Gallery',
-    rating: 4.9,
-    reviews: 512,
-    distance: '7.2 km',
-    address: '321 Luxury Avenue, Negombo',
-    specialties: ['Premium', 'Sports Cars'],
-    image: require('@/assets/images/car.jpg'),
-    listings: 87,
-  },
-];
-
 export default function FindDealersScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [dealers, setDealers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const renderDealerCard = ({ item }: { item: typeof DEALERS[0] }) => (
-    <TouchableOpacity style={styles.dealerCard}>
-      <Image source={item.image} style={styles.dealerImage} resizeMode="cover" />
+  useEffect(() => {
+    fetchDealers();
+  }, []);
+
+  const fetchDealers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Fetching dealers from:', `${ENDPOINTS.USERS}/sellers`);
+      const response = await fetch(`${ENDPOINTS.USERS}/sellers`);
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const json = await response.json();
+      console.log('Dealers response:', json);
+
+      if (json.success) {
+        setDealers(json.data || []);
+      } else {
+        setError(json.message || 'Failed to fetch dealers');
+      }
+    } catch (error: any) {
+      console.error('Error fetching dealers:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredDealers = dealers.filter(dealer =>
+    dealer.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const renderDealerCard = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      style={styles.dealerCard}
+      onPress={() => router.push(`/seller/${item.id}`)}
+    >
+      <Image
+        source={item.avatar ? { uri: item.avatar } : require('@/assets/images/car.jpg')}
+        style={styles.dealerImage}
+        resizeMode="cover"
+      />
       <View style={styles.dealerCardBody}>
         <View style={styles.dealerHeader}>
           <View style={styles.dealerInfo}>
             <Text style={styles.dealerName}>{item.name}</Text>
             <View style={styles.ratingContainer}>
               <Ionicons name="star" size={16} color="#FFD700" />
-              <Text style={styles.rating}>{item.rating}</Text>
-              <Text style={styles.reviews}>({item.reviews} reviews)</Text>
+              <Text style={styles.rating}>{item.rating || 'Not rated'}</Text>
+              <Text style={styles.reviews}>{item.verification_status === 'VERIFIED' ? 'Verified' : 'Member'}</Text>
             </View>
           </View>
           <View style={styles.distanceBadge}>
             <Ionicons name="location-outline" size={14} color={COLORS.primary} />
-            <Text style={styles.distanceText}>{item.distance}</Text>
+            <Text style={styles.distanceText}>{item.location || 'Sri Lanka'}</Text>
           </View>
         </View>
-        <Text style={styles.dealerAddress}>{item.address}</Text>
-        <View style={styles.specialtiesContainer}>
-          {item.specialties.map((specialty, index) => (
-            <View key={index} style={styles.specialtyTag}>
-              <Text style={styles.specialtyText}>{specialty}</Text>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.dealerAddress}>{item.bio || 'Professional automobile dealer.'}</Text>
         <View style={styles.dealerFooter}>
           <Text style={styles.listingsCount}>
-            {item.listings} listings available
+            {item.listingsCount} listings available
           </Text>
-          <TouchableOpacity style={styles.viewButton}>
+          <TouchableOpacity
+            style={styles.viewButton}
+            onPress={() => router.push(`/seller/${item.id}`)}
+          >
             <Text style={styles.viewButtonText}>View</Text>
           </TouchableOpacity>
         </View>
@@ -177,10 +173,27 @@ export default function FindDealersScreen() {
 
           {/* Dealers List */}
           <View style={styles.dealersSection}>
-            <Text style={styles.sectionTitle}>
-              {DEALERS.length} Dealers Found
-            </Text>
-            {DEALERS.map((item) => renderDealerCard({ item }))}
+            {loading ? (
+              <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
+            ) : error ? (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle-outline" size={48} color={COLORS.status.danger} />
+                <Text style={styles.errorText}>{error}</Text>
+                <TouchableOpacity style={styles.retryButton} onPress={fetchDealers}>
+                  <Text style={styles.retryText}>Retry</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                <Text style={styles.sectionTitle}>
+                  {filteredDealers.length} Dealers Found
+                </Text>
+                {filteredDealers.map((item) => renderDealerCard({ item }))}
+                {filteredDealers.length === 0 && (
+                  <Text style={styles.noDealersText}>No dealers found matching your search.</Text>
+                )}
+              </>
+            )}
           </View>
         </ScrollView>
       </View>
@@ -368,5 +381,35 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 14,
     fontWeight: '700',
+  },
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    gap: 12,
+  },
+  errorText: {
+    fontSize: 16,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+    paddingHorizontal: 40,
+  },
+  retryButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  retryText: {
+    color: COLORS.primary,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  noDealersText: {
+    textAlign: 'center',
+    color: COLORS.text.muted,
+    marginTop: 40,
+    fontSize: 15,
   },
 });

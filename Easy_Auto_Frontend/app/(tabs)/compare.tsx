@@ -17,9 +17,10 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from 'expo-haptics';
-import { SAMPLE_COMPARISONS } from "../../constants/dummydata/compare";
 import CarSelectionModal from "../../components/cars/compare/CarSelectionModal";
 import ComparisonCard from "../../components/cars/compare/ComparisonCard";
+import { getComparisonHistory } from "../../utils/comparisonHistory";
+import { SimilarComparison } from "../../types/compare-detail.types";
 
 const { width } = Dimensions.get('window');
 
@@ -30,14 +31,21 @@ export default function CompareScreen() {
   const [activeSlot, setActiveSlot] = useState<1 | 2>(1);
   const [selectedCar1, setSelectedCar1] = useState<any>(null);
   const [selectedCar2, setSelectedCar2] = useState<any>(null);
+  const [history, setHistory] = useState<SimilarComparison[]>([]);
 
-  // Reset selection when screen gains focus
+  // Reset selection and load history when screen gains focus
   useFocusEffect(
     useCallback(() => {
       setSelectedCar1(null);
       setSelectedCar2(null);
+      loadHistory();
     }, [])
   );
+
+  const loadHistory = async () => {
+    const h = await getComparisonHistory();
+    setHistory(h);
+  };
 
   const openSelection = (slot: 1 | 2) => {
     setActiveSlot(slot);
@@ -70,72 +78,72 @@ export default function CompareScreen() {
     <View style={styles.selectionHero}>
       <Text style={styles.heroTitle}>Compare & Decide</Text>
       <Text style={styles.heroSub}>Select two vehicles to see a side-by-side comparison of features, performance and value.</Text>
-      
+
       <View style={styles.selectorRow}>
         {/* Slot 1 */}
-        <TouchableOpacity 
-          style={[styles.slot, selectedCar1 && styles.slotActive]} 
+        <TouchableOpacity
+          style={[styles.slot, selectedCar1 && styles.slotActive]}
           onPress={() => openSelection(1)}
         >
           {selectedCar1 ? (
             <View style={styles.selectedContainer}>
-               <Image 
-                source={{ uri: selectedCar1.AdImage?.[0]?.image_url }} 
-                style={styles.selectedImg} 
-               />
-               <Text style={styles.selectedName} numberOfLines={1}>{selectedCar1.title}</Text>
-               <View style={styles.changeBadge}>
-                 <Text style={styles.changeText}>Change</Text>
-               </View>
+              <Image
+                source={{ uri: selectedCar1.AdImage?.[0]?.image_url }}
+                style={styles.selectedImg}
+              />
+              <Text style={styles.selectedName} numberOfLines={1}>{selectedCar1.title}</Text>
+              <View style={styles.changeBadge}>
+                <Text style={styles.changeText}>Change</Text>
+              </View>
             </View>
           ) : (
             <View style={styles.emptySlot}>
-               <View style={styles.addIconCircle}>
-                 <Ionicons name="add" size={24} color={COLORS.primary} />
-               </View>
-               <Text style={styles.addLabel}>Add Car 1</Text>
+              <View style={styles.addIconCircle}>
+                <Ionicons name="add" size={24} color={COLORS.primary} />
+              </View>
+              <Text style={styles.addLabel}>Add Car 1</Text>
             </View>
           )}
         </TouchableOpacity>
 
         <View style={styles.vsBadgeContainer}>
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.primaryDark]}
-              style={styles.vsBadge}
-            >
-              <Text style={styles.vsBadgeText}>VS</Text>
-            </LinearGradient>
+          <LinearGradient
+            colors={[COLORS.primary, COLORS.primaryDark]}
+            style={styles.vsBadge}
+          >
+            <Text style={styles.vsBadgeText}>VS</Text>
+          </LinearGradient>
         </View>
 
         {/* Slot 2 */}
-        <TouchableOpacity 
-          style={[styles.slot, selectedCar2 && styles.slotActive]} 
+        <TouchableOpacity
+          style={[styles.slot, selectedCar2 && styles.slotActive]}
           onPress={() => openSelection(2)}
         >
           {selectedCar2 ? (
             <View style={styles.selectedContainer}>
-               <Image 
-                source={{ uri: selectedCar2.AdImage?.[0]?.image_url }} 
-                style={styles.selectedImg} 
-               />
-               <Text style={styles.selectedName} numberOfLines={1}>{selectedCar2.title}</Text>
-               <View style={styles.changeBadge}>
-                 <Text style={styles.changeText}>Change</Text>
-               </View>
+              <Image
+                source={{ uri: selectedCar2.AdImage?.[0]?.image_url }}
+                style={styles.selectedImg}
+              />
+              <Text style={styles.selectedName} numberOfLines={1}>{selectedCar2.title}</Text>
+              <View style={styles.changeBadge}>
+                <Text style={styles.changeText}>Change</Text>
+              </View>
             </View>
           ) : (
             <View style={styles.emptySlot}>
-               <View style={styles.addIconCircle}>
-                 <Ionicons name="add" size={24} color={COLORS.primary} />
-               </View>
-               <Text style={styles.addLabel}>Add Car 2</Text>
+              <View style={styles.addIconCircle}>
+                <Ionicons name="add" size={24} color={COLORS.primary} />
+              </View>
+              <Text style={styles.addLabel}>Add Car 2</Text>
             </View>
           )}
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={[styles.compareActionBtn, (!selectedCar1 || !selectedCar2) && styles.compareActionBtnDisabled]} 
+      <TouchableOpacity
+        style={[styles.compareActionBtn, (!selectedCar1 || !selectedCar2) && styles.compareActionBtnDisabled]}
         onPress={handleCompare}
         disabled={!selectedCar1 || !selectedCar2}
       >
@@ -161,7 +169,7 @@ export default function CompareScreen() {
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
-          
+
           <View pointerEvents="none" style={styles.logoCentre}>
             <RNImage
               source={require("@/assets/logoHome.png")}
@@ -179,13 +187,13 @@ export default function CompareScreen() {
       </LinearGradient>
 
       <FlatList
-        data={SAMPLE_COMPARISONS}
-        keyExtractor={(item: any) => item.id}
+        data={history}
+        keyExtractor={(item: SimilarComparison) => String(item.id)}
         renderItem={useCallback(({ item }: any) => <ComparisonCard item={item} />, [])}
         ListHeaderComponent={
           <>
             {renderSelectionHeader()}
-            <Text style={styles.sectionHeading}>Popular Comparisons</Text>
+            {history.length > 0 && <Text style={styles.sectionHeading}>Previous Comparisons</Text>}
           </>
         }
         contentContainerStyle={styles.listContent}

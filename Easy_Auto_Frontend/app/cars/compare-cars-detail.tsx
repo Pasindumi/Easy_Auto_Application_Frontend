@@ -17,9 +17,9 @@ import Loading from '@/components/ui/Loading';
 import ComparisonSpecsTable from '../../components/cars/compare/ComparisonSpecsTable';
 import ComparisonVehicleHeader from '../../components/cars/compare/ComparisonVehicleHeader';
 import SimilarComparisonsSection from '../../components/cars/compare/SimilarComparisonsSection';
-import { SIMILAR_COMPARISONS } from "../../constants/dummydata/compare-detail";
 import { ENDPOINTS } from '../../constants/API';
-import { ComparisonVehicle } from '../../types/compare-detail.types';
+import { ComparisonVehicle, SimilarComparison } from '../../types/compare-detail.types';
+import { saveComparisonToHistory, getComparisonHistory } from '../../utils/comparisonHistory';
 
 const { width } = Dimensions.get('window');
 
@@ -28,7 +28,17 @@ export default function CompareCars() {
    const { id1, id2 } = useLocalSearchParams();
    const [vehicle1, setVehicle1] = useState<ComparisonVehicle | null>(null);
    const [vehicle2, setVehicle2] = useState<ComparisonVehicle | null>(null);
+   const [history, setHistory] = useState<SimilarComparison[]>([]);
    const [loading, setLoading] = useState(true);
+
+   useEffect(() => {
+      loadHistory();
+   }, []);
+
+   const loadHistory = async () => {
+      const h = await getComparisonHistory();
+      setHistory(h);
+   };
 
    useEffect(() => {
       if (id1 && id2) {
@@ -44,24 +54,61 @@ export default function CompareCars() {
          const json = await response.json();
 
          if (json.success && json.data.length > 0) {
-            const mapToVehicle = (car: any): ComparisonVehicle => ({
-               name: car.title,
-               image: car.AdImage?.[0]?.image_url || 'https://via.placeholder.com/150',
-               year: String(car.CarDetails?.year || 'N/A'),
-               price: `LKR ${car.price?.toLocaleString()}`,
-               km: `${car.CarDetails?.mileage?.toLocaleString()} km`,
-               transmission: car.CarDetails?.transmission || 'N/A',
-               fuelType: car.CarDetails?.fuel_type || 'N/A',
-               condition: car.CarDetails?.condition || 'N/A',
-               fuelEconomy: 'N/A',
-               rating: 4,
-            });
+            const mapToVehicle = (car: any): ComparisonVehicle => {
+               const details = Array.isArray(car.CarDetails) ? car.CarDetails[0] : (car.CarDetails || {});
+               const carAttributes: { [key: string]: string } = {};
+
+               if (Array.isArray(car.attributes)) {
+                  car.attributes.forEach((attr: any) => {
+                     const name = attr.attribute?.attribute_name;
+                     const value = attr.value;
+                     if (name && value && value !== 'false' && value !== 'null' && value !== 'undefined') {
+                        carAttributes[name] = value === 'true' ? 'Yes' : value;
+                     }
+                  });
+               }
+
+               return {
+                  name: car.title,
+                  image: car.AdImage?.[0]?.image_url || 'https://via.placeholder.com/150',
+                  year: String(details.year || 'N/A'),
+                  price: `LKR ${car.price?.toLocaleString()}`,
+                  km: (details.mileage !== undefined && details.mileage !== null && details.mileage !== '')
+                     ? `${Number(details.mileage).toLocaleString()} km`
+                     : 'N/A',
+                  transmission: details.transmission || 'N/A',
+                  fuelType: details.fuel_type || 'N/A',
+                  condition: details.condition || 'N/A',
+                  fuelEconomy: 'N/A',
+                  rating: car.users?.rating || 0,
+                  location: car.location || 'Sri Lanka',
+                  sellerVerified: car.users?.verification_status === 'VERIFIED',
+                  brand: details.brand || 'N/A',
+                  model: details.model || 'N/A',
+                  attributes: carAttributes,
+               };
+            };
 
             const v1 = json.data.find((c: any) => String(c.id) === String(id1));
             const v2 = json.data.find((c: any) => String(c.id) === String(id2));
 
-            if (v1) setVehicle1(mapToVehicle(v1));
-            if (v2) setVehicle2(mapToVehicle(v2));
+            if (v1 && v2) {
+               const veh1 = mapToVehicle(v1);
+               const veh2 = mapToVehicle(v2);
+               setVehicle1(veh1);
+               setVehicle2(veh2);
+
+               // Save to history
+               await saveComparisonToHistory({
+                  id1: String(id1),
+                  id2: String(id2),
+                  leftName: veh1.name,
+                  rightName: veh2.name,
+                  leftImage: veh1.image,
+                  rightImage: veh2.image
+               });
+               loadHistory(); // Refresh history
+            }
          }
       } catch (error) {
          console.error("Error fetching comparison data:", error);
@@ -151,7 +198,7 @@ export default function CompareCars() {
 
             {/* Discover More */}
             <View style={styles.similarWrap}>
-               <SimilarComparisonsSection comparisons={SIMILAR_COMPARISONS} />
+               <SimilarComparisonsSection comparisons={history} />
             </View>
 
             <View style={{ height: 100 }} />
