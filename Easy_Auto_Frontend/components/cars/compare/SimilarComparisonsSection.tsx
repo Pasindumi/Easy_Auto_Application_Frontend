@@ -4,6 +4,7 @@ import { SimilarComparison } from '../../../types/compare-detail.types';
 import { LinearGradient } from 'expo-linear-gradient';
 import COLORS from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 interface Props {
     comparisons: SimilarComparison[];
@@ -13,28 +14,40 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.75;
 
 const SimilarComparisonsSection: React.FC<Props> = ({ comparisons }) => {
+    const router = useRouter();
+
+    if (!comparisons || comparisons.length === 0) return null;
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
-                    <Text style={styles.similarTitle}>Similar Comparisons</Text>
-                    <Text style={styles.similarSub}>Hand-picked vehicles you might explore</Text>
+                    <Text style={styles.similarTitle}>Previous Comparisons</Text>
+                    <Text style={styles.similarSub}>Quickly revisit your recent side-by-side analyses</Text>
                 </View>
                 <TouchableOpacity style={styles.viewAll}>
                     <Text style={styles.viewAllText}>See All</Text>
                     <Ionicons name="arrow-forward" size={14} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
-            
-            <ScrollView 
-                horizontal 
+
+            <ScrollView
+                horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
                 snapToInterval={CARD_WIDTH + 20}
                 decelerationRate="fast"
             >
                 {comparisons.map((item) => (
-                    <TouchableOpacity key={item.id} style={styles.card} activeOpacity={0.9}>
+                    <TouchableOpacity
+                        key={item.id}
+                        style={styles.card}
+                        activeOpacity={0.9}
+                        onPress={() => router.push({
+                            pathname: '/cars/compare-cars-detail',
+                            params: { id1: item.id1, id2: item.id2 }
+                        })}
+                    >
                         <View style={styles.imageSection}>
                             <View style={styles.carHalf}>
                                 <Image source={{ uri: item.leftImage }} style={styles.carImg} />
@@ -42,7 +55,7 @@ const SimilarComparisonsSection: React.FC<Props> = ({ comparisons }) => {
                                     <Text style={styles.carLabel} numberOfLines={1}>{item.leftName}</Text>
                                 </View>
                             </View>
-                            
+
                             <View style={styles.vsCircleContainer}>
                                 <LinearGradient
                                     colors={[COLORS.primary, COLORS.primaryDark]}
@@ -88,8 +101,8 @@ const styles = StyleSheet.create({
     headerLeft: {
         flex: 1,
     },
-    similarTitle: { 
-        fontSize: 20, 
+    similarTitle: {
+        fontSize: 20,
         fontWeight: '900',
         color: '#1E293B',
         marginBottom: 4,
@@ -118,10 +131,10 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         paddingBottom: 20,
     },
-    card: { 
+    card: {
         width: CARD_WIDTH,
-        backgroundColor: '#fff', 
-        borderRadius: 28, 
+        backgroundColor: '#fff',
+        borderRadius: 28,
         marginRight: 20,
         padding: 12,
         shadowColor: '#000',
