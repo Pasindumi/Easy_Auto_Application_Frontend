@@ -147,6 +147,25 @@ export default function AdDetailsScreen() {
         );
     };
 
+    // Auto-play gallery effect
+    useEffect(() => {
+        const adImages = ad?.AdImage || [];
+        if (adImages.length <= 1) return;
+
+        const timer = setInterval(() => {
+            let nextIndex = activeImageIndex + 1;
+            if (nextIndex >= adImages.length) {
+                nextIndex = 0;
+            }
+            if (galleryRef.current) {
+                galleryRef.current.scrollToOffset({ offset: nextIndex * width, animated: true });
+                setActiveImageIndex(nextIndex);
+            }
+        }, 3000);
+
+        return () => clearInterval(timer);
+    }, [ad, activeImageIndex, width]);
+
     const headerOpacity = scrollY.interpolate({ inputRange: [GALLERY_HEIGHT - 100, GALLERY_HEIGHT - 60], outputRange: [0, 1], extrapolate: 'clamp' });
 
     if (loading) {
@@ -227,7 +246,7 @@ export default function AdDetailsScreen() {
                             setActiveImageIndex(Math.round(e.nativeEvent.contentOffset.x / width));
                         }}
                         renderItem={({ item, index }) => (
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 activeOpacity={0.9}
                                 onPress={() => {
                                     setInitialGalleryIndex(index);
@@ -333,7 +352,6 @@ export default function AdDetailsScreen() {
                 {/* ΓöÇΓöÇΓöÇ SPECS GRID ΓöÇΓöÇΓöÇ */}
                 {specs.length > 0 && (
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Vehicle Specifications</Text>
                         <View style={styles.specsGrid}>
                             {specs.map((spec, i) => (
                                 <View key={i} style={styles.specCard}>
@@ -348,9 +366,8 @@ export default function AdDetailsScreen() {
                     </View>
                 )}
 
-                {/* ΓöÇΓöÇΓöÇ DESCRIPTION ΓöÇΓöÇΓöÇ */}
+                {/* ─── DESCRIPTION ─── */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Description</Text>
                     <Text style={styles.descText}>{ad.description || "No description provided."}</Text>
                 </View>
 
@@ -371,10 +388,21 @@ export default function AdDetailsScreen() {
                     </View>
                 )}
 
-                {/* ΓöÇΓöÇΓöÇ SELLER CARD ΓöÇΓöÇΓöÇ */}
+                {/* ─── SELLER CARD ─── */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Listed By</Text>
-                    <View style={styles.sellerCard}>
+                    <TouchableOpacity
+                        style={styles.sellerCard}
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            if (ad.users?.id) {
+                                router.push({
+                                    pathname: `/seller/${ad.users.id}` as any,
+                                    params: { sellerData: JSON.stringify(ad.users) }
+                                });
+                            }
+                        }}
+                    >
                         <View style={styles.sellerAvatar}>
                             {ad.users?.avatar ? (
                                 <Image source={{ uri: ad.users.avatar }} style={styles.sellerAvatarImg} contentFit="cover" />
@@ -397,7 +425,7 @@ export default function AdDetailsScreen() {
                                 <Text style={styles.sellerPhone}>{ad.users.phone}</Text>
                             )}
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 </View>
 
                 {/* ΓöÇΓöÇΓöÇ SHARE ΓöÇΓöÇΓöÇ */}
@@ -456,14 +484,14 @@ export default function AdDetailsScreen() {
                 {/* ─── SIMILAR CARS ─── */}
                 <View style={[styles.section, { backgroundColor: 'transparent', elevation: 0, shadowOpacity: 0, paddingHorizontal: 0, marginHorizontal: 0 }]}>
                     <Text style={[styles.sectionTitle, { paddingHorizontal: 20 }]}>Similar Cars You Might Like</Text>
-                    <TrendingCars 
-                        fadeAnim={dummyAnim} 
-                        slideAnim={dummyAnimSlide} 
+                    <TrendingCars
+                        fadeAnim={dummyAnim}
+                        slideAnim={dummyAnimSlide}
                         trendingCategory="All"
-                        setTrendingCategory={() => {}}
+                        setTrendingCategory={() => { }}
                     />
                 </View>
-                
+
             </Animated.ScrollView>
 
             {/* ΓöÇΓöÇΓöÇ STICKY FOOTER ΓöÇΓöÇΓöÇ */}
@@ -651,7 +679,7 @@ const styles = StyleSheet.create({
     featureText: { fontSize: 12, color: '#166534', fontWeight: '600' },
 
     // SELLER
-    sellerCard: { 
+    sellerCard: {
         flexDirection: 'row', alignItems: 'center', gap: 16,
         backgroundColor: '#F8FAFC', padding: 16, borderRadius: 24,
         borderWidth: 1, borderColor: '#E2E8F0'

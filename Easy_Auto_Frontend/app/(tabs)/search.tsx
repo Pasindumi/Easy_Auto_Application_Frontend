@@ -54,9 +54,9 @@ const SORT_OPTIONS = [
 const PRICE_RANGES = [
   { label: 'Any Price', min: '', max: '' },
   { label: 'Under 1M', min: '', max: '1000000' },
-  { label: '1M - 3M', min: '1000000', max: '3000000' },
-  { label: '3M - 5M', min: '3000000', max: '5000000' },
-  { label: '5M - 10M', min: '5000000', max: '10000000' },
+  { label: '1M to 3M', min: '1000000', max: '3000000' },
+  { label: '3M to 5M', min: '3000000', max: '5000000' },
+  { label: '5M to 10M', min: '5000000', max: '10000000' },
   { label: 'Above 10M', min: '10000000', max: '' },
 ];
 

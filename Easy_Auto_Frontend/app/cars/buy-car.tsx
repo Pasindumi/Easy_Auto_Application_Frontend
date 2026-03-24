@@ -34,9 +34,9 @@ const BRAND_GRAD: [string, string] = ["#235CF8", "#1E4DB7"];
 const PRICE_RANGES = [
     { label: "Any Price", min: "", max: "" },
     { label: "Under 1M", min: "", max: "1000000" },
-    { label: "1M ΓÇô 3M", min: "1000000", max: "3000000" },
-    { label: "3M ΓÇô 5M", min: "3000000", max: "5000000" },
-    { label: "5M ΓÇô 10M", min: "5000000", max: "10000000" },
+    { label: "1M to 3M", min: "1000000", max: "3000000" },
+    { label: "3M to 5M", min: "3000000", max: "5000000" },
+    { label: "5M to 10M", min: "5000000", max: "10000000" },
     { label: "Above 10M", min: "10000000", max: "" },
 ];
 
@@ -68,8 +68,8 @@ const formatMileage = (m: any) => {
 
 const SORT_OPTIONS = [
     { value: "all", label: "Best Match" },
-    { value: "price-low", label: "Price: Low ΓåÆ High" },
-    { value: "price-high", label: "Price: High ΓåÆ Low" },
+    { value: "price-low", label: "Price: Low to High" },
+    { value: "price-high", label: "Price: High to Low" },
     { value: "year-new", label: "Newest Year" },
     { value: "year-old", label: "Classic First" },
 ];
