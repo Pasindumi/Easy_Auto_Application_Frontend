@@ -118,7 +118,6 @@ class ApiClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': 'true',
           },
           body: JSON.stringify({ refreshToken }),
         });
@@ -169,7 +168,6 @@ class ApiClient {
 
     // Prepare headers
     const requestHeaders: any = {
-      'ngrok-skip-browser-warning': 'true',
       ...headers,
     };
 
@@ -236,7 +234,7 @@ class ApiClient {
           await this.clearAuthAndRedirect();
           throw new Error('SESSION_EXPIRED');
         }
-        
+
         const errorObj: any = new Error(data.error || data.message || 'Request failed');
         errorObj.status = response.status;
         throw errorObj;

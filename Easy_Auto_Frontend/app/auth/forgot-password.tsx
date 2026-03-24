@@ -40,11 +40,10 @@ export default function ForgotPasswordScreen() {
       console.log("Sending request to:", `${ENDPOINTS.AUTH}/forgot`);
       console.log("Request body:", { emailOrPhone: identifier.trim() });
 
-      const response = await fetch(`${ENDPOINTS.AUTH}/forgot`, {
-        method: "POST",
+      const response = await fetch(`${ENDPOINTS.AUTH}/forgot-password`, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ emailOrPhone: identifier.trim() }),
       });

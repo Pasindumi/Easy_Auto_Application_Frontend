@@ -62,7 +62,6 @@ export default function LoginScreen() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({
           email,
@@ -124,7 +123,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      
+
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -139,13 +138,13 @@ export default function LoginScreen() {
           {/* Premium Header */}
           <View style={[styles.cleanHeader, { paddingTop: insets.top + 10 }]}>
             <View style={styles.headerTopRow}>
-              <TouchableOpacity 
-                style={styles.backButton} 
+              <TouchableOpacity
+                style={styles.backButton}
                 onPress={() => router.replace('/(tabs)')}
               >
                 <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
               </TouchableOpacity>
-              
+
               <View style={styles.logoCentered}>
                 <Image
                   source={require("@/assets/logoHome.png")}
@@ -153,7 +152,7 @@ export default function LoginScreen() {
                   contentFit="contain"
                 />
               </View>
-              
+
               <View style={{ width: 42 }} />
             </View>
           </View>
@@ -236,7 +235,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          
+
           <Footer />
         </ScrollView>
       </KeyboardAvoidingView>
