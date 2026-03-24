@@ -217,11 +217,6 @@ export default function ProfileScreen() {
               title="Saved Addresses"
               onPress={() => handleMenuItemPress('/profile/address')}
             />
-            <SettingItem
-              icon="shield-checkmark-outline"
-              title="Identity Verification"
-              onPress={() => { }}
-            />
             <View style={styles.itemDivider} />
             <SettingItem
               icon="notifications-outline"
