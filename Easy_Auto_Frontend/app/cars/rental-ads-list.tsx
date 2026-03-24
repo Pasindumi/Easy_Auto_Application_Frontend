@@ -260,20 +260,21 @@ export default function RentalAdsListScreen() {
             <Header showBack={true} title="Rental Vehicles" />
             {renderFilterModal()}
 
-            <SafeAreaView style={styles.safe} edges={['bottom']}>
+            <View style={styles.mainContentContainer}>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     {/* Search Section */}
                     <View style={styles.searchSection}>
                         <View style={styles.searchContainer}>
-                            <Ionicons name="search-outline" size={20} color="#9CA3AF" />
+                            <Ionicons name="search" size={20} color="#94A3B8" />
                             <TextInput
-                                placeholder="Search rentals..."
+                                placeholder="Search rentals (e.g. Toyota...)"
                                 value={searchQuery}
                                 onChangeText={setSearchQuery}
                                 style={styles.searchInput}
+                                placeholderTextColor="#94A3B8"
                             />
                             <TouchableOpacity style={styles.filterBtn} onPress={() => setShowFilters(true)}>
-                                <Ionicons name="options-outline" size={24} color={COLORS.primary} />
+                                <Ionicons name="options-outline" size={22} color={COLORS.primary} />
                                 {(minPrice || maxPrice || selectedBrand || locationFilter) && <View style={styles.filterDot} />}
                             </TouchableOpacity>
                         </View>
@@ -313,31 +314,37 @@ export default function RentalAdsListScreen() {
                         )}
                     </View>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
         </>
     );
 }
 
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: '#F9FAFB' },
+    safe: { flex: 1, backgroundColor: COLORS.primary },
+    mainContentContainer: {
+        flex: 1,
+        backgroundColor: '#F9FAFB',
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        marginTop: 0, // Removed negative margin to fix overlap
+        overflow: 'hidden',
+    },
     scrollView: { flex: 1 },
-    scrollContent: { paddingBottom: 40 },
-    searchSection: { padding: 16 },
+    scrollContent: { paddingBottom: 60 },
+    searchSection: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16 },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        height: 56,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        backgroundColor: '#F1F5F9', // Slate-50 look
+        borderRadius: 18,
+        paddingHorizontal: 14,
+        height: 54,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
     },
-    searchInput: { flex: 1, marginLeft: 12, fontSize: 15, color: '#111827' },
-    filterBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F0F4FF', borderRadius: 12 },
-    filterDot: { position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444', borderWidth: 1, borderColor: '#fff' },
+    searchInput: { flex: 1, marginLeft: 10, fontSize: 15, color: '#0F172A', fontWeight: '500' },
+    filterBtn: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+    filterDot: { position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444', borderWidth: 1, borderColor: '#fff' },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginTop: 10, marginBottom: 12 },
     sectionTitle: { fontSize: 18, fontWeight: '700', color: '#111827' },
     sectionSubtitle: { fontSize: 14, color: '#6B7280' },
