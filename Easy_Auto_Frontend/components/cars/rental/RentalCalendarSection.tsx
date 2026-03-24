@@ -13,23 +13,25 @@ const RentalCalendarSection: React.FC<RentalCalendarSectionProps> = ({ availabil
         <View style={styles.section}>
             <View style={styles.header}>
                 <Ionicons name="calendar-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
-                <Text style={styles.sectionTitle}>Availability Calendar</Text>
+                <Text style={styles.sectionTitle}>Availability & Blackout Dates</Text>
             </View>
             <Text style={styles.infoText}>
-                Set your vehicle's availability. By default, it's marked as available for all dates.
+                By default, your vehicle is marked as available from the publish date until the ad expires.
+                You only need to set 'Blackout Dates' if there are specific days the vehicle is unavailable.
             </Text>
 
             <View style={styles.placeholderContainer}>
+                <Ionicons name="shield-checkmark-outline" size={40} color="#E2E8F0" style={{ marginBottom: 12 }} />
                 <Text style={styles.placeholderText}>
-                    [ Calendar Integration Placeholder ]
+                    Available by Default
                 </Text>
                 <Text style={styles.subText}>
-                    You can manage specific blackout dates once the ad is published from the 'Manage Ads' dashboard.
+                    You can manage specific blackout (unavailable) dates below or once the ad is published.
                 </Text>
             </View>
 
             <TouchableOpacity style={styles.btnSecondary}>
-                <Text style={styles.btnText}>Set Available Dates</Text>
+                <Text style={styles.btnText}>Set Blackout (Unavailable) Dates</Text>
             </TouchableOpacity>
         </View>
     );
