@@ -1,4 +1,4 @@
-// app/select-language.tsx
+// app/settings/select-language.tsx
 import Header from "../../components/Header";
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -10,9 +10,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
@@ -44,11 +44,20 @@ export default function SelectLanguage() {
 
   const languages = [
     {
+      code: "en",
+      name: "English",
+      native: "English",
+      icon: "earth",
+      color: "#2563EB",
+      desc: "Set app language to English",
+    },
+    {
       code: "si",
       name: "Sinhala",
       native: "සිංහල",
       icon: "web",
       color: "#F97316",
+      desc: "යෙදුමේ භාෂාව සිංහලට වෙනස් කරන්න",
     },
     {
       code: "ta",
@@ -56,13 +65,7 @@ export default function SelectLanguage() {
       native: "தமிழ்",
       icon: "translate",
       color: "#10B981",
-    },
-    {
-      code: "en",
-      name: "English",
-      native: "English",
-      icon: "earth",
-      color: "#2563EB",
+      desc: "பயன்பாட்டு மொழியை தமிழுக்கு மாற்றவும்",
     },
   ];
 
@@ -73,30 +76,34 @@ export default function SelectLanguage() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
+      <Header title={t('select_language.title', 'App Language')} showBack={true} />
 
-      <Header title={t('select_language.title')} showBack={true} />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerSection}>
+          <Text style={styles.mainTitle}>{t('select_language.preference', 'Language Preference')}</Text>
+          <Text style={styles.subTitle}>Select the language you want to use throughout the EasyAuto application.</Text>
+        </View>
 
-      <View style={styles.headerSpacer} />
-
-      <View style={styles.content}>
-        <Text style={styles.sectionHeader}>{t('select_language.preference')}</Text>
-
-        <View style={styles.panel}>
+        <View style={styles.cardsContainer}>
           {languages.map((lang, index) => {
             const rowScale = useSharedValue(1);
+            const isSelected = selected === lang.code;
+
             const rowStyle = useAnimatedStyle(() => ({
               transform: [{ scale: rowScale.value }],
-              backgroundColor: selected === lang.code ? '#F9FAFB' : COLORS.white,
             }));
 
             return (
               <Animated.View key={lang.code} style={rowStyle}>
                 <TouchableOpacity
                   style={[
-                    styles.langRow,
-                    index === languages.length - 1 && { borderBottomWidth: 0 }
+                    styles.langCard,
+                    isSelected && styles.langCardSelected
                   ]}
                   onPressIn={() => onPressIn(rowScale)}
                   onPressOut={() => onPressOut(rowScale)}
@@ -106,35 +113,42 @@ export default function SelectLanguage() {
                   <View
                     style={[
                       styles.iconWrapper,
-                      { backgroundColor: lang.color + "15" },
+                      { backgroundColor: isSelected ? `${COLORS.primary}15` : '#F1F5F9' },
                     ]}
                   >
                     <MaterialCommunityIcons
                       name={lang.icon as any}
-                      size={24}
-                      color={lang.color}
+                      size={26}
+                      color={isSelected ? COLORS.primary : "#64748B"}
                     />
                   </View>
 
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.langName}>{lang.name}</Text>
-                    <Text style={styles.langNative}>{lang.native}</Text>
+                  <View style={styles.textContainer}>
+                    <Text style={[styles.langName, isSelected && styles.textSelected]}>
+                      {lang.name}
+                    </Text>
+                    <View style={styles.nativeBadge}>
+                      <Text style={styles.langNative}>{lang.native}</Text>
+                    </View>
+                    <Text style={styles.langDesc} numberOfLines={1}>{lang.desc}</Text>
                   </View>
 
-                  {selected === lang.code && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={24}
-                      color={COLORS.primary}
-                    />
-                  )}
+                  <View style={[
+                    styles.radioCircle,
+                    isSelected && styles.radioCircleSelected
+                  ]}>
+                    {isSelected && <View style={styles.radioInner} />}
+                  </View>
                 </TouchableOpacity>
               </Animated.View>
             );
           })}
         </View>
+      </ScrollView>
 
-        <Animated.View style={[styles.actionWrapper, saveButtonStyle]}>
+      {/* Sticky Bottom Button */}
+      <View style={styles.footer}>
+        <Animated.View style={saveButtonStyle}>
           <TouchableOpacity
             style={styles.saveBtn}
             onPressIn={() => onPressIn(saveScale)}
@@ -148,97 +162,151 @@ export default function SelectLanguage() {
               end={{ x: 1, y: 1 }}
               style={styles.buttonGradient}
             >
-              <Ionicons name="save" size={20} color="#fff" />
-              <Text style={styles.saveText}>{t('select_language.confirm')}</Text>
+              <Ionicons name="checkmark-circle-outline" size={22} color="#fff" />
+              <Text style={styles.saveText}>{t('select_language.confirm', 'Apply Changes')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: '#F8FAFC',
   },
-  headerSpacer: {
-    height: 20,
-    backgroundColor: '#F9FAFB',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+  scrollContent: {
+    paddingTop: 24,
+    paddingBottom: 150, // space for footer
+    paddingHorizontal: 20,
   },
-  content: {
-    flex: 1,
+  headerSection: {
+    marginBottom: 32,
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  sectionHeader: {
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    paddingBottom: 16,
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#9CA3AF',
-    letterSpacing: 1.5,
+  mainTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F172A',
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
-  panel: {
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#F3F4F6',
+  subTitle: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 22,
+    fontWeight: '500',
   },
-  langRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+  cardsContainer: {
+    gap: 16,
+  },
+  langCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+  },
+  langCardSelected: {
+    borderColor: COLORS.primary,
   },
   iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 16,
   },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   langName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginBottom: 2,
+  },
+  textSelected: {
+    color: COLORS.primary,
+  },
+  nativeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   langNative: {
     fontSize: 13,
-    color: "#9CA3AF",
-    marginTop: 2,
-    fontWeight: '600',
+    color: '#64748B',
+    fontWeight: '700',
   },
-  actionWrapper: {
-    paddingHorizontal: 24,
-    marginTop: 60,
+  langDesc: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  radioCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 16,
+  },
+  radioCircleSelected: {
+    borderColor: COLORS.primary,
+  },
+  radioInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: COLORS.primary,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingBottom: 64,
+    paddingTop: 20,
+    backgroundColor: 'rgba(248, 250, 252, 0.9)',
   },
   saveBtn: {
-    borderRadius: 16,
     height: 56,
+    borderRadius: 20,
     overflow: 'hidden',
+    elevation: 8,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
   },
   buttonGradient: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
   },
   saveText: {
-    color: "#fff",
-    fontWeight: "900",
+    color: '#fff',
     fontSize: 16,
+    fontWeight: '900',
     letterSpacing: 0.5,
   },
 });
