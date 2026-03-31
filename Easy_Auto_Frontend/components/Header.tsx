@@ -22,13 +22,14 @@ type Props = {
   title?: string;
   iconName?: keyof typeof Ionicons.glyphMap;
   rightElement?: React.ReactNode;
+  style?: any;
 };
 
-export default function Header({ showBack = true, title, iconName, rightElement }: Props) {
+export default function Header({ showBack = true, title, iconName, rightElement, style }: Props) {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {Platform.OS === "android" && (
         <RNStatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
       )}

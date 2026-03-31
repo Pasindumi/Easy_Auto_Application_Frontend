@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import "../src/i18n"; // Initialize i18n
 import {
   DarkTheme,
@@ -10,8 +11,12 @@ import "react-native-reanimated";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ToastProvider } from "../contexts/ToastContext";
+import { LoadingProvider, useLoading } from "../contexts/LoadingContext";
+import LoadingScreen from "../components/ui/LoadingScreen";
 import Toast from "../components/ui/Toast";
 import { tokenCache } from "../utils/tokenCache";
+
+import { usePathname } from "expo-router";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
@@ -28,6 +33,24 @@ export const unstable_settings = {
 
 function InnerLayout() {
   const { isDarkMode } = useTheme();
+  const { isLoading, setIsLoading } = useLoading();
+  const pathname = usePathname();
+
+  const isFirstRender = React.useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    // Show loading screen on navigation change
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000); // Slightly longer for the interactive animation
+
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   return (
     <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
@@ -63,6 +86,7 @@ function InnerLayout() {
       </Stack>
       <StatusBar style="auto" />
       <Toast />
+      {isLoading && <LoadingScreen />}
     </ThemeProvider>
   );
 }
@@ -77,9 +101,11 @@ export default function RootLayout() {
         <ClerkLoaded>
           <AuthProvider>
             <ToastProvider>
-              <CustomThemeProvider>
-                <InnerLayout />
-              </CustomThemeProvider>
+              <LoadingProvider>
+                <CustomThemeProvider>
+                  <InnerLayout />
+                </CustomThemeProvider>
+              </LoadingProvider>
             </ToastProvider>
           </AuthProvider>
         </ClerkLoaded>

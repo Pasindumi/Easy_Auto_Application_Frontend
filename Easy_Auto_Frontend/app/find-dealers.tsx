@@ -152,7 +152,10 @@ export default function FindDealersScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header title="Find Dealers" />
+      <Header
+        title="Find Dealers"
+        style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, elevation: 0, shadowOpacity: 0 }}
+      />
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -197,7 +200,7 @@ export default function FindDealersScreen() {
               style={styles.filtersList}
               contentContainerStyle={styles.filtersContent}
             >
-              {['All', 'Nearby', 'Verified Only', 'Top Rated'].map((filter) => (
+              {['All', 'Verified Only', 'Top Rated'].map((filter) => (
                 <TouchableOpacity
                   key={filter}
                   onPress={() => setSelectedFilter(filter)}
@@ -279,7 +282,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   searchHeader: {
-    paddingTop: 20,
+    paddingTop: 10,
     paddingBottom: 25,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
