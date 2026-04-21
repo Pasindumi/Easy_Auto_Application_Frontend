@@ -22,7 +22,7 @@ type Props = {
   onIconPress?: () => void;
   multiline?: boolean;
   numberOfLines?: number;
-  inputStyle?: object; 
+  inputStyle?: object;
 };
 
 export default function InputField({
@@ -79,7 +79,7 @@ export default function InputField({
             onPress={onIconPress}
             style={styles.rightIconTouchable}
           >
-            <Ionicons name="eye" size={18} />
+            <Ionicons name={secure ? "eye" : "eye-off"} size={20} color="#94A3B8" />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -89,51 +89,53 @@ export default function InputField({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 6,
+    marginBottom: 16, // Increased spacing
   },
 
   label: {
-    color: "#767575ff",
-    fontSize: 12,
+    color: "#64748B", // Soft slate
+    fontSize: 13,
     fontWeight: "700",
-    marginBottom: 2,
+    marginBottom: 6,
+    marginLeft: 4,
   },
 
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.bgLight,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    minHeight: Platform.OS === "ios" ? 44 : 42,
+    borderWidth: 1.5,
+    borderColor: '#F1F5F9', // Premium soft border
+    borderRadius: 14, // Smoother corners
+    paddingHorizontal: 16,
+    minHeight: Platform.OS === "ios" ? 54 : 50, // Slightly taller
     paddingVertical: 2,
-    backgroundColor: colors.white,
+    backgroundColor: '#FFFFFF',
   },
 
-  // ⭐ Shadow added here
+  // ⭐ Refined Shadow
   shadow: {
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 5, // Android
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2, // Subtler elevation on Android
   },
 
   icon: {
-    marginRight: 8,
-    color: colors.darkblue,
+    marginRight: 10,
+    color: "#94A3B8", // Subtle icon color
   },
 
   input: {
     flex: 1,
     fontSize: 15,
-    color: "#888888ff",
+    color: "#1E293B", // Darker for better readability
     paddingVertical: 0,
+    fontWeight: '500',
   },
 
   rightIconTouchable: {
     marginLeft: 8,
-    padding: 4,
+    padding: 6,
   },
 });

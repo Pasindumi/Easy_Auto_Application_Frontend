@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     }),
   },
   gradient: {
-    paddingVertical: 12,
+    paddingVertical: 15, // Taller buttons for premium feel
     alignItems: "center",
     justifyContent: "center",
     width: '100%',
