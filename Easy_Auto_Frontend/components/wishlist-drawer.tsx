@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
-  ActivityIndicator,
   Dimensions,
   Easing,
   Modal,

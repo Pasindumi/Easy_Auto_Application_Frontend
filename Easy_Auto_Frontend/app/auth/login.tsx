@@ -20,7 +20,6 @@ import {
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import Footer from "../../components/Footer";
 import InputField from "../../components/InputField";
 import Button from "../../components/ui/button/Button";
 import SocialButton from "../../components/ui/button/SocialButton";
@@ -42,6 +41,7 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [lastClickTime, setLastClickTime] = useState(0);
@@ -134,97 +134,109 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          {/* Premium Header */}
-          {/* Premium Header */}
-          <View style={[styles.cleanHeader, { paddingTop: insets.top + 10 }]}>
-            <View style={styles.headerTopRow}>
+          {/* Hero Section with Branding */}
+          <LinearGradient
+            colors={[COLORS.primary, '#1E40AF']}
+            style={[styles.heroSection, { paddingTop: insets.top }]}
+          >
+            <View style={styles.heroContentContainer}>
+              <View style={styles.headerTopRow}>
+                <TouchableOpacity
+                  style={styles.backButtonHero}
+                  onPress={() => router.replace('/(tabs)')}
+                >
+                  <Ionicons name="chevron-back" size={24} color="#fff" />
+                </TouchableOpacity>
+
+                <View style={styles.logoHeroContainer}>
+                  <Image
+                    source={require("@/assets/logoHome.png")}
+                    style={styles.logoHeroImg}
+                    contentFit="contain"
+                    tintColor="#fff"
+                  />
+                </View>
+
+                <View style={{ width: 44 }} />
+              </View>
+
+              <View style={styles.heroTextContainer}>
+                <Text style={styles.heroTitle}>Welcome Back!</Text>
+              </View>
+            </View>
+          </LinearGradient>
+
+          {/* Overlapping Auth Form Card */}
+          <View style={styles.authWrapper}>
+            <View style={styles.authCard}>
+              <View style={styles.formHeader}>
+                <Text style={styles.welcomeText}>Login</Text>
+                <Text style={styles.subtitleText}>
+                  {t('auth.sign_in_subtitle')}
+                </Text>
+              </View>
+
+              {/* Email/Password Fields */}
+              <InputField
+                icon="mail-outline"
+                placeholder={t('auth.email')}
+                value={email}
+                onChange={setEmail}
+                keyboardType="email-address"
+              />
+              <InputField
+                icon="lock-closed-outline"
+                placeholder={t('auth.password')}
+                value={password}
+                onChange={setPassword}
+                secure={!showPassword}
+                onIconPress={() => setShowPassword(!showPassword)}
+              />
+
+              {/* Forgot password link */}
               <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.replace('/(tabs)')}
+                onPress={() => router.push("/auth/forgot-password")}
+                style={styles.forgotPasswordContainer}
               >
-                <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
+                <Text style={styles.forgotText}>{t('auth.forgot_password')}</Text>
               </TouchableOpacity>
 
-              <View style={styles.logoCentered}>
-                <Image
-                  source={require("@/assets/logoHome.png")}
-                  style={styles.logoImg}
-                  contentFit="contain"
+              {/* Login button */}
+              <View style={styles.loginBtnContainer}>
+                <Button
+                  title={loading ? "Logging in..." : t('login')}
+                  onPress={handleEmailLogin}
+                  disabled={loading || socialLoading !== null}
                 />
               </View>
 
-              <View style={{ width: 42 }} />
-            </View>
-          </View>
+              {/* OR separator */}
+              <View style={styles.orRow}>
+                <View style={styles.orLine} />
+                <Text style={styles.orText}>Or continue with</Text>
+                <View style={styles.orLine} />
+              </View>
 
-          {/* Custom Auth Form Area */}
-          <View style={styles.authContainer}>
-
-            <View style={styles.formHeader}>
-              <Text style={styles.welcomeText}>{t('auth.welcome_back')}</Text>
-              <Text style={styles.subtitleText}>
-                {t('auth.sign_in_subtitle')}
-              </Text>
-            </View>
-
-            {/* Email/Password Fields */}
-            <InputField
-              icon="mail-outline"
-              placeholder={t('auth.email')}
-              value={email}
-              onChange={setEmail}
-              keyboardType="email-address"
-            />
-            <InputField
-              icon="lock-closed-outline"
-              placeholder={t('auth.password')}
-              value={password}
-              onChange={setPassword}
-              secure
-            />
-
-            {/* Forgot password link */}
-            <TouchableOpacity
-              onPress={() => router.push("/auth/forgot-password")}
-              style={styles.forgotPasswordContainer}
-            >
-              <Text style={styles.forgotText}>{t('auth.forgot_password')}</Text>
-            </TouchableOpacity>
-
-            {/* Login button */}
-            <Button
-              title={loading ? "Logging in..." : t('login')}
-              onPress={handleEmailLogin}
-              disabled={loading || socialLoading !== null}
-            />
-
-            {/* OR separator */}
-            <View style={styles.orRow}>
-              <View style={styles.orLine} />
-              <Text style={styles.orText}>{t('auth.or')} Continue With</Text>
-              <View style={styles.orLine} />
-            </View>
-
-            {/* Social login grid */}
-            <View style={styles.socialRow}>
-              <SocialButton
-                icon="logo-google"
-                iconColor="#DB4437"
-                onPress={() => handleSocialSignIn('google')}
-                disabled={socialLoading !== null}
-              />
-              <SocialButton
-                icon="logo-apple"
-                iconColor="#000"
-                onPress={() => handleSocialSignIn('apple')}
-                disabled={socialLoading !== null}
-              />
-              <SocialButton
-                icon="logo-facebook"
-                iconColor="#1877F2"
-                onPress={() => handleSocialSignIn('facebook')}
-                disabled={socialLoading !== null}
-              />
+              {/* Social login grid */}
+              <View style={styles.socialRow}>
+                <SocialButton
+                  imageSource={require("@/assets/images/google_icon.png")}
+                  onPress={() => handleSocialSignIn('google')}
+                  disabled={socialLoading !== null}
+                />
+                <SocialButton
+                  icon="logo-apple"
+                  iconColor="#000"
+                  onPress={() => handleSocialSignIn('apple')}
+                  disabled={socialLoading !== null}
+                />
+                <SocialButton
+                  icon="logo-facebook"
+                  iconColor="#1877F2"
+                  onPress={() => handleSocialSignIn('facebook')}
+                  disabled={socialLoading !== null}
+                />
+              </View>
             </View>
 
             {/* Bottom link */}
@@ -235,8 +247,6 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
-          <Footer />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -248,11 +258,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFF',
   },
-  cleanHeader: {
+  heroSection: {
     width: '100%',
+    height: 125, // Even more compact for a modern profile
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
-    paddingBottom: 15,
+  },
+  heroContentContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -260,97 +273,127 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  backButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#F8FAFF',
+  backButtonHero: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
-  logoCentered: {
+  logoHeroContainer: {
     flex: 1,
     alignItems: 'center',
   },
-  logoImg: {
+  logoHeroImg: {
     width: 120,
-    height: 36,
+    height: 38,
+  },
+  heroTextContainer: {
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  heroTitle: {
+    fontSize: 22, // Even more subtle and refined
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: -1.2, // Tighter for professional feel
+    textShadowColor: 'rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  heroSubtitle: {
+    display: 'none',
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8FAFF',
   },
-  authContainer: {
+  authWrapper: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
-    paddingTop: 10,
+    paddingHorizontal: 20,
+    marginTop: 15, // Added small gap for breathing room
     paddingBottom: 40,
+  },
+  authCard: {
+    backgroundColor: '#fff',
+    borderRadius: 28,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
   },
   formHeader: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 28,
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 28, // More authoritative
     fontWeight: "900",
     color: '#0F172A',
     letterSpacing: -0.8,
-    marginBottom: 4,
+    marginBottom: 8,
   },
   subtitleText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#64748B',
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
+    paddingHorizontal: 10,
   },
   forgotPasswordContainer: {
     alignSelf: 'flex-end',
-    marginBottom: 20,
-    marginTop: 4,
+    marginBottom: 24,
+    marginTop: -4,
   },
   forgotText: {
     color: COLORS.primary,
     fontWeight: "700",
-    fontSize: 13,
+    fontSize: 14,
+  },
+  loginBtnContainer: {
+    marginBottom: 10,
   },
   orRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 16,
+    marginVertical: 24,
   },
   orLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#F1F5F9',
   },
   orText: {
     marginHorizontal: 16,
     color: '#94A3B8',
-    fontWeight: "600",
-    fontSize: 13,
+    fontWeight: "700",
+    fontSize: 14, // Standard professional small text
     textTransform: 'uppercase',
+    letterSpacing: 1.5,
   },
   socialRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
+    gap: 16,
   },
   bottomLinkRow: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 32,
   },
   bottomLinkText: {
     color: '#64748B',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '500',
   },
   bottomLinkAction: {
     color: COLORS.primary,
     fontWeight: "800",
-    fontSize: 14,
+    fontSize: 15,
   },
 });
