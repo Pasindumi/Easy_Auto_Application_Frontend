@@ -97,11 +97,11 @@ const styles = StyleSheet.create({
     wrap: {
         backgroundColor: "transparent",
         paddingVertical: 0,
-        paddingHorizontal: 40,
     },
     row: {
         flexDirection: "row",
         gap: 8,
+        paddingHorizontal: 20,
     },
     card: {
         flex: 1,

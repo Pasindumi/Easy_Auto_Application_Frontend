@@ -187,7 +187,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                     >
                         <View style={styles.cardContent}>
                             <View style={[styles.iconBox, { backgroundColor: action.bgColor }]}>
-                                <action.iconFamily name={action.icon as any} size={28} color={action.color} />
+                                <action.iconFamily name={action.icon as any} size={24} color={action.color} />
                                 {action.badge && (
                                     <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>
                                         <Text style={styles.badgeText}>{action.badge}</Text>
@@ -226,8 +226,8 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
     },
     iconBox: {
-        width: 64,
-        height: 64,
+        width: 56,
+        height: 56,
         borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
