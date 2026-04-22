@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.white,
         borderRadius: 5,
         borderWidth: 1,
-        borderColor: COLORS.border,
+        borderColor: '#DBEAFE',
         overflow: 'hidden',
     },
     imageContainer: {

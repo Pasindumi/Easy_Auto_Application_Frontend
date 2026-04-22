@@ -94,11 +94,9 @@ const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
 
 const styles = StyleSheet.create({
     wrap: {
-        backgroundColor: "#fff",
+        backgroundColor: "transparent",
         paddingVertical: 24,
         paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: "#F1F5F9",
     },
     header: {
         marginBottom: 16,
@@ -122,17 +120,17 @@ const styles = StyleSheet.create({
     card: {
         flex: 1,
         backgroundColor: "#F8FAFF",
-        borderRadius: 16,
+        borderRadius: 5,
         alignItems: "center",
         paddingVertical: 16,
         borderWidth: 1,
-        borderColor: "#F1F5F9",
+        borderColor: "#DBEAFE",
         gap: 6,
     },
     iconWrap: {
         width: 40,
         height: 40,
-        borderRadius: 12,
+        borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
     },

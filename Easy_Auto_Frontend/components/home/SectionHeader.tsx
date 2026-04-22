@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#EEF3FF",
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 20,
+        borderRadius: 5,
     },
     btnText: {
         fontSize: 12,

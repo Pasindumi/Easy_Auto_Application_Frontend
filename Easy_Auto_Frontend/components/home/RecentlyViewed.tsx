@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         overflow: "hidden",
         borderWidth: 1,
-        borderColor: COLORS.border,
+        borderColor: "#DBEAFE",
     },
     imgWrap: { height: 110, position: "relative" },
     img: { width: "100%", height: "100%" },

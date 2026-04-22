@@ -154,22 +154,17 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
 };
 
 const styles = StyleSheet.create({
-    container: { backgroundColor: "#F8FAFF" },
+    container: { backgroundColor: "#FFFFFF" },
     mainPadding: { paddingHorizontal: 20, paddingBottom: 20 },
     card: {
         width: CARD_W,
-        borderRadius: 24,
+        borderRadius: 5,
         padding: 20,
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
         borderWidth: 1,
-        borderColor: "#DDE8FF",
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 14,
-        elevation: 6,
+        borderColor: "#DBEAFE",
         position: "relative",
     },
     comparisonRow: {
@@ -189,7 +184,7 @@ const styles = StyleSheet.create({
     plusBox: {
         width: 80,
         height: 80,
-        borderRadius: 20,
+        borderRadius: 5,
         backgroundColor: "#F1F5F9",
         borderWidth: 2,
         borderColor: "#E2E8F0",
@@ -226,7 +221,7 @@ const styles = StyleSheet.create({
     imgWrap: {
         width: "100%",
         aspectRatio: 1.6,
-        borderRadius: 14,
+        borderRadius: 5,
         overflow: "hidden",
         backgroundColor: "#E8EEFF",
         marginBottom: 10,
@@ -253,13 +248,8 @@ const styles = StyleSheet.create({
     ctaBar: {
         width: "100%",
         marginTop: 18,
-        borderRadius: 14,
+        borderRadius: 5,
         overflow: 'hidden',
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
     },
     ctaGrad: {
         flexDirection: "row",
