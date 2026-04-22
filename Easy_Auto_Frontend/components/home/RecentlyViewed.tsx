@@ -20,7 +20,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import SectionHeader from "./SectionHeader";
 
 const { width } = Dimensions.get("window");
-const CARD_W = width * 0.58;
+const CARD_W = 190;
 
 interface RecentlyViewedProps {
     fadeAnim: Animated.Value;
@@ -89,7 +89,9 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
                                         contentFit="cover"
                                         transition={300}
                                     />
-                                    <LinearGradient colors={["transparent", "rgba(2,14,39,0.55)"]} style={StyleSheet.absoluteFillObject} />
+                                    <View style={styles.priceTag}>
+                                        <Text style={styles.priceText}>{formatPrice(car.price)}</Text>
+                                    </View>
                                     <View style={styles.newBadge}>
                                         <Text style={styles.newBadgeText}>NEW</Text>
                                     </View>
@@ -99,9 +101,11 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
                                 </View>
                                 <View style={styles.body}>
                                     <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
-                                    <Text style={styles.price}>{formatPrice(car.price)}</Text>
+                                    <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                        {car.CarDetails?.model} {car.CarDetails?.year}
+                                    </Text>
                                     <View style={styles.metaRow}>
-                                        <Ionicons name="location-outline" size={11} color="#94A3B8" />
+                                        <Ionicons name="location-outline" size={12} color="#94A3B8" />
                                         <Text style={styles.meta} numberOfLines={1}>
                                             {car.location?.split(",")[0] || "Sri Lanka"}
                                         </Text>
@@ -117,34 +121,45 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
 };
 
 const styles = StyleSheet.create({
-    container: { backgroundColor: "#F8FAFF" },
+    container: { backgroundColor: "#FFFFFF" },
     loader: { height: 200, justifyContent: "center", alignItems: "center" },
     scroll: { paddingHorizontal: 20, gap: 12, paddingBottom: 4 },
     card: {
         width: CARD_W,
         backgroundColor: "#fff",
-        borderRadius: 22,
+        borderRadius: 5,
         overflow: "hidden",
-        shadowColor: "#235CF8",
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.09,
-        shadowRadius: 12,
-        elevation: 5,
         borderWidth: 1,
-        borderColor: "#E8EEFF",
+        borderColor: COLORS.border,
     },
-    imgWrap: { height: 130, position: "relative" },
+    imgWrap: { height: 110, position: "relative" },
     img: { width: "100%", height: "100%" },
-    newBadge: {
-        position: "absolute",
-        top: 10,
-        left: 10,
-        backgroundColor: "#10B981",
-        borderRadius: 20,
+    priceTag: {
+        position: 'absolute',
+        bottom: 8,
+        left: 8,
+        backgroundColor: 'rgba(0,0,0,0.7)',
         paddingHorizontal: 8,
         paddingVertical: 3,
+        borderRadius: 5,
+        borderWidth: 0.5,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
-    newBadgeText: { color: "#fff", fontSize: 9, fontWeight: "800", letterSpacing: 0.5 },
+    priceText: {
+        color: COLORS.white,
+        fontWeight: "700",
+        fontSize: 11,
+    },
+    newBadge: {
+        position: "absolute",
+        top: 8,
+        right: 44, // Offset for heart button
+        backgroundColor: "#10B981",
+        borderRadius: 5,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+    },
+    newBadgeText: { color: "#fff", fontSize: 8, fontWeight: "800", letterSpacing: 0.5 },
     wishBtn: {
         position: "absolute",
         top: 8,
@@ -157,8 +172,13 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     body: { padding: 12 },
-    cardTitle: { fontSize: 13, fontWeight: "700", color: "#0F172A", marginBottom: 4 },
-    price: { fontSize: 16, fontWeight: "800", color: COLORS.primary, marginBottom: 6, letterSpacing: -0.3 },
+    cardTitle: { fontSize: 14, fontWeight: "700", color: "#0F172A", marginBottom: 4 },
+    cardSubTitle: {
+        fontSize: 12,
+        color: COLORS.text.muted,
+        fontWeight: "500",
+        marginBottom: 6,
+    },
     metaRow: { flexDirection: "row", alignItems: "center", gap: 3 },
     meta: { fontSize: 11, color: "#94A3B8", fontWeight: "500", flex: 1 },
 });

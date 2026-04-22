@@ -153,7 +153,7 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
 };
 
 const styles = StyleSheet.create({
-    container: { backgroundColor: "#F8FAFF" },
+    container: { backgroundColor: "#FFFFFF" },
     tabs: {
         paddingHorizontal: 20,
         gap: 8,

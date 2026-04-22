@@ -101,7 +101,7 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = memo(({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
                     decelerationRate="fast"
-                    snapToInterval={270 + 16}
+                    snapToInterval={190 + 16}
                 >
                     {ads.map((car, index) => {
                         // CarDetails can be an object (list endpoint) or array (some Supabase versions)
@@ -129,33 +129,22 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = memo(({
                                         transition={400}
                                         cachePolicy="memory-disk"
                                     />
-                                    {/* Price Tag Overlay */}
                                     <View style={styles.priceTag}>
                                         <Text style={styles.priceText}>{formatPrice(car.price)}</Text>
                                     </View>
-
-                                    {/* Like Button (Placeholder) */}
-                                    <View style={styles.likeButton}>
-                                        <Ionicons name="heart-outline" size={18} color={COLORS.white} />
-                                    </View>
+                                    <TouchableOpacity style={styles.likeButton}>
+                                        <Ionicons name="heart-outline" size={14} color={COLORS.white} />
+                                    </TouchableOpacity>
                                 </View>
 
                                 <View style={styles.cardContent}>
                                     <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
-                                    <View style={styles.detailsRow}>
-                                        <View style={styles.detailItem}>
-                                            <MaterialIcons name="calendar-today" size={12} color={COLORS.text.muted} />
-                                            <Text style={styles.detailText}>{details?.year || "N/A"}</Text>
-                                        </View>
-                                        <View style={styles.dotSeparator} />
-                                        <View style={styles.detailItem}>
-                                            <MaterialIcons name="speed" size={12} color={COLORS.text.muted} />
-                                            <Text style={styles.detailText}>{details?.mileage ? `${(Number(details.mileage) / 1000).toFixed(0)}k km` : "N/A"}</Text>
-                                        </View>
-                                    </View>
+                                    <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                        {details?.model} {details?.year}
+                                    </Text>
                                     <View style={styles.locationRow}>
-                                        <MaterialIcons name="location-on" size={14} color={COLORS.text.muted} />
-                                        <Text style={styles.locationText} numberOfLines={1}>{car.location || "Sri Lanka"}</Text>
+                                        <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
+                                        <Text style={styles.locationText} numberOfLines={1}>{car.location?.split(",")[0] || "Sri Lanka"}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -210,23 +199,16 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     card: {
-        width: 270,
+        width: 190,
         backgroundColor: COLORS.white,
-        borderRadius: 20,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.12,
-        shadowRadius: 16,
-        elevation: 6,
+        borderRadius: 5,
         borderWidth: 1,
         borderColor: COLORS.border,
+        overflow: 'hidden',
     },
     imageContainer: {
-        height: 160,
+        height: 110,
         width: "100%",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        overflow: "hidden",
         position: 'relative',
     },
     image: {
@@ -235,70 +217,55 @@ const styles = StyleSheet.create({
     },
     priceTag: {
         position: 'absolute',
-        bottom: 10,
-        left: 10,
-        backgroundColor: 'rgba(0,0,0,0.75)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-        borderWidth: 1,
+        bottom: 8,
+        left: 8,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 5,
+        borderWidth: 0.5,
         borderColor: 'rgba(255,255,255,0.2)',
     },
     priceText: {
         color: COLORS.white,
         fontWeight: "700",
-        fontSize: 12,
+        fontSize: 11,
     },
     likeButton: {
         position: 'absolute',
-        top: 10,
-        right: 10,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        top: 8,
+        right: 8,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
         backgroundColor: 'rgba(0,0,0,0.4)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     cardContent: {
-        padding: 14,
+        padding: 12,
     },
     cardTitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: "700",
         color: COLORS.text.primary,
-        marginBottom: 8,
+        marginBottom: 4,
     },
-    detailsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    detailItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    detailText: {
+    cardSubTitle: {
         fontSize: 12,
-        color: COLORS.text.secondary,
+        color: COLORS.text.muted,
         fontWeight: "500",
-    },
-    dotSeparator: {
-        width: 3,
-        height: 3,
-        borderRadius: 1.5,
-        backgroundColor: COLORS.text.placeholder,
-        marginHorizontal: 8,
+        marginBottom: 6,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 3,
     },
     locationText: {
-        fontSize: 12,
+        fontSize: 11,
         color: COLORS.text.muted,
+        fontWeight: "500",
         flex: 1,
     },
 });

@@ -193,18 +193,15 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: "#F8FAFF" },
+    root: { flex: 1, backgroundColor: "#FFFFFF" },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 110 },
     inner: {
-        backgroundColor: "#F8FAFF",
+        backgroundColor: "#FFFFFF",
         gap: 12, 
     },
     section: {
-        backgroundColor: "#fff",
         paddingVertical: 8,
-        borderBottomWidth: 1.5,
-        borderBottomColor: 'rgba(0,0,0,0.05)', 
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,
