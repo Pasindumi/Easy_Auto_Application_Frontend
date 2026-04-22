@@ -16,6 +16,7 @@ import RecommendedCars from "@/components/home/RecommendedCars";
 import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
 import BoostPopup from "@/components/home/BoostPopup";
+import SectionHeader from "@/components/home/SectionHeader";
 import COLORS from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/utils/api";
@@ -118,10 +119,10 @@ export default function HomeScreen() {
             >
                 <View style={styles.inner}>
                     {/* 1. Explore Easyauto */}
-                    <View style={styles.sectionHeaderContainer}>
-                        <Text style={styles.sectionTitle}>{t("home_screen.explore", "Explore EasyAuto")}</Text>
-                    </View>
-                    <View>
+                    <View style={styles.section}>
+                        <SectionHeader
+                            title={t("home_screen.explore", "Explore EasyAuto")}
+                        />
                         <ActionGrid fadeAnim={fadeAnim} slideAnim={slideAnim} compareCount={0} newListingsCount={0} />
                     </View>
 
@@ -198,10 +199,11 @@ const styles = StyleSheet.create({
     scrollContent: { paddingBottom: 110 },
     inner: {
         backgroundColor: "#FFFFFF",
-        gap: 12, 
+        gap: 50,
+        paddingTop: 12,
     },
     section: {
-        paddingVertical: 8,
+        paddingVertical: 0,
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,

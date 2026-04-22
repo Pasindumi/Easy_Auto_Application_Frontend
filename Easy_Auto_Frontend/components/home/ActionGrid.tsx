@@ -206,16 +206,16 @@ const ActionGrid: React.FC<ActionGridProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 8,
+        marginBottom: 0,
         backgroundColor: "transparent",
     },
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
-        paddingHorizontal: 24,
-        paddingVertical: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
         justifyContent: 'space-between',
-        gap: 20,
+        gap: 24,
     },
     cardContainer: {
         width: (Dimensions.get("window").width - 48 - 40) / 3, // 3 columns

@@ -154,8 +154,8 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
 };
 
 const styles = StyleSheet.create({
-    container: { backgroundColor: "#FFFFFF" },
-    mainPadding: { paddingHorizontal: 20, paddingBottom: 20 },
+    container: { },
+    mainPadding: { paddingHorizontal: 20 },
     card: {
         width: CARD_W,
         borderRadius: 5,

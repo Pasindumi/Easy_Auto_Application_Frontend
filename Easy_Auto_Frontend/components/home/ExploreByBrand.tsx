@@ -20,7 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import SectionHeader from "./SectionHeader";
 
 const { width } = Dimensions.get("window");
-const GAPPING = 14;
+const GAPPING = 22;
 const PADDING_H = 20;
 const COL_COUNT = 4;
 const COL_W = (width - (PADDING_H * 2) - (GAPPING * (COL_COUNT - 1))) / COL_COUNT;
@@ -153,15 +153,15 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
 };
 
 const styles = StyleSheet.create({
-    container: { backgroundColor: "#FFFFFF" },
+    container: { },
     tabs: {
         paddingHorizontal: 20,
         gap: 8,
         marginBottom: 16,
     },
     tab: {
-        paddingHorizontal: 16,
-        paddingVertical: 7,
+        paddingHorizontal: 22,
+        paddingVertical: 4,
         borderRadius: 5,
         backgroundColor: "#EEF2FF",
     },
@@ -194,14 +194,10 @@ const styles = StyleSheet.create({
         borderRadius: COL_W / 2, // Perfect circle for premium brand avatars
         justifyContent: "center",
         alignItems: "center",
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
-        marginBottom: 8,
+        borderWidth: 0,
+        shadowOpacity: 0,
+        elevation: 0,
+        marginBottom: 4,
     },
     placeholderGradient: {
         width: '100%',

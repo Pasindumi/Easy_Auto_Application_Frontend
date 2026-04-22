@@ -155,8 +155,6 @@ const NearYouCars: React.FC<NearYouCarsProps> = memo(({
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 8,
-        marginBottom: 24,
     },
     loadingContainer: {
         height: 200,

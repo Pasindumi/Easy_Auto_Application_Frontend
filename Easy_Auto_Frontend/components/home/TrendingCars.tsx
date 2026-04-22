@@ -141,8 +141,6 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 8,
-        marginBottom: 24,
     },
     header: {
         flexDirection: "row",

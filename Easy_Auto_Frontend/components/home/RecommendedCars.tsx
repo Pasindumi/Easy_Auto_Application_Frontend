@@ -158,8 +158,6 @@ const RecommendedCars: React.FC<RecommendedCarsProps> = memo(({
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 8,
-        marginBottom: 24,
     },
     header: {
         flexDirection: "row",
