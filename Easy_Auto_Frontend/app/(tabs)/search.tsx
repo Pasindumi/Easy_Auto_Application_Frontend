@@ -503,16 +503,22 @@ export default function SearchScreen() {
                 <Loading />
               ) : (
                 <>
-                  <View style={styles.proEmptyIconContainer}>
-                    <Ionicons name="search-outline" size={32} color="#5A73A3" />
+                  <View style={styles.premiumEmptyIconContainer}>
+                    <View style={styles.premiumEmptyIconInner}>
+                      <Ionicons name="car-sport-outline" size={48} color={COLORS.primary} />
+                      <View style={styles.premiumSearchBadge}>
+                        <Ionicons name="search" size={14} color={COLORS.white} />
+                      </View>
+                    </View>
                   </View>
-                  <Text style={styles.proEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
-                  <Text style={styles.proEmptyText}>
+
+                  <Text style={styles.premiumEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
+                  <Text style={styles.premiumEmptyText}>
                     We couldn't find any matches. Try adjusting your search or resetting the filters.
                   </Text>
                   {activeFilterCount > 0 && (
-                    <TouchableOpacity style={styles.proClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
-                      <Text style={styles.proClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
+                    <TouchableOpacity style={styles.premiumClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
+                      <Text style={styles.premiumClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
                     </TouchableOpacity>
                   )}
                 </>
@@ -1044,39 +1050,5 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: '600',
     fontSize: 15,
-  },
-  proEmptyIconContainer: {
-    marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  proEmptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#5A73A3',
-    marginBottom: 8,
-    letterSpacing: -0.3,
-  },
-  proEmptyText: {
-    fontSize: 15,
-    color: COLORS.text.muted,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 32,
-    paddingHorizontal: 30,
-  },
-  proClearButton: {
-    backgroundColor: COLORS.text.primary,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  proClearButtonText: {
-    color: COLORS.white,
-    fontWeight: '600',
-    fontSize: 15,
-    letterSpacing: 0.2,
   },
 });
