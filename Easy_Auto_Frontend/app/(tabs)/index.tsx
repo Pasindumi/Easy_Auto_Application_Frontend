@@ -196,7 +196,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     root: { flex: 1, backgroundColor: "#FFFFFF" },
     scroll: { flex: 1 },
-    scrollContent: { paddingBottom: 110 },
+    scrollContent: { paddingBottom: 130 },
     inner: {
         backgroundColor: "#FFFFFF",
         gap: 50,

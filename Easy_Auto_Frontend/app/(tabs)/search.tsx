@@ -719,7 +719,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
-    borderRadius: 20,
+    borderRadius: 5,
     paddingHorizontal: 16,
     paddingVertical: 8,
     gap: 6,
@@ -760,6 +760,7 @@ const styles = StyleSheet.create({
   },
   resultsGrid: {
     padding: 16,
+    paddingBottom: 130,
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -768,17 +769,16 @@ const styles = StyleSheet.create({
   resultCard: {
     width: CARD_WIDTH,
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 5,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+    elevation: 0,
+    shadowOpacity: 0,
   },
   cardImageContainer: {
     width: '100%',
-    height: 140,
+    height: 110,
     position: 'relative',
   },
   cardImage: {
