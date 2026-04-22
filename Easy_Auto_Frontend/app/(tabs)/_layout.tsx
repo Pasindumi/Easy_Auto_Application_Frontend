@@ -72,9 +72,15 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     return (
         <View 
             pointerEvents="box-none" 
-            style={[styles.floatingContainer, { bottom: insets.bottom + 10 }]}
+            style={[styles.floatingContainer, { height: insets.bottom + 90, bottom: 0 }]}
         >
-            <View style={[styles.barWrapper, { width: barWidth }]}>
+            <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFill} />
+            <LinearGradient
+                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', '#FFFFFF']}
+                style={StyleSheet.absoluteFill}
+                pointerEvents="none"
+            />
+            <View style={[styles.barWrapper, { width: barWidth, marginBottom: insets.bottom + 10 }]}>
                 <View style={styles.glassBar}>
                     {/* Active Tab Indicator */}
                     {activeVisualIndex !== -1 && (
@@ -219,9 +225,10 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
     floatingContainer: {
         position: "absolute",
-        left: 20,
-        right: 20,
+        left: 0,
+        right: 0,
         alignItems: "center",
+        justifyContent: "flex-end",
         zIndex: 1000,
     },
     barWrapper: {
