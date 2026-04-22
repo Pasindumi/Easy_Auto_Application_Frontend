@@ -33,6 +33,8 @@ import ReviewForm from '@/components/reviews/ReviewForm';
 import TrendingCars from '@/components/home/TrendingCars';
 import { useAuth } from '@/contexts/AuthContext';
 
+import Loading from '@/components/ui/Loading';
+
 const { width, height } = Dimensions.get('window');
 const GALLERY_HEIGHT = height * 0.45;
 
@@ -220,7 +222,7 @@ export default function AdDetailsScreen() {
         return (
             <View style={styles.loading}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading />
                 <Text style={styles.loadingText}>Loading vehicle details...</Text>
             </View>
         );

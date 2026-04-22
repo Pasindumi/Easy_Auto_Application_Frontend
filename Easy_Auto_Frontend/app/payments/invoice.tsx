@@ -125,7 +125,7 @@ export default function PackageInvoice() {
         >
           {loading ? (
             <View style={styles.loader}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Loading />
               <Text style={styles.loaderText}>Validating your order...</Text>
             </View>
           ) : (

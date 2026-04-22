@@ -337,7 +337,7 @@ export default function Payment() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Loading />
         <Text style={styles.loadingText}>Preparing your checkout...</Text>
       </View>
     );

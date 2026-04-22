@@ -207,7 +207,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
 const styles = StyleSheet.create({
     container: {
         marginBottom: 8,
-        backgroundColor: COLORS.white,
+        backgroundColor: "transparent",
     },
     grid: {
         flexDirection: "row",

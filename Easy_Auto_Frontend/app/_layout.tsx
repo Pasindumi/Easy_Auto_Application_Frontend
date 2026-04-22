@@ -12,7 +12,6 @@ import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ToastProvider } from "../contexts/ToastContext";
 import { LoadingProvider, useLoading } from "../contexts/LoadingContext";
-import LoadingScreen from "../components/ui/LoadingScreen";
 import Toast from "../components/ui/Toast";
 import { tokenCache } from "../utils/tokenCache";
 
@@ -34,23 +33,7 @@ export const unstable_settings = {
 function InnerLayout() {
   const { isDarkMode } = useTheme();
   const { isLoading, setIsLoading } = useLoading();
-  const pathname = usePathname();
-
-  const isFirstRender = React.useRef(true);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    // Show loading screen on navigation change
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000); // Slightly longer for the interactive animation
-
-    return () => clearTimeout(timer);
-  }, [pathname]);
+  // Removed artificial loading screen on pathname change
 
   return (
     <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
@@ -86,7 +69,6 @@ function InnerLayout() {
       </Stack>
       <StatusBar style="auto" />
       <Toast />
-      {isLoading && <LoadingScreen />}
     </ThemeProvider>
   );
 }

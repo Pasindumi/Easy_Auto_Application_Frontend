@@ -83,7 +83,7 @@ export default function PackagesScreen() {
 
           {loading && !refreshing ? (
             <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Loading />
               <Text style={styles.loaderText}>Curating best deals for you...</Text>
             </View>
           ) : packages.length === 0 ? (
