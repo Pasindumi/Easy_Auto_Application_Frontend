@@ -83,11 +83,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                                 styles.indicator,
                                 {
                                     left: 0,
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: 24,
+                                    width: 42,
+                                    height: 42,
+                                    borderRadius: 21,
                                     transform: [
-                                        { translateX: Animated.add(translateX, (tabWidth - 48) / 2) },
+                                        { translateX: Animated.add(translateX, (tabWidth - 42) / 2) },
                                         { 
                                             // Lift the indicator if the active slot is the FAB
                                             translateY: activeRouteName === "my-ads" ? -10 : 0 
@@ -226,9 +226,9 @@ const styles = StyleSheet.create({
     },
     barWrapper: {
         flexDirection: "row",
-        height: 64,
+        height: 56,
         backgroundColor: "#FFFFFF",
-        borderRadius: 32,
+        borderRadius: 28,
         borderWidth: 1,
         borderColor: "rgba(0, 0, 0, 0.04)",
         // Premium Floating Shadow
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     },
     indicator: {
         position: "absolute",
-        top: 8, // Center vertically in the 64px bar
+        top: 7, // Center vertically in the 56px bar
         backgroundColor: PRIMARY,
         zIndex: -1,
         // Indicator Shadow
@@ -268,15 +268,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     fabContainer: {
-        width: 52,
-        height: 52,
-        transform: [{ translateY: -10 }],
+        width: 48,
+        height: 48,
+        transform: [{ translateY: -12 }],
         zIndex: 1001,
     },
     simpleFab: {
         width: '100%',
         height: '100%',
-        borderRadius: 26,
+        borderRadius: 24,
         backgroundColor: PRIMARY,
         alignItems: 'center',
         justifyContent: 'center',
