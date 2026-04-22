@@ -121,7 +121,7 @@ export default function HomeScreen() {
                     <View style={styles.sectionHeaderContainer}>
                         <Text style={styles.sectionTitle}>{t("home_screen.explore", "Explore EasyAuto")}</Text>
                     </View>
-                    <View style={styles.section}>
+                    <View>
                         <ActionGrid fadeAnim={fadeAnim} slideAnim={slideAnim} compareCount={0} newListingsCount={0} />
                     </View>
 

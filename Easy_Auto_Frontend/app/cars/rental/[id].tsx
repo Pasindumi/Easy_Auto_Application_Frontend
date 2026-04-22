@@ -29,6 +29,8 @@ import { api } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import ImageGallery from '@/components/ui/ImageGallery';
 
+import Loading from '@/components/ui/Loading';
+
 const { width, height } = Dimensions.get('window');
 const GALLERY_HEIGHT = height * 0.45;
 
@@ -151,7 +153,7 @@ export default function RentalAdDetailsScreen() {
         return (
             <View style={styles.loading}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading />
                 <Text style={styles.loadingText}>Loading rental details...</Text>
             </View>
         );

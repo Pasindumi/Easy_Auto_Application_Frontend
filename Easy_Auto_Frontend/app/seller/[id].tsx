@@ -15,6 +15,8 @@ import AdCard from '@/components/cards/AdCard';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 
+import Loading from '@/components/ui/Loading';
+
 const { width } = Dimensions.get('window');
 const BRAND_GRAD: [string, string] = ["#235CF8", "#1E4DB7"];
 
@@ -156,7 +158,7 @@ export default function SellerProfileScreen() {
         return (
             <View style={styles.loadingWrapper}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading />
             </View>
         );
     }

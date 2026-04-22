@@ -172,7 +172,7 @@ export default function SubscriptionsScreen() {
         >
           {loading ? (
             <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Loading />
               <Text style={styles.loaderText}>Syncing subscription...</Text>
             </View>
           ) : activeSub ? (

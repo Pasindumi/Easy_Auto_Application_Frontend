@@ -6,6 +6,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import Loading from "@/components/ui/Loading";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   ScrollView,
@@ -84,7 +85,7 @@ export default function DeleteCar() {
 
       if (deleteRes.success) {
         Alert.alert("Deleted", "The ad has been permanently removed from the system.");
-        router.replace('/ads/my-ads');
+        router.replace('/ads/my-ads' as any);
       } else {
         Alert.alert("Error", deleteRes.message || "Failed to delete the ad.");
       }

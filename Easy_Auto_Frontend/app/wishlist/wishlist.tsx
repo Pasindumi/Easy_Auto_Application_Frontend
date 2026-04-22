@@ -22,6 +22,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Swipeable } from "react-native-gesture-handler";
 import Header from "@/components/Header";
 
+import Loading from '@/components/ui/Loading';
+
 export default function WishlistScreen() {
     const insets = useSafeAreaInsets();
     const router = useRouter();
@@ -117,7 +119,7 @@ export default function WishlistScreen() {
 
             {loading && !refreshing ? (
                 <View style={styles.centerBox}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <Loading />
                 </View>
             ) : (
                 <ScrollView
