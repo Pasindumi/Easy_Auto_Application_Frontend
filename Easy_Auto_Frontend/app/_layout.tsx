@@ -45,7 +45,6 @@ function InnerLayout() {
         <Stack.Screen name="packages/packages" options={{ headerShown: false }} />
         <Stack.Screen name="landing" options={{ headerShown: false, animation: 'fade' }} />
 
-        <Stack.Screen name="admin" options={{ headerShown: false }} />
 
         {/* Payments Section */}
         <Stack.Screen name="payments/payment-history" options={{ headerShown: false }} />
