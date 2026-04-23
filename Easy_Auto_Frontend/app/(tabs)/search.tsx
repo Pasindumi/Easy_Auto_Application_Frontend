@@ -27,6 +27,9 @@ import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
 import SearchBar from '@/components/SearchBar';
 
+import Loading from '@/components/ui/Loading';
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
+
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
 
@@ -197,35 +200,33 @@ export default function SearchScreen() {
       const params: any = {};
 
       if (searchQuery) params.search = searchQuery;
-      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // Γ£à was: vehicle_type_id
+      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; 
       if (locationFilter) params.location = locationFilter;
 
-      // Brand: backend expects brand NAME, not ID ΓÇö resolve from list
       if (selectedBrand) {
         const brandObj = brands.find((b: any) => b.value === selectedBrand);
-        if (brandObj) params.brand = brandObj.label; // Γ£à was: brand_id
+        if (brandObj) params.brand = brandObj.label; 
       }
 
-      // Model: backend expects model NAME, not ID ΓÇö resolve from list
       if (selectedModel) {
         const modelObj = models.find((m: any) => m.value === selectedModel);
-        if (modelObj) params.model = modelObj.label; // Γ£à was: model_id
+        if (modelObj) params.model = modelObj.label; 
       }
 
       if (selectedCondition) {
         const condObj = conditions.find((c: any) => c.value === selectedCondition);
         if (condObj) params.condition = condObj.label;
       }
-      if (selectedFuelType) params.fuelType = selectedFuelType;     // ✅ was: fuel_type
+      if (selectedFuelType) params.fuelType = selectedFuelType;     
       if (selectedTransmission) params.transmission = selectedTransmission;
 
       const priceRange = PRICE_RANGES[selectedPriceRange];
-      if (priceRange.min) params.minPrice = priceRange.min; // Γ£à was: min_price
-      if (priceRange.max) params.maxPrice = priceRange.max; // Γ£à was: max_price
+      if (priceRange.min) params.minPrice = priceRange.min; 
+      if (priceRange.max) params.maxPrice = priceRange.max; 
 
       const yearRange = YEAR_RANGES[selectedYearRange];
-      if (yearRange.min) params.minYear = yearRange.min; // Γ£à was: min_year
-      if (yearRange.max) params.maxYear = yearRange.max; // Γ£à was: max_year
+      if (yearRange.min) params.minYear = yearRange.min; 
+      if (yearRange.max) params.maxYear = yearRange.max; 
 
       if (selectedSort !== 'relevance') params.sort = selectedSort;
 
@@ -247,14 +248,13 @@ export default function SearchScreen() {
     selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange,
     selectedYearRange, selectedSort, brands, models]);
 
-  // Auto-search on ANY filter change (Fix 4: was missing brand/model/condition/fuel/transmission/location)
+  // Auto-search on ANY filter change
   useEffect(() => {
     const timer = setTimeout(() => {
       performSearch();
     }, 500);
     return () => clearTimeout(timer);
-  }, [performSearch]); // Γ£à performSearch already has all deps via useCallback
-
+  }, [performSearch]); 
 
   // Calculate active filters
   useEffect(() => {
@@ -321,7 +321,7 @@ export default function SearchScreen() {
 
   // Render search result card
   const renderSearchCard = ({ item }: { item: any }) => {
-    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
+    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url || 
       item.AdImage?.[0]?.image_url;
     const details = item.CarDetails?.[0] || item.CarDetails || {};
     const formattedPrice = new Intl.NumberFormat('en-LK', {
@@ -474,7 +474,9 @@ export default function SearchScreen() {
         </View>
 
         {/* Search Results */}
-        <FlatList
+        <View style={{ flex: 1, position: 'relative' }}>
+          <BrandedRefreshOverlay refreshing={refreshing} top={20} />
+          <FlatList
           data={searchResults}
           renderItem={renderSearchCard}
           keyExtractor={(item) => String(item.id)}
@@ -489,25 +491,34 @@ export default function SearchScreen() {
                 setRefreshing(true);
                 performSearch();
               }}
-              tintColor={COLORS.primary}
+              tintColor="transparent"
+              colors={['transparent']}
+              progressBackgroundColor="transparent"
+              progressViewOffset={-500}
             />
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              {isSearching ? (
-                <ActivityIndicator size="large" color={COLORS.primary} />
+              {isSearching && !refreshing ? (
+                <Loading />
               ) : (
                 <>
-                  <View style={styles.emptyIcon}>
-                    <Ionicons name="search-outline" size={64} color={COLORS.border} />
+                  <View style={styles.premiumEmptyIconContainer}>
+                    <View style={styles.premiumEmptyIconInner}>
+                      <Ionicons name="car-sport-outline" size={48} color={COLORS.primary} />
+                      <View style={styles.premiumSearchBadge}>
+                        <Ionicons name="search" size={14} color={COLORS.white} />
+                      </View>
+                    </View>
                   </View>
-                  <Text style={styles.emptyTitle}>{t("buy_car_screen.no_vehicles_found", "No results found")}</Text>
-                  <Text style={styles.emptyText}>
-                    Try adjusting your search or filters
+
+                  <Text style={styles.premiumEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
+                  <Text style={styles.premiumEmptyText}>
+                    We couldn't find any matches. Try adjusting your search or resetting the filters.
                   </Text>
                   {activeFilterCount > 0 && (
-                    <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
-                      <Text style={styles.clearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
+                    <TouchableOpacity style={styles.premiumClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
+                      <Text style={styles.premiumClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
                     </TouchableOpacity>
                   )}
                 </>
@@ -515,6 +526,7 @@ export default function SearchScreen() {
             </View>
           }
         />
+        </View>
 
       </View>
 
@@ -707,7 +719,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
-    borderRadius: 20,
+    borderRadius: 5,
     paddingHorizontal: 16,
     paddingVertical: 8,
     gap: 6,
@@ -748,6 +760,7 @@ const styles = StyleSheet.create({
   },
   resultsGrid: {
     padding: 16,
+    paddingBottom: 130,
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -756,17 +769,16 @@ const styles = StyleSheet.create({
   resultCard: {
     width: CARD_WIDTH,
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 5,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+    elevation: 0,
+    shadowOpacity: 0,
   },
   cardImageContainer: {
     width: '100%',
-    height: 140,
+    height: 110,
     position: 'relative',
   },
   cardImage: {
@@ -853,7 +865,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 60,
   },
-  emptyIcon: {
+  emptyIconContainer: {
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -976,5 +988,67 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.white,
+  },
+  premiumEmptyIconContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(35, 92, 248, 0.04)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  premiumEmptyIconInner: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(35, 92, 248, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  premiumSearchBadge: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: COLORS.primary,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#F9FAFB',
+  },
+  premiumEmptyTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: COLORS.text.primary,
+    marginBottom: 10,
+    letterSpacing: -0.5,
+  },
+  premiumEmptyText: {
+    fontSize: 15,
+    color: COLORS.text.muted,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 30,
+    paddingHorizontal: 20,
+  },
+  premiumClearButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 100,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  premiumClearButtonText: {
+    color: COLORS.white,
+    fontWeight: '600',
+    fontSize: 15,
   },
 });

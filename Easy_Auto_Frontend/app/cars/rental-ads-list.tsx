@@ -288,7 +288,7 @@ export default function RentalAdsListScreen() {
 
                     <View style={styles.carsSection}>
                         {isLoading ? (
-                            <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
+                            <Loading />
                         ) : ads.length === 0 ? (
                             <View style={styles.emptyState}>
                                 <Ionicons name="car-outline" size={64} color="#D1D5DB" />
@@ -388,3 +388,5 @@ const styles = StyleSheet.create({
 });
 
 import { MaterialIcons } from '@expo/vector-icons';
+
+import Loading from '@/components/ui/Loading';

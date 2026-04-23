@@ -7,12 +7,12 @@ import COLORS from "@/constants/Colors";
 interface MarketInsightsBannerProps { fadeAnim: Animated.Value }
 
 const PILLARS = [
-    { icon: "shield-checkmark" as const, title: "Verified Sellers",  desc: "All dealers are KYC verified",    color: "#235CF8", bg: "#EEF2FF" },
-    { icon: "flash"            as const, title: "Instant Listing",   desc: "Sell your car in minutes",         color: "#10B981", bg: "#ECFDF5" },
-    { icon: "lock-closed"      as const, title: "Safe Payments",     desc: "100% secure transactions",         color: "#F59E0B", bg: "#FFFBEB" },
-    { icon: "headset"          as const, title: "24/7 Support",      desc: "Always here to help you",          color: "#EF4444", bg: "#FEF2F2" },
-    { icon: "ribbon"           as const, title: "Best Price",        desc: "Competitive market pricing",       color: "#7C3AED", bg: "#F5F3FF" },
-    { icon: "people"           as const, title: "50k+ Community",    desc: "Active buyers & sellers",          color: "#0891B2", bg: "#ECFEFF" },
+    { icon: "shield-checkmark-outline" as const, title: "Verified Sellers",  desc: "All dealers are KYC verified",    color: COLORS.primary, bg: "#EEF2FF" },
+    { icon: "flash-outline"            as const, title: "Instant Listing",   desc: "Sell your car in minutes",         color: "#475569",      bg: "#F1F5F9" },
+    { icon: "lock-closed-outline"      as const, title: "Safe Payments",     desc: "100% secure transactions",         color: COLORS.primary, bg: "#EEF2FF" },
+    { icon: "headset-outline"          as const, title: "24/7 Support",      desc: "Always here to help you",          color: "#475569",      bg: "#F1F5F9" },
+    { icon: "ribbon-outline"           as const, title: "Best Price",        desc: "Competitive market pricing",       color: COLORS.primary, bg: "#EEF2FF" },
+    { icon: "people-outline"           as const, title: "50k+ Community",    desc: "Active buyers & sellers",          color: "#475569",      bg: "#F1F5F9" },
 ];
 
 const MarketInsightsBanner: React.FC<MarketInsightsBannerProps> = ({ fadeAnim }) => (
@@ -101,14 +101,14 @@ const styles = StyleSheet.create({
     pillar: {
         width: "47%",
         backgroundColor: "#F8FAFF",
-        borderRadius: 18,
-        padding: 16,
+        borderRadius: 5,
+        padding: 12,
         borderWidth: 1,
-        borderColor: "#EDF2FF",
+        borderColor: "#DBEAFE",
         gap: 8,
     },
     pillarIcon: {
-        width: 44, height: 44, borderRadius: 13,
+        width: 44, height: 44, borderRadius: 5,
         alignItems: "center", justifyContent: "center",
     },
     pillarTitle: {

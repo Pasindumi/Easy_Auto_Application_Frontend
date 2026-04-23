@@ -40,7 +40,7 @@ export default function ForgotPasswordScreen() {
       console.log("Sending request to:", `${ENDPOINTS.AUTH}/forgot`);
       console.log("Request body:", { emailOrPhone: identifier.trim() });
 
-      const response = await fetch(`${ENDPOINTS.AUTH}/forgot-password`, {
+      const response = await fetch(`${ENDPOINTS.AUTH}/forgot`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

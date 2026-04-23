@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { Animated, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { api } from "@/utils/api";
+import SectionHeader from "./SectionHeader";
 
 interface ValuePropsProps {
     fadeAnim: Animated.Value;
@@ -35,38 +36,38 @@ const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
             value: stats ? (stats.listings >= 1000 ? `${(stats.listings / 1000).toFixed(1)}k+` : stats.listings) : "0",
             label: "Listings",
             icon: "car-outline" as const,
-            color: "#235CF8",
+            color: COLORS.primary,
             bg: "#EEF2FF"
         },
         {
             value: stats ? (stats.dealers >= 1000 ? `${(stats.dealers / 1000).toFixed(1)}k+` : stats.dealers) : "0",
             label: "Dealers",
             icon: "business-outline" as const,
-            color: "#10B981",
-            bg: "#ECFDF5"
+            color: "#475569", // Slate Gray
+            bg: "#F1F5F9"
         },
         {
             value: stats ? (stats.rating ? `${stats.rating}★` : "No rating") : "N/A",
             label: "Rating",
-            icon: "star" as const,
-            color: "#F59E0B",
-            bg: "#FFFBEB"
+            icon: "star-outline" as const,
+            color: COLORS.primary,
+            bg: "#EEF2FF"
         },
         {
             value: stats ? (stats.users >= 1000 ? `${(stats.users / 1000).toFixed(1)}k+` : stats.users) : "0",
             label: "Users",
-            icon: "people" as const,
-            color: "#7C3AED",
-            bg: "#F5F3FF"
+            icon: "people-outline" as const,
+            color: "#475569", // Slate Gray
+            bg: "#F1F5F9"
         },
     ];
 
     return (
         <Animated.View style={[styles.wrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-            <View style={styles.header}>
-                <Text style={styles.title}>EasyAuto by the Numbers</Text>
-                <Text style={styles.sub}>Trusted by thousands across Sri Lanka</Text>
-            </View>
+            <SectionHeader
+                title="EasyAuto by the Numbers"
+                subtitle="Trusted by thousands across Sri Lanka"
+            />
             <View style={styles.row}>
                 {STAT_ITEMS.map((s, i) => (
                     <View key={i} style={styles.card}>
@@ -94,45 +95,28 @@ const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
 
 const styles = StyleSheet.create({
     wrap: {
-        backgroundColor: "#fff",
-        paddingVertical: 24,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: "#F1F5F9",
-    },
-    header: {
-        marginBottom: 16,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "800",
-        color: "#0F172A",
-        letterSpacing: -0.4,
-    },
-    sub: {
-        fontSize: 13,
-        color: "#94A3B8",
-        fontWeight: "500",
-        marginTop: 2,
+        backgroundColor: "transparent",
+        paddingVertical: 0,
     },
     row: {
         flexDirection: "row",
-        gap: 10,
+        gap: 8,
+        paddingHorizontal: 20,
     },
     card: {
         flex: 1,
         backgroundColor: "#F8FAFF",
-        borderRadius: 16,
+        borderRadius: 5,
         alignItems: "center",
-        paddingVertical: 16,
+        paddingVertical: 12,
         borderWidth: 1,
-        borderColor: "#F1F5F9",
-        gap: 6,
+        borderColor: "#DBEAFE",
+        gap: 4,
     },
     iconWrap: {
         width: 40,
         height: 40,
-        borderRadius: 12,
+        borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
     },

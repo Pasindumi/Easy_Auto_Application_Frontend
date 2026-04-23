@@ -18,6 +18,8 @@ import { COLORS } from "@/constants/Colors";
 import * as Haptics from 'expo-haptics';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 
+import Loading from '@/components/ui/Loading';
+
 export default function BoostAdScreen() {
   useProtectedRoute();
   const router = useRouter();
@@ -102,7 +104,7 @@ export default function BoostAdScreen() {
 
         {loading && !refreshing ? (
           <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Loading />
             <Text style={styles.loaderText}>Fetching your listings...</Text>
           </View>
         ) : ads.length === 0 ? (

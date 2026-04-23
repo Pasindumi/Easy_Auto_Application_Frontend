@@ -158,7 +158,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             setCurrentBannerIndex((prevIndex) => {
                 const nextIndex = (prevIndex + 1) % banners.length;
                 scrollViewRef.current?.scrollTo({
-                    x: nextIndex * (width - 24), // Updated for margin (32-8=24)
+                    x: nextIndex * width, // Perfectly snap to screen width intervals
                     animated: true,
                 });
                 return nextIndex;
@@ -174,7 +174,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
-        const bannerWidth = width - 24;
+        const bannerWidth = width;
         const index = Math.round(scrollPosition / bannerWidth);
         if (
             index !== currentBannerIndex &&
@@ -188,7 +188,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const handleDotPress = (index: number) => {
         setCurrentBannerIndex(index);
         scrollViewRef.current?.scrollTo({
-            x: index * (width - 24),
+            x: index * width,
             animated: true,
         });
     };
@@ -225,7 +225,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 scrollEventThrottle={16}
                 contentContainerStyle={styles.scrollContent}
                 decelerationRate="fast"
-                snapToInterval={width - 24}
+                snapToInterval={width}
             >
                 {banners.map((banner, index) => (
                     <View key={`banner-${banner.id}-${index}`} style={styles.bannerWrapper}>
@@ -289,20 +289,18 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 16,
-        marginBottom: 24,
     },
     scrollContent: {
-        paddingHorizontal: 16,
+        paddingHorizontal: 30,
     },
     bannerWrapper: {
-        width: width - 32,
-        height: 200,
-        marginRight: 10,
+        width: width - 60,
+        height: 180,
+        marginRight: 60,
     },
     bannerCard: {
         flex: 1,
-        borderRadius: 20,
+        borderRadius: 10,
         overflow: 'hidden',
         backgroundColor: COLORS.secondary,
         position: 'relative',
@@ -322,7 +320,7 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         height: '100%',
-        borderRadius: 20,
+        borderRadius: 10,
     },
     contentContainer: {
         position: 'absolute',
@@ -367,7 +365,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.2)',
         paddingVertical: 8,
         paddingHorizontal: 16,
-        borderRadius: 12,
+        borderRadius: 5,
         alignSelf: 'flex-start',
         gap: 6,
         borderWidth: 1,

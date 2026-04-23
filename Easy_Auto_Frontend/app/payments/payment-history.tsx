@@ -18,6 +18,8 @@ import PaymentCard from '../../components/payments/history/PaymentCard';
 import { Payment, PaymentSummaryData } from '../../types/payment.types';
 import { api } from '@/utils/api';
 
+import Loading from '@/components/ui/Loading';
+
 export default function PaymentHistoryScreen() {
   const router = useRouter();
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -123,7 +125,7 @@ export default function PaymentHistoryScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Loading />
         <Text style={styles.loadingText}>Fetching history...</Text>
       </View>
     );

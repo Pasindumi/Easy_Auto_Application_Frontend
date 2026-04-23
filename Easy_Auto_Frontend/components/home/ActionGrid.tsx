@@ -105,64 +105,58 @@ const ActionGrid: React.FC<ActionGridProps> = ({
     const actions = [
         {
             label: "Buy Vehicle",
-            desc: "Find your dream ride",
             icon: "car-sport",
             iconFamily: Ionicons,
-            color: "#235CF8",
-            bgColor: "#EEF3FF",
+            color: "#2563EB",
+            bgColor: "#F1F5F9",
             route: "/cars/buy-car",
         },
         {
             label: "Sell Vehicle",
-            desc: "Get instant quotes",
             icon: "cash-outline",
             iconFamily: Ionicons,
-            color: "#235CF8",
-            bgColor: "#EEF3FF",
+            color: "#2563EB",
+            bgColor: "#F1F5F9",
             onPress: () => {
                 if (isAuthenticated) {
                     router.push("/cars/select-type");
                 } else {
-                    router.push("/cars/select-type"); // Protected route handles redirect
+                    router.push("/cars/select-type");
                 }
             }
         },
         {
             label: "Rentals",
-            desc: "Flexible options",
             icon: "key-outline",
             iconFamily: Ionicons,
-            color: "#235CF8",
-            bgColor: "#EEF3FF",
+            color: "#2563EB",
+            bgColor: "#F1F5F9",
             route: "/cars/rent-car",
         },
         {
             label: "Compare",
-            desc: "Side by side",
             icon: "git-compare-outline",
             iconFamily: Ionicons,
-            color: "#235CF8",
-            bgColor: "#EEF3FF",
+            color: "#2563EB",
+            bgColor: "#F1F5F9",
             route: "/(tabs)/compare",
             badge: compareCount > 0 ? (compareCount > 9 ? "9+" : compareCount) : null,
             badgeColor: COLORS.status.danger
         },
         {
             label: "Dealers",
-            desc: `${newListingsCount}+ Listings`,
             icon: "storefront-outline",
             iconFamily: Ionicons,
-            color: "#235CF8",
-            bgColor: "#EEF3FF",
+            color: "#2563EB",
+            bgColor: "#F1F5F9",
             route: "/find-dealers",
         },
         {
             label: "Packages",
-            desc: "Boost ads",
             icon: "rocket-outline",
             iconFamily: Ionicons,
-            color: "#235CF8",
-            bgColor: "#EEF3FF",
+            color: "#2563EB",
+            bgColor: "#F1F5F9",
             route: "/packages/packages",
         },
     ];
@@ -192,21 +186,16 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                         }}
                     >
                         <View style={styles.cardContent}>
-                            <LinearGradient
-                                colors={[action.bgColor, action.bgColor + 'CC']}
-                                style={styles.iconBox}
-                            >
-                                <action.iconFamily name={action.icon as any} size={26} color={action.color} />
-                            </LinearGradient>
-
-                            {action.badge && (
-                                <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>
-                                    <Text style={styles.badgeText}>{action.badge}</Text>
-                                </View>
-                            )}
+                            <View style={[styles.iconBox, { backgroundColor: action.bgColor }]}>
+                                <action.iconFamily name={action.icon as any} size={24} color={action.color} />
+                                {action.badge && (
+                                    <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>
+                                        <Text style={styles.badgeText}>{action.badge}</Text>
+                                    </View>
+                                )}
+                            </View>
 
                             <Text style={styles.label}>{action.label}</Text>
-                            <Text style={styles.desc} numberOfLines={1}>{action.desc}</Text>
                         </View>
                     </ActionCard>
                 ))}
@@ -217,73 +206,55 @@ const ActionGrid: React.FC<ActionGridProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 8,
-        backgroundColor: COLORS.white,
+        marginBottom: 0,
+        backgroundColor: "transparent",
     },
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
         justifyContent: 'space-between',
-        gap: 10,
+        gap: 24,
     },
     cardContainer: {
-        width: (Dimensions.get("window").width - 32 - 20) / 3, // Perfect 3-column width
-        height: 120,
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 3,
-        borderWidth: 1,
-        borderColor: COLORS.divider,
+        width: (Dimensions.get("window").width - 48 - 40) / 3, // 3 columns
+        backgroundColor: "transparent",
     },
     cardContent: {
-        flex: 1,
         alignItems: "center",
-        justifyContent: "center",
-        padding: 4,
+        justifyContent: "flex-start",
     },
     iconBox: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
+        width: 56,
+        height: 56,
+        borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 8,
     },
     label: {
         fontSize: 12,
-        fontWeight: "700",
-        color: COLORS.text.primary,
-        marginBottom: 2,
+        fontWeight: "500",
+        color: "#334155",
         textAlign: 'center',
-    },
-    desc: {
-        fontSize: 9,
-        color: COLORS.text.muted,
-        textAlign: 'center',
-        lineHeight: 11,
     },
     badge: {
         position: 'absolute',
-        top: 6,
-        right: 6,
-        height: 16,
-        minWidth: 16,
-        borderRadius: 8,
+        top: -6,
+        right: -6,
+        height: 20,
+        minWidth: 20,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 4,
-        borderWidth: 1.5,
+        borderWidth: 2,
         borderColor: COLORS.white,
     },
     badgeText: {
         color: COLORS.white,
-        fontSize: 8,
+        fontSize: 10,
         fontWeight: 'bold',
     },
 });

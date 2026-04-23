@@ -18,6 +18,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import Loading from '@/components/ui/Loading';
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function FindDealersScreen() {
@@ -159,7 +161,7 @@ export default function FindDealersScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Loading />
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>

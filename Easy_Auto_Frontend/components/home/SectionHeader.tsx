@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         paddingHorizontal: 20,
-        marginBottom: 16,
+        marginBottom: 12,
     },
     left: { flex: 1 },
     title: {
@@ -70,9 +70,11 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 2,
         backgroundColor: "#EEF3FF",
-        paddingHorizontal: 12,
+        paddingHorizontal: 20,
         paddingVertical: 6,
-        borderRadius: 20,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: "#DBEAFE",
     },
     btnText: {
         fontSize: 12,

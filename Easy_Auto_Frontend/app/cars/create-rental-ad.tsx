@@ -35,6 +35,8 @@ import RentalConditionsSection from '../../components/cars/rental/RentalConditio
 import RentalDocumentSection from '../../components/cars/rental/RentalDocumentSection';
 import RentalCalendarSection from '../../components/cars/rental/RentalCalendarSection';
 
+import Loading from '@/components/ui/Loading';
+
 export default function CreateRentalAdScreen() {
     useProtectedRoute();
     const router = useRouter();
@@ -544,7 +546,7 @@ export default function CreateRentalAdScreen() {
 
                     {loading && (
                         <View style={styles.overlay}>
-                            <ActivityIndicator size="large" color={COLORS.primary} />
+                            <Loading />
                             <Text style={styles.overlayText}>Creating your Ad...</Text>
                         </View>
                     )}
