@@ -147,7 +147,7 @@ export default function SelectVehicleTypeScreen() {
                 >
                     <View style={styles.cardImageContainer}>
                         <RNImage
-                            source={{ uri: CATEGORY_IMAGES[item.type_name] || CATEGORY_IMAGES['default'] }}
+                            source={{ uri: item.type_image || CATEGORY_IMAGES[item.type_name] || CATEGORY_IMAGES['default'] }}
                             style={styles.cardImage}
                         />
                         <LinearGradient
