@@ -242,9 +242,9 @@ export default function AdDetailsScreen() {
         { label: "Brand", value: details.brand, icon: "car-sport-outline", lib: "ionicons" },
         { label: "Model", value: details.model, icon: "car-sport", lib: "ionicons" },
         { label: "Condition", value: details.condition, icon: "ribbon-outline", lib: "ionicons" },
-        { label: "Fuel Type", value: details.fuel_type, icon: "flash-outline", lib: "ionicons" },
-        { label: "Transmission", value: details.transmission, icon: "settings-outline", lib: "ionicons" },
-        { label: "Engine", value: details.engine_capacity ? `${details.engine_capacity} CC` : null, icon: "hardware-chip-outline", lib: "ionicons" },
+        { label: "Fuel Type", value: details.fuel_type, icon: "water-outline", lib: "ionicons" },
+        { label: "Transmission", value: details.transmission, icon: "cog-outline", lib: "ionicons" },
+        { label: "Engine", value: details.engine_capacity ? `${details.engine_capacity} CC` : null, icon: "construct-outline", lib: "ionicons" },
         { label: "Body Type", value: details.body_type, icon: "car-outline", lib: "ionicons" },
     ].filter(s => s.value && s.value !== 'undefined' && s.value !== 'null' && s.value !== '');
 
@@ -261,9 +261,9 @@ export default function AdDetailsScreen() {
             <Animated.View
                 pointerEvents="box-none"
                 style={[
-                    styles.floatingHeader, 
-                    { 
-                        paddingTop: insets.top + 8, 
+                    styles.floatingHeader,
+                    {
+                        paddingTop: insets.top + 8,
                         opacity: headerOpacity,
                         elevation: headerElevation,
                         shadowOpacity: scrollY.interpolate({ inputRange: [GALLERY_HEIGHT - 40, GALLERY_HEIGHT], outputRange: [0, 0.2], extrapolate: 'clamp' })
@@ -302,8 +302,8 @@ export default function AdDetailsScreen() {
                         scrollEventThrottle={16}
                         keyExtractor={(_, index) => index.toString()}
                         renderItem={({ item, index }) => (
-                            <TouchableOpacity 
-                                activeOpacity={0.9} 
+                            <TouchableOpacity
+                                activeOpacity={0.9}
                                 style={{ width: width, height: GALLERY_HEIGHT }}
                                 onPress={() => {
                                     setInitialGalleryIndex(index);
@@ -325,7 +325,7 @@ export default function AdDetailsScreen() {
                         <TouchableOpacity style={styles.glassCircle} onPress={() => router.back()}>
                             <Ionicons name="chevron-back" size={24} color="white" />
                         </TouchableOpacity>
-                        
+
                         <View style={styles.galleryTopActions}>
                             <View style={styles.photoCountBadgeSm}>
                                 <Text style={styles.photoCountText}>{activeIndex + 1} / {images.length || 1}</Text>
@@ -394,10 +394,12 @@ export default function AdDetailsScreen() {
                     <Text style={styles.sectionTitle}>Specifications</Text>
                     <View style={styles.specThreeGrid}>
                         {specs.map((spec, i) => (
-                            <View key={i} style={styles.specThreeItem}>
-                                <Ionicons name={spec.icon as any} size={18} color={COLORS.primary} />
-                                <Text style={styles.specThreeLabel} numberOfLines={1}>{spec.label}</Text>
-                                <Text style={styles.specThreeValue} numberOfLines={1}>{String(spec.value)}</Text>
+                            <View key={i} style={styles.specCard}>
+                                <View style={styles.specIconCard}>
+                                    <Ionicons name={spec.icon as any} size={20} color={COLORS.primary} />
+                                </View>
+                                <Text style={styles.specCardLabel} numberOfLines={1}>{spec.label}</Text>
+                                <Text style={styles.specCardValue} numberOfLines={2}>{String(spec.value)}</Text>
                             </View>
                         ))}
                     </View>
@@ -646,14 +648,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
         backgroundColor: COLORS.primary,
         paddingHorizontal: 16, paddingBottom: 12,
-        borderBottomLeftRadius: 28,
-        borderBottomRightRadius: 28,
-        shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowRadius: 12,
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
+        shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8,
     },
-    headerBtn: { 
-        width: 42, height: 42, borderRadius: 21, 
-        alignItems: 'center', justifyContent: 'center', 
-        backgroundColor: 'rgba(255,255,255,0.15)' 
+    headerBtn: {
+        width: 42, height: 42, borderRadius: 21,
+        alignItems: 'center', justifyContent: 'center',
+        backgroundColor: 'rgba(255,255,255,0.15)'
     },
     headerTitleContainer: { flex: 1, alignItems: 'center', paddingHorizontal: 12 },
     headerTitleText: { color: 'white', fontSize: 13, fontWeight: '900', textTransform: 'uppercase' },
@@ -663,9 +665,9 @@ const styles = StyleSheet.create({
     galleryContainer: { height: GALLERY_HEIGHT, width: width, position: 'relative', backgroundColor: 'black' },
     galleryNavRow: { position: 'absolute', left: 16, right: 16, zIndex: 100, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     galleryTopActions: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    glassCircle: { 
-        width: 44, height: 44, borderRadius: 22, 
-        backgroundColor: 'rgba(0,0,0,0.3)', 
+    glassCircle: {
+        width: 44, height: 44, borderRadius: 22,
+        backgroundColor: 'rgba(0,0,0,0.3)',
         alignItems: 'center', justifyContent: 'center',
         borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)'
     },
@@ -683,19 +685,19 @@ const styles = StyleSheet.create({
 
     galleryImgFull: { width: '100%', height: '100%' },
 
-    contentHeader: { 
-        paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16,
-        backgroundColor: 'white', borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2
+    contentHeader: {
+        paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16,
+        backgroundColor: 'white', borderBottomLeftRadius: 12, borderBottomRightRadius: 12,
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 3
     },
-    adTitleBig: { fontSize: 24, fontWeight: '900', color: '#0F172A', letterSpacing: -0.8 },
+    adTitleBig: { fontSize: 22, fontWeight: '700', color: '#0F172A', letterSpacing: -0.5 },
     headerPriceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
-    headerPriceText: { fontSize: 26, fontWeight: '900', color: COLORS.primary },
+    headerPriceText: { fontSize: 20, fontWeight: '800', color: COLORS.primary },
     headerNegBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
     headerNegText: { color: '#64748B', fontSize: 12, fontWeight: '800', textTransform: 'uppercase' },
-    
-    locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
-    locationText: { fontSize: 14, color: '#64748B', fontWeight: '800' },
+
+    locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+    locationText: { fontSize: 13, color: '#64748B', fontWeight: '500' },
 
     postedBadge: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, zIndex: 30 },
     postedText: { fontSize: 10, color: 'white', fontWeight: '600' },
@@ -705,20 +707,23 @@ const styles = StyleSheet.create({
     headerTagText: { fontSize: 11, color: '#64748B', fontWeight: '700' },
 
     specThreeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    specThreeItem: {
-        width: '31%', alignItems: 'center', backgroundColor: '#F8FAFC',
-        paddingVertical: 14, borderRadius: 20, 
-        borderWidth: 1, borderColor: '#F1F5F9',
+    specCard: {
+        width: '31%', backgroundColor: 'white', borderRadius: 12,
+        paddingVertical: 14, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center',
+        borderWidth: 1.5, borderColor: '#F1F5F9',
+        marginBottom: 10,
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1
     },
-    specThreeLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '800', marginTop: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
-    specThreeValue: { fontSize: 13, color: '#1E293B', fontWeight: '900', marginTop: 4 },
+    specIconCard: { marginBottom: 8 },
+    specCardLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '700', textTransform: 'uppercase', marginBottom: 2, letterSpacing: 0.4 },
+    specCardValue: { fontSize: 12, color: '#0F172A', fontWeight: '800', textAlign: 'center' },
 
-    section: { 
-        backgroundColor: 'white', marginHorizontal: 16, marginTop: 16, 
-        borderRadius: 32, padding: 24,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 10, elevation: 1
+    section: {
+        backgroundColor: 'white', marginHorizontal: 12, marginTop: 12,
+        borderRadius: 12, padding: 16,
+        shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.02, shadowRadius: 10, elevation: 1
     },
-    sectionTitle: { fontSize: 18, fontWeight: '900', color: '#0F172A', marginBottom: 20, letterSpacing: -0.5 },
+    sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 16, letterSpacing: -0.2 },
 
     // DESCRIPTION
     descText: { fontSize: 15, color: '#475569', lineHeight: 24, fontWeight: '400' },
@@ -736,21 +741,21 @@ const styles = StyleSheet.create({
 
     // SELLER
     sellerCard: {
-        flexDirection: 'row', alignItems: 'center', gap: 16,
-        backgroundColor: '#F8FAFC', padding: 16, borderRadius: 24,
+        flexDirection: 'row', alignItems: 'center', gap: 12,
+        backgroundColor: 'white', padding: 12, borderRadius: 12,
         borderWidth: 1, borderColor: '#F1F5F9'
     },
-    sellerAvatar: { width: 56, height: 56, borderRadius: 28, overflow: 'hidden', borderWidth: 2, borderColor: '#10B981' },
+    sellerAvatar: { width: 48, height: 48, borderRadius: 24, overflow: 'hidden', borderWidth: 1.5, borderColor: '#10B981' },
     sellerAvatarImg: { width: '100%', height: '100%' },
     sellerAvatarGrad: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' },
-    sellerInitial: { color: 'white', fontSize: 20, fontWeight: '900' },
+    sellerInitial: { color: 'white', fontSize: 18, fontWeight: '800' },
     sellerInfo: { flex: 1 },
-    sellerNameRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    sellerName: { fontSize: 16, fontWeight: '900', color: '#0F172A', flexShrink: 1 },
-    verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
-    verifiedText: { color: '#16A34A', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
-    sellerMeta: { fontSize: 13, color: '#94A3B8', marginTop: 4, fontWeight: '700' },
-    sellerPhone: { fontSize: 14, color: COLORS.primary, fontWeight: '800', marginTop: 6 },
+    sellerNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    sellerName: { fontSize: 15, fontWeight: '800', color: '#0F172A', flexShrink: 1 },
+    verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#DCFCE7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 },
+    verifiedText: { color: '#16A34A', fontSize: 9, fontWeight: '800', textTransform: 'uppercase' },
+    sellerMeta: { fontSize: 12, color: '#64748B', marginTop: 2, fontWeight: '600' },
+    sellerPhone: { fontSize: 13, color: COLORS.primary, fontWeight: '700', marginTop: 4 },
 
     // SHARE
     shareRow: { flexDirection: 'row', gap: 12 },
@@ -774,21 +779,21 @@ const styles = StyleSheet.create({
     // FOOTER
     footerAction: {
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        backgroundColor: 'white', paddingHorizontal: 20, paddingVertical: 14,
-        flexDirection: 'row', alignItems: 'center', gap: 12,
+        backgroundColor: 'white', paddingHorizontal: 16, paddingVertical: 12,
+        flexDirection: 'row', alignItems: 'center', gap: 10,
         borderTopWidth: 1, borderTopColor: '#F1F5F9',
-        shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 10
+        shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 15
     },
     mainActionBtn: {
-        flex: 1, backgroundColor: COLORS.primary, height: 54, borderRadius: 16,
+        flex: 1, backgroundColor: COLORS.primary, height: 52, borderRadius: 8,
         alignItems: 'center', justifyContent: 'center',
-        shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4
+        shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 5
     },
     mainActionText: { color: 'white', fontSize: 16, fontWeight: '900', letterSpacing: -0.5 },
-    secondaryActions: { flexDirection: 'row', gap: 12 },
+    secondaryActions: { flexDirection: 'row', gap: 10 },
     secActionBtn: {
-        width: 54, height: 54, borderRadius: 18, borderWidth: 1, borderColor: '#F1F5F9',
-        alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8FAFC'
+        width: 52, height: 52, borderRadius: 8, borderWidth: 1.5, borderColor: '#F1F5F9',
+        alignItems: 'center', justifyContent: 'center', backgroundColor: 'white'
     },
 
     // CONTACT MODAL
@@ -801,7 +806,7 @@ const styles = StyleSheet.create({
     sellerInitialLg: { color: 'white', fontSize: 32, fontWeight: '900' },
     sellerNameLg: { fontSize: 20, fontWeight: '900', color: '#0F172A' },
     contactOptions: { flexDirection: 'row', gap: 16, marginBottom: 10 },
-    contactOption: { flex: 1, backgroundColor: '#F8FAFC', borderRadius: 24, padding: 20, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: '#F1F5F9' },
+    contactOption: { flex: 1, backgroundColor: '#F8FAFC', borderRadius: 12, padding: 20, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: '#F1F5F9' },
     contactOptionIcon: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
     contactOptionLabel: { fontSize: 15, fontWeight: '900', color: '#0F172A', textAlign: 'center' },
     contactOptionSub: { fontSize: 12, color: '#94A3B8', fontWeight: '700' },
