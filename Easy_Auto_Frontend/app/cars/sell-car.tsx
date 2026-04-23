@@ -16,7 +16,9 @@ import {
   TouchableOpacity,
   View,
   Image as RNImage,
+  StatusBar as RNStatusBar,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIsFocused } from '@react-navigation/native';
@@ -469,10 +471,10 @@ export default function SellCarScreen() {
       }
 
       if (response.success) {
-        showToast({ 
-          title: isEdit ? "Update Successful" : "Ad Saved", 
-          message: isEdit ? "Your ad has been updated successfully!" : "Your ad has been saved as a draft!", 
-          type: "success" 
+        showToast({
+          title: isEdit ? "Update Successful" : "Ad Saved",
+          message: isEdit ? "Your ad has been updated successfully!" : "Your ad has been saved as a draft!",
+          type: "success"
         });
         const adId = isEdit ? params.id : response.data.id;
         router.replace({
@@ -528,39 +530,38 @@ export default function SellCarScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="light" />
       <Stack.Screen options={{ headerShown: false }} />
       {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
       <LinearGradient
-        colors={[COLORS.primary, COLORS.primaryDark]}
+        colors={[COLORS.primary, COLORS.primary]}
         style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <View style={styles.headerTopRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
-          
-          <View pointerEvents="none" style={styles.logoCentre}>
+
+          <View style={styles.headerTitleArea}>
+            <Text style={styles.headerTitleText}>Post Your Ad</Text>
+          </View>
+
+          <View pointerEvents="none" style={styles.headerLogoContainer}>
             <RNImage
               source={require("@/assets/logoHome.png")}
               resizeMode="contain"
               style={styles.logoImg}
             />
           </View>
-
-          <View style={styles.headerRightSpacer} />
-        </View>
-
-        <View style={styles.headerTitleArea}>
-          <Text style={styles.headerTitleText}>Post Your Ad</Text>
         </View>
       </LinearGradient>
-      
+
       {loading && <Loading fullScreen={true} message="Processing..." />}
 
       <View style={styles.stepperContainer}>
         {steps.map((step, index) => (
           <View key={step.id} style={styles.stepWrapper}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.stepCircle, currentStep >= step.id ? styles.stepCircleActive : null]}
               onPress={() => setCurrentStep(step.id)}
             >
@@ -664,13 +665,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    paddingTop: 20,
+    paddingHorizontal: 16,
     paddingBottom: 40,
   },
   header: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingBottom: 12,
     elevation: 8,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -682,31 +683,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 44,
-    marginBottom: 8,
+    height: 50,
   },
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
-  logoCentre: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
+  headerLogoContainer: {
+    width: 100,
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
   logoImg: {
     width: 100,
     height: 24,
   },
-  headerRightSpacer: {
-    width: 40,
-  },
   headerTitleArea: {
-    alignItems: 'center',
+    flex: 1,
+    alignItems: 'flex-start',
     justifyContent: 'center',
+    marginLeft: 8,
   },
   headerTitleText: {
     color: 'white',

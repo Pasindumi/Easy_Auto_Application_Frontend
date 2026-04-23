@@ -3,7 +3,7 @@ import Loading from '@/components/ui/Loading';
 import COLORS from "@/constants/Colors";
 import { MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     FlatList,
     StyleSheet,
@@ -14,10 +14,14 @@ import {
     Dimensions,
     Image as RNImage,
     Animated,
-    Pressable
+    Pressable,
+    StatusBar as RNStatusBar,
+    Platform
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { ENDPOINTS } from '../../constants/API';
 import { useAuth } from '../../contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -41,12 +45,12 @@ export default function SelectVehicleTypeScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { mode } = useLocalSearchParams(); // 'sell' or 'rent'
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [vehicleTypes, setVehicleTypes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchTypes = async () => {
+    const fetchTypes = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -58,7 +62,20 @@ export default function SelectVehicleTypeScreen() {
             if (!response.ok) throw new Error(`Server returned ${response.status}`);
             const data = await response.json();
             if (Array.isArray(data)) {
-                setVehicleTypes(data);
+                // Sort to put Car first, then Van, then others alphabetically
+                const sorted = [...data].sort((a, b) => {
+                    const nameA = (a?.type_name || '').toLowerCase();
+                    const nameB = (b?.type_name || '').toLowerCase();
+
+                    if (nameA === nameB) return 0;
+                    if (nameA === 'car') return -1;
+                    if (nameB === 'car') return 1;
+                    if (nameA === 'van') return -1;
+                    if (nameB === 'van') return 1;
+
+                    return nameA.localeCompare(nameB);
+                });
+                setVehicleTypes(sorted);
             } else {
                 throw new Error("Invalid data format received");
             }
@@ -69,11 +86,13 @@ export default function SelectVehicleTypeScreen() {
         } finally {
             setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        fetchTypes();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchTypes();
+        }, [fetchTypes])
+    );
 
     const handleSelect = (type: any) => {
         const pathname = mode === 'rent' ? '/cars/create-rental-ad' : '/cars/sell-car';
@@ -86,23 +105,12 @@ export default function SelectVehicleTypeScreen() {
         });
     };
 
-    const getIconName = (name: string) => {
-        const n = name.toLowerCase();
-        if (n.includes('car')) return 'car-sport';
-        if (n.includes('bike') || n.includes('motor')) return 'motorbike';
-        if (n.includes('three')) return 'rickshaw'; // MaterialCommunityIcons has this? Checking fallback
-        if (n.includes('van')) return 'van-utility';
-        if (n.includes('bus')) return 'bus';
-        if (n.includes('lorry') || n.includes('truck')) return 'truck';
-        return 'car';
-    };
-
     // Helper to get icon family/name safely
     const getIcon = (name: string) => {
-        const n = name.toLowerCase();
+        const n = (name || '').toLowerCase();
         if (n.includes('car')) return { lib: Ionicons, name: 'car-sport' };
         if (n.includes('bike') || n.includes('motor')) return { lib: MaterialCommunityIcons, name: 'motorbike' };
-        if (n.includes('three')) return { lib: MaterialCommunityIcons, name: 'rickshaw-electric' }; // or tuktuk? using generic
+        if (n.includes('three')) return { lib: MaterialCommunityIcons, name: 'rickshaw' };
         if (n.includes('van')) return { lib: MaterialCommunityIcons, name: 'van-passenger' };
         if (n.includes('bus')) return { lib: Ionicons, name: 'bus' };
         if (n.includes('lorry') || n.includes('truck')) return { lib: MaterialCommunityIcons, name: 'truck' };
@@ -110,14 +118,14 @@ export default function SelectVehicleTypeScreen() {
         return { lib: Ionicons, name: 'car' };
     };
 
-    const CategoryCard = ({ item, index, onSelect }: { item: any, index: number, onSelect: (item: any) => void }) => {
+    const CategoryCard = ({ item, onSelect }: { item: any, onSelect: (item: any) => void }) => {
         const scaleAnim = React.useRef(new Animated.Value(1)).current;
-        const iconData = getIcon(item.type_name);
+        const iconData = getIcon(item?.type_name);
         const IconLib = iconData.lib;
 
         const handlePressIn = () => {
             Animated.spring(scaleAnim, {
-                toValue: 0.97,
+                toValue: 0.95,
                 useNativeDriver: true,
                 speed: 20
             }).start();
@@ -133,7 +141,7 @@ export default function SelectVehicleTypeScreen() {
         };
 
         const onPress = () => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             onSelect(item);
         };
 
@@ -147,34 +155,47 @@ export default function SelectVehicleTypeScreen() {
                 >
                     <View style={styles.cardImageContainer}>
                         <RNImage
+                            source={{ uri: CATEGORY_IMAGES[item?.type_name || 'default'] || CATEGORY_IMAGES['default'] }}
                             source={{ uri: item.type_image || CATEGORY_IMAGES[item.type_name] || CATEGORY_IMAGES['default'] }}
                             style={styles.cardImage}
                         />
                         <LinearGradient
-                            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)']}
-                            style={StyleSheet.absoluteFill}
+                            colors={['transparent', 'rgba(0,0,0,0.6)']}
+                            style={styles.imageOverlay}
                         />
                     </View>
 
                     <View style={styles.cardContent}>
                         <View style={styles.categoryIconCircle}>
-                            <IconLib name={iconData.name as any} size={24} color={COLORS.primary} />
+                            <IconLib name={iconData.name as any} size={22} color={COLORS.primary} />
                         </View>
-                        <Text style={styles.cardTitle}>{item.type_name}</Text>
-                        <Text style={styles.cardSubtitle}>{mode === 'rent' ? 'Rent' : 'Sell'}</Text>
+                        <View style={styles.textContainer}>
+                            <Text style={styles.cardTitle}>{item?.type_name || 'Unknown'}</Text>
+                            <Text style={styles.cardSubtitle}>{mode === 'rent' ? 'Rent' : 'Sell'} Category</Text>
+                        </View>
+                        <View style={styles.arrowIcon}>
+                            <MaterialIcons name="chevron-right" size={20} color={COLORS.text.muted} />
+                        </View>
                     </View>
                 </Pressable>
             </Animated.View>
         );
     };
 
-    const renderItem = ({ item, index }: { item: any, index: number }) => (
+    const renderItem = ({ item }: { item: any }) => (
         <CategoryCard
             item={item}
-            index={index}
             onSelect={handleSelect}
         />
     );
+
+    if (authLoading) {
+        return (
+            <View style={styles.centerContainer}>
+                <Loading message="Checking session..." />
+            </View>
+        );
+    }
 
     if (!isAuthenticated) {
         return (
@@ -209,11 +230,12 @@ export default function SelectVehicleTypeScreen() {
 
     return (
         <View style={styles.container}>
+            <StatusBar style="light" />
             <Stack.Screen options={{ headerShown: false }} />
 
             {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
             <LinearGradient
-                colors={[COLORS.primary, COLORS.primaryDark]}
+                colors={[COLORS.primary, COLORS.primary]}
                 style={[styles.header, { paddingTop: insets.top + 4 }]}
             >
                 <View style={styles.headerTopRow}>
@@ -221,7 +243,13 @@ export default function SelectVehicleTypeScreen() {
                         <Ionicons name="chevron-back" size={24} color="white" />
                     </TouchableOpacity>
 
-                    <View pointerEvents="none" style={styles.logoCentre}>
+                    <View style={styles.headerTitleArea}>
+                        <Text style={styles.headerTitleText}>
+                            {mode === 'rent' ? 'What are you renting?' : 'What are you selling?'}
+                        </Text>
+                    </View>
+
+                    <View pointerEvents="none" style={styles.headerLogoContainer}>
                         <RNImage
                             source={require("@/assets/logoHome.png")}
                             resizeMode="contain"
@@ -229,11 +257,7 @@ export default function SelectVehicleTypeScreen() {
                         />
                     </View>
                 </View>
-
-                <View style={styles.headerTitleArea}>
-                    <Text style={styles.headerTitleText}>
-                        {mode === 'rent' ? 'What are you renting?' : 'What are you selling?'}
-                    </Text>
+                <View style={styles.headerSubtitleArea}>
                     <Text style={styles.headerSubtitleText}>Choose a vehicle category to proceed</Text>
                 </View>
             </LinearGradient>
@@ -259,11 +283,10 @@ export default function SelectVehicleTypeScreen() {
                         </View>
                     )}
                     renderItem={renderItem}
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => item?.id?.toString() || Math.random().toString()}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    numColumns={2}
-                    columnWrapperStyle={styles.columnWrapper}
+                    numColumns={1}
                 />
             )}
         </View>
@@ -277,83 +300,124 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: 16,
-        paddingBottom: 24,
-        borderBottomLeftRadius: 32,
-        borderBottomRightRadius: 32,
+        paddingBottom: 12,
         elevation: 8,
         shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 8 },
+        shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.3,
-        shadowRadius: 20,
+        shadowRadius: 15,
         zIndex: 100,
     },
-    headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 40, marginBottom: 8 },
-    backBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
-    logoCentre: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
-    logoImg: { width: 90, height: 22 },
-    headerTitleArea: { alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-    headerTitleText: { color: 'white', fontSize: 22, fontWeight: '900', letterSpacing: -0.5 },
-    headerSubtitleText: { color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 2, fontWeight: '500' },
+    headerTopRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: 50,
+    },
+    backBtn: {
+        width: 40,
+        height: 40,
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+    },
+    headerLogoContainer: {
+        width: 100,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    logoImg: { width: 100, height: 26 },
+    headerTitleArea: {
+        flex: 1,
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        marginLeft: 8,
+    },
+    headerTitleText: { color: 'white', fontSize: 18, fontWeight: '800', letterSpacing: -0.5 },
+    headerSubtitleArea: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 4,
+        marginBottom: 8,
+    },
+    headerSubtitleText: { color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: '600' },
     listContent: {
-        padding: 16,
+        padding: 20,
         paddingBottom: 40,
     },
-    columnWrapper: {
-        justifyContent: 'space-between',
-        marginBottom: 16,
-    },
     cardContainer: {
-        width: (width - 48) / 2, // 16px padding * 2, 16px gap
+        width: width - 40, // 20px padding * 2
+        marginBottom: 30,
     },
     card: {
-        borderRadius: 24,
+        borderRadius: 28,
         backgroundColor: COLORS.white,
-        borderWidth: 1, borderColor: '#F1F5F9',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 4,
+        borderWidth: 1,
+        borderColor: '#F8FAFC',
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        elevation: 6,
         overflow: 'hidden',
     },
     cardImageContainer: {
-        height: 110,
+        height: 120,
         backgroundColor: '#F1F5F9',
+        position: 'relative',
     },
     cardImage: {
         width: '100%',
         height: '100%',
         resizeMode: 'cover',
     },
+    imageOverlay: {
+        ...StyleSheet.absoluteFillObject,
+    },
     cardContent: {
         padding: 16,
         alignItems: 'center',
+        position: 'relative',
     },
     categoryIconCircle: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: COLORS.primary + '10',
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: COLORS.primaryLight,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 10,
+        marginTop: -38, // Lift the icon circle
+        borderWidth: 4,
+        borderColor: COLORS.white,
+        zIndex: 10,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 4,
+    },
+    textContainer: {
+        alignItems: 'center',
+        marginTop: 8,
     },
     cardTitle: {
-        fontSize: 16,
-        fontWeight: '800',
+        fontSize: 18,
+        fontWeight: '900',
         color: COLORS.text.primary,
         marginBottom: 2,
+        letterSpacing: -0.5,
     },
     cardSubtitle: {
-        fontSize: 12,
+        fontSize: 11,
         color: COLORS.text.muted,
-        fontWeight: '600',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
-    arrowContainer: {
+    arrowIcon: {
         position: 'absolute',
-        top: 12,
+        bottom: 12,
         right: 12,
-        opacity: 0.5,
+        opacity: 0.3,
     },
     centerContainer: {
         flex: 1,

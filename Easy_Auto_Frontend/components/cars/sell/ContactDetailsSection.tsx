@@ -22,12 +22,11 @@ const ContactDetailsSection: React.FC<Props> = ({
     return (
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Contact Details</Text>
-            <Text style={styles.sectionSubtitle}>These details are auto-filled from your profile.</Text>
 
             <Text style={styles.label}>Name</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Owner Name"
+                placeholder=""
                 value={userName}
                 editable={false}
             />
@@ -35,10 +34,10 @@ const ContactDetailsSection: React.FC<Props> = ({
             <Text style={styles.label}>Email</Text>
             <TextInput
                 style={styles.input}
-                placeholder="your@email.com"
+                placeholder=""
                 value={email}
                 onChangeText={(value) => handleInputChange('email', value)}
-                editable={false} // Make read-only as per "auto filled with login user acc detail"? Or allow edit? Usually auto-fill but editable. User said "auto filled... not need now that codes" - maybe implied logic updates not UI updates? I'll leave editable but show it's pre-filled.
+                editable={false}
             />
 
             <View style={styles.contactBox}>
@@ -46,7 +45,7 @@ const ContactDetailsSection: React.FC<Props> = ({
                 <View style={styles.contactRow}>
                     <TextInput
                         style={styles.contactPhoneInput}
-                        placeholder="075 2597638"
+                        placeholder=""
                         value={contactNumber}
                         onChangeText={(value) => handleInputChange('contactNumber', value)}
                         keyboardType="phone-pad"
@@ -75,7 +74,7 @@ const ContactDetailsSection: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-    section: { backgroundColor: 'white', borderRadius: 12, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
+    section: { backgroundColor: 'white', borderRadius: 4, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
     sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 4 },
     sectionSubtitle: { fontSize: 13, color: '#6B7280', marginBottom: 16 },
     label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },

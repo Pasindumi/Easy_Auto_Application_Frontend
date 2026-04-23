@@ -119,54 +119,130 @@ const CarDetailsSection: React.FC<Props> = ({
                 </View>
             </View>
 
-            {/* SECTION 2: Dynamic Attributes */}
+            <View style={styles.formRow}>
+                <View style={styles.formHalf}>
+                    <Text style={styles.label}>Mileage (km)</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="e.g. 45,000"
+                        value={carDetails.mileage}
+                        onChangeText={(value) => handleInputChange('mileage', value)}
+                        keyboardType="numeric"
+                    />
+                </View>
+                <View style={styles.formHalf}>
+                    <SelectField
+                        label="Fuel Type"
+                        value={carDetails.fuelType}
+                        options={[
+                            { label: 'Petrol', value: 'Petrol' },
+                            { label: 'Diesel', value: 'Diesel' },
+                            { label: 'Hybrid', value: 'Hybrid' },
+                            { label: 'Electric', value: 'Electric' },
+                            { label: 'Plug-in Hybrid', value: 'Plug-in Hybrid' },
+                            { label: 'Gas', value: 'Gas' },
+                        ]}
+                        onSelect={(val) => handleInputChange('fuelType', val)}
+                    />
+                </View>
+            </View>
+
+            <View style={styles.formRow}>
+                <View style={styles.formHalf}>
+                    <SelectField
+                        label="Transmission"
+                        value={carDetails.transmission}
+                        options={[
+                            { label: 'Automatic', value: 'Automatic' },
+                            { label: 'Manual', value: 'Manual' },
+                            { label: 'Tiptronic', value: 'Tiptronic' },
+                        ]}
+                        onSelect={(val) => handleInputChange('transmission', val)}
+                    />
+                </View>
+                <View style={styles.formHalf}>
+                    <Text style={styles.label}>Engine Cap. (cc)</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="e.g. 1500"
+                        value={carDetails.engineCapacity}
+                        onChangeText={(value) => handleInputChange('engineCapacity', value)}
+                        keyboardType="numeric"
+                    />
+                </View>
+            </View>
+
+            <View style={styles.formRow}>
+                <View style={{ flex: 1 }}>
+                    <SelectField
+                        label="Body Type"
+                        value={carDetails.bodyType || ''}
+                        options={[
+                            { label: 'Sedan', value: 'Sedan' },
+                            { label: 'SUV', value: 'SUV' },
+                            { label: 'Hatchback', value: 'Hatchback' },
+                            { label: 'Station Wagon', value: 'Station Wagon' },
+                            { label: 'Van', value: 'Van' },
+                            { label: 'Pickup Truck', value: 'Pickup Truck' },
+                            { label: 'Bus', value: 'Bus' },
+                            { label: 'Lorry', value: 'Lorry' },
+                            { label: 'Convertible', value: 'Convertible' },
+                            { label: 'Coupe', value: 'Coupe' },
+                        ]}
+                        onSelect={(val) => handleInputChange('bodyType', val)}
+                    />
+                </View>
+            </View>
+
             {attributes && attributes.length > 0 && (
                 <View style={styles.dynamicSection}>
                     <View style={styles.divider} />
                     <Text style={styles.subTitle}>Other Specifications</Text>
 
-                    {attributes.map((attr) => {
-                        const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
+                    {attributes
+                        .filter(attr => !['mileage', 'milage'].includes(attr.attribute_name?.toLowerCase().trim()))
+                        .map((attr) => {
+                            const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
 
-                        if (attr.data_type === 'DROPDOWN') {
-                            const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value })) || [];
-                            return (
-                                <SelectField
-                                    key={attr.id}
-                                    label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
-                                    value={currentValue}
-                                    options={opts}
-                                    onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
-                                />
-                            );
-                        } else if (attr.data_type === 'BOOLEAN') {
-                            return (
-                                <View key={attr.id} style={styles.switchRow}>
-                                    <Text style={styles.label}>{attr.attribute_name} {attr.is_required ? '*' : ''}</Text>
-                                    <Switch
-                                        value={currentValue === 'true' || currentValue === true}
-                                        onValueChange={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                            if (attr.data_type === 'DROPDOWN') {
+                                const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value })) || [];
+                                return (
+                                    <SelectField
+                                        key={attr.id}
+                                        label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
+                                        value={currentValue}
+                                        options={opts}
+                                        onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
                                     />
-                                </View>
-                            );
-                        } else {
-                            // TEXT or NUMBER
-                            return (
-                                <View key={attr.id}>
-                                    <Text style={styles.label}>
-                                        {attr.attribute_name} {attr.unit ? `(${attr.unit})` : ''} {attr.is_required ? '*' : ''}
-                                    </Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={String(currentValue)}
-                                        onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
-                                        keyboardType={attr.data_type === 'NUMBER' ? 'numeric' : 'default'}
-                                        placeholder={`Enter ${attr.attribute_name}`}
-                                    />
-                                </View>
-                            );
-                        }
-                    })}
+                                );
+                            } else if (attr.data_type === 'BOOLEAN') {
+                                return (
+                                    <View key={attr.id} style={styles.switchRow}>
+                                        <Text style={styles.label}>{attr.attribute_name} {attr.is_required ? '*' : ''}</Text>
+                                        <Switch
+                                            value={currentValue === 'true' || currentValue === true}
+                                            onValueChange={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                        />
+                                    </View>
+                                );
+                            } else {
+                                // TEXT or NUMBER
+                                return (
+                                    <View key={attr.id}>
+                                        <Text style={styles.label}>
+                                            {attr.attribute_name} {attr.unit ? `(${attr.unit})` : ''} {attr.is_required ? '*' : ''}
+                                        </Text>
+                                        <TextInput
+                                            style={styles.input}
+                                            value={String(currentValue)}
+                                            onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                            keyboardType={attr.data_type === 'NUMBER' ? 'numeric' : 'default'}
+                                            placeholder=""
+                                        />
+                                    </View>
+                                );
+                            }
+                        })}
                 </View>
             )}
 
@@ -179,7 +255,7 @@ import COLORS from '@/constants/Colors';
 const styles = StyleSheet.create({
     section: {
         backgroundColor: COLORS.white,
-        borderRadius: 20,
+        borderRadius: 4,
         padding: 20,
         marginBottom: 16,
         elevation: 2,
