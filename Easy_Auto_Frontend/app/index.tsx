@@ -1,5 +1,5 @@
-import { Redirect } from "expo-router";
+import LandingPage from "./landing";
 
 export default function Index() {
-    return <Redirect href="/landing" />;
+    return <LandingPage />;
 }

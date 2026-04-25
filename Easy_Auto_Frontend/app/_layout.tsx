@@ -15,7 +15,7 @@ import { LoadingProvider, useLoading } from "../contexts/LoadingContext";
 import Toast from "../components/ui/Toast";
 import { tokenCache } from "../utils/tokenCache";
 
-import { usePathname } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
@@ -25,19 +25,24 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 
-export const unstable_settings = {
-  // Start with the landing page first
-  initialRouteName: "landing",
-};
+
 
 function InnerLayout() {
   const { isDarkMode } = useTheme();
   const { isLoading, setIsLoading } = useLoading();
-  // Removed artificial loading screen on pathname change
+  const router = useRouter();
+
+  // Force route to index on fresh app load to bypass sticky router state
+  useEffect(() => {
+    setTimeout(() => {
+      router.replace('/');
+    }, 0);
+  }, []);
 
   return (
     <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
         <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
