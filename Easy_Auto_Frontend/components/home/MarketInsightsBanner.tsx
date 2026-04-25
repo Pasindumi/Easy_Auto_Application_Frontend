@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
         flexDirection: "row", alignItems: "center", gap: 6,
         backgroundColor: "rgba(255,255,255,0.15)",
         alignSelf: "flex-start",
-        paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20,
+        paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10,
         marginBottom: 14,
     },
     badgeTxt: {
@@ -101,14 +101,14 @@ const styles = StyleSheet.create({
     pillar: {
         width: "47%",
         backgroundColor: "#F8FAFF",
-        borderRadius: 5,
+        borderRadius: 10,
         padding: 12,
         borderWidth: 1,
         borderColor: "#DBEAFE",
         gap: 8,
     },
     pillarIcon: {
-        width: 44, height: 44, borderRadius: 5,
+        width: 44, height: 44, borderRadius: 10,
         alignItems: "center", justifyContent: "center",
     },
     pillarTitle: {

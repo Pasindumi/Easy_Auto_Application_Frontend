@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     refreshButton: {
         padding: 8,
         backgroundColor: COLORS.primaryLight,
-        borderRadius: 12,
+        borderRadius: 10,
     },
     loadingContainer: {
         height: 200,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     card: {
         width: 190,
         backgroundColor: COLORS.white,
-        borderRadius: 5,
+        borderRadius: 10,
         borderWidth: 1,
         borderColor: '#DBEAFE',
         overflow: 'hidden',
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.7)',
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: 5,
+        borderRadius: 10,
         borderWidth: 0.5,
         borderColor: 'rgba(255,255,255,0.2)',
     },
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
         right: 8,
         width: 28,
         height: 28,
-        borderRadius: 14,
+        borderRadius: 10,
         backgroundColor: 'rgba(0,0,0,0.4)',
         alignItems: 'center',
         justifyContent: 'center',

@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     fireIconContainer: {
         backgroundColor: '#FFE5E5',
         padding: 4,
-        borderRadius: 12,
+        borderRadius: 10,
     },
     title: {
         fontSize: 20,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     card: {
         width: 180,
         backgroundColor: COLORS.white,
-        borderRadius: 16,
+        borderRadius: 10,
         overflow: "hidden",
         shadowColor: COLORS.shadow,
         shadowOffset: { width: 0, height: 4 },

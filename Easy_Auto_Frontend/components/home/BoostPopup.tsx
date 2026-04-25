@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         right: 12,
         zIndex: 20,
         backgroundColor: 'rgba(0,0,0,0.4)',
-        borderRadius: 20,
+        borderRadius: 10,
     },
     slider: {
         width: '100%',
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F59E0B',
         paddingHorizontal: 12,
         paddingVertical: 5,
-        borderRadius: 20,
+        borderRadius: 10,
         marginBottom: 10,
     },
     tagText: {

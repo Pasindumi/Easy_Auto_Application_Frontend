@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     mainPadding: { paddingHorizontal: 20 },
     card: {
         width: CARD_W,
-        borderRadius: 5,
+        borderRadius: 10,
         padding: 20,
         alignItems: "center",
         justifyContent: "center",
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     plusBox: {
         width: 80,
         height: 80,
-        borderRadius: 5,
+        borderRadius: 10,
         backgroundColor: "#F1F5F9",
         borderWidth: 2,
         borderColor: "#E2E8F0",
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     vsCircleMin: {
         width: 32,
         height: 32,
-        borderRadius: 16,
+        borderRadius: 10,
         backgroundColor: "#94A3B8",
         alignItems: "center",
         justifyContent: "center",
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     imgWrap: {
         width: "100%",
         aspectRatio: 1.6,
-        borderRadius: 5,
+        borderRadius: 10,
         overflow: "hidden",
         backgroundColor: "#E8EEFF",
         marginBottom: 10,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     ctaBar: {
         width: "100%",
         marginTop: 18,
-        borderRadius: 5,
+        borderRadius: 10,
         overflow: 'hidden',
     },
     ctaGrad: {

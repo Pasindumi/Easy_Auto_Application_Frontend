@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     tab: {
         paddingHorizontal: 22,
         paddingVertical: 4,
-        borderRadius: 5,
+        borderRadius: 10,
         backgroundColor: "#EEF2FF",
     },
     tabActive: {

@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     quotePill: {
         width: 32,
         height: 32,
-        borderRadius: 16,
+        borderRadius: 10,
         backgroundColor: "#EEF3FF",
         alignItems: "center",
         justifyContent: "center",
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     avatar: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: 10,
         backgroundColor: COLORS.primaryLight,
         alignItems: "center",
         justifyContent: "center",
