@@ -97,11 +97,12 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
                 </Animated.View>
             </View>
 
-            <View style={sp.bottomContent}>
-                <Animated.View style={{ opacity: buttonOpacity, width: "100%" }}>
+            <View style={sp.bottomContent} pointerEvents="box-none">
+                <Animated.View style={{ opacity: buttonOpacity, width: "100%" }} pointerEvents="box-none">
                     <TouchableOpacity 
                         style={sp.startBtn} 
                         onPress={() => {
+                            console.log("--> Continue Button Pressed! Navigating to /(tabs)");
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                             onDone();
                         }}

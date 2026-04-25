@@ -32,13 +32,6 @@ function InnerLayout() {
   const { isLoading, setIsLoading } = useLoading();
   const router = useRouter();
 
-  // Force route to index on fresh app load to bypass sticky router state
-  useEffect(() => {
-    setTimeout(() => {
-      router.replace('/');
-    }, 0);
-  }, []);
-
   return (
     <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
       <Stack>
