@@ -10,6 +10,7 @@ import {
     Text,
     TouchableOpacity,
     View,
+    ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
@@ -70,7 +71,11 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                 </View>
             </View>
 
-            {displayAds.length === 0 ? (
+            {loading ? (
+                <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
+                    <ActivityIndicator size="large" color={COLORS.primary || "#2563EB"} />
+                </View>
+            ) : displayAds.length === 0 ? (
                 <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
                     <Text style={{ color: COLORS.text.muted, fontSize: 14 }}>No trending ads found right now.</Text>
                 </View>
