@@ -1,7 +1,13 @@
-import SelectField from '@/components/ui/SelectField';
+import { Ionicons } from '@expo/vector-icons';
+import ConditionSelector from './ConditionSelector';
+import BrandSelector from './BrandSelector';
+import ModelSelector from './ModelSelector';
+import YearSelector from './YearSelector';
+import OptionSelector, { SelectionOption } from './OptionSelector';
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Switch } from 'react-native';
+import { StyleSheet, Text, View, Switch } from 'react-native';
 import { CarFormState } from '../../../types/sell-car.types';
+import CustomTextInput from '../../ui/CustomTextInput';
 
 interface Props {
     carDetails: CarFormState;
@@ -44,31 +50,17 @@ const CarDetailsSection: React.FC<Props> = ({
     const conditionOptions = getConditionOptions();
 
     // Filter models based on selected brand
-    const getModelOptions = () => {
+    const getFilteredModels = () => {
         if (!carDetails.brand) return [];
-        // Normalize comparison: trim and lower case both sides
-        // Also handle potential potential type mismatches or extra spaces
         const selectedBrand = brands.find(b =>
             String(b.brand_name).toLowerCase().trim() === String(carDetails.brand).toLowerCase().trim()
         );
 
-        // If we can't find the brand object, we can't filter models correctly which disables the dropdown
-        if (!selectedBrand) {
-            // Fallback: if we can't match ID, maybe return all models or handle differently? 
-            // But usually it means data mismatch. 
-            // Let's try to match by ID if brand name match fails? (Config usually has ID)
-            // But carDetails stores brand NAME. 
-            return [];
-        }
-
-        const filteredModels = models.filter(m => m.brand_id === selectedBrand.id);
-        if (filteredModels.length > 0) {
-            return filteredModels.map(m => ({ label: m.model_name, value: m.model_name }));
-        }
-        return [];
+        if (!selectedBrand) return [];
+        return models.filter(m => m.brand_id === selectedBrand.id);
     };
 
-    const modelOptions = getModelOptions();
+    const filteredModels = getFilteredModels();
 
     return (
         <View style={styles.section}>
@@ -77,7 +69,7 @@ const CarDetailsSection: React.FC<Props> = ({
             {/* SECTION 1: Core Details */}
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <SelectField
+                    <ConditionSelector
                         label="Condition"
                         value={carDetails.condition}
                         options={conditionOptions}
@@ -85,10 +77,10 @@ const CarDetailsSection: React.FC<Props> = ({
                     />
                 </View>
                 <View style={styles.formHalf}>
-                    <SelectField
+                    <BrandSelector
                         label="Brand"
                         value={carDetails.brand}
-                        options={brandOptions}
+                        brands={brands}
                         onSelect={(val) => {
                             handleInputChange('brand', val);
                             handleInputChange('model', ''); // Reset model when brand changes
@@ -99,31 +91,28 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <SelectField
+                    <ModelSelector
                         label="Model"
                         value={carDetails.model}
-                        options={modelOptions}
+                        models={filteredModels}
                         onSelect={(val) => handleInputChange('model', val)}
-                        disabled={!carDetails.brand || modelOptions.length === 0}
+                        disabled={!carDetails.brand || filteredModels.length === 0}
                     />
                 </View>
                 <View style={styles.formHalf}>
-                    <Text style={styles.label}>Year</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="e.g. 2024"
+                    <YearSelector
+                        label="Year"
                         value={carDetails.year}
-                        onChangeText={(value) => handleInputChange('year', value)}
-                        keyboardType="numeric"
+                        onSelect={(val) => handleInputChange('year', val)}
                     />
                 </View>
             </View>
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <Text style={styles.label}>Mileage (km)</Text>
-                    <TextInput
-                        style={styles.input}
+                    <CustomTextInput
+                        label="Mileage (km)"
+                        iconName="speedometer-outline"
                         placeholder="e.g. 45,000"
                         value={carDetails.mileage}
                         onChangeText={(value) => handleInputChange('mileage', value)}
@@ -131,16 +120,17 @@ const CarDetailsSection: React.FC<Props> = ({
                     />
                 </View>
                 <View style={styles.formHalf}>
-                    <SelectField
+                    <OptionSelector
                         label="Fuel Type"
                         value={carDetails.fuelType}
+                        triggerIcon="color-fill-outline"
                         options={[
-                            { label: 'Petrol', value: 'Petrol' },
-                            { label: 'Diesel', value: 'Diesel' },
-                            { label: 'Hybrid', value: 'Hybrid' },
-                            { label: 'Electric', value: 'Electric' },
-                            { label: 'Plug-in Hybrid', value: 'Plug-in Hybrid' },
-                            { label: 'Gas', value: 'Gas' },
+                            { label: 'Petrol', value: 'Petrol', icon: 'water-outline' },
+                            { label: 'Diesel', value: 'Diesel', icon: 'flask-outline' },
+                            { label: 'Hybrid', value: 'Hybrid', icon: 'leaf-outline' },
+                            { label: 'Electric', value: 'Electric', icon: 'flash-outline' },
+                            { label: 'Plug-in', value: 'Plug-in Hybrid', icon: 'battery-charging-outline' },
+                            { label: 'Gas', value: 'Gas', icon: 'flame-outline' },
                         ]}
                         onSelect={(val) => handleInputChange('fuelType', val)}
                     />
@@ -149,21 +139,22 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <SelectField
+                    <OptionSelector
                         label="Transmission"
                         value={carDetails.transmission}
+                        triggerIcon="git-network-outline"
                         options={[
-                            { label: 'Automatic', value: 'Automatic' },
-                            { label: 'Manual', value: 'Manual' },
-                            { label: 'Tiptronic', value: 'Tiptronic' },
+                            { label: 'Automatic', value: 'Automatic', icon: 'car-outline' },
+                            { label: 'Manual', value: 'Manual', icon: 'git-compare-outline' },
+                            { label: 'Tiptronic', value: 'Tiptronic', icon: 'car-sport-outline' },
                         ]}
                         onSelect={(val) => handleInputChange('transmission', val)}
                     />
                 </View>
                 <View style={styles.formHalf}>
-                    <Text style={styles.label}>Engine Cap. (cc)</Text>
-                    <TextInput
-                        style={styles.input}
+                    <CustomTextInput
+                        label="Engine Cap. (cc)"
+                        iconName="options-outline"
                         placeholder="e.g. 1500"
                         value={carDetails.engineCapacity}
                         onChangeText={(value) => handleInputChange('engineCapacity', value)}
@@ -174,20 +165,22 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={{ flex: 1 }}>
-                    <SelectField
+                    <OptionSelector
                         label="Body Type"
                         value={carDetails.bodyType || ''}
+                        triggerIcon="car-sport-outline"
+                        layout="grid"
                         options={[
-                            { label: 'Sedan', value: 'Sedan' },
-                            { label: 'SUV', value: 'SUV' },
-                            { label: 'Hatchback', value: 'Hatchback' },
-                            { label: 'Station Wagon', value: 'Station Wagon' },
-                            { label: 'Van', value: 'Van' },
-                            { label: 'Pickup Truck', value: 'Pickup Truck' },
-                            { label: 'Bus', value: 'Bus' },
-                            { label: 'Lorry', value: 'Lorry' },
-                            { label: 'Convertible', value: 'Convertible' },
-                            { label: 'Coupe', value: 'Coupe' },
+                            { label: 'Sedan', value: 'Sedan', icon: 'car-outline' },
+                            { label: 'SUV', value: 'SUV', icon: 'car-sport-outline' },
+                            { label: 'Hatchback', value: 'Hatchback', icon: 'car-outline' },
+                            { label: 'Station Wagon', value: 'Station Wagon', icon: 'car-sport-outline' },
+                            { label: 'Van', value: 'Van', icon: 'bus-outline' },
+                            { label: 'Pickup', value: 'Pickup Truck', icon: 'car-sport-outline' },
+                            { label: 'Bus', value: 'Bus', icon: 'bus-outline' },
+                            { label: 'Lorry', value: 'Lorry', icon: 'construct-outline' },
+                            { label: 'Convertible', value: 'Convertible', icon: 'umbrella-outline' },
+                            { label: 'Coupe', value: 'Coupe', icon: 'car-sport-outline' },
                         ]}
                         onSelect={(val) => handleInputChange('bodyType', val)}
                     />
@@ -197,55 +190,57 @@ const CarDetailsSection: React.FC<Props> = ({
             {attributes && attributes.length > 0 && (
                 <View style={styles.dynamicSection}>
                     <View style={styles.divider} />
-                    <Text style={styles.subTitle}>Other Specifications</Text>
+                    <View style={styles.titleWithIcon}>
+                        <Ionicons name="list-circle-outline" size={24} color={COLORS.primary} style={{ marginRight: 8 }} />
+                        <Text style={styles.sectionTitle}>Other Specifications</Text>
+                    </View>
 
-                    {attributes
-                        .filter(attr => !['mileage', 'milage'].includes(attr.attribute_name?.toLowerCase().trim()))
-                        .map((attr) => {
-                            const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
+                    <View style={styles.attributesContainer}>
+                        {attributes
+                            .filter(attr => !['mileage', 'milage'].includes(attr.attribute_name?.toLowerCase().trim()))
+                            .map((attr) => {
+                                const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
 
-                            if (attr.data_type === 'DROPDOWN') {
-                                const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value })) || [];
-                                return (
-                                    <SelectField
-                                        key={attr.id}
-                                        label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
-                                        value={currentValue}
-                                        options={opts}
-                                        onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
-                                    />
-                                );
-                            } else if (attr.data_type === 'BOOLEAN') {
-                                return (
-                                    <View key={attr.id} style={styles.switchRow}>
-                                        <Text style={styles.label}>{attr.attribute_name} {attr.is_required ? '*' : ''}</Text>
-                                        <Switch
-                                            value={currentValue === 'true' || currentValue === true}
-                                            onValueChange={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                if (attr.data_type === 'DROPDOWN') {
+                                    const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value, icon: 'list-outline' })) || [];
+                                    return (
+                                        <OptionSelector
+                                            key={attr.id}
+                                            label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
+                                            value={String(currentValue)}
+                                            triggerIcon="options-outline"
+                                            options={opts}
+                                            onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
                                         />
-                                    </View>
-                                );
-                            } else {
-                                // TEXT or NUMBER
-                                return (
-                                    <View key={attr.id}>
-                                        <Text style={styles.label}>
-                                            {attr.attribute_name} {attr.unit ? `(${attr.unit})` : ''} {attr.is_required ? '*' : ''}
-                                        </Text>
-                                        <TextInput
-                                            style={styles.input}
+                                    );
+                                } else if (attr.data_type === 'BOOLEAN') {
+                                    return (
+                                        <View key={attr.id} style={styles.switchRow}>
+                                            <Text style={styles.label}>{attr.attribute_name} {attr.is_required ? '*' : ''}</Text>
+                                            <Switch
+                                                value={currentValue === 'true' || currentValue === true}
+                                                onValueChange={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                            />
+                                        </View>
+                                    );
+                                } else {
+                                    // TEXT or NUMBER
+                                    return (
+                                        <CustomTextInput
+                                            key={attr.id}
+                                            label={`${attr.attribute_name} ${attr.unit ? `(${attr.unit})` : ''} ${attr.is_required ? '*' : ''}`}
+                                            iconName="create-outline"
                                             value={String(currentValue)}
                                             onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
                                             keyboardType={attr.data_type === 'NUMBER' ? 'numeric' : 'default'}
                                             placeholder=""
                                         />
-                                    </View>
-                                );
-                            }
-                        })}
+                                    );
+                                }
+                            })}
+                    </View>
                 </View>
             )}
-
         </View>
     );
 };
@@ -255,43 +250,53 @@ import COLORS from '@/constants/Colors';
 const styles = StyleSheet.create({
     section: {
         backgroundColor: COLORS.white,
-        borderRadius: 4,
-        padding: 20,
-        marginBottom: 16,
-        elevation: 2,
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 20,
+        elevation: 4,
         shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
         borderWidth: 1,
-        borderColor: COLORS.border
+        borderColor: '#F3F4F6'
     },
-    sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary, marginBottom: 16 },
-    subTitle: { fontSize: 15, fontWeight: '700', color: COLORS.text.primary, marginBottom: 12, marginTop: 8 },
-    divider: { height: 1, backgroundColor: COLORS.border, marginVertical: 20 },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: COLORS.text.primary,
+        marginBottom: 20,
+        letterSpacing: -0.5
+    },
+    subTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: COLORS.text.primary,
+        marginBottom: 16,
+        marginTop: 8,
+        letterSpacing: -0.3
+    },
+    titleWithIcon: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    attributesContainer: {
+        marginTop: 10,
+    },
+    divider: { height: 1.5, backgroundColor: '#F3F4F6', marginVertical: 24 },
     formRow: { flexDirection: 'row', gap: 16, marginBottom: 4 },
     formHalf: { flex: 1 },
     label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
-    input: {
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 15,
-        backgroundColor: '#F9FAFB',
-        marginBottom: 20,
-        color: COLORS.text.primary
-    },
     switchRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 16,
         backgroundColor: '#F9FAFB',
-        padding: 12,
-        borderRadius: 12,
-        borderWidth: 1,
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1.5,
         borderColor: COLORS.border
     },
     dynamicSection: { marginTop: 8 }
