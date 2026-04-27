@@ -27,8 +27,8 @@ const ContactDetailsSection: React.FC<Props> = ({
             <TextInput
                 style={styles.input}
                 placeholder=""
-                value={userName}
-                editable={false}
+                value={userName ? userName.replace(/user/ig, '').trim() : ''}
+                onChangeText={(value) => handleInputChange('contactName', value)}
             />
 
             <Text style={styles.label}>Email</Text>
@@ -37,7 +37,6 @@ const ContactDetailsSection: React.FC<Props> = ({
                 placeholder=""
                 value={email}
                 onChangeText={(value) => handleInputChange('email', value)}
-                editable={false}
             />
 
             <View style={styles.contactBox}>

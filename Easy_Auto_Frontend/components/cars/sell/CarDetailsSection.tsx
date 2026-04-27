@@ -5,7 +5,7 @@ import ModelSelector from './ModelSelector';
 import YearSelector from './YearSelector';
 import OptionSelector, { SelectionOption } from './OptionSelector';
 import React from 'react';
-import { StyleSheet, Text, View, Switch } from 'react-native';
+import { StyleSheet, Text, View, Switch, TextInput } from 'react-native';
 import { CarFormState } from '../../../types/sell-car.types';
 import CustomTextInput from '../../ui/CustomTextInput';
 
@@ -188,56 +188,131 @@ const CarDetailsSection: React.FC<Props> = ({
             </View>
 
             {attributes && attributes.length > 0 && (
-                <View style={styles.dynamicSection}>
-                    <View style={styles.divider} />
-                    <View style={styles.titleWithIcon}>
-                        <Ionicons name="list-circle-outline" size={24} color={COLORS.primary} style={{ marginRight: 8 }} />
-                        <Text style={styles.sectionTitle}>Other Specifications</Text>
+                <View style={styles.dynamicSectionCard}>
+                    <View style={styles.dynamicTitleContainer}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.dynamicSectionTitle}>Other Specifications</Text>
+                            <Text style={styles.dynamicSectionSubtitle}>Extra details & options for your vehicle</Text>
+                        </View>
                     </View>
 
                     <View style={styles.attributesContainer}>
-                        {attributes
-                            .filter(attr => !['mileage', 'milage'].includes(attr.attribute_name?.toLowerCase().trim()))
-                            .map((attr) => {
+                        {(() => {
+                            const validAttributes = attributes.filter(attr => !['mileage', 'milage'].includes(attr.attribute_name?.toLowerCase().trim()));
+                            const rows = [];
+
+                            const renderAttributeField = (attr: any) => {
                                 const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
 
                                 if (attr.data_type === 'DROPDOWN') {
-                                    const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value, icon: 'list-outline' })) || [];
+                                    const attrLower = attr.attribute_name?.toLowerCase() || '';
+
+                                    if (attrLower.includes('color') || attrLower.includes('colour')) {
+                                        return (
+                                            <View style={styles.customFieldContainer}>
+                                                <View style={styles.customFieldInputWrapper}>
+                                                    <View style={styles.customFieldIcon}>
+                                                        <Ionicons name="sparkles-outline" size={18} color={COLORS.primary} />
+                                                    </View>
+                                                    <TextInput
+                                                        style={styles.customFieldInput}
+                                                        value={String(currentValue)}
+                                                        onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                                        placeholder="Add extra features (e.g. Full option...)"
+                                                        placeholderTextColor="#9CA3AF"
+                                                    />
+                                                </View>
+                                            </View>
+                                        );
+                                    }
+
+                                    const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value, icon: 'checkmark-circle-outline' })) || [];
                                     return (
                                         <OptionSelector
-                                            key={attr.id}
                                             label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
                                             value={String(currentValue)}
-                                            triggerIcon="options-outline"
+                                            triggerIcon="list-outline"
                                             options={opts}
                                             onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
                                         />
                                     );
                                 } else if (attr.data_type === 'BOOLEAN') {
                                     return (
-                                        <View key={attr.id} style={styles.switchRow}>
-                                            <Text style={styles.label}>{attr.attribute_name} {attr.is_required ? '*' : ''}</Text>
+                                        <View style={styles.switchRow}>
+                                            <Text style={[styles.label, { marginBottom: 0, flex: 1, marginRight: 8 }]} numberOfLines={2}>
+                                                {attr.attribute_name} {attr.is_required ? '*' : ''}
+                                            </Text>
                                             <Switch
                                                 value={currentValue === 'true' || currentValue === true}
                                                 onValueChange={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                                trackColor={{ false: '#E5E7EB', true: COLORS.primary }}
                                             />
                                         </View>
                                     );
                                 } else {
                                     // TEXT or NUMBER
+                                    let iconName: any = "create-outline";
+                                    const attrLower = attr.attribute_name?.toLowerCase() || '';
+
+                                    let displayLabel = `${attr.attribute_name} ${attr.unit ? `(${attr.unit})` : ''} ${attr.is_required ? '*' : ''}`;
+                                    let displayPlaceholder = `e.g. ${attr.data_type === 'NUMBER' ? '123' : 'Value'}`;
+
+                                    if (attrLower.includes('color') || attrLower.includes('colour')) {
+                                        return (
+                                            <View style={styles.customFieldContainer}>
+                                                <View style={styles.customFieldInputWrapper}>
+                                                    <View style={styles.customFieldIcon}>
+                                                        <Ionicons name="sparkles-outline" size={18} color={COLORS.primary} />
+                                                    </View>
+                                                    <TextInput
+                                                        style={styles.customFieldInput}
+                                                        value={String(currentValue)}
+                                                        onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                                        placeholder="Add extra features (e.g. Full option...)"
+                                                        placeholderTextColor="#9CA3AF"
+                                                    />
+                                                </View>
+                                            </View>
+                                        );
+                                    } else if (attrLower.includes('door')) {
+                                        iconName = "grid-outline";
+                                    } else if (attrLower.includes('seat')) {
+                                        iconName = "people-outline";
+                                    } else if (attr.data_type === 'NUMBER') {
+                                        iconName = "calculator-outline";
+                                    }
+
                                     return (
                                         <CustomTextInput
-                                            key={attr.id}
-                                            label={`${attr.attribute_name} ${attr.unit ? `(${attr.unit})` : ''} ${attr.is_required ? '*' : ''}`}
-                                            iconName="create-outline"
+                                            label={displayLabel}
+                                            iconName={iconName}
                                             value={String(currentValue)}
                                             onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
                                             keyboardType={attr.data_type === 'NUMBER' ? 'numeric' : 'default'}
-                                            placeholder=""
+                                            placeholder={displayPlaceholder}
                                         />
                                     );
                                 }
-                            })}
+                            };
+
+                            for (let i = 0; i < validAttributes.length; i += 2) {
+                                const attr1 = validAttributes[i];
+                                const attr2 = validAttributes[i + 1];
+
+                                rows.push(
+                                    <View key={`attr-row-${i}`} style={styles.formRow}>
+                                        <View style={styles.formHalf}>
+                                            {renderAttributeField(attr1)}
+                                        </View>
+                                        <View style={styles.formHalf}>
+                                            {attr2 && renderAttributeField(attr2)}
+                                        </View>
+                                    </View>
+                                );
+                            }
+
+                            return rows;
+                        })()}
                     </View>
                 </View>
             )}
@@ -282,7 +357,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     attributesContainer: {
-        marginTop: 10,
+        marginTop: 4,
     },
     divider: { height: 1.5, backgroundColor: '#F3F4F6', marginVertical: 24 },
     formRow: { flexDirection: 'row', gap: 16, marginBottom: 4 },
@@ -293,13 +368,93 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 16,
-        backgroundColor: '#F9FAFB',
-        padding: 16,
+        backgroundColor: COLORS.white,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
         borderRadius: 16,
-        borderWidth: 1.5,
-        borderColor: COLORS.border
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.03,
+        shadowRadius: 4,
+        elevation: 1,
+        minHeight: 56,
     },
-    dynamicSection: { marginTop: 8 }
+    dynamicSection: { marginTop: 8 },
+    dynamicSectionCard: {
+        backgroundColor: COLORS.white,
+        borderRadius: 24,
+        padding: 24,
+        marginTop: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(230, 235, 245, 0.8)',
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.05,
+        shadowRadius: 20,
+        elevation: 6,
+    },
+    dynamicTitleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    iconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: 'rgba(59, 130, 246, 0.08)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+        borderWidth: 1.5,
+        borderColor: 'rgba(59, 130, 246, 0.15)',
+    },
+    dynamicSectionTitle: {
+        fontSize: 19,
+        fontWeight: '900',
+        color: COLORS.text.primary,
+        letterSpacing: -0.4,
+    },
+    dynamicSectionSubtitle: {
+        fontSize: 13,
+        color: COLORS.text.secondary || '#6B7280',
+        marginTop: 3,
+        fontWeight: '500',
+    },
+    customFieldContainer: {
+        width: '100%',
+        marginTop: 4,
+        marginBottom: 8,
+    },
+    customFieldInputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.white,
+        borderWidth: 1.5,
+        borderColor: '#E2E8F0',
+        borderRadius: 16,
+        height: 52,
+        paddingHorizontal: 14,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 6,
+        elevation: 2,
+    },
+    customFieldIcon: {
+        marginRight: 10,
+        backgroundColor: '#F1F5F9',
+        padding: 6,
+        borderRadius: 10,
+    },
+    customFieldInput: {
+        flex: 1,
+        fontSize: 15,
+        color: COLORS.text.primary,
+        fontWeight: '500',
+    }
 });
 
 export default CarDetailsSection;
