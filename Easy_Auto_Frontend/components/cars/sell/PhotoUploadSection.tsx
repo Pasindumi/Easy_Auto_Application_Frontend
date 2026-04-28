@@ -66,7 +66,7 @@ const PhotoUploadSection: React.FC<Props> = ({
                 {/* Render all selected images */}
                 {selectedImages.map((uri, i) => (
                     <View key={i} style={styles.photoContainerUniform}>
-                        <Image source={{ uri }} style={styles.carPhotoUniform} />
+                        <Image source={{ uri }} style={styles.carPhotoUniform} resizeMode="contain" />
                         <TouchableOpacity
                             style={styles.removePhotoButtonUniform}
                             onPress={() => removeImage(i)}
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         backgroundColor: '#EFF6FF',
-        borderRadius: 12,
+        borderRadius: 5,
         borderWidth: 2,
         borderColor: '#BFDBFE',
         borderStyle: 'dashed',
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
 
     upsellContainer: { marginTop: 16, padding: 16, backgroundColor: '#FFF7ED', borderRadius: 12, borderWidth: 1, borderColor: '#FED7AA' },
     upsellText: { fontSize: 14, color: '#9A3412', marginBottom: 12, lineHeight: 20 },
-    upsellButton: { backgroundColor: '#EA580C', paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+    upsellButton: { backgroundColor: '#EA580C', paddingVertical: 10, borderRadius: 5, alignItems: 'center' },
     upsellButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 14 },
 });
 

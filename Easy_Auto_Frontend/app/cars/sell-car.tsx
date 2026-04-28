@@ -754,9 +754,9 @@ const styles = StyleSheet.create({
   stepNavigation: {
     flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingHorizontal: 16, paddingBottom: 20
   },
-  stepBackBtn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: 'white' },
+  stepBackBtn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 5, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: 'white' },
   stepBackText: { color: '#64748B', fontWeight: '700', fontSize: 14 },
-  stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, backgroundColor: COLORS.primary, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 5, backgroundColor: COLORS.primary, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
   stepNextText: { color: 'white', fontWeight: '800', fontSize: 14 },
   authGuardContainer: {
     flex: 1,

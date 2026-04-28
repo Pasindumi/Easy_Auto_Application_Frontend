@@ -36,7 +36,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/ui/Loading';
 
 const { width, height } = Dimensions.get('window');
-const GALLERY_HEIGHT = height * 0.45;
+const GALLERY_HEIGHT = height * 0.34;
 
 export default function AdDetailsScreen() {
     const router = useRouter();
@@ -108,6 +108,17 @@ export default function AdDetailsScreen() {
     };
 
     const scrollY = useRef(new Animated.Value(0)).current;
+    const [showHeaderActions, setShowHeaderActions] = useState(false);
+
+    useEffect(() => {
+        const listener = scrollY.addListener(({ value }) => {
+            const isVisible = value > GALLERY_HEIGHT - 60;
+            if (isVisible !== showHeaderActions) {
+                setShowHeaderActions(isVisible);
+            }
+        });
+        return () => scrollY.removeListener(listener);
+    }, [showHeaderActions]);
 
     useEffect(() => {
         if (!id) return;
@@ -259,7 +270,7 @@ export default function AdDetailsScreen() {
 
             {/* ─── DYNAMIC SCROLLING HEADER ─── */}
             <Animated.View
-                pointerEvents="box-none"
+                pointerEvents={showHeaderActions ? "auto" : "none"}
                 style={[
                     styles.floatingHeader,
                     {
@@ -311,9 +322,9 @@ export default function AdDetailsScreen() {
                                 }}
                             >
                                 {item.image_url ? (
-                                    <Image source={{ uri: item.image_url }} style={styles.galleryImgFull} contentFit="cover" />
+                                    <Image source={{ uri: item.image_url }} style={styles.galleryImgFull} contentFit="contain" />
                                 ) : (
-                                    <View style={[styles.galleryImgFull, { backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' }]}>
+                                    <View style={[styles.galleryImgFull, { backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' }]}>
                                         <Ionicons name="image" size={60} color="#E2E8F0" />
                                     </View>
                                 )}
@@ -323,53 +334,66 @@ export default function AdDetailsScreen() {
 
                     <View style={[styles.galleryNavRow, { top: insets.top + 10 }]}>
                         <TouchableOpacity style={styles.glassCircle} onPress={() => router.back()}>
-                            <Ionicons name="chevron-back" size={24} color="white" />
+                            <Ionicons name="chevron-back" size={20} color={COLORS.primary} />
                         </TouchableOpacity>
 
                         <View style={styles.galleryTopActions}>
-                            <View style={styles.photoCountBadgeSm}>
-                                <Text style={styles.photoCountText}>{activeIndex + 1} / {images.length || 1}</Text>
-                            </View>
                             <TouchableOpacity style={styles.glassCircle} onPress={handleNativeShare}>
-                                <Ionicons name="share-social" size={20} color="white" />
+                                <Ionicons name="share-social" size={16} color={COLORS.primary} />
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.glassCircle, isFavorite && styles.glassBtnActive]}
                                 onPress={handleToggleFavorite}
                                 disabled={favoriteLoading}
                             >
-                                <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "#EF4444" : "white"} />
+                                <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={18} color={isFavorite ? "#EF4444" : COLORS.primary} />
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    {/* ─── MINI THUMBNAILS PREVIEW ─── */}
-                    <View style={styles.floatingThumbRow}>
-                        <FlatList
-                            data={images}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            keyExtractor={(_, index) => index.toString()}
-                            contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
-                            renderItem={({ item, index }) => (
-                                <TouchableOpacity
-                                    onPress={() => scrollToImage(index)}
-                                    style={[
-                                        styles.miniThumb,
-                                        activeIndex === index && styles.miniThumbActive
-                                    ]}
-                                >
-                                    <Image source={{ uri: item.image_url }} style={styles.miniThumbImg} contentFit="cover" />
-                                </TouchableOpacity>
-                            )}
-                        />
+                    {/* ─── PHOTO COUNT BADGE BOTTOM ─── */}
+                    <View style={styles.photoCountWrapper}>
+                        <View style={styles.photoCountBadgeSm}>
+                            <Text style={styles.photoCountText}>{activeIndex + 1} / {images.length || 1}</Text>
+                        </View>
                     </View>
                 </View>
-                <View style={styles.contentHeader}>
-                    <Text style={styles.adTitleBig} numberOfLines={2}>{ad.title}</Text>
 
-                    <View style={styles.headerPriceRow}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                {/* ─── MINI THUMBNAILS PREVIEW ─── */}
+                <View style={styles.thumbnailSection}>
+                    <FlatList
+                        data={images}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(_, index) => index.toString()}
+                        contentContainerStyle={styles.thumbnailListContent}
+                        renderItem={({ item, index }) => (
+                            <TouchableOpacity
+                                onPress={() => scrollToImage(index)}
+                                style={[
+                                    styles.miniThumb,
+                                    activeIndex === index && styles.miniThumbActive
+                                ]}
+                            >
+                                <Image source={{ uri: item.image_url }} style={styles.miniThumbImg} contentFit="cover" />
+                            </TouchableOpacity>
+                        )}
+                    />
+                </View>
+                <View style={styles.contentHeader}>
+                    <View style={styles.mainInfoRow}>
+                        <View style={styles.titleLocationCol}>
+                            <Text style={styles.adTitleBig} numberOfLines={2}>{ad.title}</Text>
+                            {(ad.city || ad.location || ad.district) && (
+                                <View style={styles.locationRow}>
+                                    <Ionicons name="location" size={14} color={COLORS.primary} />
+                                    <Text style={styles.locationText}>
+                                        {ad.city || ad.location || ad.district}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                        <View style={styles.priceCol}>
                             <Text style={styles.headerPriceText}>{formattedPrice}</Text>
                             {ad.negotiable && (
                                 <View style={styles.headerNegBadge}>
@@ -378,28 +402,21 @@ export default function AdDetailsScreen() {
                             )}
                         </View>
                     </View>
-
-                    {(ad.city || ad.location || ad.district) && (
-                        <View style={styles.locationRow}>
-                            <Ionicons name="location" size={16} color={COLORS.primary} />
-                            <Text style={styles.locationText}>
-                                {ad.city || ad.location || ad.district}
-                            </Text>
-                        </View>
-                    )}
                 </View>
 
                 {/* ─── VEHICLE SPECIFICATIONS ─── */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Specifications</Text>
-                    <View style={styles.specThreeGrid}>
+                    <View style={styles.specGrid}>
                         {specs.map((spec, i) => (
-                            <View key={i} style={styles.specCard}>
-                                <View style={styles.specIconCard}>
-                                    <Ionicons name={spec.icon as any} size={20} color={COLORS.primary} />
+                            <View key={i} style={styles.specItem}>
+                                <View style={styles.specIconWrapper}>
+                                    <Ionicons name={spec.icon as any} size={18} color={COLORS.primary} />
                                 </View>
-                                <Text style={styles.specCardLabel} numberOfLines={1}>{spec.label}</Text>
-                                <Text style={styles.specCardValue} numberOfLines={2}>{String(spec.value)}</Text>
+                                <View>
+                                    <Text style={styles.specLabel}>{spec.label}</Text>
+                                    <Text style={styles.specValue}>{String(spec.value)}</Text>
+                                </View>
                             </View>
                         ))}
                     </View>
@@ -491,15 +508,15 @@ export default function AdDetailsScreen() {
                     <Text style={styles.sectionTitle}>Share this Vehicle</Text>
                     <View style={styles.shareRow}>
                         <TouchableOpacity style={styles.shareBtn} onPress={handleWhatsAppShare}>
-                            <View style={[styles.shareIcon, { backgroundColor: "#DCFCE7" }]}><Ionicons name="logo-whatsapp" size={22} color="#16A34A" /></View>
+                            <View style={styles.shareIcon}><Ionicons name="logo-whatsapp" size={18} color={COLORS.primary} /></View>
                             <Text style={styles.shareBtnText}>WhatsApp</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.shareBtn} onPress={() => Linking.openURL(`https://www.facebook.com/sharer/sharer.php?u=https://easyauto.lk/cars/${id}`)}>
-                            <View style={[styles.shareIcon, { backgroundColor: "#DBEAFE" }]}><Ionicons name="logo-facebook" size={22} color="#1D4ED8" /></View>
+                            <View style={styles.shareIcon}><Ionicons name="logo-facebook" size={18} color={COLORS.primary} /></View>
                             <Text style={styles.shareBtnText}>Facebook</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.shareBtn} onPress={handleNativeShare}>
-                            <View style={[styles.shareIcon, { backgroundColor: "#F3E8FF" }]}><Ionicons name="share-social" size={22} color="#7C3AED" /></View>
+                            <View style={styles.shareIcon}><Ionicons name="share-social" size={18} color={COLORS.primary} /></View>
                             <Text style={styles.shareBtnText}>More</Text>
                         </TouchableOpacity>
                     </View>
@@ -662,42 +679,59 @@ const styles = StyleSheet.create({
     headerPriceSubText: { color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '700' },
 
     // GALLERY
-    galleryContainer: { height: GALLERY_HEIGHT, width: width, position: 'relative', backgroundColor: 'black' },
+    galleryContainer: { height: GALLERY_HEIGHT, width: width, position: 'relative', backgroundColor: '#EFF6FF' },
     galleryNavRow: { position: 'absolute', left: 16, right: 16, zIndex: 100, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     galleryTopActions: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     glassCircle: {
-        width: 44, height: 44, borderRadius: 22,
-        backgroundColor: 'rgba(0,0,0,0.3)',
+        width: 32, height: 32, borderRadius: 16,
+        backgroundColor: '#FFFFFF',
         alignItems: 'center', justifyContent: 'center',
-        borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)'
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3
     },
-    glassBtnActive: { backgroundColor: 'rgba(239,68,68,0.4)' },
+    glassBtnActive: { backgroundColor: '#FFFFFF' },
+    photoCountWrapper: {
+        position: 'absolute', bottom: 12, left: 0, right: 0, alignItems: 'center', zIndex: 110
+    },
     photoCountBadgeSm: {
-        backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
-        marginRight: 4, height: 28, justifyContent: 'center', alignItems: 'center'
+        backgroundColor: '#FFFFFF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
+        height: 24, justifyContent: 'center', alignItems: 'center',
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3
     },
-    photoCountText: { color: 'white', fontSize: 11, fontWeight: '800' },
+    photoCountText: { color: COLORS.primary, fontSize: 10, fontWeight: '800' },
 
-    floatingThumbRow: { position: 'absolute', bottom: 15, left: 0, right: 0, zIndex: 110 },
-    miniThumb: { width: 75, height: 50, borderRadius: 12, borderWidth: 2, borderColor: 'transparent', overflow: 'hidden', backgroundColor: '#333' },
+    thumbnailSection: {
+        backgroundColor: '#F8FAFC',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
+    },
+    thumbnailListContent: {
+        paddingHorizontal: 16,
+        gap: 8,
+        flexGrow: 1,
+        justifyContent: 'center',
+    },
+    miniThumb: { width: 75, height: 50, borderRadius: 12, borderWidth: 2, borderColor: 'transparent', overflow: 'hidden', backgroundColor: '#FFF' },
     miniThumbActive: { borderColor: COLORS.primary },
     miniThumbImg: { width: '100%', height: '100%' },
 
     galleryImgFull: { width: '100%', height: '100%' },
 
     contentHeader: {
-        paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16,
-        backgroundColor: 'white', borderBottomLeftRadius: 12, borderBottomRightRadius: 12,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 3
+        paddingHorizontal: 16, paddingTop: 20, paddingBottom: 20,
+        backgroundColor: 'white',
+        borderBottomWidth: 1, borderBottomColor: '#F8FAFC'
     },
-    adTitleBig: { fontSize: 22, fontWeight: '700', color: '#0F172A', letterSpacing: -0.5 },
-    headerPriceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+    mainInfoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+    titleLocationCol: { flex: 1 },
+    priceCol: { alignItems: 'flex-end' },
+    adTitleBig: { fontSize: 20, fontWeight: '700', color: '#0F172A', letterSpacing: -0.5, marginBottom: 4 },
     headerPriceText: { fontSize: 20, fontWeight: '800', color: COLORS.primary },
-    headerNegBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-    headerNegText: { color: '#64748B', fontSize: 12, fontWeight: '800', textTransform: 'uppercase' },
+    headerNegBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, marginTop: 4 },
+    headerNegText: { color: '#64748B', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
 
-    locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
-    locationText: { fontSize: 13, color: '#64748B', fontWeight: '500' },
+    locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+    locationText: { fontSize: 12, color: '#64748B', fontWeight: '500' },
 
     postedBadge: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, zIndex: 30 },
     postedText: { fontSize: 10, color: 'white', fontWeight: '600' },
@@ -706,24 +740,29 @@ const styles = StyleSheet.create({
     headerTag: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F8FAFC', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, borderWidth: 1, borderColor: '#F1F5F9' },
     headerTagText: { fontSize: 11, color: '#64748B', fontWeight: '700' },
 
-    specThreeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    specCard: {
-        width: '31%', backgroundColor: 'white', borderRadius: 12,
-        paddingVertical: 14, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center',
-        borderWidth: 1.5, borderColor: '#F1F5F9',
-        marginBottom: 10,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1
+    specGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+    specItem: {
+        width: '48%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 16,
+        paddingRight: 4
     },
-    specIconCard: { marginBottom: 8 },
-    specCardLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '700', textTransform: 'uppercase', marginBottom: 2, letterSpacing: 0.4 },
-    specCardValue: { fontSize: 12, color: '#0F172A', fontWeight: '800', textAlign: 'center' },
+    specIconWrapper: {
+        width: 36, height: 36, borderRadius: 18, backgroundColor: '#F8FAFC',
+        alignItems: 'center', justifyContent: 'center'
+    },
+    specLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '700', textTransform: 'uppercase', marginBottom: 2 },
+    specValue: { fontSize: 13, color: '#0F172A', fontWeight: '700' },
 
     section: {
-        backgroundColor: 'white', marginHorizontal: 12, marginTop: 12,
-        borderRadius: 12, padding: 16,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.02, shadowRadius: 10, elevation: 1
+        backgroundColor: 'white',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F8FAFC',
     },
-    sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 16, letterSpacing: -0.2 },
+    sectionTitle: { fontSize: 15, fontWeight: '700', color: '#0F172A', marginBottom: 12, letterSpacing: -0.2 },
 
     // DESCRIPTION
     descText: { fontSize: 15, color: '#475569', lineHeight: 24, fontWeight: '400' },
@@ -758,10 +797,10 @@ const styles = StyleSheet.create({
     sellerPhone: { fontSize: 13, color: COLORS.primary, fontWeight: '700', marginTop: 4 },
 
     // SHARE
-    shareRow: { flexDirection: 'row', gap: 12 },
-    shareBtn: { flex: 1, alignItems: 'center', gap: 6 },
-    shareIcon: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-    shareBtnText: { fontSize: 12, color: '#64748B', fontWeight: '600' },
+    shareRow: { flexDirection: 'row', gap: 20, justifyContent: 'center' },
+    shareBtn: { alignItems: 'center', gap: 4 },
+    shareIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F1F5F9' },
+    shareBtnText: { fontSize: 10, color: '#64748B', fontWeight: '600' },
 
     // REVIEWS
     reviewHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
@@ -798,16 +837,16 @@ const styles = StyleSheet.create({
 
     // CONTACT MODAL
     modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.6)', justifyContent: 'flex-end' },
-    contactSheet: { backgroundColor: 'white', borderTopLeftRadius: 36, borderTopRightRadius: 36, paddingHorizontal: 24, paddingTop: 10 },
-    sheetHandle: { width: 40, height: 5, backgroundColor: '#E2E8F0', borderRadius: 3, alignSelf: 'center', marginBottom: 20 },
-    contactSheetTitle: { fontSize: 22, fontWeight: '900', color: '#0F172A', textAlign: 'center', marginBottom: 24, letterSpacing: -0.5 },
-    sellerCardLg: { alignItems: 'center', marginBottom: 32, gap: 12 },
-    sellerAvatarLg: { width: 84, height: 84, borderRadius: 42, alignItems: 'center', justifyContent: 'center', shadowColor: COLORS.primary, shadowOpacity: 0.2, shadowRadius: 10, elevation: 5 },
-    sellerInitialLg: { color: 'white', fontSize: 32, fontWeight: '900' },
-    sellerNameLg: { fontSize: 20, fontWeight: '900', color: '#0F172A' },
-    contactOptions: { flexDirection: 'row', gap: 16, marginBottom: 10 },
-    contactOption: { flex: 1, backgroundColor: '#F8FAFC', borderRadius: 12, padding: 20, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: '#F1F5F9' },
-    contactOptionIcon: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
-    contactOptionLabel: { fontSize: 15, fontWeight: '900', color: '#0F172A', textAlign: 'center' },
-    contactOptionSub: { fontSize: 12, color: '#94A3B8', fontWeight: '700' },
+    contactSheet: { backgroundColor: 'white', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 10 },
+    sheetHandle: { width: 36, height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, alignSelf: 'center', marginBottom: 12 },
+    contactSheetTitle: { fontSize: 16, fontWeight: '900', color: '#0F172A', textAlign: 'center', marginBottom: 12, letterSpacing: -0.5 },
+    sellerCardLg: { alignItems: 'center', marginBottom: 16, gap: 6 },
+    sellerAvatarLg: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', shadowColor: COLORS.primary, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
+    sellerInitialLg: { color: 'white', fontSize: 20, fontWeight: '900' },
+    sellerNameLg: { fontSize: 14, fontWeight: '900', color: '#0F172A' },
+    contactOptions: { flexDirection: 'row', gap: 10, marginBottom: 8 },
+    contactOption: { flex: 1, backgroundColor: '#F8FAFC', borderRadius: 10, padding: 8, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: '#F1F5F9' },
+    contactOptionIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+    contactOptionLabel: { fontSize: 12, fontWeight: '900', color: '#0F172A', textAlign: 'center' },
+    contactOptionSub: { fontSize: 9, color: '#94A3B8', fontWeight: '700' },
 });

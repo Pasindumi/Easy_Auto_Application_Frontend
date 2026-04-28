@@ -60,7 +60,14 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
     }, []);
 
     return (
-        <View style={{ flex: 1, backgroundColor: "#235CF8" }}>
+        <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                onDone();
+            }}
+            style={{ flex: 1, backgroundColor: "#235CF8" }}
+        >
             
             {/* Screen-Wide Shine Animation */}
             <Animated.View 
@@ -99,21 +106,15 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
 
             <View style={sp.bottomContent} pointerEvents="box-none">
                 <Animated.View style={{ opacity: buttonOpacity, width: "100%" }} pointerEvents="box-none">
-                    <TouchableOpacity 
+                    <View 
                         style={sp.startBtn} 
-                        onPress={() => {
-                            console.log("--> Continue Button Pressed! Navigating to /(tabs)");
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                            onDone();
-                        }}
-                        activeOpacity={0.9}
                     >
                         <Text style={sp.startBtnTxt}>Continue</Text>
                         <Ionicons name="arrow-forward" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
-                    </TouchableOpacity>
+                    </View>
                 </Animated.View>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 }
 
@@ -139,7 +140,7 @@ const sp = StyleSheet.create({
         right: 0,
         paddingHorizontal: 32, 
         paddingBottom: 50, 
-        zIndex: 2,
+        zIndex: 10,
         alignItems: "center",
     },
     startBtn: {
@@ -168,10 +169,15 @@ const sp = StyleSheet.create({
 export default function LandingPage() {
     const router = useRouter();
 
+    const handleContinue = () => {
+        console.log("[Landing] Navigating to home screen (tabs)...");
+        router.replace("/(tabs)");
+    };
+
     return (
         <View style={{ flex: 1, backgroundColor: "#235CF8" }}>
             <StatusBar style="light" />
-            <SplashScreen onDone={() => router.replace("/(tabs)" as any)} />
+            <SplashScreen onDone={handleContinue} />
         </View>
     );
 }

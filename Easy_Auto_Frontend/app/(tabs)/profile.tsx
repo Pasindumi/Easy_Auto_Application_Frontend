@@ -102,8 +102,8 @@ export default function ProfileScreen() {
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={[styles.settingIconBox, { backgroundColor: `${color}0A` }]}>
-          <Ionicons name={icon} size={18} color={color} />
+        <View style={styles.settingIconBox}>
+          <Ionicons name={icon} size={22} color={color} />
         </View>
         <View style={styles.settingTextContainer}>
           <Text style={styles.settingTitle}>{title}</Text>
@@ -123,9 +123,7 @@ export default function ProfileScreen() {
 
   const StatCard = ({ icon, value, label, color }: any) => (
     <View style={styles.statCard}>
-      <View style={[styles.statIconBoxMinimal, { backgroundColor: `${color}0A` }]}>
-        <MaterialCommunityIcons name={icon} size={18} color={color} />
-      </View>
+      <MaterialCommunityIcons name={icon} size={24} color={color} style={{ marginBottom: 8 }} />
       <View style={styles.statContent}>
         <Text style={styles.statValueMinimal}>{value}</Text>
         <Text style={styles.statLabelMinimal}>{label}</Text>
@@ -307,9 +305,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     padding: 24,
     marginBottom: 24,
-    borderRadius: 5,
+    borderRadius: 20,
+    backgroundColor: '#FFF',
     borderWidth: 1,
-    borderColor: `${COLORS.primary}40`,
+    borderColor: '#F1F5F9',
   },
   profileMasterContent: {
     flexDirection: 'row',
@@ -393,12 +392,13 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    padding: 12,
+    padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 5,
+    borderRadius: 16,
+    backgroundColor: '#FFF',
     borderWidth: 1,
-    borderColor: `${COLORS.primary}40`,
+    borderColor: '#F1F5F9',
   },
   statIconBoxMinimal: {
     width: 32,
@@ -413,18 +413,15 @@ const styles = StyleSheet.create({
   },
   statValueMinimal: {
     fontSize: 18,
-    fontWeight: '900',
-    color: COLORS.primary,
-    letterSpacing: -0.5,
+    fontWeight: '800',
+    color: '#1E293B',
   },
   statLabelMinimal: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: COLORS.secondary,
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748B',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
     marginTop: 2,
-    opacity: 0.6,
   },
   itemDivider: {
     height: 1,
@@ -451,9 +448,10 @@ const styles = StyleSheet.create({
   },
   card: {
     paddingVertical: 8,
-    borderRadius: 5,
+    borderRadius: 20,
+    backgroundColor: '#FFF',
     borderWidth: 1,
-    borderColor: `${COLORS.primary}40`,
+    borderColor: '#F1F5F9',
   },
   settingItem: {
     flexDirection: 'row',
