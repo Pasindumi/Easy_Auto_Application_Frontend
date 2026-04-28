@@ -36,7 +36,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/ui/Loading';
 
 const { width, height } = Dimensions.get('window');
-const GALLERY_HEIGHT = height * 0.34;
+const GALLERY_HEIGHT = height * 0.35;
 
 export default function AdDetailsScreen() {
     const router = useRouter();
