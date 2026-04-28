@@ -102,7 +102,7 @@ export default function ProfileScreen() {
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={[styles.settingIconBox, { backgroundColor: `${color}0A`, borderWidth: 1, borderColor: `${color}30` }]}>
+        <View style={[styles.settingIconBox, { backgroundColor: `${color}0A` }]}>
           <Ionicons name={icon} size={18} color={color} />
         </View>
         <View style={styles.settingTextContainer}>
@@ -123,7 +123,7 @@ export default function ProfileScreen() {
 
   const StatCard = ({ icon, value, label, color }: any) => (
     <View style={styles.statCard}>
-      <View style={[styles.statIconBoxMinimal, { backgroundColor: `${color}0A`, borderWidth: 1, borderColor: `${color}30` }]}>
+      <View style={[styles.statIconBoxMinimal, { backgroundColor: `${color}0A` }]}>
         <MaterialCommunityIcons name={icon} size={18} color={color} />
       </View>
       <View style={styles.statContent}>
@@ -307,9 +307,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     padding: 24,
     marginBottom: 24,
-    borderRadius: 28,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#CBD5E1',
   },
   profileMasterContent: {
     flexDirection: 'row',
@@ -396,9 +396,9 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#CBD5E1',
   },
   statIconBoxMinimal: {
     width: 32,
@@ -414,16 +414,17 @@ const styles = StyleSheet.create({
   statValueMinimal: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#1E293B',
+    color: COLORS.primary,
     letterSpacing: -0.5,
   },
   statLabelMinimal: {
     fontSize: 9,
     fontWeight: '700',
-    color: '#94A3B8',
+    color: COLORS.secondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 2,
+    opacity: 0.6,
   },
   itemDivider: {
     height: 1,
@@ -450,9 +451,9 @@ const styles = StyleSheet.create({
   },
   card: {
     paddingVertical: 8,
-    borderRadius: 24,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#CBD5E1',
   },
   settingItem: {
     flexDirection: 'row',
