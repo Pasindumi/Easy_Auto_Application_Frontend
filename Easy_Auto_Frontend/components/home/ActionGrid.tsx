@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         width: (Dimensions.get("window").width - 32 - 24) / 3, // 3 columns, 16px horizontal padding, 12px gap
         backgroundColor: "#FFFFFF",
-        borderRadius: 10,
+        borderRadius: 5,
         paddingVertical: 16,
         paddingHorizontal: 8,
         alignItems: "center",
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
         right: -6,
         height: 22,
         minWidth: 22,
-        borderRadius: 11,
+        borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 5,

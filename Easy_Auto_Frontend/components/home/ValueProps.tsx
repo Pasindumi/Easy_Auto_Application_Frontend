@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     card: {
         flex: 1,
         backgroundColor: "#F8FAFF",
-        borderRadius: 10,
+        borderRadius: 5,
         alignItems: "center",
         paddingVertical: 12,
         borderWidth: 1,
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     iconWrap: {
         width: 40,
         height: 40,
-        borderRadius: 10,
+        borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
     },

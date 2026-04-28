@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     tab: {
         paddingHorizontal: 22,
         paddingVertical: 4,
-        borderRadius: 10,
+        borderRadius: 5,
         backgroundColor: "#EEF2FF",
     },
     tabActive: {
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
         width: COL_W,
         height: COL_W,
         backgroundColor: COLORS.white,
-        borderRadius: COL_W / 2, // Perfect circle for premium brand avatars
+        borderRadius: 5, // Consistent 5px radius for brand cells
         justifyContent: "center",
         alignItems: "center",
         borderWidth: 0,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     placeholderGradient: {
         width: '100%',
         height: '100%',
-        borderRadius: COL_W / 2,
+        borderRadius: 5,
         justifyContent: "center",
         alignItems: "center",
     },

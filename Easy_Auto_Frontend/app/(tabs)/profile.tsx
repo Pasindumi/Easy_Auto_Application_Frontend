@@ -102,7 +102,7 @@ export default function ProfileScreen() {
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={[styles.settingIconBox, { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: color }]}>
+        <View style={[styles.settingIconBox, { backgroundColor: `${color}0A`, borderWidth: 1, borderColor: `${color}30` }]}>
           <Ionicons name={icon} size={18} color={color} />
         </View>
         <View style={styles.settingTextContainer}>
@@ -123,7 +123,7 @@ export default function ProfileScreen() {
 
   const StatCard = ({ icon, value, label, color }: any) => (
     <View style={styles.statCard}>
-      <View style={[styles.statIconBoxMinimal, { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: color }]}>
+      <View style={[styles.statIconBoxMinimal, { backgroundColor: `${color}0A`, borderWidth: 1, borderColor: `${color}30` }]}>
         <MaterialCommunityIcons name={icon} size={18} color={color} />
       </View>
       <View style={styles.statContent}>
@@ -305,17 +305,11 @@ const styles = StyleSheet.create({
   },
   profileMasterCard: {
     marginHorizontal: 16,
-    backgroundColor: '#fff',
-    borderRadius: 28,
     padding: 24,
+    marginBottom: 24,
+    borderRadius: 28,
     borderWidth: 1,
     borderColor: '#F1F5F9',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    marginBottom: 24,
   },
   profileMasterContent: {
     flexDirection: 'row',
@@ -399,11 +393,10 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 20,
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#F1F5F9',
   },
@@ -456,14 +449,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
     paddingVertical: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   settingItem: {
     flexDirection: 'row',

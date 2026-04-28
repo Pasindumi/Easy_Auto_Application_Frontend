@@ -500,10 +500,10 @@ export default function SellCarScreen() {
         <Header showBack={true} />
         <View style={styles.authGuardContainer}>
           <View style={styles.iconCircle}>
-            <Ionicons name="lock-closed-outline" size={40} color={COLORS.primary} />
+            <Ionicons name="lock-closed-outline" size={30} color={COLORS.primary} />
           </View>
           <Text style={styles.authGuardTitle}>Login Required</Text>
-          <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicles on Easy Auto.</Text>
+          <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicle on Easy Auto.</Text>
 
           <View style={styles.authButtonGroup}>
             <View style={{ flex: 1, marginRight: 10 }}>
@@ -766,19 +766,19 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: COLORS.primary + '10', // Light primary background
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   authGuardTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
-    marginBottom: 12,
+    color: '#64748B', // Gray color
+    marginBottom: 10,
   },
   authGuardMessage: {
     fontSize: 16,
@@ -792,8 +792,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   authButton: {
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 11,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.primary,

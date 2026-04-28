@@ -109,7 +109,7 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
                         activeOpacity={0.9}
                     >
                         <Text style={sp.startBtnTxt}>Continue</Text>
-                        <Ionicons name="arrow-forward" size={16} color="#235CF8" style={{ marginLeft: 6 }} />
+                        <Ionicons name="arrow-forward" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
                     </TouchableOpacity>
                 </Animated.View>
             </View>
@@ -143,9 +143,11 @@ const sp = StyleSheet.create({
         alignItems: "center",
     },
     startBtn: {
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#235CF8",
+        borderWidth: 1.5,
+        borderColor: "#FFFFFF",
         paddingVertical: 14,
-        borderRadius: 12,
+        borderRadius: 5,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -156,7 +158,7 @@ const sp = StyleSheet.create({
         elevation: 4,
     },
     startBtnTxt: {
-        color: "#235CF8",
+        color: "#FFFFFF",
         fontSize: 15,
         fontWeight: "800",
         letterSpacing: 0.5,

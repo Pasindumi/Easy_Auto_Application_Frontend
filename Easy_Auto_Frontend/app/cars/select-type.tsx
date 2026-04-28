@@ -204,7 +204,7 @@ export default function SelectVehicleTypeScreen() {
                 <Header showBack={true} title="Sell Your Vehicle" />
                 <View style={styles.authGuardContainer}>
                     <View style={styles.iconCircle}>
-                        <Ionicons name="lock-closed" size={40} color={COLORS.primary} />
+                        <Ionicons name="lock-closed" size={30} color={COLORS.primary} />
                     </View>
                     <Text style={styles.authGuardTitle}>Login Required</Text>
                     <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicle on Easy Auto.</Text>
@@ -432,19 +432,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iconCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         backgroundColor: 'rgba(35, 92, 248, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 20,
     },
     authGuardTitle: {
         fontSize: 22,
         fontWeight: '800',
-        color: COLORS.text.primary,
-        marginBottom: 12,
+        color: '#64748B', // Gray color
+        marginBottom: 10,
     },
     authGuardMessage: {
         fontSize: 15,
@@ -460,8 +460,8 @@ const styles = StyleSheet.create({
     },
     authButton: {
         flex: 1,
-        height: 50,
-        borderRadius: 14,
+        height: 44,
+        borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
     },

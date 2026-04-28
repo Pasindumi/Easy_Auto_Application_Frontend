@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     modalView: {
         width: width * 0.85,
         backgroundColor: 'white',
-        borderRadius: 24,
+        borderRadius: 5,
         overflow: 'hidden',
         alignItems: 'center',
         shadowColor: '#000',
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         right: 12,
         zIndex: 20,
         backgroundColor: 'rgba(0,0,0,0.4)',
-        borderRadius: 10,
+        borderRadius: 5,
     },
     slider: {
         width: '100%',
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F59E0B',
         paddingHorizontal: 12,
         paddingVertical: 5,
-        borderRadius: 10,
+        borderRadius: 5,
         marginBottom: 10,
     },
     tagText: {
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#2563EB',
         paddingVertical: 12,
         paddingHorizontal: 30,
-        borderRadius: 30,
+        borderRadius: 5,
         gap: 8,
         shadowColor: '#2563EB',
         shadowOffset: { width: 0, height: 4 },

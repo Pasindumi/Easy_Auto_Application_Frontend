@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     card: {
         width: 190,
         backgroundColor: COLORS.white,
-        borderRadius: 10,
+        borderRadius: 5,
         borderWidth: 1,
         borderColor: '#DBEAFE',
         overflow: 'hidden',
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 6,
         paddingVertical: 3,
-        borderRadius: 10,
+        borderRadius: 5,
         gap: 3,
     },
     distanceText: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.7)',
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: 10,
+        borderRadius: 5,
         borderWidth: 0.5,
         borderColor: 'rgba(255,255,255,0.2)',
     },
