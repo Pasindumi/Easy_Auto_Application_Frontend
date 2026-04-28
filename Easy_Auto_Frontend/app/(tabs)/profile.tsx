@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: `${COLORS.primary}40`,
   },
   profileMasterContent: {
     flexDirection: 'row',
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: `${COLORS.primary}40`,
   },
   statIconBoxMinimal: {
     width: 32,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: `${COLORS.primary}40`,
   },
   settingItem: {
     flexDirection: 'row',
