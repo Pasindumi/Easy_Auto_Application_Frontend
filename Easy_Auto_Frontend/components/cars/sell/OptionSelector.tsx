@@ -52,10 +52,10 @@ const OptionSelector: React.FC<Props> = ({
             >
                 <View style={styles.triggerContent}>
                     {triggerIcon && (
-                        <Ionicons name={triggerIcon} size={20} color={COLORS.text.muted} style={styles.triggerIcon} />
+                        <Ionicons name={triggerIcon} size={18} color={COLORS.text.muted} style={styles.triggerIcon} />
                     )}
                     {selectedOption ? (
-                        <Text style={styles.triggerText}>{selectedOption.label}</Text>
+                        <Text style={styles.triggerText} numberOfLines={1}>{selectedOption.label}</Text>
                     ) : (
                         <Text style={styles.placeholderText}>{placeholder}</Text>
                     )}
@@ -160,23 +160,23 @@ const OptionSelector: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20 },
-    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
+    container: { marginBottom: 20, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 8 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderWidth: 1.5,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        height: 50,
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
+        borderRadius: 5,
+        paddingHorizontal: 12,
+        height: 40,
         backgroundColor: '#F9FAFB',
     },
     disabledTrigger: { opacity: 0.5, backgroundColor: COLORS.backgroundMuted },
     triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
     triggerIcon: { marginRight: 10 },
-    triggerText: { fontSize: 15, fontWeight: '600', color: COLORS.text.primary },
+    triggerText: { fontSize: 15, fontWeight: '500', color: COLORS.text.primary },
     placeholderText: { fontSize: 15, color: COLORS.text.placeholder, fontWeight: '400' },
 
     modalOverlay: {
@@ -209,9 +209,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderRadius: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        borderRadius: 5,
         marginBottom: 8,
         backgroundColor: '#F9FAFB',
     },
@@ -244,11 +244,11 @@ const styles = StyleSheet.create({
         width: GRID_ITEM_WIDTH,
         aspectRatio: 0.9,
         backgroundColor: '#F9FAFB',
-        borderRadius: 20,
+        borderRadius: 5,
         padding: 8,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
+        borderWidth: 1,
         borderColor: 'transparent',
         elevation: 2,
         shadowColor: '#000',

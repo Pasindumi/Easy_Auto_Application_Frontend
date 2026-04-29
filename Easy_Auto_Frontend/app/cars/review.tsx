@@ -92,47 +92,42 @@ export default function ReviewAdScreen() {
 
 
 
-    if (!isAuthenticated) return null; // Auth guard should be handled by layout or similar
-
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <Loading />
-            </View>
-        );
-    }
-
-    if (!ad) return null;
-
-    const images = ad.AdImage || [];
-    const details = Array.isArray(ad.CarDetails) ? ad.CarDetails[0] : (ad.CarDetails || {});
-    const formattedPrice = new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price);
-
     return (
         <View style={styles.safe}>
             <Stack.Screen options={{ headerShown: false }} />
-            <Header showBack={true} title="Preview Ad" />
-
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* PREVIEW BANNER */}
-                <View style={styles.previewBadge}>
-                    <Ionicons name="eye-outline" size={16} color={COLORS.white} />
-                    <Text style={styles.previewBadgeText}>AD PREVIEW MODE</Text>
+            {loading ? (
+                <View style={[styles.safe, styles.loadingContainer]}>
+                    <Loading />
                 </View>
+            ) : !ad ? null : (() => {
+                const images = ad.AdImage || [];
+                const details = Array.isArray(ad.CarDetails) ? ad.CarDetails[0] : (ad.CarDetails || {});
+                const formattedPrice = new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price);
 
-                {/* HERO IMAGE SECTION */}
-                <View style={styles.heroSection}>
-                    <Image
-                        source={mainImage ? { uri: mainImage } : require('@/assets/images/car.jpg')}
-                        style={styles.heroImage}
-                    />
-                    <View style={styles.imageOverlay}>
-                        <View style={styles.imageCountBadge}>
-                            <Ionicons name="camera" size={14} color="white" />
-                            <Text style={styles.imageCountText}>{images.length} Photos</Text>
-                        </View>
-                    </View>
-                </View>
+                return (
+                    <>
+                        <Header showBack={true} title="Preview Ad" />
+
+                        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                            {/* HERO IMAGE SECTION */}
+                            <View style={styles.heroSection}>
+                                <Image
+                                    source={mainImage ? { uri: mainImage } : require('@/assets/images/car.jpg')}
+                                    style={styles.heroImage}
+                                />
+                                <View style={styles.imageOverlay}>
+                                    {/* PREVIEW BANNER - OVERLAY */}
+                                    <View style={styles.previewBadgeOverlay}>
+                                        <Ionicons name="eye" size={12} color="#000000" />
+                                        <Text style={styles.previewBadgeText}>AD PREVIEW MODE</Text>
+                                    </View>
+
+                                    <View style={styles.imageCountBadge}>
+                                        <Ionicons name="camera" size={14} color="white" />
+                                        <Text style={styles.imageCountText}>{images.length} Photos</Text>
+                                    </View>
+                                </View>
+                            </View>
 
                 {/* THUMBNAILS SCROLL */}
                 {images.length > 1 && (
@@ -156,14 +151,16 @@ export default function ReviewAdScreen() {
 
                 {/* MAIN INFO CARD */}
                 <View style={styles.mainInfoContainer}>
-                    <Text style={styles.adTitle}>{ad.title}</Text>
-                    <View style={styles.priceRow}>
-                        <Text style={styles.priceText}>{formattedPrice}</Text>
-                        {ad.negotiable && (
-                            <View style={styles.negotiableBadge}>
-                                <Text style={styles.negotiableText}>Negotiable</Text>
-                            </View>
-                        )}
+                    <View style={styles.titlePriceRow}>
+                        <Text style={styles.adTitle} numberOfLines={2}>{ad.title}</Text>
+                        <View style={styles.priceContainer}>
+                            <Text style={styles.priceText}>{formattedPrice}</Text>
+                            {ad.negotiable && (
+                                <View style={styles.negotiableBadge}>
+                                    <Text style={styles.negotiableText}>Negotiable</Text>
+                                </View>
+                            )}
+                        </View>
                     </View>
                     <View style={styles.locationContainer}>
                         <Ionicons name="location-sharp" size={16} color={COLORS.text.muted} />
@@ -346,17 +343,22 @@ export default function ReviewAdScreen() {
                             <Text style={styles.publishButtonText}>Proceed & Payment</Text>
                         </TouchableOpacity>
                     )}
-                </View>
-            </ScrollView>
+                        </View>
+                    </ScrollView>
+                </>
+                );
+            })()}
         </View>
     );
 }
 
 const SpecCard = ({ icon, label, value }: { icon: any, label: string, value: string }) => (
     <View style={styles.specCard}>
-        {icon}
-        <Text style={styles.specLabel}>{label}</Text>
-        <Text style={styles.specValue} numberOfLines={1}>{value || '-'}</Text>
+        {React.cloneElement(icon, { size: 20 })}
+        <View style={{ flex: 1, marginLeft: 2 }}>
+            <Text style={styles.specLabel}>{label}</Text>
+            <Text style={styles.specValue} numberOfLines={1}>{value || '-'}</Text>
+        </View>
     </View>
 );
 
@@ -364,15 +366,26 @@ const styles = StyleSheet.create({
     safe: { flex: 1, backgroundColor: COLORS.background },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     scrollContent: { paddingBottom: 100 },
-    previewBadge: {
-        backgroundColor: COLORS.accent,
-        paddingVertical: 8,
+    previewBadgeOverlay: {
+        position: 'absolute',
+        top: 16,
+        left: 20,
+        right: 20,
+        backgroundColor: 'rgba(255, 215, 0, 0.5)', // Semi-transparent yellow
+        paddingVertical: 4,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 6
+        gap: 8,
+        borderRadius: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+        zIndex: 20,
     },
-    previewBadgeText: { color: COLORS.white, fontWeight: 'bold', fontSize: 12, letterSpacing: 1 },
+    previewBadgeText: { color: '#000000', fontWeight: '900', fontSize: 10, letterSpacing: 1.2 },
     heroSection: { height: 280, width: '100%', position: 'relative' },
     heroImage: { width: '100%', height: '100%', resizeMode: 'cover' },
     imageOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.1)' },
@@ -383,18 +396,18 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 20,
+        borderRadius: 5,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6
     },
     imageCountText: { color: 'white', fontSize: 12, fontWeight: '600' },
     thumbnailWrapper: { backgroundColor: 'white', paddingVertical: 12 },
-    thumbnailList: { paddingHorizontal: 16, gap: 10 },
+    thumbnailList: { paddingHorizontal: 16, gap: 10, justifyContent: 'center', flexGrow: 1 },
     thumbnailContainer: {
-        width: 80,
-        height: 60,
-        borderRadius: 8,
+        width: 50,
+        height: 38,
+        borderRadius: 5,
         overflow: 'hidden',
         borderWidth: 2,
         borderColor: 'transparent'
@@ -402,10 +415,11 @@ const styles = StyleSheet.create({
     activeThumbnail: { borderColor: COLORS.primary },
     thumbnailImage: { width: '100%', height: '100%', resizeMode: 'cover' },
     mainInfoContainer: { padding: 20, backgroundColor: 'white', marginBottom: 12 },
-    adTitle: { fontSize: 24, fontWeight: '800', color: COLORS.text.primary, marginBottom: 8 },
-    priceRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
-    priceText: { fontSize: 22, fontWeight: 'bold', color: COLORS.primary },
-    negotiableBadge: { backgroundColor: COLORS.primaryLight, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
+    adTitle: { fontSize: 20, fontWeight: '800', color: COLORS.text.primary, flex: 1, marginRight: 10 },
+    titlePriceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+    priceContainer: { alignItems: 'flex-end' },
+    priceText: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary },
+    negotiableBadge: { backgroundColor: COLORS.primaryLight, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 5 },
     negotiableText: { color: COLORS.primary, fontSize: 12, fontWeight: '600' },
     locationContainer: { flexDirection: 'row', alignItems: 'center' },
     locationText: { color: COLORS.text.muted, fontSize: 14, marginLeft: 4 },
@@ -414,9 +428,9 @@ const styles = StyleSheet.create({
     statsOverview: {
         flexDirection: 'row',
         backgroundColor: '#F8FAFC',
-        borderRadius: 16,
-        padding: 16,
-        marginTop: 20,
+        borderRadius: 5,
+        padding: 10,
+        marginTop: 25,
         alignItems: 'center',
         borderWidth: 1,
         borderColor: '#F1F5F9',
@@ -425,53 +439,52 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: 8,
     },
     statIconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
+        width: 32,
+        height: 32,
+        borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center',
     },
     statValue: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '800',
         color: '#1E293B',
     },
     statLabel: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#64748B',
         fontWeight: '500',
     },
     statDivider: {
         width: 1,
-        height: 30,
+        height: 24,
         backgroundColor: '#E2E8F0',
-        marginHorizontal: 16,
+        marginHorizontal: 12,
     },
     specsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        padding: 10,
-        gap: 10,
-        marginBottom: 12
+        paddingHorizontal: 20,
+        gap: 12,
+        marginBottom: 16,
     },
     specCard: {
         backgroundColor: 'white',
-        width: (width - 30) / 2,
-        padding: 16,
-        borderRadius: 16,
+        width: (width - 52) / 2, // 2 columns with gap
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 5,
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8
+        gap: 10,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
     },
-    specLabel: { fontSize: 12, color: COLORS.text.muted, marginTop: 8 },
-    specValue: { fontSize: 15, fontWeight: 'bold', color: COLORS.text.primary, marginTop: 2 },
+    specLabel: { fontSize: 11, color: COLORS.text.muted, flex: 1 },
+    specValue: { fontSize: 13, fontWeight: 'bold', color: COLORS.text.primary },
     section: { backgroundColor: 'white', padding: 20, marginBottom: 12 },
     sectionHeader: { fontSize: 18, fontWeight: 'bold', color: COLORS.text.primary, marginBottom: 16 },
     attributesList: { gap: 12 },
@@ -488,33 +501,35 @@ const styles = StyleSheet.create({
     sellerCard: {
         backgroundColor: 'white',
         margin: 16,
-        borderRadius: 20,
-        padding: 20,
-        elevation: 4,
+        marginTop: 0,
+        borderRadius: 5,
+        padding: 15,
+        elevation: 2,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8
     },
-    sellerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+    sellerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
     sellerAvatar: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: COLORS.primary,
         alignItems: 'center',
         justifyContent: 'center'
     },
-    avatarText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
-    sellerInfo: { marginLeft: 15 },
-    sellerName: { fontSize: 18, fontWeight: 'bold', color: COLORS.text.primary },
-    sellerRole: { fontSize: 13, color: COLORS.text.muted, marginTop: 2 },
-    contactDetails: { gap: 12 },
+    avatarText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
+    sellerInfo: { marginLeft: 12 },
+    sellerName: { fontSize: 16, fontWeight: 'bold', color: COLORS.text.primary },
+    sellerRole: { fontSize: 12, color: COLORS.text.muted, marginTop: 1 },
+    contactDetails: { gap: 10 },
     contactItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    contactText: { fontSize: 15, color: COLORS.text.primary, fontWeight: '500' },
+    contactText: { fontSize: 14, color: COLORS.text.primary, fontWeight: '500' },
     stickyFooter: {
         flexDirection: 'row',
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         backgroundColor: 'white',
         borderTopWidth: 1,
         borderTopColor: COLORS.divider,
@@ -525,8 +540,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        borderRadius: 14,
+        paddingVertical: 10,
+        borderRadius: 5,
         borderWidth: 1.5,
         borderColor: COLORS.primary,
         backgroundColor: 'white'
@@ -537,14 +552,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        borderRadius: 14,
+        paddingVertical: 10,
+        borderRadius: 5,
         backgroundColor: COLORS.primary,
-        elevation: 4,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8
     },
     publishButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
     disabledButton: { opacity: 0.6 },
@@ -560,7 +570,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF8E1',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 12,
+        borderRadius: 5,
         gap: 4,
     },
     ratingText: {

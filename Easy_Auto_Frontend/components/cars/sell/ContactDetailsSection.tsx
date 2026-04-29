@@ -73,15 +73,15 @@ const ContactDetailsSection: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-    section: { backgroundColor: 'white', borderRadius: 4, padding: 20, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
+    section: { marginBottom: 16 },
     sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 4 },
     sectionSubtitle: { fontSize: 13, color: '#6B7280', marginBottom: 16 },
     label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-    input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16, backgroundColor: 'white', marginBottom: 16, color: '#6B7280' },
-    contactBox: { backgroundColor: '#F3F8FF', borderRadius: 12, padding: 16 },
+    input: { borderWidth: 1, borderColor: '#BFDBFE', borderRadius: 5, paddingHorizontal: 12, height: 40, fontSize: 14, backgroundColor: '#F9FAFB', marginBottom: 16, color: '#1F2937' },
+    contactBox: { backgroundColor: '#F3F8FF', borderRadius: 5, padding: 15 },
     contactBoxTitle: { fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 8 },
     contactRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-    contactPhoneInput: { flex: 1, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16, backgroundColor: 'white' },
+    contactPhoneInput: { flex: 1, borderWidth: 1, borderColor: '#BFDBFE', borderRadius: 5, paddingHorizontal: 12, height: 40, fontSize: 14, backgroundColor: 'white' },
     contactAddButton: { backgroundColor: '#235CF8', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 10, marginLeft: 8, justifyContent: 'center', alignItems: 'center' },
     contactAddButtonText: { color: 'white', fontWeight: 'bold', fontSize: 15 },
     contactInfoBox: { backgroundColor: '#FFF9C4', borderRadius: 8, padding: 8, marginVertical: 8 },

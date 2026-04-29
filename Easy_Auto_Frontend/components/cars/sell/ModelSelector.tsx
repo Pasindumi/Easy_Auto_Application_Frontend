@@ -51,7 +51,7 @@ const ModelSelector: React.FC<Props> = ({ label, value, models, onSelect, disabl
             >
                 <View style={styles.triggerContent}>
                     {value ? (
-                        <Text style={styles.triggerText}>{value}</Text>
+                        <Text style={styles.triggerText} numberOfLines={1}>{value}</Text>
                     ) : (
                         <Text style={styles.placeholderText}>{placeholder}</Text>
                     )}
@@ -146,17 +146,17 @@ const ModelSelector: React.FC<Props> = ({ label, value, models, onSelect, disabl
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20 },
-    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
+    container: { marginBottom: 20, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 6 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         borderWidth: 1,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        height: 50,
+        borderColor: '#BFDBFE',
+        borderRadius: 5,
+        paddingHorizontal: 12,
+        height: 40,
         backgroundColor: '#F9FAFB',
     },
     disabledTrigger: { opacity: 0.5, backgroundColor: COLORS.backgroundMuted },

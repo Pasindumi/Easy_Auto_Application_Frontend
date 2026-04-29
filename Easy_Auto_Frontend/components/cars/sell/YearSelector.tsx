@@ -46,9 +46,9 @@ const YearSelector: React.FC<Props> = ({ label, value, onSelect, disabled, loadi
                 disabled={disabled}
             >
                 <View style={styles.triggerContent}>
-                    <Ionicons name="calendar-outline" size={20} color={COLORS.text.muted} style={styles.triggerIcon} />
+                    <Ionicons name="calendar-outline" size={18} color={COLORS.text.muted} style={styles.triggerIcon} />
                     {value ? (
-                        <Text style={styles.triggerText}>{value}</Text>
+                        <Text style={styles.triggerText} numberOfLines={1}>{value}</Text>
                     ) : (
                         <Text style={styles.placeholderText}>Select...</Text>
                     )}
@@ -144,24 +144,24 @@ const YearSelector: React.FC<Props> = ({ label, value, onSelect, disabled, loadi
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20 },
-    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
+    container: { marginBottom: 20, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 6 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderWidth: 1.5,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        height: 50,
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
+        borderRadius: 5,
+        paddingHorizontal: 12,
+        height: 40,
         backgroundColor: '#F9FAFB',
     },
     disabledTrigger: { opacity: 0.5, backgroundColor: COLORS.backgroundMuted },
     triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-    triggerIcon: { marginRight: 10 },
-    triggerText: { fontSize: 15, fontWeight: '600', color: COLORS.text.primary },
-    placeholderText: { fontSize: 15, color: COLORS.text.placeholder, fontWeight: '400' },
+    triggerIcon: { marginRight: 8 },
+    triggerText: { fontSize: 14, fontWeight: '500', color: COLORS.text.primary },
+    placeholderText: { fontSize: 14, color: COLORS.text.placeholder, fontWeight: '400' },
 
     modalOverlay: {
         flex: 1,

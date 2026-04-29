@@ -69,16 +69,24 @@ const CarDetailsSection: React.FC<Props> = ({
             {/* SECTION 1: Core Details */}
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="shield-checkmark-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Condition</Text>
+                    </View>
                     <ConditionSelector
-                        label="Condition"
+                        label=""
                         value={carDetails.condition}
                         options={conditionOptions}
                         onSelect={(val) => handleInputChange('condition', val)}
                     />
                 </View>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="ribbon-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Brand</Text>
+                    </View>
                     <BrandSelector
-                        label="Brand"
+                        label=""
                         value={carDetails.brand}
                         brands={brands}
                         onSelect={(val) => {
@@ -91,8 +99,12 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="layers-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Model</Text>
+                    </View>
                     <ModelSelector
-                        label="Model"
+                        label=""
                         value={carDetails.model}
                         models={filteredModels}
                         onSelect={(val) => handleInputChange('model', val)}
@@ -100,8 +112,12 @@ const CarDetailsSection: React.FC<Props> = ({
                     />
                 </View>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="calendar-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Year</Text>
+                    </View>
                     <YearSelector
-                        label="Year"
+                        label=""
                         value={carDetails.year}
                         onSelect={(val) => handleInputChange('year', val)}
                     />
@@ -110,8 +126,12 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="speedometer-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Mileage (km)</Text>
+                    </View>
                     <CustomTextInput
-                        label="Mileage (km)"
+                        label=""
                         iconName="speedometer-outline"
                         placeholder="e.g. 45,000"
                         value={carDetails.mileage}
@@ -120,8 +140,12 @@ const CarDetailsSection: React.FC<Props> = ({
                     />
                 </View>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="color-fill-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Fuel Type</Text>
+                    </View>
                     <OptionSelector
-                        label="Fuel Type"
+                        label=""
                         value={carDetails.fuelType}
                         triggerIcon="color-fill-outline"
                         options={[
@@ -139,8 +163,12 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="git-network-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Transmission</Text>
+                    </View>
                     <OptionSelector
-                        label="Transmission"
+                        label=""
                         value={carDetails.transmission}
                         triggerIcon="git-network-outline"
                         options={[
@@ -152,8 +180,12 @@ const CarDetailsSection: React.FC<Props> = ({
                     />
                 </View>
                 <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="options-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Engine Cap. (cc)</Text>
+                    </View>
                     <CustomTextInput
-                        label="Engine Cap. (cc)"
+                        label=""
                         iconName="options-outline"
                         placeholder="e.g. 1500"
                         value={carDetails.engineCapacity}
@@ -165,8 +197,12 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={{ flex: 1 }}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="car-sport-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Body Type</Text>
+                    </View>
                     <OptionSelector
-                        label="Body Type"
+                        label=""
                         value={carDetails.bodyType || ''}
                         triggerIcon="car-sport-outline"
                         layout="grid"
@@ -324,23 +360,13 @@ import COLORS from '@/constants/Colors';
 
 const styles = StyleSheet.create({
     section: {
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        padding: 24,
         marginBottom: 20,
-        elevation: 4,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.08,
-        shadowRadius: 16,
-        borderWidth: 1,
-        borderColor: '#F3F4F6'
     },
     sectionTitle: {
-        fontSize: 20,
-        fontWeight: '900',
+        fontSize: 18,
+        fontWeight: '700',
         color: COLORS.text.primary,
-        marginBottom: 20,
+        marginBottom: 16,
         letterSpacing: -0.5
     },
     subTitle: {
@@ -360,40 +386,28 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     divider: { height: 1.5, backgroundColor: '#F3F4F6', marginVertical: 24 },
-    formRow: { flexDirection: 'row', gap: 16, marginBottom: 4 },
-    formHalf: { flex: 1 },
-    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
+    formRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, width: '100%' },
+    formHalf: { width: '48.5%' },
+    triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+    labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, marginLeft: 2 },
+    labelIcon: { marginRight: 6, opacity: 0.9 },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary },
     switchRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 16,
-        backgroundColor: COLORS.white,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        borderRadius: 16,
+        backgroundColor: '#F9FAFB',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 5,
         borderWidth: 1,
-        borderColor: '#E5E7EB',
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.03,
-        shadowRadius: 4,
-        elevation: 1,
-        minHeight: 56,
+        borderColor: '#BFDBFE',
+        minHeight: 40,
     },
     dynamicSection: { marginTop: 8 },
     dynamicSectionCard: {
-        backgroundColor: COLORS.white,
-        borderRadius: 24,
-        padding: 24,
         marginTop: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(230, 235, 245, 0.8)',
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.05,
-        shadowRadius: 20,
-        elevation: 6,
     },
     dynamicTitleContainer: {
         flexDirection: 'row',
@@ -412,8 +426,8 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(59, 130, 246, 0.15)',
     },
     dynamicSectionTitle: {
-        fontSize: 19,
-        fontWeight: '900',
+        fontSize: 17,
+        fontWeight: '700',
         color: COLORS.text.primary,
         letterSpacing: -0.4,
     },
@@ -431,17 +445,12 @@ const styles = StyleSheet.create({
     customFieldInputWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: COLORS.white,
-        borderWidth: 1.5,
-        borderColor: '#E2E8F0',
-        borderRadius: 16,
-        height: 52,
-        paddingHorizontal: 14,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 6,
-        elevation: 2,
+        backgroundColor: '#F9FAFB',
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
+        borderRadius: 5,
+        height: 40,
+        paddingHorizontal: 10,
     },
     customFieldIcon: {
         marginRight: 10,

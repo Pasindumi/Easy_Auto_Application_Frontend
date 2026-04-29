@@ -67,7 +67,7 @@ const BrandSelector: React.FC<Props> = ({ label, value, brands, onSelect, disabl
                                     <Text style={styles.logoInitial}>{selectedBrand.brand_name[0]}</Text>
                                 </View>
                             )}
-                            <Text style={styles.triggerText}>{selectedBrand.brand_name}</Text>
+                            <Text style={styles.triggerText} numberOfLines={1}>{selectedBrand.brand_name}</Text>
                         </>
                     ) : (
                         <Text style={styles.placeholderText}>Select...</Text>
@@ -169,26 +169,26 @@ const BrandSelector: React.FC<Props> = ({ label, value, brands, onSelect, disabl
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20 },
-    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
+    container: { marginBottom: 20, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 6 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         borderWidth: 1,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        height: 50,
+        borderColor: '#BFDBFE',
+        borderRadius: 5,
+        paddingHorizontal: 12,
+        height: 40,
         backgroundColor: '#F9FAFB',
     },
     disabledTrigger: { opacity: 0.5, backgroundColor: COLORS.backgroundMuted },
     triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-    triggerLogo: { width: 24, height: 24, marginRight: 10 },
+    triggerLogo: { width: 20, height: 20, marginRight: 10 },
     triggerLogoPlaceholder: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
         backgroundColor: COLORS.primaryLight,
         alignItems: 'center',
         justifyContent: 'center',

@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 5,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#E2E8F0',
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   filterTab: {
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: 5,
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: 5,
   },
   filterTabBadgeActive: {
     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingHorizontal: 24,
     paddingVertical: 14,
-    borderRadius: 16,
+    borderRadius: 5,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   skeletonCard: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 5,
     padding: 12,
     marginBottom: 16,
     borderWidth: 1,
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   skeletonImg: {
     width: 100,
     height: 80,
-    borderRadius: 14,
+    borderRadius: 5,
     backgroundColor: '#F1F5F9',
   },
   skeletonContent: {
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     backgroundColor: '#fff',
-    borderRadius: 24,
+    borderRadius: 5,
     paddingVertical: 12,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
   bulkBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 5,
     backgroundColor: '#F8FAFF',
     alignItems: 'center',
     justifyContent: 'center',
