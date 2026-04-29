@@ -51,9 +51,7 @@ const OptionSelector: React.FC<Props> = ({
                 disabled={disabled}
             >
                 <View style={styles.triggerContent}>
-                    {triggerIcon && (
-                        <Ionicons name={triggerIcon} size={18} color={COLORS.text.muted} style={styles.triggerIcon} />
-                    )}
+
                     {selectedOption ? (
                         <Text style={styles.triggerText} numberOfLines={1}>{selectedOption.label}</Text>
                     ) : (
@@ -160,8 +158,8 @@ const OptionSelector: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20, width: '100%' },
-    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 8 },
+    container: { marginBottom: 8, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary, marginBottom: -2 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',

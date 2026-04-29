@@ -146,8 +146,8 @@ const ModelSelector: React.FC<Props> = ({ label, value, models, onSelect, disabl
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20, width: '100%' },
-    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 6 },
+    container: { marginBottom: 8, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary, marginBottom: -2 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',

@@ -13,9 +13,7 @@ const CustomTextInput: React.FC<Props> = ({ label, iconName, style, ...props }) 
         <View style={styles.container}>
             <Text style={styles.label}>{label}</Text>
             <View style={styles.inputWrapper}>
-                {iconName && (
-                    <Ionicons name={iconName} size={18} color={COLORS.text.muted} style={styles.icon} />
-                )}
+
                 <TextInput
                     style={[styles.input, style]}
                     placeholderTextColor={COLORS.text.placeholder}
@@ -28,14 +26,14 @@ const CustomTextInput: React.FC<Props> = ({ label, iconName, style, ...props }) 
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 20,
+        marginBottom: 8,
         width: '100%',
     },
     label: {
         fontSize: 14,
         fontWeight: '500',
-        color: COLORS.text.primary,
-        marginBottom: 8,
+        color: COLORS.text.secondary,
+        marginBottom: -2,
     },
     inputWrapper: {
         flexDirection: 'row',

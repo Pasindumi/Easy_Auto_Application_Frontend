@@ -70,12 +70,7 @@ const BasicInformationSection: React.FC<Props> = ({ carDetails, handleInputChang
                         activeOpacity={0.7}
                         onPress={() => handleInputChange('negotiable', !carDetails.negotiable)}
                     >
-                        <Ionicons
-                            name={carDetails.negotiable ? "checkmark-circle" : "ellipse-outline"}
-                            size={16}
-                            color={carDetails.negotiable ? COLORS.white : COLORS.primary}
-                            style={{ marginRight: 4 }}
-                        />
+
                         <Text style={[
                             styles.negotiableText,
                             carDetails.negotiable && styles.negotiableTextActive
@@ -187,12 +182,12 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     inputGroup: {
-        marginBottom: 20,
+        marginBottom: 8,
     },
     labelRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: -2,
         marginLeft: 4,
     },
     labelIcon: {
@@ -202,7 +197,8 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 13,
         fontWeight: '500',
-        color: COLORS.text.primary,
+        color: COLORS.text.secondary,
+        marginBottom: -2,
     },
     input: {
         borderWidth: 1,

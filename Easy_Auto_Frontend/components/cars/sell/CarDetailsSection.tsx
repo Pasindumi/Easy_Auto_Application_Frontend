@@ -132,7 +132,6 @@ const CarDetailsSection: React.FC<Props> = ({
                     </View>
                     <CustomTextInput
                         label=""
-                        iconName="speedometer-outline"
                         placeholder="e.g. 45,000"
                         value={carDetails.mileage}
                         onChangeText={(value) => handleInputChange('mileage', value)}
@@ -147,7 +146,6 @@ const CarDetailsSection: React.FC<Props> = ({
                     <OptionSelector
                         label=""
                         value={carDetails.fuelType}
-                        triggerIcon="color-fill-outline"
                         options={[
                             { label: 'Petrol', value: 'Petrol', icon: 'water-outline' },
                             { label: 'Diesel', value: 'Diesel', icon: 'flask-outline' },
@@ -170,7 +168,6 @@ const CarDetailsSection: React.FC<Props> = ({
                     <OptionSelector
                         label=""
                         value={carDetails.transmission}
-                        triggerIcon="git-network-outline"
                         options={[
                             { label: 'Automatic', value: 'Automatic', icon: 'car-outline' },
                             { label: 'Manual', value: 'Manual', icon: 'git-compare-outline' },
@@ -186,7 +183,6 @@ const CarDetailsSection: React.FC<Props> = ({
                     </View>
                     <CustomTextInput
                         label=""
-                        iconName="options-outline"
                         placeholder="e.g. 1500"
                         value={carDetails.engineCapacity}
                         onChangeText={(value) => handleInputChange('engineCapacity', value)}
@@ -204,7 +200,6 @@ const CarDetailsSection: React.FC<Props> = ({
                     <OptionSelector
                         label=""
                         value={carDetails.bodyType || ''}
-                        triggerIcon="car-sport-outline"
                         layout="grid"
                         options={[
                             { label: 'Sedan', value: 'Sedan', icon: 'car-outline' },
@@ -247,9 +242,7 @@ const CarDetailsSection: React.FC<Props> = ({
                                         return (
                                             <View style={styles.customFieldContainer}>
                                                 <View style={styles.customFieldInputWrapper}>
-                                                    <View style={styles.customFieldIcon}>
-                                                        <Ionicons name="sparkles-outline" size={18} color={COLORS.primary} />
-                                                    </View>
+
                                                     <TextInput
                                                         style={styles.customFieldInput}
                                                         value={String(currentValue)}
@@ -267,7 +260,6 @@ const CarDetailsSection: React.FC<Props> = ({
                                         <OptionSelector
                                             label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
                                             value={String(currentValue)}
-                                            triggerIcon="list-outline"
                                             options={opts}
                                             onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
                                         />
@@ -297,9 +289,7 @@ const CarDetailsSection: React.FC<Props> = ({
                                         return (
                                             <View style={styles.customFieldContainer}>
                                                 <View style={styles.customFieldInputWrapper}>
-                                                    <View style={styles.customFieldIcon}>
-                                                        <Ionicons name="sparkles-outline" size={18} color={COLORS.primary} />
-                                                    </View>
+
                                                     <TextInput
                                                         style={styles.customFieldInput}
                                                         value={String(currentValue)}
@@ -321,7 +311,6 @@ const CarDetailsSection: React.FC<Props> = ({
                                     return (
                                         <CustomTextInput
                                             label={displayLabel}
-                                            iconName={iconName}
                                             value={String(currentValue)}
                                             onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
                                             keyboardType={attr.data_type === 'NUMBER' ? 'numeric' : 'default'}
@@ -331,23 +320,53 @@ const CarDetailsSection: React.FC<Props> = ({
                                 }
                             };
 
-                            for (let i = 0; i < validAttributes.length; i += 2) {
+                            const items = [];
+                            let i = 0;
+                            while (i < validAttributes.length) {
                                 const attr1 = validAttributes[i];
-                                const attr2 = validAttributes[i + 1];
+                                const attr1Lower = attr1.attribute_name?.toLowerCase() || '';
+                                const isFullWidth = attr1Lower.includes('color') || attr1Lower.includes('colour') || attr1Lower.includes('extra') || attr1Lower.includes('feature');
 
-                                rows.push(
-                                    <View key={`attr-row-${i}`} style={styles.formRow}>
-                                        <View style={styles.formHalf}>
-                                            {renderAttributeField(attr1)}
+                                if (isFullWidth) {
+                                    items.push(
+                                        <View key={`attr-full-${i}`} style={[styles.formRow, { marginBottom: 16 }]}>
+                                            <View style={{ flex: 1 }}>
+                                                {renderAttributeField(attr1)}
+                                            </View>
                                         </View>
-                                        <View style={styles.formHalf}>
-                                            {attr2 && renderAttributeField(attr2)}
-                                        </View>
-                                    </View>
-                                );
+                                    );
+                                    i += 1;
+                                } else {
+                                    const attr2 = validAttributes[i + 1];
+                                    const attr2Lower = attr2?.attribute_name?.toLowerCase() || '';
+                                    const isAttr2FullWidth = attr2 && (attr2Lower.includes('color') || attr2Lower.includes('colour') || attr2Lower.includes('extra') || attr2Lower.includes('feature'));
+
+                                    if (isAttr2FullWidth || !attr2) {
+                                        items.push(
+                                            <View key={`attr-half-${i}`} style={styles.formRow}>
+                                                <View style={styles.formHalf}>
+                                                    {renderAttributeField(attr1)}
+                                                </View>
+                                                <View style={styles.formHalf} />
+                                            </View>
+                                        );
+                                        i += 1;
+                                    } else {
+                                        items.push(
+                                            <View key={`attr-row-${i}`} style={styles.formRow}>
+                                                <View style={styles.formHalf}>
+                                                    {renderAttributeField(attr1)}
+                                                </View>
+                                                <View style={styles.formHalf}>
+                                                    {renderAttributeField(attr2)}
+                                                </View>
+                                            </View>
+                                        );
+                                        i += 2;
+                                    }
+                                }
                             }
-
-                            return rows;
+                            return items;
                         })()}
                     </View>
                 </View>
@@ -386,12 +405,12 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     divider: { height: 1.5, backgroundColor: '#F3F4F6', marginVertical: 24 },
-    formRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, width: '100%' },
+    formRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6, width: '100%' },
     formHalf: { width: '48.5%' },
     triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-    labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, marginLeft: 2 },
+    labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: -2, marginLeft: 2 },
     labelIcon: { marginRight: 6, opacity: 0.9 },
-    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary },
     switchRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -412,7 +431,7 @@ const styles = StyleSheet.create({
     dynamicTitleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 12,
     },
     iconContainer: {
         width: 48,

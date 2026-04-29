@@ -46,7 +46,7 @@ const YearSelector: React.FC<Props> = ({ label, value, onSelect, disabled, loadi
                 disabled={disabled}
             >
                 <View style={styles.triggerContent}>
-                    <Ionicons name="calendar-outline" size={18} color={COLORS.text.muted} style={styles.triggerIcon} />
+
                     {value ? (
                         <Text style={styles.triggerText} numberOfLines={1}>{value}</Text>
                     ) : (
@@ -144,8 +144,8 @@ const YearSelector: React.FC<Props> = ({ label, value, onSelect, disabled, loadi
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20, width: '100%' },
-    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 6 },
+    container: { marginBottom: 8, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary, marginBottom: -2 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',

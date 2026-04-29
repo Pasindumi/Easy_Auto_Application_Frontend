@@ -9,6 +9,7 @@ import {
     Animated,
     Dimensions,
     Easing,
+    Pressable,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -60,22 +61,13 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
     }, []);
 
     return (
-        <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                onDone();
-            }}
-            style={{ flex: 1, backgroundColor: "#235CF8" }}
-        >
-            
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
             {/* Screen-Wide Shine Animation */}
             <Animated.View 
                 style={[
                     StyleSheet.absoluteFillObject, 
                     { opacity: 0.20, transform: [{ translateX: screenShineX }] }
-                ]} 
-                pointerEvents="none"
+                ]}
             >
                 <LinearGradient
                     colors={['transparent', '#FFFFFF', 'transparent']}
@@ -104,17 +96,15 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
                 </Animated.View>
             </View>
 
-            <View style={sp.bottomContent} pointerEvents="box-none">
-                <Animated.View style={{ opacity: buttonOpacity, width: "100%" }} pointerEvents="box-none">
-                    <View 
-                        style={sp.startBtn} 
-                    >
+            <View style={sp.bottomContent}>
+                <Animated.View style={{ opacity: buttonOpacity, width: "100%" }}>
+                    <View style={sp.startBtn}>
                         <Text style={sp.startBtnTxt}>Continue</Text>
                         <Ionicons name="arrow-forward" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
                     </View>
                 </Animated.View>
             </View>
-        </TouchableOpacity>
+        </View>
     );
 }
 
@@ -169,15 +159,30 @@ const sp = StyleSheet.create({
 export default function LandingPage() {
     const router = useRouter();
 
-    const handleContinue = () => {
-        console.log("[Landing] Navigating to home screen (tabs)...");
-        router.replace("/(tabs)");
+    const handleContinue = async () => {
+        console.warn("[Landing] Action Triggered!");
+        try {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        } catch (e) {}
+        
+        // Use a 10ms delay to ensure the event loop is clear
+        setTimeout(() => {
+            router.replace("/(tabs)");
+        }, 10);
     };
 
     return (
         <View style={{ flex: 1, backgroundColor: "#235CF8" }}>
             <StatusBar style="light" />
-            <SplashScreen onDone={handleContinue} />
+            
+            {/* Visual Layer */}
+            <SplashScreen />
+
+            {/* Interaction Layer - Absolute Topmost */}
+            <Pressable
+                onPress={handleContinue}
+                style={StyleSheet.absoluteFill}
+            />
         </View>
     );
 }

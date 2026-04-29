@@ -56,17 +56,6 @@ const BrandSelector: React.FC<Props> = ({ label, value, brands, onSelect, disabl
                 <View style={styles.triggerContent}>
                     {selectedBrand ? (
                         <>
-                            {selectedBrand.brand_image ? (
-                                <Image
-                                    source={{ uri: selectedBrand.brand_image }}
-                                    style={styles.triggerLogo}
-                                    resizeMode="contain"
-                                />
-                            ) : (
-                                <View style={styles.triggerLogoPlaceholder}>
-                                    <Text style={styles.logoInitial}>{selectedBrand.brand_name[0]}</Text>
-                                </View>
-                            )}
                             <Text style={styles.triggerText} numberOfLines={1}>{selectedBrand.brand_name}</Text>
                         </>
                     ) : (
@@ -169,8 +158,8 @@ const BrandSelector: React.FC<Props> = ({ label, value, brands, onSelect, disabl
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20, width: '100%' },
-    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 6 },
+    container: { marginBottom: 8, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary, marginBottom: -2 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',

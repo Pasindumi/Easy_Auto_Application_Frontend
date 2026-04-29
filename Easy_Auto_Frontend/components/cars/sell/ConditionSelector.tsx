@@ -64,12 +64,6 @@ const ConditionSelector: React.FC<Props> = ({ label, value, options, onSelect, d
                 <View style={styles.triggerContent}>
                     {value ? (
                         <>
-                            <Ionicons
-                                name={getConditionDetails(value).icon}
-                                size={18}
-                                color={COLORS.primary}
-                                style={styles.triggerIcon}
-                            />
                             <Text style={styles.triggerText} numberOfLines={1}>{value}</Text>
                         </>
                     ) : (
@@ -145,8 +139,8 @@ const ConditionSelector: React.FC<Props> = ({ label, value, options, onSelect, d
 };
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 20, width: '100%' },
-    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.primary, marginBottom: 6 },
+    container: { marginBottom: 8, width: '100%' },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary, marginBottom: -2 },
     trigger: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -159,6 +153,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9FAFB',
     },
     disabledTrigger: { opacity: 0.5, backgroundColor: COLORS.backgroundMuted },
+    labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2, marginLeft: 2 },
     triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
     triggerIcon: { marginRight: 8 },
     triggerText: { fontSize: 14, fontWeight: '500', color: COLORS.text.primary },
