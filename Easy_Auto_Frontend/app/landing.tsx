@@ -9,7 +9,6 @@ import {
     Animated,
     Dimensions,
     Easing,
-    Pressable,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -28,7 +27,6 @@ function SplashScreen() {
     const screenShineX = useRef(new Animated.Value(-width * 2)).current;
 
     useEffect(() => {
-        // 1. Initial entrance animation
         Animated.sequence([
             Animated.parallel([
                 Animated.spring(scale, { toValue: 1, friction: 5, tension: 50, useNativeDriver: true }),
@@ -36,7 +34,6 @@ function SplashScreen() {
             ]),
             Animated.timing(buttonOpacity, { toValue: 1, duration: 600, useNativeDriver: true }),
         ]).start(() => {
-            // 2. Start continuous floating loop after entrance
             Animated.loop(
                 Animated.sequence([
                     Animated.timing(floatY, { toValue: -8, duration: 1500, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
@@ -44,7 +41,6 @@ function SplashScreen() {
                 ])
             ).start();
 
-            // 3. Screen-wide diagonal shine animation
             Animated.loop(
                 Animated.sequence([
                     Animated.timing(screenShineX, { 
@@ -53,7 +49,7 @@ function SplashScreen() {
                         easing: Easing.inOut(Easing.cubic), 
                         useNativeDriver: true 
                     }),
-                    Animated.delay(1000), // wait 1 second before next sweep
+                    Animated.delay(1000),
                     Animated.timing(screenShineX, { toValue: -width * 2, duration: 0, useNativeDriver: true }),
                 ])
             ).start();
@@ -62,7 +58,6 @@ function SplashScreen() {
 
     return (
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {/* Screen-Wide Shine Animation */}
             <Animated.View 
                 style={[
                     StyleSheet.absoluteFillObject, 
@@ -83,7 +78,6 @@ function SplashScreen() {
             </Animated.View>
 
             <View style={sp.center}>
-                {/* Floating App Logo */}
                 <Animated.View style={[
                     sp.logoCard, 
                     { opacity: logoOpacity, transform: [{ scale }, { translateY: floatY }] }
@@ -113,7 +107,6 @@ const sp = StyleSheet.create({
         flex: 1, 
         alignItems: "center", 
         justifyContent: "center", 
-        zIndex: 2,
     },
     logoCard: {
         alignItems: "center", 
@@ -130,7 +123,6 @@ const sp = StyleSheet.create({
         right: 0,
         paddingHorizontal: 32, 
         paddingBottom: 50, 
-        zIndex: 10,
         alignItems: "center",
     },
     startBtn: {
@@ -142,11 +134,6 @@ const sp = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
     },
     startBtnTxt: {
         color: "#FFFFFF",
@@ -160,25 +147,37 @@ export default function LandingPage() {
     const router = useRouter();
 
     const handleContinue = () => {
-        // Immediate feedback
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-        
-        // Immediate navigation
-        router.replace("/(tabs)");
+        // Use try-catch to ensure any error doesn't kill the app
+        try {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+            // Use absolute path and ensure it's a replace
+            router.replace("/(tabs)");
+        } catch (e) {
+            console.error("Navigation error", e);
+        }
     };
 
     return (
         <View style={{ flex: 1, backgroundColor: "#235CF8" }}>
             <StatusBar style="light" />
             
-            {/* Visual Layer */}
+            {/* Visuals */}
             <SplashScreen />
 
-            {/* Interaction Layer - Absolute Topmost and highly responsive */}
+            {/* HIGH-PRIORITY INVISIBLE TOUCH LAYER */}
             <TouchableOpacity 
-                activeOpacity={0.6} // Clear visual feedback on tap
+                activeOpacity={0.5} 
                 onPress={handleContinue}
-                style={StyleSheet.absoluteFill}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 99999,
+                    elevation: 99999,
+                    backgroundColor: 'transparent'
+                }}
             />
         </View>
     );
