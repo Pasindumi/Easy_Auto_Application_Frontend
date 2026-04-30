@@ -666,7 +666,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     paddingBottom: 40,
   },
   header: {
@@ -721,11 +721,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
-    elevation: 2,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
     zIndex: 50,
   },
   stepWrapper: {
@@ -756,7 +751,7 @@ const styles = StyleSheet.create({
   },
   stepBackBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: 'white' },
   stepBackText: { color: '#64748B', fontWeight: '600', fontSize: 14 },
-  stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5, backgroundColor: COLORS.primary, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5, backgroundColor: COLORS.primary },
   stepNextText: { color: 'white', fontWeight: '700', fontSize: 14 },
   authGuardContainer: {
     flex: 1,

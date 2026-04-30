@@ -126,7 +126,6 @@ export default function PaymentHistoryScreen() {
     return (
       <View style={styles.loadingContainer}>
         <Loading />
-        <Text style={styles.loadingText}>Fetching history...</Text>
       </View>
     );
   }
@@ -196,14 +195,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     margin: 16,
     padding: 16,
-    borderRadius: 20,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    borderColor: '#BFDBFE',
   },
   investmentInfo: {
     flex: 1,
@@ -283,4 +277,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

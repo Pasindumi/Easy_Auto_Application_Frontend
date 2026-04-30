@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 16,
     },
     titleContainer: {
         flexDirection: 'row',
@@ -182,12 +182,12 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     inputGroup: {
-        marginBottom: 8,
+        marginBottom: 12,
     },
     labelRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: -2,
+        marginBottom: 0,
         marginLeft: 4,
     },
     labelIcon: {
@@ -198,7 +198,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '500',
         color: COLORS.text.secondary,
-        marginBottom: -2,
     },
     input: {
         borderWidth: 1,
@@ -215,7 +214,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: 12,
         width: '100%',
     },
     priceFieldContainer: {
@@ -268,11 +267,6 @@ const styles = StyleSheet.create({
     negotiableChipActive: {
         backgroundColor: COLORS.primary,
         borderColor: COLORS.primary,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-        elevation: 4,
     },
     negotiableText: {
         fontSize: 12,

@@ -74,10 +74,10 @@ const ContactDetailsSection: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
     section: { marginBottom: 16 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 4 },
+    sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1F2937', marginBottom: 24, letterSpacing: -0.5 },
     sectionSubtitle: { fontSize: 13, color: '#6B7280', marginBottom: 16 },
-    label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-    input: { borderWidth: 1, borderColor: '#BFDBFE', borderRadius: 5, paddingHorizontal: 12, height: 40, fontSize: 14, backgroundColor: '#F9FAFB', marginBottom: 16, color: '#1F2937' },
+    label: { fontSize: 13, fontWeight: '500', color: '#64748B', marginBottom: 2, marginLeft: 4 },
+    input: { borderWidth: 1, borderColor: '#BFDBFE', borderRadius: 5, paddingHorizontal: 12, height: 40, fontSize: 14, backgroundColor: '#F8FAFC', marginBottom: 20, color: '#1F2937', fontWeight: '500' },
     contactBox: { backgroundColor: '#F3F8FF', borderRadius: 5, padding: 15 },
     contactBoxTitle: { fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 8 },
     contactRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },

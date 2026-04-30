@@ -404,18 +404,18 @@ const styles = StyleSheet.create({
     attributesContainer: {
         marginTop: 4,
     },
-    divider: { height: 1.5, backgroundColor: '#F3F4F6', marginVertical: 24 },
-    formRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6, width: '100%' },
+    divider: { height: 1.5, backgroundColor: '#F3F4F6', marginVertical: 12 },
+    formRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8, width: '100%' },
     formHalf: { width: '48.5%' },
     triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-    labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: -2, marginLeft: 2 },
+    labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 0, marginLeft: 2 },
     labelIcon: { marginRight: 6, opacity: 0.9 },
     label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary },
     switchRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 8,
         backgroundColor: '#F9FAFB',
         paddingHorizontal: 12,
         paddingVertical: 4,
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     customFieldContainer: {
         width: '100%',
         marginTop: 4,
-        marginBottom: 8,
+        marginBottom: 16,
     },
     customFieldInputWrapper: {
         flexDirection: 'row',

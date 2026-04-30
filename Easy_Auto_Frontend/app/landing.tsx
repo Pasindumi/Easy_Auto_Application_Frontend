@@ -18,7 +18,7 @@ import {
 
 const { width, height } = Dimensions.get("window");
 
-function SplashScreen({ onDone }: { onDone: () => void }) {
+function SplashScreen() {
     const scale = useRef(new Animated.Value(0.2)).current;
     const logoOpacity = useRef(new Animated.Value(0)).current;
     const buttonOpacity = useRef(new Animated.Value(0)).current;
@@ -159,16 +159,12 @@ const sp = StyleSheet.create({
 export default function LandingPage() {
     const router = useRouter();
 
-    const handleContinue = async () => {
-        console.warn("[Landing] Action Triggered!");
-        try {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        } catch (e) {}
+    const handleContinue = () => {
+        // Immediate feedback
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
         
-        // Use a 10ms delay to ensure the event loop is clear
-        setTimeout(() => {
-            router.replace("/(tabs)");
-        }, 10);
+        // Immediate navigation
+        router.replace("/(tabs)");
     };
 
     return (
@@ -178,8 +174,9 @@ export default function LandingPage() {
             {/* Visual Layer */}
             <SplashScreen />
 
-            {/* Interaction Layer - Absolute Topmost */}
-            <Pressable
+            {/* Interaction Layer - Absolute Topmost and highly responsive */}
+            <TouchableOpacity 
+                activeOpacity={0.6} // Clear visual feedback on tap
                 onPress={handleContinue}
                 style={StyleSheet.absoluteFill}
             />

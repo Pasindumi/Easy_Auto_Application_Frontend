@@ -91,8 +91,7 @@ export default function LoginScreen() {
 
   const handleSocialSignIn = async (provider: 'google' | 'apple' | 'facebook') => {
     const now = Date.now();
-    if (now - lastClickTime < 2000) {
-      showToast({ message: 'Please wait a moment before trying again', type: 'info' });
+    if (now - lastClickTime < 800) {
       return;
     }
     setLastClickTime(now);
