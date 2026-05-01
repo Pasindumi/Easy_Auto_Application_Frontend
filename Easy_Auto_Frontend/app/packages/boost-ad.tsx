@@ -94,7 +94,7 @@ export default function BoostAdScreen() {
       <SafeAreaView style={styles.safe}>
         <View style={styles.instructionCard}>
           <View style={styles.iconCircle}>
-            <Ionicons name="flash-sharp" size={24} color={COLORS.primary} />
+            <Ionicons name="flash-sharp" size={18} color="#D97706" />
           </View>
           <View style={styles.instructionTexts}>
             <Text style={styles.instructionTitle}>Select an Ad to Boost</Text>
@@ -110,7 +110,7 @@ export default function BoostAdScreen() {
         ) : ads.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconBg}>
-              <Ionicons name="megaphone-outline" size={48} color="#cbd5e1" />
+              <Ionicons name="megaphone-outline" size={28} color={COLORS.primary} />
             </View>
             <Text style={styles.emptyTitle}>No Active Ads Found</Text>
             <Text style={styles.emptyText}>You need an active advertisement to apply a boost. Post an ad first or check your drafts.</Text>
@@ -156,20 +156,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 16,
     marginBottom: 16,
-    borderRadius: 24,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    borderColor: '#BFDBFE',
   },
   iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#eff6ff',
+    width: 36,
+    height: 36,
+    borderRadius: 5,
+    backgroundColor: '#FFFBEB',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -197,21 +192,16 @@ const styles = StyleSheet.create({
   adCard: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 24,
+    borderRadius: 5,
     padding: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: '#BFDBFE',
   },
   adImage: {
     width: 80,
     height: 80,
-    borderRadius: 18,
+    borderRadius: 5,
     backgroundColor: '#f1f5f9',
   },
   adInfo: {
@@ -242,7 +232,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ecfdf5',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: 5,
     gap: 4,
   },
   statusDot: {
@@ -266,15 +256,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
   },
   boostBtnText: {
     color: '#fff',
@@ -300,10 +285,10 @@ const styles = StyleSheet.create({
     marginTop: -40,
   },
   emptyIconBg: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#f1f5f9',
+    width: 60,
+    height: 60,
+    borderRadius: 5,
+    backgroundColor: '#eff6ff',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -326,15 +311,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 10,
     paddingHorizontal: 24,
-    borderRadius: 16,
+    borderRadius: 5,
     gap: 8,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 4,
   },
   postAdBtnText: {
     color: '#fff',

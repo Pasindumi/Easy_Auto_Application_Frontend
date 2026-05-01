@@ -208,7 +208,7 @@ export default function SubscriptionsScreen() {
           ) : (
             <View style={styles.emptyCard}>
               <View style={styles.emptyIconBg}>
-                <Ionicons name="gift-outline" size={32} color={COLORS.primary} />
+                <Ionicons name="gift-outline" size={26} color={COLORS.primary} />
               </View>
               <Text style={styles.emptyTitle}>Standard Free Plan</Text>
               <Text style={styles.emptySubtitle}>You're currently on the basic plan. Upgrade now to unlock premium selling tools and reach more buyers.</Text>
@@ -265,22 +265,22 @@ const styles = StyleSheet.create({
   insightsCard: {
     backgroundColor: '#fff',
     borderRadius: 5,
-    padding: 20,
+    padding: 16,
     marginBottom: 24,
     borderWidth: 1,
     borderColor: '#BFDBFE',
   },
   insightsTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '800',
-    color: '#1e293b',
+    color: '#475569',
     marginBottom: 20,
   },
   usageGrid: {
     gap: 20,
   },
   usageItem: {
-    gap: 8,
+    gap: 6,
   },
   usageHeader: {
     flexDirection: 'row',
@@ -310,14 +310,14 @@ const styles = StyleSheet.create({
     color: '#1e293b',
   },
   progressBarBg: {
-    height: 8,
+    height: 5,
     backgroundColor: '#f1f5f9',
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 3,
   },
   emptyCard: {
     backgroundColor: '#fff',
@@ -329,8 +329,8 @@ const styles = StyleSheet.create({
     borderColor: '#BFDBFE',
   },
   emptyIconBg: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 5,
     backgroundColor: '#eff6ff',
     justifyContent: 'center',
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#1e293b',
+    color: '#475569',
     marginBottom: 8,
   },
   emptySubtitle: {
@@ -356,14 +356,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: 10,
     paddingHorizontal: 32,
     borderRadius: 5,
     gap: 10,
   },
   upgradeBtnText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
 });

@@ -131,12 +131,9 @@ export default function PackageInvoice() {
           ) : (
             <>
               <View style={styles.planCard}>
-                <LinearGradient
-                  colors={[COLORS.primary, '#1e40af']}
-                  style={styles.iconBg}
-                >
-                  <Ionicons name="flash" size={24} color="#fff" />
-                </LinearGradient>
+                <View style={styles.iconBg}>
+                  <Ionicons name="flash" size={20} color="#CA8A04" />
+                </View>
                 <View style={styles.planInfo}>
                   <Text style={styles.planTitle}>{planName}</Text>
                   <Text style={styles.planMeta}>Valid for {planDays} days from date of purchase</Text>
@@ -267,15 +264,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 24,
+    borderRadius: 5,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#BFDBFE',
   },
   iconBg: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 5,
+    backgroundColor: '#FEF9C3',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -296,11 +294,11 @@ const styles = StyleSheet.create({
   },
   section: {
     backgroundColor: '#fff',
-    borderRadius: 28,
+    borderRadius: 5,
     padding: 24,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#BFDBFE',
   },
   sectionTitle: {
     fontSize: 16,
@@ -354,11 +352,11 @@ const styles = StyleSheet.create({
   },
   userSection: {
     backgroundColor: '#fff',
-    borderRadius: 24,
+    borderRadius: 5,
     padding: 20,
     marginBottom: 32,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#BFDBFE',
   },
   userCard: {
     flexDirection: 'row',
@@ -368,7 +366,7 @@ const styles = StyleSheet.create({
   userAvatar: {
     width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: 5,
     backgroundColor: '#eff6ff',
     alignItems: 'center',
     justifyContent: 'center',
@@ -414,18 +412,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
-    borderRadius: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
     gap: 12,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    elevation: 8,
   },
   payBtnText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
   },
 });

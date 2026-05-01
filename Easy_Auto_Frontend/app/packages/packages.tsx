@@ -101,6 +101,21 @@ export default function PackagesScreen() {
                 const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
                 const features = pkg.features?.map((f: any) => f.feature_description || f.feature_key) || [];
 
+                const pkgName = pkg.name?.toUpperCase() || '';
+                const isNewGold = pkgName.includes('NEW GOLD');
+                const isGold = pkgName === 'GOLD' || (pkgName.includes('GOLD') && !isNewGold);
+
+                let cardBg = '#FFFFFF';
+                let themeCol = COLORS.primary;
+
+                if (isNewGold) {
+                  cardBg = '#FFEDD5'; // Very pale warm orange/gold for New Gold
+                  themeCol = '#C2410C'; // Deeper burnt orange accent
+                } else if (isGold) {
+                  cardBg = '#FFFBEB'; // Pale yellow/amber gold for standard Gold
+                  themeCol = '#D97706'; // Rich amber gold accent
+                }
+
                 return (
                   <PackagePlanCard
                     key={pkg.id}
@@ -109,8 +124,8 @@ export default function PackagesScreen() {
                     days={duration}
                     price={price}
                     perDay={perDay}
-                    backgroundColor={pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}10` : "#f1f5f9"}
-                    themeColor={pkg.config?.COLOR_THEME || COLORS.primary}
+                    backgroundColor={cardBg}
+                    themeColor={themeCol}
                     features={features}
                     adId={adId as string}
                     isPopular={pkg.code.includes('GOLD') || pkg.code.includes('POPULAR')}
