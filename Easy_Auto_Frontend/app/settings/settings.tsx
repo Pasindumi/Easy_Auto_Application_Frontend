@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   section: {
     paddingHorizontal: 10,
-    marginBottom: 20,
+    marginBottom: 28, // Better spacing between sections
   },
   sectionLabel: {
     fontSize: 13,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 14, // Refined internal spacing
     justifyContent: 'space-between',
   },
   settingLeft: {
