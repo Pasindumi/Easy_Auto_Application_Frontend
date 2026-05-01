@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -439,9 +439,11 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   avatar: {
-    width: 62,
-    height: 62,
-    borderRadius: 20, // Premium squircle look
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   placeholderAvatar: {
     backgroundColor: '#F1F5F9', // Subtle neutral background
@@ -520,10 +522,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 6,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   unreadText: {
     fontSize: 11,
@@ -564,11 +562,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 36,
     paddingVertical: 14,
     borderRadius: 28,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
   },
   startBtnText: {
     color: '#fff',
@@ -584,11 +577,6 @@ const styles = StyleSheet.create({
     width: 62,
     height: 62,
     borderRadius: 31,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
   },
   fabGradient: {
     width: '100%',

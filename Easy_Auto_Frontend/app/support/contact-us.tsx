@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8fafc',
     },
     scrollContent: {
-        padding: 20,
+        padding: 12,
         paddingTop: 24, // Fix overlap
     },
     toggleContainer: {
@@ -338,8 +338,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 16,
         marginBottom: 24,
-        borderWidth: 1,
-        borderColor: '#BFDBFE',
     },
     sectionTitle: {
         fontSize: 16,

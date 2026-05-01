@@ -549,8 +549,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 10,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -600,7 +598,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   fieldBoxReadOnly: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
     borderColor: '#BFDBFE',
   },
 

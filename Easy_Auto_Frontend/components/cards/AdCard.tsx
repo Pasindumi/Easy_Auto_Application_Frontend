@@ -170,7 +170,7 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    marginHorizontal: 20,
+    marginHorizontal: 12,
     marginBottom: 16,
     borderRadius: 5,
     borderWidth: 1,
@@ -272,8 +272,9 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     marginTop: 8,
+    flexWrap: 'wrap',
   },
   stat: {
     flexDirection: 'row',

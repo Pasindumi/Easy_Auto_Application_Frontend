@@ -183,11 +183,11 @@ export default function FindDealersScreen() {
             style={styles.searchHeader}
           >
             <View style={styles.searchWrapper}>
-              <Ionicons name="search" size={20} color={COLORS.text.muted} style={styles.searchIcon} />
+              <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.9)" />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search by dealer or showroom name..."
-                placeholderTextColor={COLORS.text.muted}
+                placeholderTextColor="rgba(255,255,255,0.7)"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
@@ -304,10 +304,11 @@ const styles = StyleSheet.create({
   searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    height: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 5,
+    paddingHorizontal: 16,
+    height: 48,
+    gap: 12,
   },
   searchIcon: {
     marginRight: 10,
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: COLORS.text.primary,
+    color: COLORS.white,
     fontWeight: '500',
   },
   filterTrigger: {
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: 18,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 5,
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
@@ -353,7 +354,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   mainContent: {
-    padding: 20,
+    padding: 12,
   },
   section: {
     marginBottom: 25,
@@ -369,6 +370,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.text.primary,
     letterSpacing: -0.5,
+    marginBottom: 20,
   },
   seeAllText: {
     fontSize: 14,
@@ -382,14 +384,11 @@ const styles = StyleSheet.create({
   featuredCard: {
     width: 240,
     height: 160,
-    borderRadius: 20,
+    borderRadius: 5,
     overflow: 'hidden',
     backgroundColor: COLORS.backgroundMuted,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   featuredImage: {
     width: '100%',
@@ -448,32 +447,23 @@ const styles = StyleSheet.create({
   },
   dealerCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 20,
-    padding: 12,
-    marginBottom: 15,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    borderColor: '#BFDBFE',
   },
   dealerRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   dealerImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 15,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: COLORS.backgroundMuted,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   dealerContent: {
     flex: 1,

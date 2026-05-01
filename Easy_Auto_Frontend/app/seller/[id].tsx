@@ -214,14 +214,14 @@ export default function SellerProfileScreen() {
                     <View style={styles.contactActions}>
                         <TouchableOpacity style={styles.contactIconBtn} onPress={handleCall} disabled={!seller?.phone}>
                             <View style={[styles.iconBox, { backgroundColor: '#F0F9FF' }]}>
-                                <Ionicons name="call" size={20} color={COLORS.primary} />
+                                <Ionicons name="call" size={18} color={COLORS.primary} />
                             </View>
                             <Text style={styles.iconLabel}>Call</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.contactIconBtn} onPress={handleWhatsApp} disabled={!seller?.phone}>
                             <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}>
-                                <Ionicons name="logo-whatsapp" size={22} color="#10B981" />
+                                <Ionicons name="logo-whatsapp" size={18} color="#10B981" />
                             </View>
                             <Text style={styles.iconLabel}>WhatsApp</Text>
                         </TouchableOpacity>
@@ -235,7 +235,7 @@ export default function SellerProfileScreen() {
                                 {sendingChat ? (
                                     <ActivityIndicator size="small" color="#F97316" />
                                 ) : (
-                                    <Ionicons name="chatbubbles" size={20} color="#F97316" />
+                                    <Ionicons name="chatbubbles" size={18} color="#F97316" />
                                 )}
                             </View>
                             <Text style={styles.iconLabel}>Chat</Text>
@@ -322,21 +322,16 @@ export default function SellerProfileScreen() {
 const styles = StyleSheet.create({
     root: { flex: 1, backgroundColor: "#F8FAFF" },
     loadingWrapper: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFF' },
-    scrollContent: { padding: 20, paddingBottom: 60 },
+    scrollContent: { padding: 12, paddingBottom: 60 },
 
     profileCard: {
         backgroundColor: 'white',
-        borderRadius: 32,
-        padding: 24,
+        borderRadius: 5,
+        padding: 16,
         alignItems: 'center',
         marginTop: 10,
         borderWidth: 1,
-        borderColor: '#F1F5F9',
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.05,
-        shadowRadius: 20,
-        elevation: 10,
+        borderColor: '#BFDBFE',
     },
     avatarWrap: { 
         position: 'relative', 
@@ -374,10 +369,10 @@ const styles = StyleSheet.create({
     },
 
     sellerName: { 
-        fontSize: 24, 
+        fontSize: 20, 
         fontWeight: '900', 
         color: '#0F172A', 
-        letterSpacing: -0.8 
+        letterSpacing: -0.5 
     },
     joinedBadge: {
         flexDirection: 'row',
@@ -399,9 +394,9 @@ const styles = StyleSheet.create({
 
     contactActions: {
         flexDirection: 'row',
-        gap: 20,
+        gap: 12,
         width: '100%',
-        marginTop: 24,
+        marginTop: 20,
         justifyContent: 'center',
     },
     contactIconBtn: {
@@ -409,9 +404,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     iconBox: {
-        width: 56,
-        height: 56,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
@@ -426,17 +421,12 @@ const styles = StyleSheet.create({
     statsOverview: {
         flexDirection: 'row',
         backgroundColor: 'white',
-        borderRadius: 24,
-        padding: 20,
-        marginTop: 20,
+        borderRadius: 5,
+        padding: 16,
+        marginTop: 16,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#F1F5F9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.03,
-        shadowRadius: 10,
-        elevation: 2,
+        borderColor: '#BFDBFE',
     },
     statItem: {
         flex: 1,
@@ -479,12 +469,12 @@ const styles = StyleSheet.create({
     emptyState: { 
         alignItems: 'center', 
         justifyContent: 'center', 
-        paddingVertical: 60, 
+        paddingVertical: 40, 
         backgroundColor: 'white', 
-        borderRadius: 24,
+        borderRadius: 5,
         borderWidth: 1,
         borderStyle: 'dashed',
-        borderColor: '#CBD5E1',
+        borderColor: '#BFDBFE',
     },
     emptyText: { 
         fontSize: 14, 
@@ -502,18 +492,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between' 
     },
     adCard: {
-        width: (width - 56) / 2,
+        width: (width - 40) / 2,
         backgroundColor: 'white',
-        borderRadius: 24,
-        marginBottom: 20,
+        borderRadius: 5,
+        marginBottom: 16,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: '#F1F5F9',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
+        borderColor: '#BFDBFE',
     },
     adImgWrap: { 
         height: 120, 
@@ -584,7 +569,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.primary,
         paddingHorizontal: 24,
         paddingVertical: 12,
-        borderRadius: 16,
+        borderRadius: 5,
     },
     backButtonActionText: {
         color: 'white',

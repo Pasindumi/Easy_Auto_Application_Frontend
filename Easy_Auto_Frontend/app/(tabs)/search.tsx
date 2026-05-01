@@ -940,7 +940,7 @@ const styles = StyleSheet.create({
   rangeChip: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: 5,
     borderWidth: 1.5,
     borderColor: COLORS.border,
     backgroundColor: COLORS.white,
@@ -966,8 +966,8 @@ const styles = StyleSheet.create({
   },
   clearFiltersBtn: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 5,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
     alignItems: 'center',
@@ -979,8 +979,8 @@ const styles = StyleSheet.create({
   },
   applyFiltersBtn: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 5,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
   },
@@ -1038,13 +1038,8 @@ const styles = StyleSheet.create({
   premiumClearButton: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 100,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    paddingVertical: 12,
+    borderRadius: 5,
   },
   premiumClearButtonText: {
     color: COLORS.white,
