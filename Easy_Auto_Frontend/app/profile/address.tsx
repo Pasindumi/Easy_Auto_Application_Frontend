@@ -180,24 +180,26 @@ export default function Address() {
                   activeOpacity={0.7}
                   disabled={!isEditing}
                 >
-                  <View style={styles.rowIconGroupSide}>
-                    <Ionicons name="location-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
-                    <View style={styles.inputContent}>
+                  <View style={styles.inputContent}>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="location-outline" size={14} color={COLORS.primary} />
                       <Text style={styles.rowLabel}>District</Text>
-                      <Text style={[styles.rowValueText, !district && styles.placeholder]}>
-                        {district || "Choose District"}
-                      </Text>
                     </View>
+                    <Text style={[styles.rowValueText, !district && styles.placeholder]}>
+                      {district || "Choose District"}
+                    </Text>
                   </View>
-                  {isEditing && <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
+                  {isEditing && <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />}
                 </TouchableOpacity>
 
                 <View style={styles.divider} />
 
                 <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
-                  <Ionicons name="business-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
-                    <Text style={styles.rowLabel}>City / Area</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="business-outline" size={14} color={COLORS.primary} />
+                      <Text style={styles.rowLabel}>City / Area</Text>
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.rowInput}
@@ -218,9 +220,11 @@ export default function Address() {
               {renderSectionHeader("CONTACT DETAILS")}
               <View style={styles.sectionCard}>
                 <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
-                  <Ionicons name="person-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
-                    <Text style={styles.rowLabel}>Full Name</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="person-outline" size={14} color={COLORS.primary} />
+                      <Text style={styles.rowLabel}>Full Name</Text>
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.rowInput}
@@ -238,9 +242,11 @@ export default function Address() {
                 </View>
                 <View style={styles.divider} />
                 <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
-                  <Ionicons name="call-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
-                    <Text style={styles.rowLabel}>Mobile Number</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="call-outline" size={14} color={COLORS.primary} />
+                      <Text style={styles.rowLabel}>Mobile Number</Text>
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.rowInput}
@@ -262,9 +268,11 @@ export default function Address() {
               {renderSectionHeader("ADDRESS DETAILS")}
               <View style={styles.sectionCard}>
                 <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
-                  <Ionicons name="home-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
-                    <Text style={styles.rowLabel}>Address Line 1</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="home-outline" size={14} color={COLORS.primary} />
+                      <Text style={styles.rowLabel}>Address Line 1</Text>
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.rowInput}
@@ -282,9 +290,11 @@ export default function Address() {
                 </View>
                 <View style={styles.divider} />
                 <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
-                  <Ionicons name="map-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
-                    <Text style={styles.rowLabel}>Address Line 2 (Optional)</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="map-outline" size={14} color={COLORS.primary} />
+                      <Text style={styles.rowLabel}>Address Line 2 (Optional)</Text>
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.rowInput}
@@ -302,9 +312,11 @@ export default function Address() {
                 </View>
                 <View style={styles.divider} />
                 <View style={[styles.inputRow, !isEditing && styles.rowDisabled]}>
-                  <Ionicons name="mail-unread-outline" size={20} color={COLORS.primary} style={styles.rowIcon} />
                   <View style={styles.inputContent}>
-                    <Text style={styles.rowLabel}>Postal Code</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="mail-unread-outline" size={14} color={COLORS.primary} />
+                      <Text style={styles.rowLabel}>Postal Code</Text>
+                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.rowInput}
@@ -401,8 +413,8 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 12,
+    paddingTop: 24,
+    paddingBottom: 8,
   },
   sectionHeaderTitle: {
     fontSize: 11,
@@ -413,9 +425,12 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     backgroundColor: '#FFF',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginHorizontal: 10,
+    marginBottom: 8,
+    overflow: 'hidden',
   },
   selectorRow: {
     flexDirection: 'row',
@@ -427,8 +442,8 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   rowDisabled: {
     backgroundColor: '#F8FAFC',
@@ -446,24 +461,29 @@ const styles = StyleSheet.create({
   inputContent: {
     flex: 1,
   },
+  labelIconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
   rowLabel: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '800',
-    marginBottom: 2,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
   rowInput: {
     fontSize: 15,
-    color: '#1E293B',
+    color: '#334155',
     fontWeight: '700',
     padding: 0,
     height: 22,
   },
   rowValueText: {
     fontSize: 15,
-    color: '#1E293B',
+    color: '#334155',
     fontWeight: '700',
     height: 22,
     lineHeight: 22,
@@ -474,17 +494,12 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#F1F5F9',
-    marginLeft: 64,
+    marginHorizontal: 16,
   },
   saveButton: {
-    borderRadius: 16,
+    borderRadius: 5,
     height: 56,
     overflow: 'hidden',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
   },
   buttonGradient: {
     flex: 1,
@@ -503,7 +518,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     marginTop: 16,
     height: 50,
-    borderRadius: 16,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },

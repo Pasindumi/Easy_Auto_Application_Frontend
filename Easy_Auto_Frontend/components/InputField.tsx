@@ -45,10 +45,8 @@ export default function InputField({
       {/* Label */}
       {derivedLabel ? <Text style={styles.label}>{derivedLabel}</Text> : null}
 
-      {/* Field with Shadow */}
       <View style={[
         styles.inputRow,
-        styles.shadow,
         multiline ? { alignItems: 'flex-start' } : undefined
       ]}>
         {icon ? <Ionicons name={icon} size={20} style={[styles.icon, multiline ? { marginTop: 12 } : undefined]} /> : null}
@@ -89,7 +87,7 @@ export default function InputField({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16, // Increased spacing
+    marginBottom: 12,
   },
 
   label: {
@@ -103,23 +101,16 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: '#F1F5F9', // Premium soft border
-    borderRadius: 14, // Smoother corners
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    borderRadius: 5,
     paddingHorizontal: 16,
-    minHeight: Platform.OS === "ios" ? 54 : 50, // Slightly taller
+    minHeight: Platform.OS === "ios" ? 44 : 40,
     paddingVertical: 2,
     backgroundColor: '#FFFFFF',
   },
 
-  // ⭐ Refined Shadow
-  shadow: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2, // Subtler elevation on Android
-  },
+
 
   icon: {
     marginRight: 10,

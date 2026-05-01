@@ -74,7 +74,7 @@ export default function AboutApp() {
 
         {/* ---------- BRANDING SECTION ---------- */}
         <LinearGradient
-          colors={[COLORS.primary, '#1E40AF']}
+          colors={['#60A5FA', '#3B82F6']}
           style={styles.brandingCard}
         >
           <View style={styles.logoContainer}>
@@ -123,7 +123,7 @@ export default function AboutApp() {
 
         {/* ---------- KEY FEATURES ---------- */}
         <View style={styles.featureGrid}>
-          <View style={[styles.featureCard, { borderRightWidth: 1, borderRightColor: '#F3F4F6' }]}>
+          <View style={styles.featureCard}>
             <View style={styles.featureIconBox}>
               <MaterialCommunityIcons name="check-decagram" size={24} color={COLORS.primary} />
             </View>
@@ -214,15 +214,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   brandingCard: {
-    padding: 32,
+    padding: 24,
     alignItems: 'center',
-    marginHorizontal: 16,
-    borderRadius: 24,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 10,
+    marginHorizontal: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   logoContainer: {
     position: 'relative',
@@ -279,7 +276,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 32,
     backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 20,
+    borderRadius: 5,
     paddingVertical: 16,
     width: '100%',
   },
@@ -313,9 +310,12 @@ const styles = StyleSheet.create({
   sectionCard: {
     backgroundColor: COLORS.white,
     paddingHorizontal: 24,
-    paddingVertical: 32,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    paddingVertical: 24,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginHorizontal: 10,
+    marginTop: 16,
   },
   sectionTitle: {
     fontSize: 18,
@@ -334,25 +334,30 @@ const styles = StyleSheet.create({
   },
   normalText: {
     fontSize: 15,
-    color: '#4B5563',
+    color: '#334155',
     lineHeight: 24,
     fontWeight: '500',
   },
   featureGrid: {
     flexDirection: 'row',
     backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    marginHorizontal: 10,
+    marginTop: 16,
+    gap: 10,
   },
   featureCard: {
     flex: 1,
-    paddingVertical: 32,
+    paddingVertical: 24,
     alignItems: 'center',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    backgroundColor: '#fff',
   },
   featureIconBox: {
     width: 56,
     height: 56,
-    borderRadius: 20,
+    borderRadius: 5,
     backgroundColor: '#F3F7FF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -401,10 +406,13 @@ const styles = StyleSheet.create({
   },
   socialCard: {
     backgroundColor: COLORS.white,
-    paddingVertical: 40,
+    paddingVertical: 32,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginHorizontal: 10,
+    marginTop: 16,
   },
   socialGrid: {
     flexDirection: 'row',
@@ -420,14 +428,9 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   backButton: {
-    borderRadius: 16,
-    height: 56,
+    borderRadius: 5,
+    height: 48,
     overflow: 'hidden',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
   },
   buttonGradient: {
     flexDirection: 'row',

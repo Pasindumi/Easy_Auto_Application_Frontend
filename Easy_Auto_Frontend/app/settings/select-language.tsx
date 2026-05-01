@@ -118,7 +118,7 @@ export default function SelectLanguage() {
                   >
                     <MaterialCommunityIcons
                       name={lang.icon as any}
-                      size={26}
+                      size={20}
                       color={isSelected ? COLORS.primary : "#64748B"}
                     />
                   </View>
@@ -180,10 +180,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 24,
     paddingBottom: 150, // space for footer
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   headerSection: {
-    marginBottom: 32,
+    marginBottom: 16,
     alignItems: 'center',
     paddingHorizontal: 16,
   },
@@ -208,36 +208,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
+    borderRadius: 5,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   langCardSelected: {
     borderColor: COLORS.primary,
   },
   iconWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   textContainer: {
     flex: 1,
     justifyContent: 'center',
   },
   langName: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '800',
-    color: '#1E293B',
-    marginBottom: 2,
+    color: '#334155',
+    marginBottom: 1,
   },
   textSelected: {
     color: COLORS.primary,
@@ -287,14 +282,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(248, 250, 252, 0.9)',
   },
   saveBtn: {
-    height: 56,
-    borderRadius: 20,
+    height: 44,
+    borderRadius: 5,
     overflow: 'hidden',
-    elevation: 8,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
   },
   buttonGradient: {
     flex: 1,

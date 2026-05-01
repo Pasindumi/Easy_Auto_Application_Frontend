@@ -16,11 +16,11 @@ import * as Haptics from 'expo-haptics';
 
 const FAQ_CATEGORIES = [
   { id: '1', title: 'Getting Started', icon: 'rocket-outline', color: '#3b82f6', count: 12 },
-  { id: '2', title: 'Account & Safety', icon: 'shield-checkmark-outline', color: '#10b981', count: 8 },
-  { id: '3', title: 'Payments & Fees', icon: 'card-outline', color: '#f59e0b', count: 6 },
-  { id: '4', title: 'Selling Cars', icon: 'megaphone-outline', color: '#ef4444', count: 15 },
-  { id: '5', title: 'Buying Guide', icon: 'cart-outline', color: '#8b5cf6', count: 10 },
-  { id: '6', title: 'Technical Support', icon: 'construct-outline', color: '#64748b', count: 5 },
+  { id: '2', title: 'Account & Safety', icon: 'shield-checkmark-outline', color: '#3b82f6', count: 8 },
+  { id: '3', title: 'Payments & Fees', icon: 'card-outline', color: '#3b82f6', count: 6 },
+  { id: '4', title: 'Selling Cars', icon: 'megaphone-outline', color: '#3b82f6', count: 15 },
+  { id: '5', title: 'Buying Guide', icon: 'cart-outline', color: '#3b82f6', count: 10 },
+  { id: '6', title: 'Technical Support', icon: 'construct-outline', color: '#3b82f6', count: 5 },
 ];
 
 const TOP_FAQS = [
@@ -54,7 +54,7 @@ export default function HelpCenterScreen() {
           <View style={styles.searchSection}>
             <Text style={styles.heroTitle}>How can we help you?</Text>
             <View style={styles.searchBar}>
-              <Ionicons name="search-outline" size={20} color="#94a3b8" />
+              <Ionicons name="search-outline" size={16} color="#94a3b8" />
               <TextInput
                 placeholder="Search for articles, guides..."
                 style={styles.searchInput}
@@ -75,10 +75,12 @@ export default function HelpCenterScreen() {
                 onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
               >
                 <View style={[styles.categoryIconBg, { backgroundColor: cat.color + '15' }]}>
-                  <Ionicons name={cat.icon as any} size={24} color={cat.color} />
+                  <Ionicons name={cat.icon as any} size={18} color={cat.color} />
                 </View>
-                <Text style={styles.categoryTitle}>{cat.title}</Text>
-                <Text style={styles.categoryCount}>{cat.count} articles</Text>
+                <View style={styles.categoryTextContainer}>
+                  <Text style={styles.categoryTitle}>{cat.title}</Text>
+                  <Text style={styles.categoryCount}>{cat.count} articles</Text>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -98,7 +100,7 @@ export default function HelpCenterScreen() {
                     <Text style={styles.faqQuestion}>{faq.question}</Text>
                     <Ionicons
                       name={expandedFaq === index ? "chevron-up" : "chevron-down"}
-                      size={20}
+                      size={16}
                       color="#64748b"
                     />
                   </View>
@@ -116,19 +118,19 @@ export default function HelpCenterScreen() {
             <View style={styles.contactGrid}>
               <TouchableOpacity style={styles.contactCard} onPress={() => router.push('/support/contact-us')}>
                 <View style={[styles.contactIconBg, { backgroundColor: '#eff6ff' }]}>
-                  <Ionicons name="mail-outline" size={22} color={COLORS.primary} />
+                  <Ionicons name="mail-outline" size={18} color={COLORS.primary} />
                 </View>
                 <Text style={styles.contactLabel}>Email Support</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.contactCard} onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}>
                 <View style={[styles.contactIconBg, { backgroundColor: '#ecfdf5' }]}>
-                  <Ionicons name="chatbubbles-outline" size={22} color="#10b981" />
+                  <Ionicons name="chatbubbles-outline" size={18} color="#10b981" />
                 </View>
                 <Text style={styles.contactLabel}>Live Chat</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.contactCard} onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}>
                 <View style={[styles.contactIconBg, { backgroundColor: '#fff7ed' }]}>
-                  <Ionicons name="call-outline" size={22} color="#f59e0b" />
+                  <Ionicons name="call-outline" size={18} color="#f59e0b" />
                 </View>
                 <Text style={styles.contactLabel}>Call Center</Text>
               </TouchableOpacity>
@@ -163,35 +165,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 24,
     paddingTop: 32,
-    borderBottomLeftRadius: 36,
-    borderBottomRightRadius: 36,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 15,
-    elevation: 3,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#BFDBFE',
     marginBottom: 24,
   },
   heroTitle: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: '900',
     color: '#1e293b',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
     letterSpacing: -0.5,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f1f5f9',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: Platform.OS === 'ios' ? 14 : 10,
-    gap: 12,
+    borderRadius: 5,
+    paddingHorizontal: 16,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 8,
+    gap: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1e293b',
   },
@@ -213,31 +212,30 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '48%',
     backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 28,
+    padding: 10,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#BFDBFE',
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 10,
-    elevation: 2,
+    gap: 8,
   },
   categoryIconBg: {
-    width: 54,
-    height: 54,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+  },
+  categoryTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   categoryTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '800',
     color: '#334155',
-    textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   categoryCount: {
     fontSize: 11,
@@ -253,10 +251,8 @@ const styles = StyleSheet.create({
   },
   faqItem: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderRadius: 5,
+    padding: 12,
   },
   faqHeader: {
     flexDirection: 'row',
@@ -289,19 +285,17 @@ const styles = StyleSheet.create({
   contactCard: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingVertical: 20,
-    borderRadius: 24,
+    paddingVertical: 12,
+    borderRadius: 5,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
   },
   contactIconBg: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   contactLabel: {
     fontSize: 11,

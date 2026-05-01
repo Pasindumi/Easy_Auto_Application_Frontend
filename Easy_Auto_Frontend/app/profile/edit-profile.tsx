@@ -231,10 +231,7 @@ export default function EditProfileScreen() {
           >
             {/* Premium Photo Uploader */}
             <View style={styles.photoCanvas}>
-              <LinearGradient
-                colors={['#F1F5F9', '#F8FAFC']}
-                style={styles.photoPlate}
-              >
+              <View style={styles.photoPlate}>
                 <View style={styles.avatarMaster}>
                   <Image
                     source={
@@ -246,12 +243,14 @@ export default function EditProfileScreen() {
                   />
                   <TouchableOpacity style={styles.camPill} onPress={pickImage}>
                     <LinearGradient colors={[COLORS.primary, '#1E40AF']} style={styles.camGrad}>
-                      <Ionicons name="camera" size={18} color="#fff" />
+                      <Ionicons name="camera" size={14} color="#fff" />
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.photoHint}>High-resolution PNG or JPG preferred</Text>
-              </LinearGradient>
+                <View style={styles.photoInfo}>
+                   <Text style={styles.photoHint}>High-resolution PNG or JPG preferred</Text>
+                </View>
+              </View>
             </View>
 
             {/* Form Sections */}
@@ -264,11 +263,11 @@ export default function EditProfileScreen() {
                 </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Display Name</Text>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="person" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Display Name</Text>
+                  </View>
                   <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
-                    <View style={styles.inputIconWrapper}>
-                      <Ionicons name="person" size={16} color={COLORS.primary} />
-                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -285,13 +284,13 @@ export default function EditProfileScreen() {
 
                 <View style={styles.fieldItem}>
                   <View style={styles.labelRow}>
-                    <Text style={styles.fieldLabel}>Tell us about yourself</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="information-circle" size={14} color={COLORS.primary} />
+                      <Text style={styles.fieldLabel}>Tell us about yourself</Text>
+                    </View>
                     <Text style={styles.charCount}>{bio.length}/150</Text>
                   </View>
                   <View style={[styles.fieldBox, styles.bioBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
-                    <View style={[styles.inputIconWrapper, { marginTop: 4 }]}>
-                      <Ionicons name="information-circle" size={16} color={COLORS.primary} />
-                    </View>
                     {isEditing ? (
                       <TextInput
                         style={[styles.fieldInput, styles.bioInput]}
@@ -316,11 +315,11 @@ export default function EditProfileScreen() {
                 </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Email Address</Text>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="mail" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Email Address</Text>
+                  </View>
                   <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
-                    <View style={styles.inputIconWrapper}>
-                      <Ionicons name="mail" size={16} color={COLORS.primary} />
-                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -337,11 +336,11 @@ export default function EditProfileScreen() {
                 </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Phone Number</Text>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="call" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Phone Number</Text>
+                  </View>
                   <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
-                    <View style={styles.inputIconWrapper}>
-                      <Ionicons name="call" size={16} color={COLORS.primary} />
-                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -364,11 +363,11 @@ export default function EditProfileScreen() {
                 </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Home/Office Location</Text>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="location" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Home/Office Location</Text>
+                  </View>
                   <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
-                    <View style={styles.inputIconWrapper}>
-                      <Ionicons name="location" size={16} color={COLORS.primary} />
-                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -384,11 +383,11 @@ export default function EditProfileScreen() {
                 </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Gender</Text>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="people" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Gender</Text>
+                  </View>
                   <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
-                    <View style={styles.inputIconWrapper}>
-                      <Ionicons name="people" size={16} color={COLORS.primary} />
-                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -404,11 +403,11 @@ export default function EditProfileScreen() {
                 </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Birthday</Text>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="calendar" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Birthday</Text>
+                  </View>
                   <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
-                    <View style={styles.inputIconWrapper}>
-                      <Ionicons name="calendar" size={16} color={COLORS.primary} />
-                    </View>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -494,46 +493,46 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   photoCanvas: {
-    padding: 20,
-    marginTop: 8,
+    marginHorizontal: 10,
+    marginTop: 16,
+    marginBottom: 8,
   },
   photoPlate: {
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 5,
+    padding: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#F1F5F9',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
+    borderColor: '#BFDBFE',
   },
   avatarMaster: {
     position: 'relative',
-    marginBottom: 16,
+  },
+  photoInfo: {
+    marginLeft: 16,
+    flex: 1,
   },
   masterImg: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
     borderColor: '#fff',
     backgroundColor: '#fff',
   },
   camPill: {
     position: 'absolute',
-    bottom: 2,
-    right: 2,
+    bottom: 0,
+    right: 0,
   },
   camGrad: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#fff',
   },
   photoHint: {
@@ -542,25 +541,21 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   formFlow: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
   formSection: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 20,
+    borderRadius: 5,
+    padding: 16,
+    marginHorizontal: 10,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
+    borderColor: '#BFDBFE',
   },
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
     gap: 8,
   },
   sectionBlueBar: {
@@ -580,20 +575,25 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 13,
-    color: '#1E293B',
+    color: '#475569',
     fontWeight: '700',
-    marginBottom: 8,
+  },
+  labelIconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+    gap: 6,
     marginLeft: 2,
   },
   fieldBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 8, // reduced slightly to fit the inner icon wrapper nicely
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    height: 52,
+    borderRadius: 5,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    height: 44,
   },
   fieldBoxEditing: {
     borderColor: `${COLORS.primary}80`, // subtle blue border when editing
@@ -601,22 +601,14 @@ const styles = StyleSheet.create({
   },
   fieldBoxReadOnly: {
     backgroundColor: '#F8FAFC',
-    borderColor: '#F1F5F9',
+    borderColor: '#BFDBFE',
   },
-  inputIconWrapper: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: `${COLORS.primary}12`,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 4,
-  },
+
   fieldInput: {
     flex: 1,
-    paddingLeft: 8,
+    paddingLeft: 0,
     fontSize: 14,
-    color: '#0F172A',
+    color: '#334155',
     fontWeight: '600',
   },
   labelRow: {
@@ -649,19 +641,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   saveButton: {
-    borderRadius: 18,
+    borderRadius: 5,
     overflow: 'hidden',
-    elevation: 4,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
   },
   saveButtonDisabled: {
     opacity: 0.7,
   },
   saveGradient: {
-    height: 58,
+    height: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -673,8 +660,8 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     marginTop: 12,
-    height: 54,
-    borderRadius: 18,
+    height: 44,
+    borderRadius: 5,
     backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',

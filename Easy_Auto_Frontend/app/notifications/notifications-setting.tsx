@@ -19,7 +19,7 @@ export default function NotificationsSetting() {
   const NotificationItem = ({ icon, title, desc, value, onValueChange, isLast }: any) => (
     <View style={[styles.itemContainer, !isLast && styles.itemBorder]}>
       <View style={styles.iconWrapper}>
-        <Ionicons name={icon} size={22} color={COLORS.primary} />
+        <Ionicons name={icon} size={16} color={COLORS.primary} />
       </View>
       <View style={styles.textGroup}>
         <Text style={styles.title}>{title}</Text>
@@ -82,9 +82,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC', // Sleek off-white app background
   },
   content: {
-    paddingTop: 24,
+    paddingTop: 16,
     paddingBottom: 40,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   headerSection: {
     marginBottom: 32,
@@ -92,64 +92,61 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   mainTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '900',
-    color: '#0F172A',
+    color: '#334155',
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subTitle: {
     fontSize: 14,
-    color: '#64748B',
+    color: '#334155',
     textAlign: 'center',
     lineHeight: 22,
     fontWeight: '500',
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    paddingVertical: 8,
+    borderRadius: 5,
+    paddingVertical: 4,
     borderWidth: 1,
-    borderColor: '#F1F5F9', // Subtle crisp border
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
+    borderColor: '#BFDBFE',
+    marginHorizontal: 10,
   },
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
   },
   itemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: '#BFDBFE',
   },
   iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 5,
     backgroundColor: `${COLORS.primary}10`, // 10% opacity primary color
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
+    marginRight: 12,
   },
   textGroup: {
     flex: 1,
     paddingRight: 16,
   },
   title: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
-    color: '#1E293B',
-    marginBottom: 4,
+    color: '#334155',
+    marginBottom: 2,
   },
   subText: {
     fontSize: 12,
-    color: '#64748B',
+    color: '#334155',
     fontWeight: '500',
     lineHeight: 18,
+    opacity: 0.8,
   },
 });
