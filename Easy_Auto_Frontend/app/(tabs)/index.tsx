@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     scrollContent: { paddingBottom: 130 },
     inner: {
         backgroundColor: "#FFFFFF",
-        gap: 50,
+        gap: 24, // Reduced from 50 for a packed interface
         paddingTop: 12,
     },
     section: {

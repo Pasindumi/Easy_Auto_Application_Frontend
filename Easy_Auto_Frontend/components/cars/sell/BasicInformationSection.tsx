@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 20, // Increased for better spacing
     },
     titleContainer: {
         flexDirection: 'row',
@@ -182,12 +182,12 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     inputGroup: {
-        marginBottom: 12,
+        marginBottom: 16, // Increased from 12
     },
     labelRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 0,
+        marginBottom: 8, // Increased from 0 for better spacing
         marginLeft: 4,
     },
     labelIcon: {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
-        marginBottom: 12,
+        marginBottom: 16, // Increased from 12
         width: '100%',
     },
     priceFieldContainer: {

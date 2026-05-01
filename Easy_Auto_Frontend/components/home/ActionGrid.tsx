@@ -213,13 +213,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         justifyContent: 'space-between',
-        rowGap: 16,
+        rowGap: 10, // Reduced from 16
     },
     cardContainer: {
-        width: (Dimensions.get("window").width - 32 - 24) / 3, // 3 columns, 16px horizontal padding, 12px gap
+        width: (Dimensions.get("window").width - 32 - 20) / 3, // 3 columns, 16px horizontal padding, 10px gap
         backgroundColor: "#FFFFFF",
         borderRadius: 5,
-        paddingVertical: 16,
+        paddingVertical: 12, // Reduced from 16
         paddingHorizontal: 8,
         alignItems: "center",
         borderWidth: 1,
@@ -230,22 +230,17 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
     },
     iconGradient: {
-        width: 54,
-        height: 54,
-        borderRadius: 27,
+        width: 44, // Reduced from 54
+        height: 44, // Reduced from 54
+        borderRadius: 22, // Restored to circular
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        elevation: 3,
+        marginBottom: 8, // Reduced from 12
     },
     label: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#1E293B",
+        fontSize: 12, // Slightly smaller
+        fontWeight: "700",
+        color: "#334155", // Gray mix black
         textAlign: 'center',
         letterSpacing: -0.2,
     },
