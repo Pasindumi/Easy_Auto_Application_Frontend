@@ -411,6 +411,7 @@ export default function SearchScreen() {
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
+          backgroundColor="#F1F5F9"
         />
 
         {/* Filter and stats section */}

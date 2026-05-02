@@ -440,7 +440,7 @@ export default function ChatRoomScreen() {
 
                 <View style={styles.inputContainer}>
                     <TouchableOpacity style={styles.attachBtn} onPress={handleAttachDocument}>
-                        <Feather name="paperclip" size={22} color="#64748B" />
+                        <Ionicons name="add" size={20} color="#64748B" />
                     </TouchableOpacity>
                     <TextInput
                         style={styles.input}
@@ -512,14 +512,9 @@ const styles = StyleSheet.create({
     customHeader: {
         backgroundColor: COLORS.primary,
         width: "100%",
-        paddingBottom: 24,
-        borderBottomLeftRadius: 36,
-        borderBottomRightRadius: 36,
-        elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#BFDBFE',
         zIndex: 100,
     },
     headerSafeArea: {
@@ -545,9 +540,9 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     avatarContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         backgroundColor: 'rgba(255,255,255,0.2)',
         overflow: 'hidden',
         justifyContent: 'center',
@@ -568,8 +563,8 @@ const styles = StyleSheet.create({
     },
     avatarInitial: {
         color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 14,
+        fontWeight: '800',
     },
     headerTextContainer: {
         flex: 1,
@@ -657,13 +652,13 @@ const styles = StyleSheet.create({
     },
     quotedAdContainer: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(0,0,0,0.05)',
-        borderRadius: 12,
-        padding: 8,
-        marginBottom: 8,
+        backgroundColor: 'rgba(0,0,0,0.03)',
+        borderRadius: 5,
+        padding: 6,
+        marginBottom: 6,
         alignItems: 'center',
-        borderLeftWidth: 3,
-        borderLeftColor: '#235CF8',
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
     },
     quotedAdImage: {
         width: 40,
@@ -703,24 +698,17 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     messageBubble: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 22,
-        elevation: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 5,
     },
     myBubble: {
         backgroundColor: COLORS.primary,
-        borderBottomRightRadius: 6,
     },
     otherBubble: {
-        backgroundColor: '#fff',
-        borderBottomLeftRadius: 6,
+        backgroundColor: '#F8FAFC',
         borderWidth: 1,
-        borderColor: '#F1F5F9',
+        borderColor: '#BFDBFE',
     },
     messageText: {
         fontSize: 15,
@@ -774,45 +762,45 @@ const styles = StyleSheet.create({
         paddingBottom: Platform.OS === 'ios' ? 24 : 12, // Better padding for modern screens
     },
     attachBtn: {
-        padding: 5,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#F1F5F9',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     input: {
         flex: 1,
         backgroundColor: '#F8FAFC',
-        borderRadius: 24,
-        paddingHorizontal: 18,
-        paddingVertical: 10,
-        marginHorizontal: 12,
-        maxHeight: 120,
-        fontSize: 16,
+        borderRadius: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        marginHorizontal: 10,
+        maxHeight: 100,
+        fontSize: 14,
         color: '#0F172A',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: '#BFDBFE',
     },
     sendBtn: {
         backgroundColor: COLORS.primary,
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 40,
+        height: 40,
+        borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
-        elevation: 4,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
     },
     sendBtnDisabled: {
         backgroundColor: '#CBD5E1',
     },
     // Negotiation Styles
     negotiationCard: {
-        backgroundColor: '#F0F7FF',
-        borderRadius: 15,
-        padding: 12,
-        marginBottom: 8,
+        backgroundColor: '#F8FAFC',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 6,
         borderWidth: 1,
-        borderColor: '#D0E4FF',
+        borderColor: '#BFDBFE',
     },
     negotiationHeader: {
         flexDirection: 'row',
@@ -879,13 +867,10 @@ const styles = StyleSheet.create({
     negotiationModal: {
         width: '100%',
         backgroundColor: '#fff',
-        borderRadius: 20,
+        borderRadius: 5,
         padding: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 10,
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
     },
     modalTitle: {
         fontSize: 18,

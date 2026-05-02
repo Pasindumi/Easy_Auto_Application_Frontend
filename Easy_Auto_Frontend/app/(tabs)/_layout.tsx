@@ -30,13 +30,13 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     const router = useRouter();
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
- 
+
     // Calculate tab width (excluding margins)
     const MARGIN_H = 20;
     const barWidth = width - (MARGIN_H * 2);
 
     const visibleRoutes = state.routes.filter((r: any) => r.name !== "compare" && r.name !== "my-ads");
-    
+
     // Construct the visual slots: [Home, Search, FAB, Chat, Profile]
     const slots = [
         visibleRoutes.find((r: any) => r.name === "index"),
@@ -50,8 +50,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
     // Determine the visual index of the focused route
     const activeRouteName = state.routes[state.index].name;
-    const activeVisualIndex = slots.findIndex((s: any) => 
-        (s !== "MY_ADS_FAB" && s?.name === activeRouteName) || 
+    const activeVisualIndex = slots.findIndex((s: any) =>
+        (s !== "MY_ADS_FAB" && s?.name === activeRouteName) ||
         (s === "MY_ADS_FAB" && activeRouteName === "my-ads")
     );
 
@@ -70,8 +70,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     }, [activeVisualIndex]);
 
     return (
-        <View 
-            pointerEvents="box-none" 
+        <View
+            pointerEvents="box-none"
             style={[styles.floatingContainer, { height: insets.bottom + 90, bottom: 0 }]}
         >
             <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFill} />
@@ -94,9 +94,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                                     borderRadius: 21,
                                     transform: [
                                         { translateX: Animated.add(translateX, (tabWidth - 42) / 2) },
-                                        { 
+                                        {
                                             // Lift the indicator if the active slot is the FAB
-                                            translateY: activeRouteName === "my-ads" ? -10 : 0 
+                                            translateY: activeRouteName === "my-ads" ? -10 : 0
                                         }
                                     ]
                                 }
@@ -108,7 +108,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                         if (item === "MY_ADS_FAB") {
                             return (
                                 <View key="fab-slot" style={styles.fabSlot}>
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         activeOpacity={0.8}
                                         onPress={() => {
                                             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

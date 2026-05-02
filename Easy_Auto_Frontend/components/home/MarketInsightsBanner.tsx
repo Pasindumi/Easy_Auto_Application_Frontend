@@ -7,12 +7,12 @@ import COLORS from "@/constants/Colors";
 interface MarketInsightsBannerProps { fadeAnim: Animated.Value }
 
 const PILLARS = [
-    { icon: "shield-checkmark-outline" as const, title: "Verified Sellers",  desc: "All dealers are KYC verified",    color: COLORS.primary, bg: "#EEF2FF" },
-    { icon: "flash-outline"            as const, title: "Instant Listing",   desc: "Sell your car in minutes",         color: "#475569",      bg: "#F1F5F9" },
-    { icon: "lock-closed-outline"      as const, title: "Safe Payments",     desc: "100% secure transactions",         color: COLORS.primary, bg: "#EEF2FF" },
-    { icon: "headset-outline"          as const, title: "24/7 Support",      desc: "Always here to help you",          color: "#475569",      bg: "#F1F5F9" },
-    { icon: "ribbon-outline"           as const, title: "Best Price",        desc: "Competitive market pricing",       color: COLORS.primary, bg: "#EEF2FF" },
-    { icon: "people-outline"           as const, title: "50k+ Community",    desc: "Active buyers & sellers",          color: "#475569",      bg: "#F1F5F9" },
+    { icon: "shield-checkmark-outline" as const, title: "Verified Sellers", desc: "All dealers are KYC verified", color: COLORS.primary, bg: "#EEF2FF" },
+    { icon: "flash-outline" as const, title: "Instant Listing", desc: "Sell your car in minutes", color: "#475569", bg: "#F1F5F9" },
+    { icon: "lock-closed-outline" as const, title: "Safe Payments", desc: "100% secure transactions", color: COLORS.primary, bg: "#EEF2FF" },
+    { icon: "headset-outline" as const, title: "24/7 Support", desc: "Always here to help you", color: "#475569", bg: "#F1F5F9" },
+    { icon: "ribbon-outline" as const, title: "Best Price", desc: "Competitive market pricing", color: COLORS.primary, bg: "#EEF2FF" },
+    { icon: "people-outline" as const, title: "50k+ Community", desc: "Active buyers & sellers", color: "#475569", bg: "#F1F5F9" },
 ];
 
 const MarketInsightsBanner: React.FC<MarketInsightsBannerProps> = ({ fadeAnim }) => (

@@ -11,7 +11,7 @@ interface Props {
 }
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.75;
+const CARD_WIDTH = width * 0.85;
 
 const SimilarComparisonsSection: React.FC<Props> = ({ comparisons }) => {
     const router = useRouter();
@@ -116,10 +116,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        backgroundColor: '#F1F5F9',
+        backgroundColor: '#F8FAFC',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 12,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
     },
     viewAllText: {
         fontSize: 12,
@@ -134,28 +136,27 @@ const styles = StyleSheet.create({
     card: {
         width: CARD_WIDTH,
         backgroundColor: '#fff',
-        borderRadius: 28,
+        borderRadius: 5,
         marginRight: 20,
         padding: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.08,
-        shadowRadius: 16,
-        elevation: 6,
         borderWidth: 1,
         borderColor: '#F1F5F9',
     },
     imageSection: {
         flexDirection: 'row',
-        height: 140,
-        backgroundColor: '#F8FAFC',
-        borderRadius: 20,
-        overflow: 'hidden',
+        height: 85,
+        backgroundColor: '#fff',
+        borderRadius: 5,
         position: 'relative',
+        gap: 8,
     },
     carHalf: {
         flex: 1,
         position: 'relative',
+        borderRadius: 5,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
     },
     carImg: {
         width: '100%',
@@ -167,11 +168,12 @@ const styles = StyleSheet.create({
         bottom: 8,
         left: 8,
         right: 8,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 10,
-        backdropFilter: 'blur(10px)', // For web, but good practice
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
     },
     carLabel: {
         fontSize: 10,
@@ -183,17 +185,17 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: '50%',
         top: '50%',
-        marginLeft: -18,
-        marginTop: -18,
+        marginLeft: -15,
+        marginTop: -15,
         zIndex: 10,
     },
     vsCircle: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 3,
+        borderWidth: 2,
         borderColor: '#fff',
     },
     vsText: {

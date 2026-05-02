@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#fff",
-    fontSize: 16, // slightly larger standard heading
+    fontSize: 18, 
     fontWeight: "800",
     letterSpacing: -0.3,
   },

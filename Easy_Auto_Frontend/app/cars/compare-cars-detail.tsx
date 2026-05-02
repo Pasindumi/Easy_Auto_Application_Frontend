@@ -1,18 +1,10 @@
-import Header from '@/components/Header';
-import COLORS from "@/constants/Colors";
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import {
-   ScrollView,
-   StyleSheet,
-   Text,
-   TouchableOpacity,
-   View,
-   Dimensions,
-   Image,
-} from 'react-native';
-import { LinearGradient } from "expo-linear-gradient";
+import { LinearGradient } from 'expo-linear-gradient';
+import Header from '@/components/Header';
+import COLORS from '@/constants/Colors';
 import Loading from '@/components/ui/Loading';
 import ComparisonSpecsTable from '../../components/cars/compare/ComparisonSpecsTable';
 import ComparisonVehicleHeader from '../../components/cars/compare/ComparisonVehicleHeader';
@@ -211,54 +203,56 @@ export default function CompareCars() {
 // Global helper for price comparison inside verdict
 const parsePrice = (priceStr: string) => parseInt(priceStr.replace(/[^0-9]/g, ''), 10) || 0;
 
-import { Alert } from 'react-native';
-
 const styles = StyleSheet.create({
    safe: {
       flex: 1,
       backgroundColor: '#fff'
    },
    container: {
-      paddingBottom: 40
+      paddingBottom: 100
    },
    analysisHero: {
       backgroundColor: '#fff',
       paddingHorizontal: 16,
-      paddingTop: 10,
-      paddingBottom: 24,
-      borderBottomLeftRadius: 40,
-      borderBottomRightRadius: 40,
+      paddingTop: 4,
+      paddingBottom: 8,
+      borderRadius: 0,
+      borderBottomWidth: 1,
+      borderColor: '#F1F5F9',
+      width: '100%',
+      marginTop: 0,
    },
    contentWrap: {
-      marginTop: -20,
-      paddingHorizontal: 16,
+      marginTop: 8,
+      width: '100%',
    },
    specsCard: {
       backgroundColor: '#fff',
-      borderRadius: 32,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.1,
-      shadowRadius: 20,
-      elevation: 8,
+      borderRadius: 0,
+      borderBottomWidth: 1,
+      borderTopWidth: 1,
+      borderColor: '#F1F5F9',
       overflow: 'hidden',
    },
    verdictSection: {
-      marginTop: 32,
-      paddingHorizontal: 16,
+      marginTop: 20,
+      paddingHorizontal: 20,
+      width: '100%',
    },
    verdictCard: {
       flexDirection: 'row',
-      padding: 24,
-      borderRadius: 24,
+      paddingVertical: 20,
+      paddingHorizontal: 16,
+      borderRadius: 5,
       alignItems: 'center',
-      gap: 16,
+      gap: 12,
+      borderWidth: 1,
+      borderColor: '#F1F5F9',
+      backgroundColor: '#fff',
    },
    verdictIcon: {
-      width: 50,
-      height: 50,
-      borderRadius: 16,
-      backgroundColor: 'rgba(245, 158, 11, 0.1)',
+      width: 36,
+      height: 36,
       alignItems: 'center',
       justifyContent: 'center',
    },
@@ -289,16 +283,13 @@ const styles = StyleSheet.create({
       marginBottom: 32,
    },
    loaderCircle: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
+      width: 60,
+      height: 60,
+      borderRadius: 5,
       alignItems: 'center',
       justifyContent: 'center',
-      shadowColor: COLORS.primary,
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.3,
-      shadowRadius: 15,
-      elevation: 10,
+      borderWidth: 1,
+      borderColor: '#F1F5F9',
    },
    loadingTitle: {
       fontSize: 22,
@@ -320,9 +311,11 @@ const styles = StyleSheet.create({
    },
    shimmerBar: {
       width: '100%',
-      height: 48,
-      borderRadius: 16,
+      height: 44,
+      borderRadius: 5,
       backgroundColor: '#F8FAFC',
+      borderWidth: 1,
+      borderColor: '#F1F5F9',
    },
    errorText: {
       marginTop: 16,
@@ -333,9 +326,9 @@ const styles = StyleSheet.create({
    backBtn: {
       marginTop: 24,
       paddingHorizontal: 24,
-      paddingVertical: 14,
+      paddingVertical: 10,
       backgroundColor: COLORS.primary,
-      borderRadius: 16,
+      borderRadius: 5,
    },
    backBtnText: {
       color: '#fff',
