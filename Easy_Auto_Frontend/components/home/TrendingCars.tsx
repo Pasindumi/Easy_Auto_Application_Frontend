@@ -152,13 +152,13 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 20,
-        marginBottom: 16,
+        marginBottom: 10,
     },
     titleContainer: {
         flex: 1,
     },
     title: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: "800",
         color: COLORS.text.primary,
         letterSpacing: -0.5,

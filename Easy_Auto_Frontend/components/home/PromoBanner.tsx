@@ -291,12 +291,12 @@ const styles = StyleSheet.create({
     container: {
     },
     scrollContent: {
-        paddingHorizontal: 30,
+        paddingHorizontal: 20,
     },
     bannerWrapper: {
-        width: width - 60,
+        width: width - 40,
         height: 180,
-        marginRight: 60,
+        marginRight: 40,
     },
     bannerCard: {
         flex: 1,
@@ -304,11 +304,8 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         backgroundColor: COLORS.secondary,
         position: 'relative',
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 8,
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
     },
     bannerImage: {
         width: '100%',
