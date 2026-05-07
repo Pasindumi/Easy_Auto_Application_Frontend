@@ -219,7 +219,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: COLORS.text.muted,
         fontWeight: "500",
-        marginBottom: 6,
+        marginBottom: 8,
+    },
+    detailsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     locationRow: {
         flexDirection: 'row',

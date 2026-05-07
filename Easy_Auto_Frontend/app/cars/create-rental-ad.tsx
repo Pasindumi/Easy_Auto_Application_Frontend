@@ -215,7 +215,7 @@ export default function CreateRentalAdScreen() {
                         allowSmoking: ad.allow_smoking || false,
                         allowPets: ad.allow_pets || false,
                         reqDeposit: ad.req_deposit || true,
-                        other_conditions: ad.other_conditions || ''
+                        otherConditions: ad.other_conditions || ''
                     });
 
                     setRentalDocuments({
