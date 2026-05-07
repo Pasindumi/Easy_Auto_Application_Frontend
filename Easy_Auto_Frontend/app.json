@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Easy_Auto_Frontend",
-    "slug": "Easy_Auto_Frontend",
+    "name": "EasyAutoLocal",
+    "slug": "easy-auto-local",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -48,15 +48,14 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "c55524c1-9cdc-42e5-8e0f-19691887ad64"
+        "projectId": "e47c52b5-79a5-44ca-bcff-a4dbf54591f5"
       }
     },
-    "owner": "easyauto.test",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/c55524c1-9cdc-42e5-8e0f-19691887ad64"
+      "url": "https://u.expo.dev/e47c52b5-79a5-44ca-bcff-a4dbf54591f5"
     }
   }
 }

@@ -416,16 +416,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#fff',
   },
-  editProfilePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: `${COLORS.primary}10`,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-    gap: 6,
-  },
   editProfileText: {
     fontSize: 11,
     fontWeight: '700',
@@ -442,6 +432,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#BFDBFE',
     alignItems: 'center',
+  },
+  statCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
   },
   statItemPacked: {
     flex: 1,
