@@ -244,7 +244,7 @@ export default function Payment() {
     date: formatDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
     payout: getSettleDate(adDetails.createdAt || adDetails.created_at || new Date().toISOString()),
     expiryDate: adDetails.expiry_date ? formatDate(adDetails.expiry_date) : undefined,
-    invoice: `INV-${String(adId || rentalAdId).substring(0, 10)}`,
+    invoice: `INV-${String(adId || rentalAdId)}`,
     coverImage: (rentalAdId ? adDetails.images?.[0]?.image_url : adDetails.AdImage?.[0]?.image_url) || 'blueLogo.png'
   } : paymentData.summary;
 
@@ -305,26 +305,38 @@ export default function Payment() {
       const amountFormatted = total.toFixed(2);
       const orderId = displaySummary.invoice;
 
-      const mockPaymentObj = {
-        userId: adDetails?.seller_id || adDetails?.users?.id,
+      // Real PayHere Initiation
+      const paymentObj = {
+        order_id: orderId,
+        amount: parseFloat(amountFormatted),
+        items: displaySummary.title || "Vehicle Ad Payment",
+        currency: "LKR",
+        first_name: displaySeller.name?.split(' ')[0] || "Customer",
+        last_name: displaySeller.name?.split(' ')[1] || "",
+        email: displaySeller.email || "",
+        phone: displaySeller.contact || "",
+        address: displaySeller.address || "Sri Lanka",
+        city: adDetails?.location || "Colombo",
+        country: "Sri Lanka",
         adId: adId || undefined,
         rentalAdId: rentalAdId || undefined,
         packageId: activePackageId || undefined,
-        amount: parseFloat(amountFormatted),
-        orderId: orderId,
       };
 
-      const response = await api.post<{ success: boolean; message: string }>(
-        '/api/payment/mock-success',
-        mockPaymentObj
+      const response = await api.post<{ success: boolean; message: string; html: string }>(
+        '/api/payment/initiate',
+        paymentObj
       );
 
-      if (!response.success) {
-        throw new Error(response.message || "Failed to process payment.");
+      if (response.success && response.html) {
+        // Redirect to WebView Screen
+        router.push({
+          pathname: '/payments/payhere-gateway' as any,
+          params: { html: response.html }
+        });
+      } else {
+        throw new Error(response.message || "Failed to initiate payment.");
       }
-
-      Alert.alert("Success", "Payment successful and ad activated.");
-      router.push('/payments/successful-payment' as any);
 
     } catch (error: any) {
       console.error("Payment initiation failed:", error);

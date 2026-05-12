@@ -161,18 +161,19 @@ export default function BuyCarScreen() {
     }, [brandId]);
 
     useEffect(() => {
-        if (selectedCategory && selectedCategory !== "all") {
-            setIsBrandsLoading(true);
-            api.get(`/api/vehicle-config/brands/${selectedCategory}`)
-                .then((res: any) => {
-                    if (Array.isArray(res)) setBrands(res.map((b) => ({ label: b.brand_name, value: b.id })));
-                })
-                .catch(console.error)
-                .finally(() => setIsBrandsLoading(false));
-        } else {
-            setBrands([]);
-            setSelectedBrand("");
-        }
+        setIsBrandsLoading(true);
+        const endpoint = selectedCategory && selectedCategory !== "all"
+            ? `/api/vehicle-config/brands/${selectedCategory}`
+            : `/api/vehicle-config/brands`; // Fetch all brands if category is "all"
+
+        api.get(endpoint)
+            .then((res: any) => {
+                if (Array.isArray(res)) {
+                    setBrands(res.map((b) => ({ label: b.brand_name, value: b.id })));
+                }
+            })
+            .catch(console.error)
+            .finally(() => setIsBrandsLoading(false));
     }, [selectedCategory]);
 
     useEffect(() => {
@@ -458,8 +459,8 @@ export default function BuyCarScreen() {
 
                         {/* Brand */}
                         <SelectField label="Make / Brand" value={selectedBrand} options={brands}
-                            onSelect={setSelectedBrand} disabled={selectedCategory === "all" || isBrandsLoading}
-                            placeholder={isBrandsLoading ? "LoadingΓÇª" : "Select Brand"} searchable />
+                            onSelect={setSelectedBrand} disabled={isBrandsLoading}
+                            placeholder={isBrandsLoading ? "Loading..." : "Select Brand"} searchable />
 
                         {/* Model */}
                         <SelectField label="Model" value={selectedModel} options={models}

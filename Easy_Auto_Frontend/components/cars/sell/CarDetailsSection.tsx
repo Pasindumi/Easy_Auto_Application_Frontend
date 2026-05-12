@@ -229,7 +229,7 @@ const CarDetailsSection: React.FC<Props> = ({
 
                     <View style={styles.attributesContainer}>
                         {(() => {
-                            const validAttributes = attributes.filter(attr => !['mileage', 'milage'].includes(attr.attribute_name?.toLowerCase().trim()));
+                            const validAttributes = attributes.filter(attr => !['mileage', 'milage', 'millage'].includes(attr.attribute_name?.toLowerCase().trim()));
                             const rows = [];
 
                             const renderAttributeField = (attr: any) => {

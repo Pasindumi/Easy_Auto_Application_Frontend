@@ -259,9 +259,11 @@ export default function AdDetailsScreen() {
         { label: "Body Type", value: details.body_type, icon: "car-outline", lib: "ionicons" },
     ].filter(s => s.value && s.value !== 'undefined' && s.value !== 'null' && s.value !== '');
 
-    const activeAttrs = (ad.attributes || []).filter((attr: any) =>
-        attr.value && attr.value !== 'undefined' && attr.value !== 'null' && attr.value !== '' && attr.value !== 'false'
-    );
+    const activeAttrs = (ad.attributes || []).filter((attr: any) => {
+        const name = attr.attribute?.attribute_name?.toLowerCase().trim();
+        const isMileage = ['mileage', 'milage', 'millage'].includes(name);
+        return attr.value && attr.value !== 'undefined' && attr.value !== 'null' && attr.value !== '' && attr.value !== 'false' && !isMileage;
+    });
 
     return (
         <View style={styles.root}>
