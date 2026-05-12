@@ -394,17 +394,23 @@ export default function SellCarScreen() {
     setLoading(true);
     try {
       // Validate Inputs
-      if (!carDetails.title || !carDetails.price || !carDetails.brand) {
-        showToast({ title: "Incomplete Form", message: "Missing Fields: Please fill in Title, Brand, and Price.", type: "error" });
+      if (!carDetails.title || !carDetails.price || !carDetails.brand || !carDetails.mileage) {
+        showToast({
+          title: "Incomplete Form",
+          message: `Missing Fields: Please fill in Title, Brand, Price${!carDetails.mileage ? ', and Mileage' : ''}.`,
+          type: "error"
+        });
         setLoading(false);
         return;
       }
 
-      // Check required dynamic attributes
-      const missingRequired = attributes.filter(attr => attr.is_required).find(attr => {
-        const val = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value;
-        return val === undefined || val === '' || val === null;
-      });
+      // Check required dynamic attributes (excluding already handled static fields like mileage)
+      const missingRequired = attributes
+        .filter(attr => attr.is_required && !['mileage', 'milage', 'millage'].includes(attr.attribute_name?.toLowerCase().trim()))
+        .find(attr => {
+          const val = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value;
+          return val === undefined || val === '' || val === null;
+        });
 
       if (missingRequired) {
         showToast({ title: "Missing Detail", message: `Please fill in ${missingRequired.attribute_name}`, type: "error" });

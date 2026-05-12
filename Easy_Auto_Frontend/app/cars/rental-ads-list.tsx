@@ -53,14 +53,13 @@ export default function RentalAdsListScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [isBrandsLoading, setIsBrandsLoading] = useState(false);
 
-    // Fetch Brands (generic for now, or fetch all used in rentals)
+    // Fetch Brands (all active brands)
     useEffect(() => {
         const fetchBrands = async () => {
             setIsBrandsLoading(true);
             try {
-                // Ideally fetch only brands that have rental ads, 
-                // but for simplicity fetching all car brands
-                const res: any = await api.get('/api/vehicle-config/brands/1'); // Assuming 1 is Car
+                // Fetch all brands with active status to allow filtering any rental ad
+                const res: any = await api.get('/api/vehicle-config/brands');
                 if (Array.isArray(res)) {
                     setBrands(res.map(b => ({ label: b.brand_name, value: b.id })));
                 }
@@ -333,7 +332,7 @@ const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F8FAFC', 
+        backgroundColor: '#F8FAFC',
         borderRadius: 5,
         paddingHorizontal: 14,
         height: 50,
@@ -341,15 +340,15 @@ const styles = StyleSheet.create({
         borderColor: '#BFDBFE',
     },
     searchInput: { flex: 1, marginLeft: 10, fontSize: 15, color: '#0F172A', fontWeight: '500' },
-    filterBtn: { 
-        width: 42, 
-        height: 42, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        backgroundColor: '#fff', 
-        borderRadius: 5, 
-        borderWidth: 1, 
-        borderColor: '#BFDBFE' 
+    filterBtn: {
+        width: 42,
+        height: 42,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#BFDBFE'
     },
     filterDot: { position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444', borderWidth: 1, borderColor: '#fff' },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginTop: 10, marginBottom: 12 },
@@ -358,10 +357,10 @@ const styles = StyleSheet.create({
     carsSection: { paddingHorizontal: 16 },
     carsGrid: { gap: 16 },
     carsRow: { flexDirection: 'row', justifyContent: 'space-between' },
-    carCard: { 
-        backgroundColor: '#fff', 
-        borderRadius: 5, 
-        overflow: 'hidden', 
+    carCard: {
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        overflow: 'hidden',
         borderWidth: 1,
         borderColor: '#BFDBFE',
     },

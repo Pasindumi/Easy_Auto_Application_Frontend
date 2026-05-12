@@ -129,223 +129,225 @@ export default function ReviewAdScreen() {
                                 </View>
                             </View>
 
-                {/* THUMBNAILS SCROLL */}
-                {images.length > 1 && (
-                    <View style={styles.thumbnailWrapper}>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.thumbnailList}>
-                            {images.map((img: any, index: number) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    onPress={() => setMainImage(img.image_url)}
-                                    style={[
-                                        styles.thumbnailContainer,
-                                        mainImage === img.image_url && styles.activeThumbnail
-                                    ]}
-                                >
-                                    <Image source={{ uri: img.image_url }} style={styles.thumbnailImage} />
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-                    </View>
-                )}
-
-                {/* MAIN INFO CARD */}
-                <View style={styles.mainInfoContainer}>
-                    <View style={styles.titlePriceRow}>
-                        <Text style={styles.adTitle} numberOfLines={2}>{ad.title}</Text>
-                        <View style={styles.priceContainer}>
-                            <Text style={styles.priceText}>{formattedPrice}</Text>
-                            {ad.negotiable && (
-                                <View style={styles.negotiableBadge}>
-                                    <Text style={styles.negotiableText}>Negotiable</Text>
+                            {/* THUMBNAILS SCROLL */}
+                            {images.length > 1 && (
+                                <View style={styles.thumbnailWrapper}>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.thumbnailList}>
+                                        {images.map((img: any, index: number) => (
+                                            <TouchableOpacity
+                                                key={index}
+                                                onPress={() => setMainImage(img.image_url)}
+                                                style={[
+                                                    styles.thumbnailContainer,
+                                                    mainImage === img.image_url && styles.activeThumbnail
+                                                ]}
+                                            >
+                                                <Image source={{ uri: img.image_url }} style={styles.thumbnailImage} />
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
                                 </View>
                             )}
-                        </View>
-                    </View>
-                    <View style={styles.locationContainer}>
-                        <Ionicons name="location-sharp" size={16} color={COLORS.text.muted} />
-                        <Text style={styles.locationText}>{ad.location}</Text>
-                        <View style={styles.dotSeparator} />
-                        <Text style={styles.timeText} numberOfLines={1}>Last updated: {formatDate(ad.updated_at || ad.created_at)}</Text>
-                    </View>
 
-                    {/* STATS SECTION */}
-                    <View style={styles.statsOverview}>
-                        <View style={styles.statBox}>
-                            <View style={[styles.statIconContainer, { backgroundColor: '#EEF2FF' }]}>
-                                <Ionicons name="eye-outline" size={20} color="#4F46E5" />
-                            </View>
-                            <View>
-                                <Text style={styles.statValue}>{ad.views_count || 0}</Text>
-                                <Text style={styles.statLabel}>Total Views</Text>
-                            </View>
-                        </View>
-                        <View style={styles.statDivider} />
-                        <View style={styles.statBox}>
-                            <View style={[styles.statIconContainer, { backgroundColor: '#FFF1F2' }]}>
-                                <Ionicons name="heart-outline" size={20} color="#E11D48" />
-                            </View>
-                            <View>
-                                <Text style={styles.statValue}>{ad.likes_count || 0}</Text>
-                                <Text style={styles.statLabel}>Wishlist Adds</Text>
-                            </View>
-                        </View>
-                    </View>
+                            {/* MAIN INFO CARD */}
+                            <View style={styles.mainInfoContainer}>
+                                <View style={styles.titlePriceRow}>
+                                    <Text style={styles.adTitle} numberOfLines={2}>{ad.title}</Text>
+                                    <View style={styles.priceContainer}>
+                                        <Text style={styles.priceText}>{formattedPrice}</Text>
+                                        {ad.negotiable && (
+                                            <View style={styles.negotiableBadge}>
+                                                <Text style={styles.negotiableText}>Negotiable</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                </View>
+                                <View style={styles.locationContainer}>
+                                    <Ionicons name="location-sharp" size={16} color={COLORS.text.muted} />
+                                    <Text style={styles.locationText}>{ad.location}</Text>
+                                    <View style={styles.dotSeparator} />
+                                    <Text style={styles.timeText} numberOfLines={1}>Last updated: {formatDate(ad.updated_at || ad.created_at)}</Text>
+                                </View>
 
-                    {ad.active_boosts && ad.active_boosts.length > 0 && (
-                        <View style={[styles.section, { padding: 15, borderRadius: 12, backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#F59E0B', marginTop: 15 }]}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-                                <Ionicons name="rocket" size={20} color="#D97706" />
-                                <Text style={{ fontSize: 16, fontWeight: '800', color: '#92400E', marginLeft: 8 }}>Active Boost Package</Text>
+                                {/* STATS SECTION */}
+                                <View style={styles.statsOverview}>
+                                    <View style={styles.statBox}>
+                                        <View style={[styles.statIconContainer, { backgroundColor: '#EEF2FF' }]}>
+                                            <Ionicons name="eye-outline" size={20} color="#4F46E5" />
+                                        </View>
+                                        <View>
+                                            <Text style={styles.statValue}>{ad.views_count || 0}</Text>
+                                            <Text style={styles.statLabel}>Total Views</Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.statDivider} />
+                                    <View style={styles.statBox}>
+                                        <View style={[styles.statIconContainer, { backgroundColor: '#FFF1F2' }]}>
+                                            <Ionicons name="heart-outline" size={20} color="#E11D48" />
+                                        </View>
+                                        <View>
+                                            <Text style={styles.statValue}>{ad.likes_count || 0}</Text>
+                                            <Text style={styles.statLabel}>Wishlist Adds</Text>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                {ad.active_boosts && ad.active_boosts.length > 0 && (
+                                    <View style={[styles.section, { padding: 15, borderRadius: 12, backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#F59E0B', marginTop: 15 }]}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                                            <Ionicons name="rocket" size={20} color="#D97706" />
+                                            <Text style={{ fontSize: 16, fontWeight: '800', color: '#92400E', marginLeft: 8 }}>Active Boost Package</Text>
+                                        </View>
+                                        {ad.active_boosts.map((boost: any, index: number) => (
+                                            <View key={index} style={{ marginTop: 4 }}>
+                                                <Text style={{ fontSize: 15, fontWeight: '700', color: '#92400E' }}>
+                                                    {boost.package?.name || 'Boost Active'}
+                                                </Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
+                                                    <Ionicons name="time-outline" size={14} color="#B45309" />
+                                                    <Text style={{ fontSize: 13, color: '#B45309', marginLeft: 4 }}>
+                                                        Boost Expires On: {formatDate(boost.end_date)}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        ))}
+                                    </View>
+                                )}
                             </View>
-                            {ad.active_boosts.map((boost: any, index: number) => (
-                                <View key={index} style={{ marginTop: 4 }}>
-                                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#92400E' }}>
-                                        {boost.package?.name || 'Boost Active'}
-                                    </Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
-                                        <Ionicons name="time-outline" size={14} color="#B45309" />
-                                        <Text style={{ fontSize: 13, color: '#B45309', marginLeft: 4 }}>
-                                            Boost Expires On: {formatDate(boost.end_date)}
+
+
+                            {/* KEY SPECS GRID */}
+                            {(() => {
+                                const specs = [
+                                    { label: "Year", value: details.year, icon: <MaterialCommunityIcons name="calendar-range" size={24} color={COLORS.primary} /> },
+                                    { label: "Mileage", value: (details.mileage !== null && details.mileage !== undefined && details.mileage !== '') ? `${details.mileage} km` : null, icon: <MaterialCommunityIcons name="speedometer" size={24} color={COLORS.primary} /> },
+                                    { label: "Brand", value: details.brand, icon: <Ionicons name="car-sport-outline" size={24} color={COLORS.primary} /> },
+                                    { label: "Model", value: details.model, icon: <MaterialCommunityIcons name="truck-outline" size={24} color={COLORS.primary} /> },
+                                    { label: "Condition", value: details.condition, icon: <MaterialCommunityIcons name="tag-outline" size={24} color={COLORS.primary} /> },
+                                    { label: "Fuel Type", value: details.fuel_type, icon: <MaterialCommunityIcons name="gas-station" size={24} color={COLORS.primary} /> },
+                                    { label: "Transmission", value: details.transmission, icon: <MaterialCommunityIcons name="cog-outline" size={24} color={COLORS.primary} /> },
+                                    { label: "Engine", value: details.engine_capacity, icon: <MaterialCommunityIcons name="engine-outline" size={24} color={COLORS.primary} /> },
+                                    { label: "Body", value: details.body_type, icon: <MaterialCommunityIcons name="car-back" size={24} color={COLORS.primary} /> },
+                                ].filter(s => {
+                                    const val = s.value;
+                                    return val !== null && val !== undefined && val !== '' && val !== '-' && val !== 'undefined' && val !== 'null';
+                                });
+
+                                if (specs.length === 0) return null;
+
+                                return (
+                                    <View style={styles.specsGrid}>
+                                        {specs.map((spec, index) => (
+                                            <SpecCard
+                                                key={index}
+                                                icon={spec.icon}
+                                                label={spec.label}
+                                                value={spec.value}
+                                            />
+                                        ))}
+                                    </View>
+                                );
+                            })()}
+
+                            {/* DYNAMIC SPECS SECTION */}
+                            {(() => {
+                                const activeAttrs = (ad.attributes || []).filter((attr: any) => {
+                                    const name = attr.attribute?.attribute_name?.toLowerCase().trim();
+                                    const isMileage = ['mileage', 'milage', 'millage'].includes(name);
+                                    return attr.value && attr.value !== 'undefined' && attr.value !== 'null' && attr.value !== '' && !isMileage;
+                                });
+
+                                if (activeAttrs.length === 0) return null;
+
+                                return (
+                                    <View style={styles.section}>
+                                        <Text style={styles.sectionHeader}>Other Features</Text>
+                                        <View style={styles.attributesList}>
+                                            {activeAttrs.map((attr: any, index: number) => (
+                                                <View key={index} style={styles.attributeItem}>
+                                                    <Text style={styles.attributeLabel}>{attr.attribute?.attribute_name}</Text>
+                                                    <Text style={styles.attributeValue}>
+                                                        {attr.value === 'true' ? 'Included' : attr.value === 'false' ? 'Not Available' : `${attr.value}${attr.attribute?.unit && attr.attribute.unit !== 'none' ? ' ' + attr.attribute.unit : ''}`}
+                                                    </Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                );
+                            })()}
+
+                            {/* DESCRIPTION */}
+                            <View style={styles.section}>
+                                <Text style={styles.sectionHeader}>Description</Text>
+                                <Text style={styles.descriptionText}>{ad.description || "No description provided for this vehicle."}</Text>
+                            </View>
+
+                            {/* REVIEWS SECTION */}
+                            <View style={styles.section}>
+                                <View style={styles.reviewHeader}>
+                                    <Text style={styles.sectionHeader}>Reviews & Ratings</Text>
+                                    <View style={styles.ratingBadge}>
+                                        <Ionicons name="star" size={16} color="#FFD700" />
+                                        <Text style={styles.ratingText}>
+                                            {reviewStats.averageRating} ({reviewStats.totalReviews} reviews)
                                         </Text>
                                     </View>
                                 </View>
-                            ))}
-                        </View>
-                    )}
-                </View>
 
-
-                {/* KEY SPECS GRID */}
-                {(() => {
-                    const specs = [
-                        { label: "Year", value: details.year, icon: <MaterialCommunityIcons name="calendar-range" size={24} color={COLORS.primary} /> },
-                        { label: "Mileage", value: (details.mileage !== null && details.mileage !== undefined && details.mileage !== '') ? `${details.mileage} km` : null, icon: <MaterialCommunityIcons name="speedometer" size={24} color={COLORS.primary} /> },
-                        { label: "Brand", value: details.brand, icon: <Ionicons name="car-sport-outline" size={24} color={COLORS.primary} /> },
-                        { label: "Model", value: details.model, icon: <MaterialCommunityIcons name="truck-outline" size={24} color={COLORS.primary} /> },
-                        { label: "Condition", value: details.condition, icon: <MaterialCommunityIcons name="tag-outline" size={24} color={COLORS.primary} /> },
-                        { label: "Fuel Type", value: details.fuel_type, icon: <MaterialCommunityIcons name="gas-station" size={24} color={COLORS.primary} /> },
-                        { label: "Transmission", value: details.transmission, icon: <MaterialCommunityIcons name="cog-outline" size={24} color={COLORS.primary} /> },
-                        { label: "Engine", value: details.engine_capacity, icon: <MaterialCommunityIcons name="engine-outline" size={24} color={COLORS.primary} /> },
-                        { label: "Body", value: details.body_type, icon: <MaterialCommunityIcons name="car-back" size={24} color={COLORS.primary} /> },
-                    ].filter(s => {
-                        const val = s.value;
-                        return val !== null && val !== undefined && val !== '' && val !== '-' && val !== 'undefined' && val !== 'null';
-                    });
-
-                    if (specs.length === 0) return null;
-
-                    return (
-                        <View style={styles.specsGrid}>
-                            {specs.map((spec, index) => (
-                                <SpecCard
-                                    key={index}
-                                    icon={spec.icon}
-                                    label={spec.label}
-                                    value={spec.value}
-                                />
-                            ))}
-                        </View>
-                    );
-                })()}
-
-                {/* DYNAMIC SPECS SECTION */}
-                {(() => {
-                    const activeAttrs = (ad.attributes || []).filter((attr: any) =>
-                        attr.value && attr.value !== 'undefined' && attr.value !== 'null' && attr.value !== ''
-                    );
-
-                    if (activeAttrs.length === 0) return null;
-
-                    return (
-                        <View style={styles.section}>
-                            <Text style={styles.sectionHeader}>Other Features</Text>
-                            <View style={styles.attributesList}>
-                                {activeAttrs.map((attr: any, index: number) => (
-                                    <View key={index} style={styles.attributeItem}>
-                                        <Text style={styles.attributeLabel}>{attr.attribute?.attribute_name}</Text>
-                                        <Text style={styles.attributeValue}>
-                                            {attr.value === 'true' ? 'Included' : attr.value === 'false' ? 'Not Available' : `${attr.value}${attr.attribute?.unit && attr.attribute.unit !== 'none' ? ' ' + attr.attribute.unit : ''}`}
-                                        </Text>
-                                    </View>
-                                ))}
+                                <ReviewList reviews={reviews} loading={reviewsLoading} />
                             </View>
-                        </View>
-                    );
-                })()}
 
-                {/* DESCRIPTION */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionHeader}>Description</Text>
-                    <Text style={styles.descriptionText}>{ad.description || "No description provided for this vehicle."}</Text>
-                </View>
+                            {/* SELLER CARD */}
+                            <View style={styles.sellerCard}>
+                                <View style={styles.sellerHeader}>
+                                    <View style={styles.sellerAvatar}>
+                                        <Text style={styles.avatarText}>{ad.users?.name?.charAt(0) || 'O'}</Text>
+                                    </View>
+                                    <View style={styles.sellerInfo}>
+                                        <Text style={styles.sellerName}>{ad.users?.name || "Private Seller"}</Text>
+                                        <Text style={styles.sellerRole}>Individual Member</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.contactDetails}>
+                                    <View style={styles.contactItem}>
+                                        <Ionicons name="call-outline" size={18} color={COLORS.primary} />
+                                        <Text style={styles.contactText}>{ad.users?.phone || "Phone hidden"}</Text>
+                                    </View>
+                                    <View style={styles.contactItem}>
+                                        <Ionicons name="mail-outline" size={18} color={COLORS.primary} />
+                                        <Text style={styles.contactText}>{ad.users?.email || "Email hidden"}</Text>
+                                    </View>
+                                </View>
+                            </View>
 
-                {/* REVIEWS SECTION */}
-                <View style={styles.section}>
-                    <View style={styles.reviewHeader}>
-                        <Text style={styles.sectionHeader}>Reviews & Ratings</Text>
-                        <View style={styles.ratingBadge}>
-                            <Ionicons name="star" size={16} color="#FFD700" />
-                            <Text style={styles.ratingText}>
-                                {reviewStats.averageRating} ({reviewStats.totalReviews} reviews)
-                            </Text>
-                        </View>
-                    </View>
+                            {/* ACTION BUTTONS */}
+                            <View style={styles.stickyFooter}>
+                                <TouchableOpacity
+                                    style={styles.editButton}
+                                    onPress={() => router.push({
+                                        pathname: '/cars/sell-car',
+                                        params: { id: id, edit: 'true' }
+                                    })}
+                                >
+                                    <Ionicons name="create-outline" size={20} color={COLORS.primary} />
+                                    <Text style={styles.editButtonText}>Edit Ad</Text>
+                                </TouchableOpacity>
 
-                    <ReviewList reviews={reviews} loading={reviewsLoading} />
-                </View>
-
-                {/* SELLER CARD */}
-                <View style={styles.sellerCard}>
-                    <View style={styles.sellerHeader}>
-                        <View style={styles.sellerAvatar}>
-                            <Text style={styles.avatarText}>{ad.users?.name?.charAt(0) || 'O'}</Text>
-                        </View>
-                        <View style={styles.sellerInfo}>
-                            <Text style={styles.sellerName}>{ad.users?.name || "Private Seller"}</Text>
-                            <Text style={styles.sellerRole}>Individual Member</Text>
-                        </View>
-                    </View>
-                    <View style={styles.contactDetails}>
-                        <View style={styles.contactItem}>
-                            <Ionicons name="call-outline" size={18} color={COLORS.primary} />
-                            <Text style={styles.contactText}>{ad.users?.phone || "Phone hidden"}</Text>
-                        </View>
-                        <View style={styles.contactItem}>
-                            <Ionicons name="mail-outline" size={18} color={COLORS.primary} />
-                            <Text style={styles.contactText}>{ad.users?.email || "Email hidden"}</Text>
-                        </View>
-                    </View>
-                </View>
-
-                {/* ACTION BUTTONS */}
-                <View style={styles.stickyFooter}>
-                    <TouchableOpacity
-                        style={styles.editButton}
-                        onPress={() => router.push({
-                            pathname: '/cars/sell-car',
-                            params: { id: id, edit: 'true' }
-                        })}
-                    >
-                        <Ionicons name="create-outline" size={20} color={COLORS.primary} />
-                        <Text style={styles.editButtonText}>Edit Ad</Text>
-                    </TouchableOpacity>
-
-                    {ad.status?.toUpperCase() !== 'ACTIVE' && (
-                        <TouchableOpacity
-                            style={styles.publishButton}
-                            onPress={() => router.push({
-                                pathname: '/payments/payment',
-                                params: { adId: id }
-                            })}
-                        >
-                            <Ionicons name="card-outline" size={22} color="white" />
-                            <Text style={styles.publishButtonText}>Proceed & Payment</Text>
-                        </TouchableOpacity>
-                    )}
-                        </View>
-                    </ScrollView>
-                </>
+                                {ad.status?.toUpperCase() !== 'ACTIVE' && (
+                                    <TouchableOpacity
+                                        style={styles.publishButton}
+                                        onPress={() => router.push({
+                                            pathname: '/payments/payment',
+                                            params: { adId: id }
+                                        })}
+                                    >
+                                        <Ionicons name="card-outline" size={22} color="white" />
+                                        <Text style={styles.publishButtonText}>Proceed & Payment</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        </ScrollView>
+                    </>
                 );
             })()}
         </View>

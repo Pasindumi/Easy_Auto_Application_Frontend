@@ -55,7 +55,10 @@ export default function CompareCars() {
                      const name = attr.attribute?.attribute_name;
                      const value = attr.value;
                      if (name && value && value !== 'false' && value !== 'null' && value !== 'undefined') {
-                        carAttributes[name] = value === 'true' ? 'Yes' : value;
+                        const lowerName = name.toLowerCase().trim();
+                        if (!['mileage', 'milage', 'millage'].includes(lowerName)) {
+                           carAttributes[name] = value === 'true' ? 'Yes' : value;
+                        }
                      }
                   });
                }

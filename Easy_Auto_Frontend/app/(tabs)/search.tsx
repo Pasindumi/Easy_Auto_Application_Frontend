@@ -153,17 +153,16 @@ export default function SearchScreen() {
 
   // Fetch brands when category changes
   useEffect(() => {
-    if (selectedCategory && selectedCategory !== 'all') {
-      fetchBrands();
-    } else {
-      setBrands([]);
-      setSelectedBrand('');
-    }
+    fetchBrands();
   }, [selectedCategory]);
 
   const fetchBrands = async () => {
     try {
-      const res: any = await api.get(`/api/vehicle-config/brands/${selectedCategory}`);
+      const endpoint = selectedCategory && selectedCategory !== 'all'
+        ? `/api/vehicle-config/brands/${selectedCategory}`
+        : `/api/vehicle-config/brands`; // Fetch all brands if category is "all"
+
+      const res: any = await api.get(endpoint);
       if (Array.isArray(res)) {
         setBrands(res.map(b => ({ label: b.brand_name, value: b.id })));
       }
@@ -200,33 +199,33 @@ export default function SearchScreen() {
       const params: any = {};
 
       if (searchQuery) params.search = searchQuery;
-      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; 
+      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory;
       if (locationFilter) params.location = locationFilter;
 
       if (selectedBrand) {
         const brandObj = brands.find((b: any) => b.value === selectedBrand);
-        if (brandObj) params.brand = brandObj.label; 
+        if (brandObj) params.brand = brandObj.label;
       }
 
       if (selectedModel) {
         const modelObj = models.find((m: any) => m.value === selectedModel);
-        if (modelObj) params.model = modelObj.label; 
+        if (modelObj) params.model = modelObj.label;
       }
 
       if (selectedCondition) {
         const condObj = conditions.find((c: any) => c.value === selectedCondition);
         if (condObj) params.condition = condObj.label;
       }
-      if (selectedFuelType) params.fuelType = selectedFuelType;     
+      if (selectedFuelType) params.fuelType = selectedFuelType;
       if (selectedTransmission) params.transmission = selectedTransmission;
 
       const priceRange = PRICE_RANGES[selectedPriceRange];
-      if (priceRange.min) params.minPrice = priceRange.min; 
-      if (priceRange.max) params.maxPrice = priceRange.max; 
+      if (priceRange.min) params.minPrice = priceRange.min;
+      if (priceRange.max) params.maxPrice = priceRange.max;
 
       const yearRange = YEAR_RANGES[selectedYearRange];
-      if (yearRange.min) params.minYear = yearRange.min; 
-      if (yearRange.max) params.maxYear = yearRange.max; 
+      if (yearRange.min) params.minYear = yearRange.min;
+      if (yearRange.max) params.maxYear = yearRange.max;
 
       if (selectedSort !== 'relevance') params.sort = selectedSort;
 
@@ -254,7 +253,7 @@ export default function SearchScreen() {
       performSearch();
     }, 500);
     return () => clearTimeout(timer);
-  }, [performSearch]); 
+  }, [performSearch]);
 
   // Calculate active filters
   useEffect(() => {
@@ -321,7 +320,7 @@ export default function SearchScreen() {
 
   // Render search result card
   const renderSearchCard = ({ item }: { item: any }) => {
-    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url || 
+    const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
       item.AdImage?.[0]?.image_url;
     const details = item.CarDetails?.[0] || item.CarDetails || {};
     const formattedPrice = new Intl.NumberFormat('en-LK', {
@@ -478,55 +477,55 @@ export default function SearchScreen() {
         <View style={{ flex: 1, position: 'relative' }}>
           <BrandedRefreshOverlay refreshing={refreshing} top={20} />
           <FlatList
-          data={searchResults}
-          renderItem={renderSearchCard}
-          keyExtractor={(item) => String(item.id)}
-          numColumns={2}
-          contentContainerStyle={styles.resultsGrid}
-          columnWrapperStyle={styles.columnWrapper}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                performSearch();
-              }}
-              tintColor="transparent"
-              colors={['transparent']}
-              progressBackgroundColor="transparent"
-              progressViewOffset={-500}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              {isSearching && !refreshing ? (
-                <Loading />
-              ) : (
-                <>
-                  <View style={styles.premiumEmptyIconContainer}>
-                    <View style={styles.premiumEmptyIconInner}>
-                      <Ionicons name="car-sport-outline" size={48} color={COLORS.primary} />
-                      <View style={styles.premiumSearchBadge}>
-                        <Ionicons name="search" size={14} color={COLORS.white} />
+            data={searchResults}
+            renderItem={renderSearchCard}
+            keyExtractor={(item) => String(item.id)}
+            numColumns={2}
+            contentContainerStyle={styles.resultsGrid}
+            columnWrapperStyle={styles.columnWrapper}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => {
+                  setRefreshing(true);
+                  performSearch();
+                }}
+                tintColor="transparent"
+                colors={['transparent']}
+                progressBackgroundColor="transparent"
+                progressViewOffset={-500}
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                {isSearching && !refreshing ? (
+                  <Loading />
+                ) : (
+                  <>
+                    <View style={styles.premiumEmptyIconContainer}>
+                      <View style={styles.premiumEmptyIconInner}>
+                        <Ionicons name="car-sport-outline" size={48} color={COLORS.primary} />
+                        <View style={styles.premiumSearchBadge}>
+                          <Ionicons name="search" size={14} color={COLORS.white} />
+                        </View>
                       </View>
                     </View>
-                  </View>
 
-                  <Text style={styles.premiumEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
-                  <Text style={styles.premiumEmptyText}>
-                    We couldn't find any matches. Try adjusting your search or resetting the filters.
-                  </Text>
-                  {activeFilterCount > 0 && (
-                    <TouchableOpacity style={styles.premiumClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
-                      <Text style={styles.premiumClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
-                    </TouchableOpacity>
-                  )}
-                </>
-              )}
-            </View>
-          }
-        />
+                    <Text style={styles.premiumEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
+                    <Text style={styles.premiumEmptyText}>
+                      We couldn't find any matches. Try adjusting your search or resetting the filters.
+                    </Text>
+                    {activeFilterCount > 0 && (
+                      <TouchableOpacity style={styles.premiumClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
+                        <Text style={styles.premiumClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </>
+                )}
+              </View>
+            }
+          />
         </View>
 
       </View>
