@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Easy_Auto_Frontend",
-    "slug": "Easy_Auto_Frontend",
+    "name": "EasyAutoLocal",
+    "slug": "easy-auto-local",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "easyautofrontend",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.easyauto.app"
@@ -62,5 +62,16 @@
       "router": {}
     },
     "owner": "pamod66"
+      "router": {},
+      "eas": {
+        "projectId": "e47c52b5-79a5-44ca-bcff-a4dbf54591f5"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e47c52b5-79a5-44ca-bcff-a4dbf54591f5"
+    }
   }
 }

@@ -14,6 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import COLORS from "@/constants/Colors";
+import Loading from "../ui/Loading";
 
 interface TrendingCarsProps {
     fadeAnim: Animated.Value;
@@ -70,7 +71,11 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                 </View>
             </View>
 
-            {displayAds.length === 0 ? (
+            {loading ? (
+                <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
+                    <Loading size="small" />
+                </View>
+            ) : displayAds.length === 0 ? (
                 <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
                     <Text style={{ color: COLORS.text.muted, fontSize: 14 }}>No trending ads found right now.</Text>
                 </View>
@@ -80,7 +85,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.cardsContainer}
                     decelerationRate="fast"
-                    snapToInterval={230 + 16}
+                    snapToInterval={190 + 16}
                 >
                     {displayAds.map((ad, index) => (
                         <TouchableOpacity
@@ -141,21 +146,19 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 8,
-        marginBottom: 24,
     },
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 20,
-        marginBottom: 16,
+        marginBottom: 10,
     },
     titleContainer: {
         flex: 1,
     },
     title: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: "800",
         color: COLORS.text.primary,
         letterSpacing: -0.5,
@@ -171,23 +174,16 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     card: {
-        width: 230,
+        width: 190,
         backgroundColor: COLORS.white,
-        borderRadius: 20,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.12,
-        shadowRadius: 16,
-        elevation: 6,
+        borderRadius: 5,
         borderWidth: 1,
-        borderColor: COLORS.border,
+        borderColor: '#DBEAFE',
+        overflow: 'hidden',
     },
     imageContainer: {
-        height: 140,
+        height: 110,
         width: "100%",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        overflow: "hidden",
         position: 'relative',
     },
     image: {
@@ -196,65 +192,66 @@ const styles = StyleSheet.create({
     },
     priceTag: {
         position: 'absolute',
-        bottom: 10,
-        left: 10,
-        backgroundColor: 'rgba(0,0,0,0.75)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-        borderWidth: 1,
+        bottom: 8,
+        left: 8,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 5,
+        borderWidth: 0.5,
         borderColor: 'rgba(255,255,255,0.2)',
     },
     priceText: {
         color: COLORS.white,
         fontWeight: "700",
-        fontSize: 12,
+        fontSize: 11,
     },
     cardContent: {
-        padding: 14,
+        padding: 12,
     },
     cardTitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: "700",
         color: COLORS.text.primary,
-        marginBottom: 8,
+        marginBottom: 4,
     },
     cardSubTitle: {
         fontSize: 12,
         color: COLORS.text.muted,
-        marginTop: 2,
+        fontWeight: "500",
+        marginBottom: 8,
     },
     detailsRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: 8,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 3,
     },
     locationText: {
-        fontSize: 12,
+        fontSize: 11,
         color: COLORS.text.muted,
         fontWeight: "500",
+        flex: 1,
     },
     reviewBadge: {
         position: 'absolute',
-        top: 10,
-        right: 10,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 8,
+        top: 8,
+        right: 8,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: 5,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 3,
     },
     reviewText: {
         color: '#fff',
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: 'bold',
     },
 });

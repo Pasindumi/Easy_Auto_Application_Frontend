@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
-  ActivityIndicator,
   Dimensions,
   Easing,
   Modal,
@@ -145,7 +144,7 @@ export default function WishlistDrawer({ visible, onClose }: WishlistDrawerProps
           >
             {loading ? (
               <View style={styles.centerBox}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading />
                 <Text style={styles.loadingTxt}>Loading your wishlist...</Text>
               </View>
             ) : items.length === 0 ? (

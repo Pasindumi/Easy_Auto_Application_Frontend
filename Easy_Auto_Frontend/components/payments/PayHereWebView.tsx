@@ -32,7 +32,7 @@ const PayHereWebView: React.FC<PayHereWebViewProps> = ({
     return (
         <View style={styles.container}>
             <WebView
-                source={{ html: htmlContent, baseUrl: 'https://payhere.lk' }}
+                source={{ html: htmlContent, baseUrl: 'http://localhost' }}
                 onLoadEnd={() => setLoading(false)}
                 onNavigationStateChange={onNavigationStateChange}
                 javaScriptEnabled={true}

@@ -13,7 +13,6 @@ import Header from "../../components/Header";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PrivacyPolicy() {
   const router = useRouter();
@@ -40,7 +39,7 @@ export default function PrivacyPolicy() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header showBack={true} title="Privacy Policy" />
 
@@ -109,7 +108,7 @@ export default function PrivacyPolicy() {
 
         <Text style={styles.footerNote}>Last updated: March 2024</Text>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

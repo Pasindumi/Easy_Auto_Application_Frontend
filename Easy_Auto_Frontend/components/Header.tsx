@@ -22,13 +22,14 @@ type Props = {
   title?: string;
   iconName?: keyof typeof Ionicons.glyphMap;
   rightElement?: React.ReactNode;
+  style?: any;
 };
 
-export default function Header({ showBack = true, title, iconName, rightElement }: Props) {
+export default function Header({ showBack = true, title, iconName, rightElement, style }: Props) {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {Platform.OS === "android" && (
         <RNStatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
       )}
@@ -58,23 +59,20 @@ export default function Header({ showBack = true, title, iconName, rightElement 
             )}
           </View>
 
-          {/* Center: Logo (Absolute Centered) */}
-          <View pointerEvents="none" style={styles.centerLogoContainer}>
-            <Image
-              source={require("@/assets/logoHome.png")}
-              resizeMode="contain"
-              style={styles.logoImg}
-            />
-          </View>
-
-          {/* Right: Right Element (Optional) */}
+          {/* Right: Right Element (Optional) or Logo */}
           <View style={styles.rightContent}>
             {rightElement ? (
               <View style={styles.rightElementContainer}>
                 {rightElement}
               </View>
             ) : (
-              <View style={{ width: 44 }} /> // Placeholder to maintain balance
+              <View pointerEvents="none" style={styles.rightLogoContainer}>
+                <Image
+                  source={require("@/assets/logoHome.png")}
+                  resizeMode="contain"
+                  style={styles.logoImg}
+                />
+              </View>
             )}
           </View>
         </View>
@@ -87,10 +85,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.primary,
     width: "100%",
-    height: 105,
+    height: 85, // reduced height to make it thinner
     overflow: "hidden",
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
     elevation: 8,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -112,20 +108,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     zIndex: 10,
-    maxWidth: '35%', // Limit title width to avoid center overlap
+    flex: 1, // allow title to take more space
   },
-  centerLogoContainer: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
+  rightLogoContainer: {
     justifyContent: 'center',
-    zIndex: 5,
-    marginLeft: 20, // Shift logo slightly right to avoid long title overlap
+    alignItems: 'flex-end',
+    paddingRight: 4, // pull a little bit to the center
   },
   rightContent: {
     alignItems: "flex-end",
     justifyContent: "center",
     zIndex: 10,
-    maxWidth: '25%',
   },
   backButton: {
     width: 32,
@@ -134,7 +127,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   logoImg: {
-    width: 100, // Slightly smaller for better fit
+    width: 100, 
     height: 22,
   },
   rightElementContainer: {
@@ -142,7 +135,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#fff",
-    fontSize: 14, // Slightly smaller for better fit
+    fontSize: 18, 
     fontWeight: "800",
     letterSpacing: -0.3,
   },

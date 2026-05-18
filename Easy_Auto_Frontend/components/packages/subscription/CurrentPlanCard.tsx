@@ -12,12 +12,12 @@ interface CurrentPlanCardProps {
     price?: string;
 }
 
-const BenefitItem: React.FC<{ text: string }> = ({ text }) => (
+const BenefitItem: React.FC<{ text: string, bgColor: string, textColor: string, checkColor: string }> = ({ text, bgColor, textColor, checkColor }) => (
     <View style={styles.benefitItem}>
-        <View style={styles.checkIconBg}>
-            <Ionicons name="checkmark" size={12} color="#fff" />
+        <View style={[styles.checkIconBg, { backgroundColor: bgColor }]}>
+            <Ionicons name="checkmark" size={12} color={checkColor} />
         </View>
-        <Text style={styles.benefitText}>{text}</Text>
+        <Text style={[styles.benefitText, { color: textColor }]}>{text}</Text>
     </View>
 );
 
@@ -28,51 +28,78 @@ const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
     expiryDate = "Active Until Nov 30, 2025",
     price = "Rs. 29.99"
 }) => {
-    const isPremium = planName.toLowerCase().includes('premium') || planName.toLowerCase().includes('pro');
+    const planNameUpper = planName.toUpperCase();
+    const isNewGold = planNameUpper.includes('NEW GOLD');
+    const isGold = planNameUpper === 'GOLD' || (planNameUpper.includes('GOLD') && !isNewGold);
+    const isPremium = planNameUpper.includes('PREMIUM') || planNameUpper.includes('PRO');
+    const isLight = isNewGold || isGold;
+
+    let cardGradient = ['#2563eb', '#1d4ed8'];
+    let checkIconBgColor = '#10b981';
+    let checkIconColor = '#fff';
+
+    if (isNewGold) {
+        cardGradient = ['#FEF9C3', '#FEF08A']; // Pale attractive gold
+        checkIconBgColor = '#CA8A04'; // Shiny gold check
+    } else if (isGold) {
+        cardGradient = ['#FFFBEB', '#FEF3C7']; // Pale amber gold
+        checkIconBgColor = '#D97706'; // Rich amber check
+    } else if (isPremium) {
+        cardGradient = ['#1e293b', '#0f172a'];
+    }
+
+    const textPrimary = isLight ? '#1e293b' : '#fff';
+    const textSecondary = isLight ? '#475569' : 'rgba(255,255,255,0.9)';
+    const textMuted = isLight ? '#64748b' : 'rgba(255,255,255,0.6)';
+    const dividerBg = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
+    const badgeBg = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.15)';
+    const badgeBorder = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)';
+    const iconBg = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)';
+    const headerIconColor = isLight ? checkIconBgColor : (isPremium ? "#fbbf24" : "#fff");
 
     return (
         <View style={styles.cardWrapper}>
             <LinearGradient
-                colors={isPremium ? ['#1e293b', '#0f172a'] : ['#2563eb', '#1d4ed8']}
+                colors={cardGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.planCard}
             >
                 <View style={styles.topRow}>
-                    <View style={styles.activeBadge}>
+                    <View style={[styles.activeBadge, { backgroundColor: badgeBg, borderColor: badgeBorder }]}>
                         <View style={styles.activeDot} />
-                        <Text style={styles.activeLabel}>Current Plan</Text>
+                        <Text style={[styles.activeLabel, { color: textPrimary }]}>Current Plan</Text>
                     </View>
-                    <View style={styles.planIconBg}>
-                        <Ionicons name={isPremium ? "diamond" : "flash"} size={20} color={isPremium ? "#fbbf24" : "#fff"} />
+                    <View style={[styles.planIconBg, { backgroundColor: iconBg }]}>
+                        <Ionicons name={isPremium ? "diamond" : "flash"} size={20} color={headerIconColor} />
                     </View>
                 </View>
 
                 <View style={styles.mainInfo}>
-                    <Text style={styles.planTitle}>{planName}</Text>
+                    <Text style={[styles.planTitle, { color: textPrimary }]}>{planName}</Text>
                     <View style={styles.priceContainer}>
-                        <Text style={styles.price}>{price}</Text>
-                        <Text style={styles.perPeriod}>/ month</Text>
+                        <Text style={[styles.price, { color: textPrimary }]}>{price}</Text>
+                        <Text style={[styles.perPeriod, { color: textMuted }]}>/ month</Text>
                     </View>
                 </View>
 
                 <View style={styles.expiryRow}>
-                    <Ionicons name="calendar-outline" size={14} color="rgba(255,255,255,0.6)" />
-                    <Text style={styles.expiryText}>{expiryDate}</Text>
+                    <Ionicons name="calendar-outline" size={14} color={textMuted} />
+                    <Text style={[styles.expiryText, { color: textSecondary }]}>{expiryDate}</Text>
                 </View>
 
-                <View style={styles.divider} />
+                <View style={[styles.divider, { backgroundColor: dividerBg }]} />
 
                 <View style={styles.benefitsGrid}>
                     <View style={styles.benefitCol}>
-                        <BenefitItem text="Unlimited Ads" />
-                        <BenefitItem text="Featured Labels" />
-                        <BenefitItem text="Priority Support" />
+                        <BenefitItem text="Unlimited Ads" bgColor={checkIconBgColor} textColor={textSecondary} checkColor={checkIconColor} />
+                        <BenefitItem text="Featured Labels" bgColor={checkIconBgColor} textColor={textSecondary} checkColor={checkIconColor} />
+                        <BenefitItem text="Priority Support" bgColor={checkIconBgColor} textColor={textSecondary} checkColor={checkIconColor} />
                     </View>
                     <View style={styles.benefitCol}>
-                        <BenefitItem text="Advanced Analytics" />
-                        <BenefitItem text="Custom Branding" />
-                        <BenefitItem text="Verified Badge" />
+                        <BenefitItem text="Advanced Analytics" bgColor={checkIconBgColor} textColor={textSecondary} checkColor={checkIconColor} />
+                        <BenefitItem text="Custom Branding" bgColor={checkIconBgColor} textColor={textSecondary} checkColor={checkIconColor} />
+                        <BenefitItem text="Verified Badge" bgColor={checkIconBgColor} textColor={textSecondary} checkColor={checkIconColor} />
                     </View>
                 </View>
             </LinearGradient>
@@ -104,13 +131,8 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     planCard: {
-        borderRadius: 32,
+        borderRadius: 5,
         padding: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.15,
-        shadowRadius: 24,
-        elevation: 10,
     },
     topRow: {
         flexDirection: 'row',
@@ -124,7 +146,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.15)',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 20,
+        borderRadius: 5,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
@@ -145,7 +167,7 @@ const styles = StyleSheet.create({
     planIconBg: {
         width: 44,
         height: 44,
-        borderRadius: 22,
+        borderRadius: 8,
         backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
         alignItems: 'center',
@@ -228,18 +250,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        borderRadius: 16,
+        paddingVertical: 10,
+        borderRadius: 5,
         gap: 10,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 6,
     },
     primaryActionText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '700',
     },
     secondaryAction: {

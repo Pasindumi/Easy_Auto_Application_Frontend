@@ -70,7 +70,7 @@ export default function PrivacyPolicyScreen() {
           {/* Header Card */}
           <View style={styles.heroCard}>
             <View style={styles.iconCircle}>
-                <Ionicons name="shield-half-sharp" size={32} color="#fff" />
+                <Ionicons name="shield-half-sharp" size={24} color={COLORS.primary} />
             </View>
             <Text style={styles.heroTitle}>Your Privacy Matters</Text>
             <Text style={styles.heroSub}>
@@ -106,7 +106,7 @@ export default function PrivacyPolicyScreen() {
                 <View key={section.id} style={styles.sectionCard}>
                     <View style={styles.sectionHeader}>
                         <View style={styles.sectionIconBg}>
-                            <Ionicons name={section.icon as any} size={22} color={COLORS.primary} />
+                            <Ionicons name={section.icon as any} size={18} color={COLORS.primary} />
                         </View>
                         <Text style={styles.sectionTitle}>{section.title}</Text>
                     </View>
@@ -152,56 +152,49 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
+    padding: 16,
     paddingBottom: 60,
   },
   heroCard: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 32,
-    padding: 32,
+    backgroundColor: '#DBEAFE',
+    borderRadius: 5,
+    padding: 20,
     alignItems: 'center',
-    marginBottom: 24,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 8,
+    marginBottom: 16,
   },
   iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 48,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    marginBottom: 12,
   },
   heroTitle: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#fff',
+    color: '#1e293b',
     marginBottom: 12,
     textAlign: 'center',
   },
   heroSub: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.85)',
+    color: '#64748b',
     textAlign: 'center',
     lineHeight: 22,
     fontWeight: '500',
     marginBottom: 24,
   },
   lastUpdatedBadge: {
-    backgroundColor: 'rgba(0,0,0,0.15)',
+    backgroundColor: '#fff',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   lastUpdatedText: {
     fontSize: 11,
-    color: '#fff',
+    color: COLORS.primary,
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -209,29 +202,24 @@ const styles = StyleSheet.create({
   summaryGrid: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 24,
+    borderRadius: 5,
+    padding: 16,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#BFDBFE',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 10,
-    elevation: 2,
   },
   summaryItem: {
     flex: 1,
     alignItems: 'center',
   },
   summaryVal: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '900',
     color: COLORS.primary,
   },
   summaryLbl: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#64748b',
     fontWeight: '700',
     textTransform: 'uppercase',
@@ -243,30 +231,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f5f9',
   },
   sectionsList: {
-    gap: 20,
-    marginBottom: 32,
+    gap: 12,
+    marginBottom: 16,
   },
   sectionCard: {
     backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 5,
+    padding: 16,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 5,
+    borderColor: '#BFDBFE',
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    gap: 16,
+    marginBottom: 12,
+    gap: 12,
   },
   sectionIconBg: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 5,
     backgroundColor: '#eff6ff',
     alignItems: 'center',
     justifyContent: 'center',
@@ -284,7 +268,7 @@ const styles = StyleSheet.create({
   },
   agreementBox: {
     backgroundColor: '#f1f5f9',
-    borderRadius: 20,
+    borderRadius: 5,
     padding: 20,
     alignItems: 'center',
     marginBottom: 32,
@@ -304,7 +288,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 14,
+    borderRadius: 5,
     backgroundColor: '#eff6ff',
   },
   contactBtnText: {

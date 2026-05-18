@@ -170,16 +170,11 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    marginHorizontal: 20,
+    marginHorizontal: 12,
     marginBottom: 16,
-    borderRadius: 24,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 3,
+    borderColor: '#E0F2FE',
     overflow: 'hidden',
   },
   cardSelected: {
@@ -199,7 +194,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    borderRadius: 18,
+    borderRadius: 5,
     backgroundColor: '#F1F5F9',
   },
   selectionOverlay: {
@@ -227,7 +222,7 @@ const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: 5,
   },
   badgeUrgent: {
     backgroundColor: '#EF4444',
@@ -277,8 +272,9 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     marginTop: 8,
+    flexWrap: 'wrap',
   },
   stat: {
     flexDirection: 'row',
@@ -334,7 +330,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 12,
     marginBottom: 12,
-    borderRadius: 12,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#FEE2E2',
   },
@@ -346,14 +342,14 @@ const styles = StyleSheet.create({
   },
   boostAction: {
     backgroundColor: '#0891B208',
-    borderRadius: 12,
+    borderRadius: 5,
     marginHorizontal: 4,
     paddingVertical: 4,
   },
   boostIconContainer: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: 5,
     backgroundColor: '#0891B215',
     alignItems: 'center',
     justifyContent: 'center',

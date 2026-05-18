@@ -11,7 +11,7 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View as RNView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, type SharedValue } from 'react-native-reanimated';
@@ -59,26 +59,25 @@ export default function AboutApp() {
         onPress={() => Linking.openURL(url)}
         activeOpacity={0.8}
       >
-        <Ionicons name={name} size={24} color={color} />
+        <Ionicons name={name} size={20} color={color} />
       </AnimatedTouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header title="About Application" showBack={true} />
+      <Header title="About Easy Auto" showBack={true} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.topSpacer} />
 
         {/* ---------- BRANDING SECTION ---------- */}
         <LinearGradient
-          colors={[COLORS.primary, '#1E40AF']}
+          colors={['#60A5FA', '#3B82F6']}
           style={styles.brandingCard}
         >
           <View style={styles.logoContainer}>
-            <View style={styles.logoGlow} />
             <Image
               source={require('@/assets/applogonew.png')}
               style={styles.logo}
@@ -114,7 +113,10 @@ export default function AboutApp() {
 
         {/* ---------- MISSION SECTION ---------- */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Our Mission</Text>
+          <View style={styles.sectionTitleRow}>
+            <MaterialCommunityIcons name="bullseye-arrow" size={18} color={COLORS.primary} />
+            <Text style={styles.sectionTitle}>Our Mission</Text>
+          </View>
           <Text style={styles.normalText}>
             To provide a transparent, secure, and luxury-grade car buying experience for everyone in Sri Lanka.
             We ensure every transaction is backed by quality and trust.
@@ -123,19 +125,19 @@ export default function AboutApp() {
 
         {/* ---------- KEY FEATURES ---------- */}
         <View style={styles.featureGrid}>
-          <View style={[styles.featureCard, { borderRightWidth: 1, borderRightColor: '#F3F4F6' }]}>
-            <View style={styles.featureIconBox}>
-              <MaterialCommunityIcons name="check-decagram" size={24} color={COLORS.primary} />
+          <View style={styles.featureCardHorizontal}>
+            <MaterialCommunityIcons name="check-decagram" size={20} color={COLORS.primary} />
+            <View style={styles.featureTextContent}>
+              <Text style={styles.featureTitleSmall}>Verified</Text>
+              <Text style={styles.featureDescSmall}>Checked vehicles</Text>
             </View>
-            <Text style={styles.featureTitle}>Verified</Text>
-            <Text style={styles.featureDesc}>All vehicles checked</Text>
           </View>
-          <View style={styles.featureCard}>
-            <View style={styles.featureIconBox}>
-              <MaterialCommunityIcons name="shield-lock" size={24} color={COLORS.primary} />
+          <View style={styles.featureCardHorizontal}>
+            <MaterialCommunityIcons name="shield-lock" size={20} color={COLORS.primary} />
+            <View style={styles.featureTextContent}>
+              <Text style={styles.featureTitleSmall}>Secure</Text>
+              <Text style={styles.featureDescSmall}>Safe transactions</Text>
             </View>
-            <Text style={styles.featureTitle}>Secure</Text>
-            <Text style={styles.featureDesc}>Safe transactions</Text>
           </View>
         </View>
 
@@ -201,7 +203,7 @@ export default function AboutApp() {
         <Text style={styles.copyrightText}>© 2024 Easy Auto. All rights reserved.</Text>
         <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -214,15 +216,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   brandingCard: {
-    padding: 32,
+    padding: 12,
     alignItems: 'center',
-    marginHorizontal: 16,
-    borderRadius: 24,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 10,
+    marginHorizontal: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   logoContainer: {
     position: 'relative',
@@ -238,8 +237,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.15)',
   },
   logo: {
-    width: 200,
-    height: 100,
+    width: 100,
+    height: 50,
     resizeMode: 'contain',
   },
   appNameText: {
@@ -277,10 +276,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 32,
+    marginTop: 20,
     backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 20,
-    paddingVertical: 16,
+    borderRadius: 5,
+    paddingVertical: 12,
     width: '100%',
   },
   statItem: {
@@ -288,7 +287,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '900',
     color: COLORS.white,
   },
@@ -312,68 +311,74 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     backgroundColor: COLORS.white,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    padding: 16,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginHorizontal: 10,
+    marginTop: 16,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
-    color: '#111827',
-    marginBottom: 16,
+    color: '#334155',
     letterSpacing: -0.3,
   },
   sectionTitleCenter: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#111827',
+    color: '#334155',
     marginBottom: 24,
     letterSpacing: -0.3,
     textAlign: 'center',
   },
   normalText: {
     fontSize: 15,
-    color: '#4B5563',
+    color: '#334155',
     lineHeight: 24,
     fontWeight: '500',
   },
   featureGrid: {
     flexDirection: 'row',
-    backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    marginHorizontal: 10,
+    marginTop: 16,
+    gap: 12,
   },
-  featureCard: {
+  featureCardHorizontal: {
     flex: 1,
-    paddingVertical: 32,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    backgroundColor: '#fff',
+    gap: 8,
   },
-  featureIconBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 20,
-    backgroundColor: '#F3F7FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
+  featureTextContent: {
+    flex: 1,
   },
-  featureTitle: {
-    fontSize: 15,
+  featureTitleSmall: {
+    fontSize: 13,
     fontWeight: '800',
-    color: '#111827',
-    marginBottom: 4,
+    color: '#334155',
   },
-  featureDesc: {
-    fontSize: 12,
+  featureDescSmall: {
+    fontSize: 10,
     color: '#6B7280',
-    textAlign: 'center',
     fontWeight: '600',
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: 8,
   },
   infoIconBox: {
     width: 32,
@@ -390,7 +395,7 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 15,
-    color: '#111827',
+    color: '#334155',
     fontWeight: '700',
     marginTop: 1,
   },
@@ -401,14 +406,15 @@ const styles = StyleSheet.create({
   },
   socialCard: {
     backgroundColor: COLORS.white,
-    paddingVertical: 40,
+    paddingVertical: 24,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    marginHorizontal: 10,
+    marginTop: 8,
   },
   socialGrid: {
     flexDirection: 'row',
-    gap: 32,
+    gap: 20,
+    justifyContent: 'center',
   },
   socialIconWrapper: {
     width: 40,
@@ -420,20 +426,14 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   backButton: {
-    borderRadius: 16,
-    height: 56,
+    borderRadius: 5,
     overflow: 'hidden',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
   },
   buttonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
+    paddingVertical: 10,
     gap: 12,
   },
   backButtonText: {

@@ -46,7 +46,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
 const styles = StyleSheet.create({
     card: {
         backgroundColor: 'white',
-        borderRadius: 12,
+        borderRadius: 5,
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     avatar: {
         width: 32,
         height: 32,
-        borderRadius: 16,
+        borderRadius: 5,
         backgroundColor: COLORS.primaryLight,
         alignItems: 'center',
         justifyContent: 'center',

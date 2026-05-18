@@ -1,18 +1,20 @@
-// components/SocialButton.tsx
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle, Platform, View } from "react-native";
+import { Image, ImageSource } from "expo-image";
 import COLORS from "@/constants/Colors";
 
 export default function SocialButton({
   icon,
+  imageSource,
   text,
   onPress,
   iconColor,
   disabled,
   loading,
 }: {
-  icon: React.ComponentProps<typeof Ionicons>["name"];
+  icon?: React.ComponentProps<typeof Ionicons>["name"];
+  imageSource?: ImageSource;
   text?: string;
   onPress?: () => void;
   iconColor?: string;
@@ -35,7 +37,11 @@ export default function SocialButton({
       ) : (
         <>
           <View style={styles.iconContainer}>
-            <Ionicons name={icon} size={22} color={iconColor ?? COLORS.text.primary} />
+            {imageSource ? (
+              <Image source={imageSource} style={styles.brandIcon} contentFit="contain" />
+            ) : (
+              icon && <Ionicons name={icon} size={24} color={iconColor ?? COLORS.text.primary} />
+            )}
           </View>
           {text && <Text style={[styles.text, (disabled || loading) && styles.textDisabled]}>{text}</Text>}
           {text && <View style={{ width: 24 }} />}
@@ -51,16 +57,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
-    borderRadius: 16, // More rounded for premium feel
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    width: 64, // Standardized icon-only width
-    height: 64, // Standardized icon-only height
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    borderRadius: 20, // More rounded/premium
+    width: 56, // Adjusted to match the refined 24px icons
+    height: 56,
+    borderWidth: 1.5,
+    borderColor: '#F1F5F9', // Very soft border
+    // Premium soft shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
   },
   btnWithText: {
     width: '100%',
@@ -76,9 +83,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.backgroundMuted,
   },
   iconContainer: {
-    width: 24,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  brandIcon: {
+    width: 24, // Even sleeker professional size
+    height: 24,
   },
   text: {
     fontWeight: "700",

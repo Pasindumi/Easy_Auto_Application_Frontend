@@ -55,7 +55,7 @@ export default function RentCarLandingScreen() {
                 colors={['#FFFBEB', '#FEF3C7']}
                 style={styles.iconBackground}
               >
-                <Ionicons name="key-outline" size={36} color="#D97706" />
+                <Ionicons name="key-outline" size={18} color="#D97706" />
               </LinearGradient>
             </View>
 
@@ -65,7 +65,7 @@ export default function RentCarLandingScreen() {
             </View>
 
             <View style={styles.arrowContainer}>
-              <Ionicons name="arrow-forward" size={24} color="#D97706" />
+              <Ionicons name="arrow-forward" size={16} color="#D97706" />
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -85,7 +85,7 @@ export default function RentCarLandingScreen() {
                 colors={['#ECFDF5', '#D1FAE5']}
                 style={styles.iconBackground}
               >
-                <MaterialCommunityIcons name="car-search-outline" size={36} color="#059669" />
+                <MaterialCommunityIcons name="car-search-outline" size={18} color="#059669" />
               </LinearGradient>
             </View>
 
@@ -95,7 +95,7 @@ export default function RentCarLandingScreen() {
             </View>
 
             <View style={styles.arrowContainer}>
-              <Ionicons name="arrow-forward" size={24} color="#059669" />
+              <Ionicons name="arrow-forward" size={16} color="#059669" />
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -110,50 +110,47 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   headerSection: {
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 20,
+    paddingHorizontal: 12,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   headerTitle: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.text.primary,
-    marginBottom: 8,
+    marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 15,
+    fontSize: 13,
     color: COLORS.text.muted,
     fontWeight: '500',
   },
   listContent: {
-    padding: 20,
-    gap: 20,
+    padding: 15,
+    gap: 12,
   },
   card: {
     width: '100%',
-    borderRadius: 24,
+    borderRadius: 5,
     backgroundColor: COLORS.white,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 6,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
     overflow: 'hidden',
   },
   cardGradient: {
-    padding: 24,
+    padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    height: 140,
+    height: 70,
     justifyContent: 'flex-start',
   },
   iconContainer: {
-    marginRight: 20,
+    marginRight: 10,
   },
   iconBackground: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 36,
+    height: 36,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -163,15 +160,15 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.text.primary,
-    marginBottom: 6,
+    marginBottom: 0,
   },
   cardSubtitle: {
-    fontSize: 13,
+    fontSize: 9,
     color: COLORS.text.muted,
-    lineHeight: 18,
+    lineHeight: 12,
   },
   arrowContainer: {
     opacity: 0.6,

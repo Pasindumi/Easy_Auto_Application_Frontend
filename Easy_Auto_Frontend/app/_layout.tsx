@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import "../src/i18n"; // Initialize i18n
 import {
   DarkTheme,
@@ -10,10 +11,13 @@ import "react-native-reanimated";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ToastProvider } from "../contexts/ToastContext";
+import { LoadingProvider, useLoading } from "../contexts/LoadingContext";
 import Toast from "../components/ui/Toast";
 import { tokenCache } from "../utils/tokenCache";
 import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
+
+import { usePathname, useRouter } from "expo-router";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
@@ -32,13 +36,12 @@ Notifications.setNotificationHandler({
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 
-export const unstable_settings = {
-  // Start with the landing page first
-  initialRouteName: "landing",
-};
+
 
 function InnerLayout() {
   const { isDarkMode } = useTheme();
+  const { isLoading, setIsLoading } = useLoading();
+  const router = useRouter();
 
   // Handle notification tap navigation
   useEffect(() => {
@@ -102,6 +105,7 @@ function InnerLayout() {
   return (
     <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings/select-language" options={{ headerShown: false }} />
         <Stack.Screen name="packages/subscriptions" options={{ headerShown: false }} />
@@ -109,7 +113,6 @@ function InnerLayout() {
         <Stack.Screen name="packages/packages" options={{ headerShown: false }} />
         <Stack.Screen name="landing" options={{ headerShown: false, animation: 'fade' }} />
 
-        <Stack.Screen name="admin" options={{ headerShown: false }} />
 
         {/* Payments Section */}
         <Stack.Screen name="payments/payment-history" options={{ headerShown: false }} />
@@ -147,9 +150,11 @@ export default function RootLayout() {
         <ClerkLoaded>
           <AuthProvider>
             <ToastProvider>
-              <CustomThemeProvider>
-                <InnerLayout />
-              </CustomThemeProvider>
+              <LoadingProvider>
+                <CustomThemeProvider>
+                  <InnerLayout />
+                </CustomThemeProvider>
+              </LoadingProvider>
             </ToastProvider>
           </AuthProvider>
         </ClerkLoaded>

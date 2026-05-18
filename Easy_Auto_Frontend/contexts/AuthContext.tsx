@@ -145,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
-        atob(base64)
+        (global.atob ? global.atob(base64) : Buffer.from(base64, 'base64').toString('binary'))
           .split('')
           .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
           .join('')
@@ -299,7 +299,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         headers: {
           'Authorization': `Bearer ${clerkToken}`,
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
         },
       });
 
@@ -344,7 +343,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({ refreshToken: currentRefreshToken }),
       });

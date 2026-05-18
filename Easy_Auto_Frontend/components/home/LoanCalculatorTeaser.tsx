@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     detailBtn: {
         flexDirection: "row", alignItems: "center", gap: 2,
         backgroundColor: "#EEF2FF",
-        paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
+        paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10,
         marginTop: 4,
     },
     detailBtnTxt: { fontSize: 12, fontWeight: "700", color: COLORS.primary },

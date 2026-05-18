@@ -46,8 +46,8 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
             </View>
 
             <View style={styles.specCenter}>
-                <View style={[styles.centerIconBg, { backgroundColor: '#F8FAFC' }]}>
-                    <Ionicons name={icon} size={15} color="#64748B" />
+                <View style={styles.centerIconBg}>
+                    <Ionicons name={icon} size={13} color={COLORS.primary} />
                 </View>
                 <Text style={styles.specLabel}>{label}</Text>
             </View>
@@ -182,16 +182,8 @@ const ComparisonSpecsTable: React.FC<Props> = ({ vehicle1, vehicle2 }) => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
-        borderRadius: 24,
         paddingHorizontal: 16,
         paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: '#F1F5F9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 4,
     },
     tableHeader: {
         paddingVertical: 16,
@@ -208,7 +200,7 @@ const styles = StyleSheet.create({
     },
     specRow: {
         flexDirection: 'row',
-        paddingVertical: 16,
+        paddingVertical: 8,
         alignItems: 'center',
         borderBottomWidth: 1,
         borderBottomColor: '#F8FAFC',
@@ -224,12 +216,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     centerIconBg: {
-        width: 32,
-        height: 32,
-        borderRadius: 10,
+        width: 24,
+        height: 24,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     specLabel: {
         fontSize: 10,
@@ -249,10 +240,10 @@ const styles = StyleSheet.create({
     winnerBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#ECFDF5',
+        backgroundColor: '#F0FDF4',
         paddingHorizontal: 8,
         paddingVertical: 2,
-        borderRadius: 6,
+        borderRadius: 5,
         marginTop: 4,
         gap: 3,
     },
@@ -266,7 +257,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 24,
+        paddingVertical: 16,
         paddingHorizontal: 16,
         gap: 20,
     },
@@ -292,7 +283,7 @@ const styles = StyleSheet.create({
     },
     sectionHeader: {
         backgroundColor: '#F8FAFC',
-        paddingVertical: 10,
+        paddingVertical: 8,
         paddingHorizontal: 16,
         marginHorizontal: -16,
         borderBottomWidth: 1,

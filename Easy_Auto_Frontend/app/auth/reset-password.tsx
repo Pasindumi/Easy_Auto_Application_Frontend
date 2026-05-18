@@ -68,12 +68,11 @@ export default function ResetPasswordScreen() {
     try {
       console.log("Sending reset password request to:", `${ENDPOINTS.AUTH}/reset-password`);
       console.log("Request body:", { identifier, otp, newPassword: "***" });
-      
+
       const response = await fetch(`${ENDPOINTS.AUTH}/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
           identifier,
@@ -83,7 +82,7 @@ export default function ResetPasswordScreen() {
       });
 
       console.log("Response status:", response.status);
-      
+
       // Get response text first
       const responseText = await response.text();
       console.log("Response text:", responseText);

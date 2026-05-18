@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginBottom: 20,
         paddingVertical: 18,
-        borderRadius: 24,
+        borderRadius: 5,
         shadowColor: "#235CF8",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.06,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     card: {
         width: CARD_W,
         backgroundColor: "#fff",
-        borderRadius: 24,
+        borderRadius: 5,
         padding: 22,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 6 },
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     quotePill: {
         width: 32,
         height: 32,
-        borderRadius: 16,
+        borderRadius: 5,
         backgroundColor: "#EEF3FF",
         alignItems: "center",
         justifyContent: "center",
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     avatar: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: 5,
         backgroundColor: COLORS.primaryLight,
         alignItems: "center",
         justifyContent: "center",

@@ -30,9 +30,9 @@ export default function SettingsScreen() {
   const themeConfig = {
     bg: darkMode ? '#0f172a' : '#f8fafc',
     cardBg: darkMode ? '#1e293b' : '#fff',
-    text: darkMode ? '#f8fafc' : '#1e293b',
+    text: darkMode ? '#f8fafc' : '#334155',
     textMuted: darkMode ? '#94a3b8' : '#64748b',
-    border: darkMode ? '#334155' : '#f1f5f9',
+    border: darkMode ? '#334155' : '#BFDBFE',
     iconBgMod: darkMode ? '20' : '10', // hex opacity
   };
 
@@ -63,7 +63,7 @@ export default function SettingsScreen() {
     >
       <View style={styles.settingLeft}>
         <View style={[styles.settingIcon, { backgroundColor: isDestructive ? '#FEF2F2' : `${color}${themeConfig.iconBgMod}` }]}>
-          <Ionicons name={icon} size={20} color={isDestructive ? '#EF4444' : color} />
+          <Ionicons name={icon} size={16} color={isDestructive ? '#EF4444' : color} />
         </View>
         <View style={styles.settingTextContainer}>
           <Text style={[styles.settingTitle, { color: themeConfig.text }, isDestructive && { color: '#EF4444' }]}>{title}</Text>
@@ -100,7 +100,6 @@ export default function SettingsScreen() {
                 title={t('settings_screen.edit_profile')}
                 subtitle={t('settings_screen.edit_profile_sub')}
                 onPress={() => router.push('/profile/edit-profile')}
-                color="#3b82f6"
               />
               <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
@@ -108,7 +107,6 @@ export default function SettingsScreen() {
                 title={t('settings_screen.addresses')}
                 subtitle={t('settings_screen.addresses_sub')}
                 onPress={() => router.push('/profile/address')}
-                color="#6366f1"
               />
               <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
@@ -116,7 +114,6 @@ export default function SettingsScreen() {
                 title={t('settings_screen.security')}
                 subtitle={t('settings_screen.security_sub')}
                 onPress={() => router.push('/settings/security')}
-                color="#10b981"
               />
             </View>
           </View>
@@ -129,7 +126,6 @@ export default function SettingsScreen() {
                 icon="notifications-outline"
                 title={t('settings_screen.push_notifications')}
                 subtitle={t('settings_screen.push_notifications_sub')}
-                color="#f59e0b"
                 rightElement={
                   <Switch
                     value={notifications}
@@ -154,14 +150,12 @@ export default function SettingsScreen() {
                 title={t('settings_screen.language')}
                 subtitle={i18n.language === 'si' ? 'Sinhala' : i18n.language === 'ta' ? 'Tamil' : 'English (US)'}
                 onPress={() => router.push('/settings/select-language')}
-                color="#8b5cf6"
               />
               <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
                 icon="moon-outline"
                 title={t('settings_screen.appearance')}
                 subtitle={t('settings_screen.appearance_sub')}
-                color="#475569"
                 rightElement={
                   <Switch
                     value={darkMode}
@@ -185,7 +179,6 @@ export default function SettingsScreen() {
                 icon="document-text-outline"
                 title={t('settings_screen.privacy_policy')}
                 onPress={() => router.push('/support/privacy-policy')}
-                color="#94a3b8"
               />
               <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
@@ -193,14 +186,12 @@ export default function SettingsScreen() {
                 title={t('settings_screen.about_version')}
                 subtitle={t('settings_screen.about_version_sub')}
                 onPress={() => router.push('/settings/about-app')}
-                color="#64748b"
               />
               <View style={[styles.divider, { backgroundColor: themeConfig.border }]} />
               <SettingItem
                 icon="help-circle-outline"
                 title={t('settings_screen.help_center')}
                 onPress={() => router.push('/support/help-center')}
-                color="#64748b"
               />
             </View>
           </View>
@@ -242,12 +233,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 24,
+    paddingTop: 16,
     paddingBottom: 40,
   },
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 28,
+    paddingHorizontal: 10,
+    marginBottom: 28, // Better spacing between sections
   },
   sectionLabel: {
     fontSize: 13,
@@ -260,20 +251,15 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 24,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#BFDBFE',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 10,
-    elevation: 2,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 18,
+    padding: 14, // Refined internal spacing
     justifyContent: 'space-between',
   },
   settingLeft: {
@@ -282,12 +268,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 28,
+    height: 28,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   settingTextContainer: {
     flex: 1,
@@ -306,10 +292,10 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#f1f5f9',
-    marginLeft: 78,
+    marginLeft: 52,
   },
   actionSection: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     gap: 12,
     marginTop: 8,
   },
@@ -318,8 +304,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
-    paddingVertical: 16,
-    borderRadius: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#fee2e2',
     gap: 10,
