@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.easyauto.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.Easy_Auto_Frontend"
+      "package": "com.anonymous.Easy_Auto_Frontend",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
@@ -39,6 +41,14 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#1E88E5",
+          "sounds": []
+        }
       ]
     ],
     "experiments": {
@@ -46,6 +56,12 @@
       "reactCompiler": false
     },
     "extra": {
+      "eas": {
+        "projectId": "2c131cc3-febc-4587-9ee8-e4720015d095"
+      },
+      "router": {}
+    },
+    "owner": "pamod66"
       "router": {},
       "eas": {
         "projectId": "e47c52b5-79a5-44ca-bcff-a4dbf54591f5"
