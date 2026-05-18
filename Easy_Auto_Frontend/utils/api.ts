@@ -164,6 +164,9 @@ class ApiClient {
     const { skipAuth = false, skipRetry = false, headers = {}, body, ...restOptions } = options;
     const url = endpoint.startsWith('http') ? endpoint : `${this.baseURL}${endpoint}`;
 
+    // Debug log
+    console.log('[API] Request URL:', url, 'Method:', restOptions.method || 'GET');
+
     // Robust check for FormData (instanceof can fail in some debugging environments)
     const isFormData = body instanceof FormData || (body && typeof body === 'object' && typeof (body as any).append === 'function');
 
