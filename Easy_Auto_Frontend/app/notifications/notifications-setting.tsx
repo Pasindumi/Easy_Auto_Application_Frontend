@@ -15,7 +15,6 @@ import { headerSectionStyles } from '../../styles/headerSectionStyles';
 export default function NotificationsSetting() {
   const router = useRouter();
 
-  const [pushEnabled, setPushEnabled] = useState(false);
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [smsEnabled, setSmsEnabled] = useState(false);
 
@@ -35,25 +34,6 @@ export default function NotificationsSetting() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Notifications Card */}
         <View style={styles.card}>
-          {/* Push Notifications */}
-          <View style={styles.row}>
-            <View style={styles.textGroup}>
-              <Text style={styles.title}>Push Notifications</Text>
-              <Text style={styles.subText}>
-                New messages, offers and updates
-              </Text>
-            </View>
-
-            <Switch
-              value={pushEnabled}
-              onValueChange={setPushEnabled}
-              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
-              thumbColor={COLORS.white}
-            />
-          </View>
-
-          <View style={styles.divider} />
-
           {/* Email Alerts */}
           <View style={styles.row}>
             <View style={styles.textGroup}>

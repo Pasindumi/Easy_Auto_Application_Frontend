@@ -19,6 +19,7 @@ import BoostPopup from "@/components/home/BoostPopup";
 import COLORS from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/utils/api";
+import { useNotifications } from "@/hooks/useNotifications";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -43,8 +44,8 @@ export default function HomeScreen() {
 
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [searchFocused, setSearchFocused] = useState(false);
-    const [notificationCount, setNotificationCount] = useState(3);
     const [wishlistCount, setWishlistCount] = useState(0);
+    const { unreadCount: notificationCount } = useNotifications();
     const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [showBackToTop, setShowBackToTop] = useState(false);

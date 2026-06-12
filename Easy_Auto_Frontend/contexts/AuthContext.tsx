@@ -4,11 +4,7 @@ import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-expo';
 import { Platform } from 'react-native';
 import { ENDPOINTS } from '../constants/API';
 import { api } from '../utils/api';
-import { 
-  registerForPushNotificationsAsync, 
-  registerDeviceWithBackend,
-  logoutAllDevices 
-} from '../utils/pushNotifications';
+
 
 interface User {
   id: string;
@@ -186,17 +182,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setAccessToken(storedAccessToken);
           setRefreshToken(storedRefreshToken);
           setUser(JSON.parse(storedUser));
-          
-          // Register for push notifications for returning user
-          try {
-            const pushToken = await registerForPushNotificationsAsync();
-            if (pushToken) {
-              await registerDeviceWithBackend(pushToken);
-              console.log('[Auth] Push notifications re-registered for returning user');
-            }
-          } catch (error) {
-            console.warn('[Auth] Failed to register push notifications:', error);
-          }
         }
       } else {
         console.log('[Auth] No stored tokens found');
@@ -246,22 +231,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Login with backend tokens (for normal email/password login)
   const loginWithBackend = async (access: string, refresh: string, userData: User) => {
     await saveAuth(access, refresh, userData);
-    
-    // Register for push notifications after successful login
-    try {
-      console.log('[Auth] Attempting to register push notifications...');
-      const pushToken = await registerForPushNotificationsAsync();
-      console.log('[Auth] Push token result:', pushToken);
-      
-      if (pushToken) {
-        await registerDeviceWithBackend(pushToken);
-        console.log('[Auth] Push notifications registered successfully');
-      } else {
-        console.log('[Auth] No push token available (Expo Go limitation or permissions denied)');
-      }
-    } catch (error) {
-      console.warn('[Auth] Failed to register push notifications:', error);
-    }
   };
 
   // Clerk: Exchange Clerk token for backend JWT
@@ -402,14 +371,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    try {
-      // Unregister push notifications before logout
-      await logoutAllDevices();
-      console.log('[Auth] Push notifications unregistered');
-    } catch (error) {
-      console.warn('[Auth] Error unregistering push notifications:', error);
-    }
-    
     try {
       await signOut();
     } catch (error) {
