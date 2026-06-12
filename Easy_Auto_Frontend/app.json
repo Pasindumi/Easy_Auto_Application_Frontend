@@ -40,11 +40,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ],
-      [
-        "expo-notifications"
-        
       ]
+      
     ],
     "experiments": {
       "typedRoutes": true,
@@ -56,7 +53,7 @@
       },
       "router": {}
     },
-    "owner": "pamod66"
+    "owner": "pamod66",
       "router": {},
       "eas": {
         "projectId": "e47c52b5-79a5-44ca-bcff-a4dbf54591f5"
@@ -69,4 +66,4 @@
       "url": "https://u.expo.dev/e47c52b5-79a5-44ca-bcff-a4dbf54591f5"
     }
   }
-}
+
