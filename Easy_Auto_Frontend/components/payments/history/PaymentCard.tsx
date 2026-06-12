@@ -65,18 +65,14 @@ const PaymentCard: React.FC<PaymentCardProps> = ({ item, onPress }) => {
 const styles = StyleSheet.create({
     container: {
         marginBottom: 12,
+        marginHorizontal: 16,
     },
     card: {
         backgroundColor: '#fff',
-        borderRadius: 16,
+        borderRadius: 5,
         padding: 16,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.03,
-        shadowRadius: 10,
-        elevation: 2,
+        borderColor: '#BFDBFE',
     },
     header: {
         flexDirection: 'row',

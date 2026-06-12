@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     },
     postAdButton: {
         backgroundColor: '#235CF8', // Use primary color for main action
-        borderRadius: 12,
+        borderRadius: 5,
         paddingVertical: 16,
         paddingHorizontal: 32,
         width: '100%', // Full width

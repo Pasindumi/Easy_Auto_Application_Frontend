@@ -1,4 +1,4 @@
-﻿import COLORS from "@/constants/Colors";
+import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
@@ -161,18 +161,19 @@ export default function BuyCarScreen() {
     }, [brandId]);
 
     useEffect(() => {
-        if (selectedCategory && selectedCategory !== "all") {
-            setIsBrandsLoading(true);
-            api.get(`/api/vehicle-config/brands/${selectedCategory}`)
-                .then((res: any) => {
-                    if (Array.isArray(res)) setBrands(res.map((b) => ({ label: b.brand_name, value: b.id })));
-                })
-                .catch(console.error)
-                .finally(() => setIsBrandsLoading(false));
-        } else {
-            setBrands([]);
-            setSelectedBrand("");
-        }
+        setIsBrandsLoading(true);
+        const endpoint = selectedCategory && selectedCategory !== "all"
+            ? `/api/vehicle-config/brands/${selectedCategory}`
+            : `/api/vehicle-config/brands`; // Fetch all brands if category is "all"
+
+        api.get(endpoint)
+            .then((res: any) => {
+                if (Array.isArray(res)) {
+                    setBrands(res.map((b) => ({ label: b.brand_name, value: b.id })));
+                }
+            })
+            .catch(console.error)
+            .finally(() => setIsBrandsLoading(false));
     }, [selectedCategory]);
 
     useEffect(() => {
@@ -458,8 +459,8 @@ export default function BuyCarScreen() {
 
                         {/* Brand */}
                         <SelectField label="Make / Brand" value={selectedBrand} options={brands}
-                            onSelect={setSelectedBrand} disabled={selectedCategory === "all" || isBrandsLoading}
-                            placeholder={isBrandsLoading ? "LoadingΓÇª" : "Select Brand"} searchable />
+                            onSelect={setSelectedBrand} disabled={isBrandsLoading}
+                            placeholder={isBrandsLoading ? "Loading..." : "Select Brand"} searchable />
 
                         {/* Model */}
                         <SelectField label="Model" value={selectedModel} options={models}
@@ -560,7 +561,7 @@ export default function BuyCarScreen() {
                         style={[styles.categoryPill, selectedCategory === "all" && styles.categoryPillActive]}
                         onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setSelectedCategory("all"); }}
                     >
-                        <Ionicons name="apps" size={13} color="white" />
+                        <Ionicons name="apps" size={13} color={selectedCategory === "all" ? COLORS.primary : "white"} />
                         <Text style={[styles.categoryPillText, selectedCategory === "all" && styles.categoryPillTextActive]}>All</Text>
                     </TouchableOpacity>
                     {vehicleTypes.map(t => (
@@ -569,7 +570,7 @@ export default function BuyCarScreen() {
                             style={[styles.categoryPill, selectedCategory === t.key && styles.categoryPillActive]}
                             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setSelectedCategory(selectedCategory === t.key ? "all" : t.key); }}
                         >
-                            <Ionicons name={t.icon as any} size={13} color="white" />
+                            <Ionicons name={t.icon as any} size={13} color={selectedCategory === t.key ? COLORS.primary : "white"} />
                             <Text style={[styles.categoryPillText, selectedCategory === t.key && styles.categoryPillTextActive]}>{t.label}</Text>
                         </TouchableOpacity>
                     ))}
@@ -683,7 +684,7 @@ const styles = StyleSheet.create({
     searchBar: {
         flexDirection: "row", alignItems: "center", gap: 10,
         backgroundColor: "rgba(255,255,255,0.18)",
-        borderRadius: 14, paddingHorizontal: 14, paddingVertical: 11,
+        borderRadius: 5, paddingHorizontal: 14, paddingVertical: 8,
         borderWidth: 1, borderColor: "rgba(255,255,255,0.15)",
         marginBottom: 10,
     },
@@ -694,7 +695,7 @@ const styles = StyleSheet.create({
     categoryPill: {
         flexDirection: "row", alignItems: "center", gap: 5,
         paddingHorizontal: 14, paddingVertical: 7,
-        borderRadius: 20, backgroundColor: "rgba(255,255,255,0.15)",
+        borderRadius: 5, backgroundColor: "rgba(255,255,255,0.15)",
         borderWidth: 1, borderColor: "rgba(255,255,255,0.12)",
     },
     categoryPillActive: {
@@ -715,10 +716,10 @@ const styles = StyleSheet.create({
     },
     gridCardWrap: { width: (width - 30) / 2, marginBottom: 12 },
     gridCard: {
-        backgroundColor: "white", borderRadius: 18,
+        backgroundColor: "white", borderRadius: 5,
         overflow: "hidden",
-        elevation: 3,
-        shadowColor: "#0F172A", shadowOpacity: 0.08, shadowOffset: { width: 0, height: 3 }, shadowRadius: 8,
+        borderWidth: 1,
+        borderColor: "#DBEAFE",
     },
     gridImageWrap: { height: 130, position: "relative" },
     gridImage: { width: "100%", height: "100%" },
@@ -726,7 +727,7 @@ const styles = StyleSheet.create({
     gridPriceBadge: {
         position: "absolute", bottom: 8, left: 8,
         backgroundColor: "#4F46E5",
-        paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8,
+        paddingHorizontal: 8, paddingVertical: 3, borderRadius: 5,
     },
     gridPriceText: { color: "white", fontSize: 11, fontWeight: "800" },
     gridFavBtn: {
@@ -753,9 +754,9 @@ const styles = StyleSheet.create({
     listCardWrap: { marginBottom: 12 },
     listCard: {
         flexDirection: "row", backgroundColor: "white",
-        borderRadius: 18, overflow: "hidden",
-        elevation: 3,
-        shadowColor: "#0F172A", shadowOpacity: 0.07, shadowOffset: { width: 0, height: 3 }, shadowRadius: 8,
+        borderRadius: 5, overflow: "hidden",
+        borderWidth: 1,
+        borderColor: "#DBEAFE",
     },
     listCardImageWrap: { width: 130, height: 115, position: "relative" },
     listCardImage: { width: "100%", height: "100%" },
@@ -784,8 +785,10 @@ const styles = StyleSheet.create({
     shimmerCard: {
         width: (width - 30) / 2,
         backgroundColor: "#E2E8F0",
-        borderRadius: 18, overflow: "hidden",
+        borderRadius: 5, overflow: "hidden",
         marginBottom: 12,
+        borderWidth: 1,
+        borderColor: "#DBEAFE",
     },
     shimmerImage: { height: 130, backgroundColor: "#CBD5E1" },
     shimmerLine: { height: 12, backgroundColor: "#CBD5E1", borderRadius: 6, width: "80%" },
@@ -802,7 +805,7 @@ const styles = StyleSheet.create({
 
     // FILTER FAB
     filterFabWrap: { position: "absolute", left: 0, right: 0, alignItems: "center", zIndex: 200 },
-    filterFab: { borderRadius: 30, overflow: "hidden", elevation: 8, shadowColor: COLORS.primary, shadowOpacity: 0.4, shadowOffset: { width: 0, height: 6 }, shadowRadius: 15 },
+    filterFab: { borderRadius: 5, overflow: "hidden", elevation: 8, shadowColor: COLORS.primary, shadowOpacity: 0.4, shadowOffset: { width: 0, height: 6 }, shadowRadius: 15 },
     filterFabGradient: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 24, paddingVertical: 14 },
     filterFabText: { color: "white", fontWeight: "700", fontSize: 15 },
     filterBadge: {

@@ -29,8 +29,10 @@ import { api } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import ImageGallery from '@/components/ui/ImageGallery';
 
+import Loading from '@/components/ui/Loading';
+
 const { width, height } = Dimensions.get('window');
-const GALLERY_HEIGHT = height * 0.45;
+const GALLERY_HEIGHT = height * 0.35;
 
 export default function RentalAdDetailsScreen() {
     const router = useRouter();
@@ -151,7 +153,7 @@ export default function RentalAdDetailsScreen() {
         return (
             <View style={styles.loading}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Loading />
                 <Text style={styles.loadingText}>Loading rental details...</Text>
             </View>
         );
@@ -228,7 +230,7 @@ export default function RentalAdDetailsScreen() {
                                 }}
                             >
                                 {item.image_url ? (
-                                    <Image source={{ uri: item.image_url }} style={styles.galleryImgFull} contentFit="cover" />
+                                    <Image source={{ uri: item.image_url }} style={styles.galleryImgFull} contentFit="contain" />
                                 ) : (
                                     <View style={[styles.galleryImgFull, { backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' }]}>
                                         <Ionicons name="image" size={60} color="#E2E8F0" />
@@ -240,7 +242,7 @@ export default function RentalAdDetailsScreen() {
 
                     <View style={[styles.galleryNavRow, { top: insets.top + 10 }]}>
                         <TouchableOpacity style={styles.glassCircle} onPress={() => router.back()}>
-                            <Ionicons name="chevron-back" size={24} color="white" />
+                            <Ionicons name="chevron-back" size={20} color={COLORS.primary} />
                         </TouchableOpacity>
                         
                         <View style={styles.galleryTopActions}>
@@ -248,61 +250,63 @@ export default function RentalAdDetailsScreen() {
                                 <Text style={styles.photoCountText}>{activeIndex + 1} / {images.length || 1}</Text>
                             </View>
                             <TouchableOpacity style={styles.glassCircle} onPress={handleNativeShare}>
-                                <Ionicons name="share-social" size={20} color="white" />
+                                <Ionicons name="share-social" size={18} color={COLORS.primary} />
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.glassCircle, isFavorite && styles.glassBtnActive]}
                                 onPress={handleToggleFavorite}
                                 disabled={favoriteLoading}
                             >
-                                <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "#EF4444" : "white"} />
+                                <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={20} color={isFavorite ? "#EF4444" : COLORS.primary} />
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    {/* ─── MINI THUMBNAILS PREVIEW ─── */}
-                    <View style={styles.floatingThumbRow}>
-                        <FlatList
-                            ref={thumbRef}
-                            data={images}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            keyExtractor={(_, index) => index.toString()}
-                            contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
-                            renderItem={({ item, index }) => (
-                                <TouchableOpacity
-                                    onPress={() => scrollToImage(index)}
-                                    style={[
-                                        styles.miniThumb,
-                                        activeIndex === index && styles.miniThumbActive
-                                    ]}
-                                >
-                                    <Image source={{ uri: item.image_url }} style={styles.miniThumbImg} contentFit="cover" />
-                                </TouchableOpacity>
-                            )}
-                        />
-                    </View>
+                </View>
+
+                {/* ─── MINI THUMBNAILS PREVIEW ─── */}
+                <View style={styles.thumbnailSection}>
+                    <FlatList
+                        ref={thumbRef}
+                        data={images}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(_, index) => index.toString()}
+                        contentContainerStyle={styles.thumbnailListContent}
+                        renderItem={({ item, index }) => (
+                            <TouchableOpacity
+                                onPress={() => scrollToImage(index)}
+                                style={[
+                                    styles.miniThumb,
+                                    activeIndex === index && styles.miniThumbActive
+                                ]}
+                            >
+                                <Image source={{ uri: item.image_url }} style={styles.miniThumbImg} contentFit="cover" />
+                            </TouchableOpacity>
+                        )}
+                    />
                 </View>
 
                 {/* ─── CONTENT HEADER ─── */}
                 <View style={styles.contentHeader}>
-                    <Text style={styles.adTitleBig} numberOfLines={2}>{ad.title}</Text>
+                    <View style={styles.mainInfoRow}>
+                        <View style={styles.titleLocationCol}>
+                            <Text style={styles.adTitleBig} numberOfLines={2}>{ad.title}</Text>
+                            {ad.location && (
+                                <View style={styles.locationRow}>
+                                    <Ionicons name="location" size={14} color={COLORS.primary} />
+                                    <Text style={styles.locationText}>{ad.location}</Text>
+                                </View>
+                            )}
+                        </View>
 
-                    <View style={styles.headerPriceRow}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                        <View style={styles.priceCol}>
                             <Text style={styles.headerPriceText}>Rs. {ad.price_per_day?.toLocaleString()}</Text>
                             <View style={styles.headerNegBadge}>
                                 <Text style={styles.headerNegText}>Per Day</Text>
                             </View>
                         </View>
                     </View>
-
-                    {(ad.location) && (
-                        <View style={styles.locationRow}>
-                            <Ionicons name="location" size={16} color={COLORS.primary} />
-                            <Text style={styles.locationText}>{ad.location}</Text>
-                        </View>
-                    )}
                 </View>
 
                 {/* ─── RENTAL PRICING OPTIONS ─── */}
@@ -547,50 +551,67 @@ const styles = StyleSheet.create({
     headerPriceSubText: { color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '700' },
 
     // GALLERY
-    galleryContainer: { height: GALLERY_HEIGHT, width: width, position: 'relative', backgroundColor: 'black' },
+    galleryContainer: { height: GALLERY_HEIGHT, width: width, position: 'relative', backgroundColor: '#EFF6FF' },
     galleryNavRow: { position: 'absolute', left: 16, right: 16, zIndex: 100, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     galleryTopActions: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     glassCircle: { 
-        width: 44, height: 44, borderRadius: 22, 
-        backgroundColor: 'rgba(0,0,0,0.3)', 
+        width: 32, height: 32, borderRadius: 16, 
+        backgroundColor: '#FFFFFF', 
         alignItems: 'center', justifyContent: 'center',
-        borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)'
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3
     },
-    glassBtnActive: { backgroundColor: 'rgba(239,68,68,0.4)' },
+    glassBtnActive: { backgroundColor: '#FFFFFF' },
     photoCountBadgeSm: {
-        backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
-        marginRight: 4, height: 28, justifyContent: 'center', alignItems: 'center'
+        backgroundColor: '#FFFFFF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
+        marginRight: 4, height: 24, justifyContent: 'center', alignItems: 'center',
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3
     },
-    photoCountText: { color: 'white', fontSize: 11, fontWeight: '800' },
-    floatingThumbRow: { position: 'absolute', bottom: 15, left: 0, right: 0, zIndex: 110 },
-    miniThumb: { width: 75, height: 50, borderRadius: 12, borderWidth: 2, borderColor: 'transparent', overflow: 'hidden', backgroundColor: '#333' },
+    photoCountText: { color: COLORS.primary, fontSize: 10, fontWeight: '800' },
+    
+    thumbnailSection: {
+        backgroundColor: '#F8FAFC',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
+    },
+    thumbnailListContent: {
+        paddingHorizontal: 16,
+        gap: 8,
+        flexGrow: 1,
+        justifyContent: 'center',
+    },
+    miniThumb: { width: 75, height: 50, borderRadius: 12, borderWidth: 2, borderColor: 'transparent', overflow: 'hidden', backgroundColor: '#FFF' },
     miniThumbActive: { borderColor: COLORS.primary },
     miniThumbImg: { width: '100%', height: '100%' },
     galleryImgFull: { width: '100%', height: '100%' },
 
     contentHeader: { 
-        paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16,
-        backgroundColor: 'white', borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2
+        paddingHorizontal: 16, paddingTop: 20, paddingBottom: 20,
+        backgroundColor: 'white',
+        borderBottomWidth: 1, borderBottomColor: '#F1F5F9'
     },
-    adTitleBig: { fontSize: 24, fontWeight: '900', color: '#0F172A', letterSpacing: -0.8 },
-    headerPriceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
-    headerPriceText: { fontSize: 26, fontWeight: '900', color: COLORS.primary },
-    headerNegBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-    headerNegText: { color: '#64748B', fontSize: 12, fontWeight: '800', textTransform: 'uppercase' },
-    locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
-    locationText: { fontSize: 14, color: '#64748B', fontWeight: '800' },
+    mainInfoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+    titleLocationCol: { flex: 1 },
+    priceCol: { alignItems: 'flex-end' },
+    adTitleBig: { fontSize: 20, fontWeight: '700', color: '#0F172A', letterSpacing: -0.5, marginBottom: 4 },
+    headerPriceText: { fontSize: 20, fontWeight: '800', color: COLORS.primary },
+    headerNegBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, marginTop: 4 },
+    headerNegText: { color: '#64748B', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
+
+    locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+    locationText: { fontSize: 12, color: '#64748B', fontWeight: '500' },
 
     section: { 
-        backgroundColor: 'white', marginHorizontal: 16, marginTop: 16, 
-        borderRadius: 32, padding: 24,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 10, elevation: 1
+        backgroundColor: 'white',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9'
     },
-    sectionTitle: { fontSize: 18, fontWeight: '900', color: '#0F172A', marginBottom: 20, letterSpacing: -0.5 },
+    sectionTitle: { fontSize: 15, fontWeight: '700', color: '#0F172A', marginBottom: 12, letterSpacing: -0.3 },
 
     // PRICING TABLE
-    pricingTable: { backgroundColor: '#F8FAFC', borderRadius: 24, padding: 8, borderWidth: 1, borderColor: '#F1F5F9' },
-    tableRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
+    pricingTable: { backgroundColor: '#F8FAFC', borderRadius: 8, padding: 2 },
+    tableRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12 },
     tableRowBorder: { borderTopWidth: 1, borderTopColor: '#F1F5F9' },
     tableLabelCol: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     tableLabel: { fontSize: 13, color: '#475569', fontWeight: '700' },
@@ -600,14 +621,14 @@ const styles = StyleSheet.create({
     conditionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
     conditionChip: { 
         flexDirection: 'row', alignItems: 'center', gap: 8, 
-        backgroundColor: '#F8FAFC', paddingHorizontal: 14, paddingVertical: 12, 
-        borderRadius: 16, flexGrow: 1, minWidth: '45%' 
+        backgroundColor: '#F1F5F9', paddingHorizontal: 10, paddingVertical: 8, 
+        borderRadius: 8, flexGrow: 1, minWidth: '45%'
     },
     conditionChipText: { fontSize: 13, color: '#475569', fontWeight: '700' },
     depositAlert: { 
         flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', 
-        padding: 16, borderRadius: 20, marginTop: 16, gap: 12,
-        borderWidth: 1, borderColor: '#DBEAFE'
+        padding: 16, borderRadius: 8, marginTop: 16, gap: 12,
+        borderWidth: 1, borderColor: '#BFDBFE'
     },
     depositText: { fontSize: 14, fontWeight: '700', color: COLORS.primary },
 
@@ -617,8 +638,8 @@ const styles = StyleSheet.create({
     // SELLER
     sellerCard: {
         flexDirection: 'row', alignItems: 'center', gap: 16,
-        backgroundColor: '#F8FAFC', padding: 16, borderRadius: 24,
-        borderWidth: 1, borderColor: '#F1F5F9'
+        backgroundColor: '#F8FAFC', padding: 16, borderRadius: 8,
+        borderWidth: 1, borderColor: '#BFDBFE'
     },
     sellerAvatar: { width: 56, height: 56, borderRadius: 28, overflow: 'hidden', borderWidth: 2, borderColor: '#10B981' },
     sellerAvatarImg: { width: '100%', height: '100%' },
@@ -627,7 +648,7 @@ const styles = StyleSheet.create({
     sellerInfo: { flex: 1 },
     sellerNameRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     sellerName: { fontSize: 16, fontWeight: '900', color: '#0F172A', flexShrink: 1 },
-    verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+    verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 5 },
     verifiedText: { color: '#16A34A', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
     sellerMeta: { fontSize: 13, color: '#94A3B8', marginTop: 4, fontWeight: '700' },
     sellerPhone: { fontSize: 14, color: COLORS.primary, fontWeight: '800', marginTop: 6 },
@@ -664,8 +685,8 @@ const styles = StyleSheet.create({
     contactOptions: { gap: 16 },
     contactOption: { 
         flexDirection: 'row', alignItems: 'center', gap: 16, 
-        backgroundColor: '#F8FAFC', padding: 16, borderRadius: 24,
-        borderWidth: 1, borderColor: '#F1F5F9'
+        backgroundColor: '#F8FAFC', padding: 16, borderRadius: 8,
+        borderWidth: 1, borderColor: '#BFDBFE'
     },
     contactOptionIcon: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
     contactOptionLabel: { fontSize: 17, fontWeight: '800', color: '#1E293B', flex: 1 },

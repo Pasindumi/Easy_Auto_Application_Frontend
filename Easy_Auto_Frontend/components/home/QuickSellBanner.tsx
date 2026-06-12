@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
         borderBottomColor: "#F1F5F9",
     },
     card: {
-        borderRadius: 20,
+        borderRadius: 10,
         padding: 20,
         overflow: "hidden",
     },
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
         flexDirection: "row", alignItems: "center", gap: 4,
         backgroundColor: "rgba(255,255,255,0.2)",
         alignSelf: "flex-start",
-        paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20,
+        paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10,
         marginBottom: 10,
     },
     tagTxt: { color: "#fff", fontSize: 9, fontWeight: "800", letterSpacing: 1 },
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
         flexDirection: "row", alignItems: "center", gap: 6,
         backgroundColor: "#fff",
         alignSelf: "flex-start",
-        paddingHorizontal: 16, paddingVertical: 9, borderRadius: 20,
+        paddingHorizontal: 16, paddingVertical: 9, borderRadius: 10,
     },
     ctaTxt: { color: "#059669", fontWeight: "800", fontSize: 13 },
 

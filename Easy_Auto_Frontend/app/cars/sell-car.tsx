@@ -16,7 +16,9 @@ import {
   TouchableOpacity,
   View,
   Image as RNImage,
+  StatusBar as RNStatusBar,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIsFocused } from '@react-navigation/native';
@@ -392,17 +394,23 @@ export default function SellCarScreen() {
     setLoading(true);
     try {
       // Validate Inputs
-      if (!carDetails.title || !carDetails.price || !carDetails.brand) {
-        showToast({ title: "Incomplete Form", message: "Missing Fields: Please fill in Title, Brand, and Price.", type: "error" });
+      if (!carDetails.title || !carDetails.price || !carDetails.brand || !carDetails.mileage) {
+        showToast({
+          title: "Incomplete Form",
+          message: `Missing Fields: Please fill in Title, Brand, Price${!carDetails.mileage ? ', and Mileage' : ''}.`,
+          type: "error"
+        });
         setLoading(false);
         return;
       }
 
-      // Check required dynamic attributes
-      const missingRequired = attributes.filter(attr => attr.is_required).find(attr => {
-        const val = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value;
-        return val === undefined || val === '' || val === null;
-      });
+      // Check required dynamic attributes (excluding already handled static fields like mileage)
+      const missingRequired = attributes
+        .filter(attr => attr.is_required && !['mileage', 'milage', 'millage'].includes(attr.attribute_name?.toLowerCase().trim()))
+        .find(attr => {
+          const val = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value;
+          return val === undefined || val === '' || val === null;
+        });
 
       if (missingRequired) {
         showToast({ title: "Missing Detail", message: `Please fill in ${missingRequired.attribute_name}`, type: "error" });
@@ -469,10 +477,10 @@ export default function SellCarScreen() {
       }
 
       if (response.success) {
-        showToast({ 
-          title: isEdit ? "Update Successful" : "Ad Saved", 
-          message: isEdit ? "Your ad has been updated successfully!" : "Your ad has been saved as a draft!", 
-          type: "success" 
+        showToast({
+          title: isEdit ? "Update Successful" : "Ad Saved",
+          message: isEdit ? "Your ad has been updated successfully!" : "Your ad has been saved as a draft!",
+          type: "success"
         });
         const adId = isEdit ? params.id : response.data.id;
         router.replace({
@@ -498,10 +506,10 @@ export default function SellCarScreen() {
         <Header showBack={true} />
         <View style={styles.authGuardContainer}>
           <View style={styles.iconCircle}>
-            <Ionicons name="lock-closed-outline" size={40} color={COLORS.primary} />
+            <Ionicons name="lock-closed-outline" size={30} color={COLORS.primary} />
           </View>
           <Text style={styles.authGuardTitle}>Login Required</Text>
-          <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicles on Easy Auto.</Text>
+          <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicle on Easy Auto.</Text>
 
           <View style={styles.authButtonGroup}>
             <View style={{ flex: 1, marginRight: 10 }}>
@@ -528,39 +536,38 @@ export default function SellCarScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="light" />
       <Stack.Screen options={{ headerShown: false }} />
       {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
       <LinearGradient
-        colors={[COLORS.primary, COLORS.primaryDark]}
+        colors={[COLORS.primary, COLORS.primary]}
         style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <View style={styles.headerTopRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
-          
-          <View pointerEvents="none" style={styles.logoCentre}>
+
+          <View style={styles.headerTitleArea}>
+            <Text style={styles.headerTitleText}>Post Your Ad</Text>
+          </View>
+
+          <View pointerEvents="none" style={styles.headerLogoContainer}>
             <RNImage
               source={require("@/assets/logoHome.png")}
               resizeMode="contain"
               style={styles.logoImg}
             />
           </View>
-
-          <View style={styles.headerRightSpacer} />
-        </View>
-
-        <View style={styles.headerTitleArea}>
-          <Text style={styles.headerTitleText}>Post Your Ad</Text>
         </View>
       </LinearGradient>
-      
+
       {loading && <Loading fullScreen={true} message="Processing..." />}
 
       <View style={styles.stepperContainer}>
         {steps.map((step, index) => (
           <View key={step.id} style={styles.stepWrapper}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.stepCircle, currentStep >= step.id ? styles.stepCircleActive : null]}
               onPress={() => setCurrentStep(step.id)}
             >
@@ -664,13 +671,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    paddingTop: 20,
+    paddingHorizontal: 12,
     paddingBottom: 40,
   },
   header: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingBottom: 12,
     elevation: 8,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -682,36 +689,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 44,
-    marginBottom: 8,
+    height: 50,
   },
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
-  logoCentre: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
+  headerLogoContainer: {
+    width: 100,
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
   logoImg: {
     width: 100,
     height: 24,
   },
-  headerRightSpacer: {
-    width: 40,
-  },
   headerTitleArea: {
-    alignItems: 'center',
+    flex: 1,
+    alignItems: 'flex-start',
     justifyContent: 'center',
+    marginLeft: 8,
   },
   headerTitleText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     letterSpacing: -0.5,
   },
   stepperContainer: {
@@ -723,11 +727,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
-    elevation: 2,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
     zIndex: 50,
   },
   stepWrapper: {
@@ -756,10 +755,10 @@ const styles = StyleSheet.create({
   stepNavigation: {
     flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingHorizontal: 16, paddingBottom: 20
   },
-  stepBackBtn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: 'white' },
-  stepBackText: { color: '#64748B', fontWeight: '700', fontSize: 14 },
-  stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, backgroundColor: COLORS.primary, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
-  stepNextText: { color: 'white', fontWeight: '800', fontSize: 14 },
+  stepBackBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: 'white' },
+  stepBackText: { color: '#64748B', fontWeight: '600', fontSize: 14 },
+  stepNextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5, backgroundColor: COLORS.primary },
+  stepNextText: { color: 'white', fontWeight: '700', fontSize: 14 },
   authGuardContainer: {
     flex: 1,
     padding: 30,
@@ -768,19 +767,19 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: COLORS.primary + '10', // Light primary background
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   authGuardTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
-    marginBottom: 12,
+    color: '#64748B', // Gray color
+    marginBottom: 10,
   },
   authGuardMessage: {
     fontSize: 16,
@@ -794,8 +793,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   authButton: {
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 11,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.primary,

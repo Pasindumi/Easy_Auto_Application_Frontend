@@ -1,7 +1,13 @@
-import SelectField from '@/components/ui/SelectField';
+import { Ionicons } from '@expo/vector-icons';
+import ConditionSelector from './ConditionSelector';
+import BrandSelector from './BrandSelector';
+import ModelSelector from './ModelSelector';
+import YearSelector from './YearSelector';
+import OptionSelector, { SelectionOption } from './OptionSelector';
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Switch } from 'react-native';
+import { StyleSheet, Text, View, Switch, TextInput } from 'react-native';
 import { CarFormState } from '../../../types/sell-car.types';
+import CustomTextInput from '../../ui/CustomTextInput';
 
 interface Props {
     carDetails: CarFormState;
@@ -44,31 +50,17 @@ const CarDetailsSection: React.FC<Props> = ({
     const conditionOptions = getConditionOptions();
 
     // Filter models based on selected brand
-    const getModelOptions = () => {
+    const getFilteredModels = () => {
         if (!carDetails.brand) return [];
-        // Normalize comparison: trim and lower case both sides
-        // Also handle potential potential type mismatches or extra spaces
         const selectedBrand = brands.find(b =>
             String(b.brand_name).toLowerCase().trim() === String(carDetails.brand).toLowerCase().trim()
         );
 
-        // If we can't find the brand object, we can't filter models correctly which disables the dropdown
-        if (!selectedBrand) {
-            // Fallback: if we can't match ID, maybe return all models or handle differently? 
-            // But usually it means data mismatch. 
-            // Let's try to match by ID if brand name match fails? (Config usually has ID)
-            // But carDetails stores brand NAME. 
-            return [];
-        }
-
-        const filteredModels = models.filter(m => m.brand_id === selectedBrand.id);
-        if (filteredModels.length > 0) {
-            return filteredModels.map(m => ({ label: m.model_name, value: m.model_name }));
-        }
-        return [];
+        if (!selectedBrand) return [];
+        return models.filter(m => m.brand_id === selectedBrand.id);
     };
 
-    const modelOptions = getModelOptions();
+    const filteredModels = getFilteredModels();
 
     return (
         <View style={styles.section}>
@@ -77,18 +69,26 @@ const CarDetailsSection: React.FC<Props> = ({
             {/* SECTION 1: Core Details */}
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <SelectField
-                        label="Condition"
+                    <View style={styles.labelRow}>
+                        <Ionicons name="shield-checkmark-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Condition</Text>
+                    </View>
+                    <ConditionSelector
+                        label=""
                         value={carDetails.condition}
                         options={conditionOptions}
                         onSelect={(val) => handleInputChange('condition', val)}
                     />
                 </View>
                 <View style={styles.formHalf}>
-                    <SelectField
-                        label="Brand"
+                    <View style={styles.labelRow}>
+                        <Ionicons name="ribbon-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Brand</Text>
+                    </View>
+                    <BrandSelector
+                        label=""
                         value={carDetails.brand}
-                        options={brandOptions}
+                        brands={brands}
                         onSelect={(val) => {
                             handleInputChange('brand', val);
                             handleInputChange('model', ''); // Reset model when brand changes
@@ -99,77 +99,278 @@ const CarDetailsSection: React.FC<Props> = ({
 
             <View style={styles.formRow}>
                 <View style={styles.formHalf}>
-                    <SelectField
-                        label="Model"
+                    <View style={styles.labelRow}>
+                        <Ionicons name="layers-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Model</Text>
+                    </View>
+                    <ModelSelector
+                        label=""
                         value={carDetails.model}
-                        options={modelOptions}
+                        models={filteredModels}
                         onSelect={(val) => handleInputChange('model', val)}
-                        disabled={!carDetails.brand || modelOptions.length === 0}
+                        disabled={!carDetails.brand || filteredModels.length === 0}
                     />
                 </View>
                 <View style={styles.formHalf}>
-                    <Text style={styles.label}>Year</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="e.g. 2024"
+                    <View style={styles.labelRow}>
+                        <Ionicons name="calendar-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Year</Text>
+                    </View>
+                    <YearSelector
+                        label=""
                         value={carDetails.year}
-                        onChangeText={(value) => handleInputChange('year', value)}
+                        onSelect={(val) => handleInputChange('year', val)}
+                    />
+                </View>
+            </View>
+
+            <View style={styles.formRow}>
+                <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="speedometer-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Mileage (km)</Text>
+                    </View>
+                    <CustomTextInput
+                        label=""
+                        placeholder="e.g. 45,000"
+                        value={carDetails.mileage}
+                        onChangeText={(value) => handleInputChange('mileage', value)}
+                        keyboardType="numeric"
+                    />
+                </View>
+                <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="color-fill-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Fuel Type</Text>
+                    </View>
+                    <OptionSelector
+                        label=""
+                        value={carDetails.fuelType}
+                        options={[
+                            { label: 'Petrol', value: 'Petrol', icon: 'water-outline' },
+                            { label: 'Diesel', value: 'Diesel', icon: 'flask-outline' },
+                            { label: 'Hybrid', value: 'Hybrid', icon: 'leaf-outline' },
+                            { label: 'Electric', value: 'Electric', icon: 'flash-outline' },
+                            { label: 'Plug-in', value: 'Plug-in Hybrid', icon: 'battery-charging-outline' },
+                            { label: 'Gas', value: 'Gas', icon: 'flame-outline' },
+                        ]}
+                        onSelect={(val) => handleInputChange('fuelType', val)}
+                    />
+                </View>
+            </View>
+
+            <View style={styles.formRow}>
+                <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="git-network-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Transmission</Text>
+                    </View>
+                    <OptionSelector
+                        label=""
+                        value={carDetails.transmission}
+                        options={[
+                            { label: 'Automatic', value: 'Automatic', icon: 'car-outline' },
+                            { label: 'Manual', value: 'Manual', icon: 'git-compare-outline' },
+                            { label: 'Tiptronic', value: 'Tiptronic', icon: 'car-sport-outline' },
+                        ]}
+                        onSelect={(val) => handleInputChange('transmission', val)}
+                    />
+                </View>
+                <View style={styles.formHalf}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="options-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Engine Cap. (cc)</Text>
+                    </View>
+                    <CustomTextInput
+                        label=""
+                        placeholder="e.g. 1500"
+                        value={carDetails.engineCapacity}
+                        onChangeText={(value) => handleInputChange('engineCapacity', value)}
                         keyboardType="numeric"
                     />
                 </View>
             </View>
 
-            {/* SECTION 2: Dynamic Attributes */}
+            <View style={styles.formRow}>
+                <View style={{ flex: 1 }}>
+                    <View style={styles.labelRow}>
+                        <Ionicons name="car-sport-outline" size={16} color={COLORS.primary} style={styles.labelIcon} />
+                        <Text style={styles.label}>Body Type</Text>
+                    </View>
+                    <OptionSelector
+                        label=""
+                        value={carDetails.bodyType || ''}
+                        layout="grid"
+                        options={[
+                            { label: 'Sedan', value: 'Sedan', icon: 'car-outline' },
+                            { label: 'SUV', value: 'SUV', icon: 'car-sport-outline' },
+                            { label: 'Hatchback', value: 'Hatchback', icon: 'car-outline' },
+                            { label: 'Station Wagon', value: 'Station Wagon', icon: 'car-sport-outline' },
+                            { label: 'Van', value: 'Van', icon: 'bus-outline' },
+                            { label: 'Pickup', value: 'Pickup Truck', icon: 'car-sport-outline' },
+                            { label: 'Bus', value: 'Bus', icon: 'bus-outline' },
+                            { label: 'Lorry', value: 'Lorry', icon: 'construct-outline' },
+                            { label: 'Convertible', value: 'Convertible', icon: 'umbrella-outline' },
+                            { label: 'Coupe', value: 'Coupe', icon: 'car-sport-outline' },
+                        ]}
+                        onSelect={(val) => handleInputChange('bodyType', val)}
+                    />
+                </View>
+            </View>
+
             {attributes && attributes.length > 0 && (
-                <View style={styles.dynamicSection}>
-                    <View style={styles.divider} />
-                    <Text style={styles.subTitle}>Other Specifications</Text>
+                <View style={styles.dynamicSectionCard}>
+                    <View style={styles.dynamicTitleContainer}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.dynamicSectionTitle}>Other Specifications</Text>
+                            <Text style={styles.dynamicSectionSubtitle}>Extra details & options for your vehicle</Text>
+                        </View>
+                    </View>
 
-                    {attributes.map((attr) => {
-                        const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
+                    <View style={styles.attributesContainer}>
+                        {(() => {
+                            const validAttributes = attributes.filter(attr => !['mileage', 'milage', 'millage'].includes(attr.attribute_name?.toLowerCase().trim()));
+                            const rows = [];
 
-                        if (attr.data_type === 'DROPDOWN') {
-                            const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value })) || [];
-                            return (
-                                <SelectField
-                                    key={attr.id}
-                                    label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
-                                    value={currentValue}
-                                    options={opts}
-                                    onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
-                                />
-                            );
-                        } else if (attr.data_type === 'BOOLEAN') {
-                            return (
-                                <View key={attr.id} style={styles.switchRow}>
-                                    <Text style={styles.label}>{attr.attribute_name} {attr.is_required ? '*' : ''}</Text>
-                                    <Switch
-                                        value={currentValue === 'true' || currentValue === true}
-                                        onValueChange={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
-                                    />
-                                </View>
-                            );
-                        } else {
-                            // TEXT or NUMBER
-                            return (
-                                <View key={attr.id}>
-                                    <Text style={styles.label}>
-                                        {attr.attribute_name} {attr.unit ? `(${attr.unit})` : ''} {attr.is_required ? '*' : ''}
-                                    </Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={String(currentValue)}
-                                        onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
-                                        keyboardType={attr.data_type === 'NUMBER' ? 'numeric' : 'default'}
-                                        placeholder={`Enter ${attr.attribute_name}`}
-                                    />
-                                </View>
-                            );
-                        }
-                    })}
+                            const renderAttributeField = (attr: any) => {
+                                const currentValue = carDetails.dynamicAttributes?.find(a => a.attribute_id === attr.id)?.value || '';
+
+                                if (attr.data_type === 'DROPDOWN') {
+                                    const attrLower = attr.attribute_name?.toLowerCase() || '';
+
+                                    if (attrLower.includes('color') || attrLower.includes('colour')) {
+                                        return (
+                                            <View style={styles.customFieldContainer}>
+                                                <View style={styles.customFieldInputWrapper}>
+
+                                                    <TextInput
+                                                        style={styles.customFieldInput}
+                                                        value={String(currentValue)}
+                                                        onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                                        placeholder="Add extra features (e.g. Full option...)"
+                                                        placeholderTextColor="#9CA3AF"
+                                                    />
+                                                </View>
+                                            </View>
+                                        );
+                                    }
+
+                                    const opts = attr.options?.map((o: any) => ({ label: o.option_value, value: o.option_value, icon: 'checkmark-circle-outline' })) || [];
+                                    return (
+                                        <OptionSelector
+                                            label={`${attr.attribute_name} ${attr.is_required ? '*' : ''}`}
+                                            value={String(currentValue)}
+                                            options={opts}
+                                            onSelect={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                        />
+                                    );
+                                } else if (attr.data_type === 'BOOLEAN') {
+                                    return (
+                                        <View style={styles.switchRow}>
+                                            <Text style={[styles.label, { marginBottom: 0, flex: 1, marginRight: 8 }]} numberOfLines={2}>
+                                                {attr.attribute_name} {attr.is_required ? '*' : ''}
+                                            </Text>
+                                            <Switch
+                                                value={currentValue === 'true' || currentValue === true}
+                                                onValueChange={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                                trackColor={{ false: '#E5E7EB', true: COLORS.primary }}
+                                            />
+                                        </View>
+                                    );
+                                } else {
+                                    // TEXT or NUMBER
+                                    let iconName: any = "create-outline";
+                                    const attrLower = attr.attribute_name?.toLowerCase() || '';
+
+                                    let displayLabel = `${attr.attribute_name} ${attr.unit ? `(${attr.unit})` : ''} ${attr.is_required ? '*' : ''}`;
+                                    let displayPlaceholder = `e.g. ${attr.data_type === 'NUMBER' ? '123' : 'Value'}`;
+
+                                    if (attrLower.includes('color') || attrLower.includes('colour')) {
+                                        return (
+                                            <View style={styles.customFieldContainer}>
+                                                <View style={styles.customFieldInputWrapper}>
+
+                                                    <TextInput
+                                                        style={styles.customFieldInput}
+                                                        value={String(currentValue)}
+                                                        onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                                        placeholder="Add extra features (e.g. Full option...)"
+                                                        placeholderTextColor="#9CA3AF"
+                                                    />
+                                                </View>
+                                            </View>
+                                        );
+                                    } else if (attrLower.includes('door')) {
+                                        iconName = "grid-outline";
+                                    } else if (attrLower.includes('seat')) {
+                                        iconName = "people-outline";
+                                    } else if (attr.data_type === 'NUMBER') {
+                                        iconName = "calculator-outline";
+                                    }
+
+                                    return (
+                                        <CustomTextInput
+                                            label={displayLabel}
+                                            value={String(currentValue)}
+                                            onChangeText={(val) => handleDynamicAttributeChange && handleDynamicAttributeChange(attr.id, val)}
+                                            keyboardType={attr.data_type === 'NUMBER' ? 'numeric' : 'default'}
+                                            placeholder={displayPlaceholder}
+                                        />
+                                    );
+                                }
+                            };
+
+                            const items = [];
+                            let i = 0;
+                            while (i < validAttributes.length) {
+                                const attr1 = validAttributes[i];
+                                const attr1Lower = attr1.attribute_name?.toLowerCase() || '';
+                                const isFullWidth = attr1Lower.includes('color') || attr1Lower.includes('colour') || attr1Lower.includes('extra') || attr1Lower.includes('feature');
+
+                                if (isFullWidth) {
+                                    items.push(
+                                        <View key={`attr-full-${i}`} style={[styles.formRow, { marginBottom: 16 }]}>
+                                            <View style={{ flex: 1 }}>
+                                                {renderAttributeField(attr1)}
+                                            </View>
+                                        </View>
+                                    );
+                                    i += 1;
+                                } else {
+                                    const attr2 = validAttributes[i + 1];
+                                    const attr2Lower = attr2?.attribute_name?.toLowerCase() || '';
+                                    const isAttr2FullWidth = attr2 && (attr2Lower.includes('color') || attr2Lower.includes('colour') || attr2Lower.includes('extra') || attr2Lower.includes('feature'));
+
+                                    if (isAttr2FullWidth || !attr2) {
+                                        items.push(
+                                            <View key={`attr-half-${i}`} style={styles.formRow}>
+                                                <View style={styles.formHalf}>
+                                                    {renderAttributeField(attr1)}
+                                                </View>
+                                                <View style={styles.formHalf} />
+                                            </View>
+                                        );
+                                        i += 1;
+                                    } else {
+                                        items.push(
+                                            <View key={`attr-row-${i}`} style={styles.formRow}>
+                                                <View style={styles.formHalf}>
+                                                    {renderAttributeField(attr1)}
+                                                </View>
+                                                <View style={styles.formHalf}>
+                                                    {renderAttributeField(attr2)}
+                                                </View>
+                                            </View>
+                                        );
+                                        i += 2;
+                                    }
+                                }
+                            }
+                            return items;
+                        })()}
+                    </View>
                 </View>
             )}
-
         </View>
     );
 };
@@ -178,47 +379,110 @@ import COLORS from '@/constants/Colors';
 
 const styles = StyleSheet.create({
     section: {
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 16,
-        elevation: 2,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        borderWidth: 1,
-        borderColor: COLORS.border
-    },
-    sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary, marginBottom: 16 },
-    subTitle: { fontSize: 15, fontWeight: '700', color: COLORS.text.primary, marginBottom: 12, marginTop: 8 },
-    divider: { height: 1, backgroundColor: COLORS.border, marginVertical: 20 },
-    formRow: { flexDirection: 'row', gap: 16, marginBottom: 4 },
-    formHalf: { flex: 1 },
-    label: { fontSize: 14, fontWeight: '600', color: COLORS.text.primary, marginBottom: 8 },
-    input: {
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 15,
-        backgroundColor: '#F9FAFB',
         marginBottom: 20,
-        color: COLORS.text.primary
     },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: COLORS.text.primary,
+        marginBottom: 16,
+        letterSpacing: -0.5
+    },
+    subTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: COLORS.text.primary,
+        marginBottom: 16,
+        marginTop: 8,
+        letterSpacing: -0.3
+    },
+    titleWithIcon: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    attributesContainer: {
+        marginTop: 4,
+    },
+    divider: { height: 1.5, backgroundColor: '#F3F4F6', marginVertical: 12 },
+    formRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8, width: '100%' },
+    formHalf: { width: '48.5%' },
+    triggerContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+    labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 0, marginLeft: 2 },
+    labelIcon: { marginRight: 6, opacity: 0.9 },
+    label: { fontSize: 13, fontWeight: '500', color: COLORS.text.secondary },
     switchRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 8,
         backgroundColor: '#F9FAFB',
-        padding: 12,
-        borderRadius: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 5,
         borderWidth: 1,
-        borderColor: COLORS.border
+        borderColor: '#BFDBFE',
+        minHeight: 40,
     },
-    dynamicSection: { marginTop: 8 }
+    dynamicSection: { marginTop: 8 },
+    dynamicSectionCard: {
+        marginTop: 16,
+    },
+    dynamicTitleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    iconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: 'rgba(59, 130, 246, 0.08)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+        borderWidth: 1.5,
+        borderColor: 'rgba(59, 130, 246, 0.15)',
+    },
+    dynamicSectionTitle: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: COLORS.text.primary,
+        letterSpacing: -0.4,
+    },
+    dynamicSectionSubtitle: {
+        fontSize: 13,
+        color: COLORS.text.secondary || '#6B7280',
+        marginTop: 3,
+        fontWeight: '500',
+    },
+    customFieldContainer: {
+        width: '100%',
+        marginTop: 4,
+        marginBottom: 16,
+    },
+    customFieldInputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F9FAFB',
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
+        borderRadius: 5,
+        height: 40,
+        paddingHorizontal: 10,
+    },
+    customFieldIcon: {
+        marginRight: 10,
+        backgroundColor: '#F1F5F9',
+        padding: 6,
+        borderRadius: 10,
+    },
+    customFieldInput: {
+        flex: 1,
+        fontSize: 15,
+        color: COLORS.text.primary,
+        fontWeight: '500',
+    }
 });
 
 export default CarDetailsSection;

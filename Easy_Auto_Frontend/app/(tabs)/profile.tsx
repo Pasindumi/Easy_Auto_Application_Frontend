@@ -102,7 +102,7 @@ export default function ProfileScreen() {
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={[styles.settingIconBox, { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: color }]}>
+        <View style={styles.settingIconBox}>
           <Ionicons name={icon} size={18} color={color} />
         </View>
         <View style={styles.settingTextContainer}>
@@ -123,9 +123,7 @@ export default function ProfileScreen() {
 
   const StatCard = ({ icon, value, label, color }: any) => (
     <View style={styles.statCard}>
-      <View style={[styles.statIconBoxMinimal, { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: color }]}>
-        <MaterialCommunityIcons name={icon} size={18} color={color} />
-      </View>
+      <MaterialCommunityIcons name={icon} size={24} color={color} style={{ marginBottom: 8 }} />
       <View style={styles.statContent}>
         <Text style={styles.statValueMinimal}>{value}</Text>
         <Text style={styles.statLabelMinimal}>{label}</Text>
@@ -152,61 +150,51 @@ export default function ProfileScreen() {
           />
         }
       >
-        {/* User Identity Card (Clean & Modern) */}
-        <View style={styles.profileMasterCard}>
-          <View style={styles.profileMasterContent}>
-            <View style={styles.avatarWrapper}>
-              <Image
-                source={user?.avatar ? { uri: user.avatar } : require('@/assets/images/user.jpeg')}
-                style={styles.masterAvatar}
-              />
-              <LinearGradient
-                colors={user?.is_premium ? ["#FCD34D", "#F59E0B"] : ["#10B981", "#059669"]}
-                style={styles.masterStatusDot}
-              />
-            </View>
-            <View style={styles.masterInfo}>
-              <View style={styles.masterNameRow}>
-                <Text style={styles.masterName}>{user?.name || 'EasyAuto User'}</Text>
-                {user?.is_premium && (
-                  <LinearGradient colors={["#FCD34D", "#F59E0B"]} style={styles.masterProTag}>
-                    <Ionicons name="star" size={10} color="#fff" />
-                    <Text style={styles.masterProText}>PRO</Text>
-                  </LinearGradient>
-                )}
+        {/* Blue Header Section with Overlapping White Card */}
+        <View style={styles.headerHero}>
+          <LinearGradient
+            colors={['#235CF8', '#1A4BD3']}
+            style={styles.headerBackground}
+          />
+          <View style={styles.profileInfoCard}>
+            <View style={styles.profileMasterContent}>
+              <View style={styles.avatarWrapper}>
+                <Image
+                  source={user?.avatar ? { uri: user.avatar } : require('@/assets/images/user.jpeg')}
+                  style={styles.masterAvatar}
+                />
               </View>
-              <Text style={styles.masterEmail}>{user?.email}</Text>
-              <TouchableOpacity
-                style={styles.editProfilePill}
-                onPress={() => handleMenuItemPress('/profile/edit-profile')}
-              >
-                <Ionicons name="create-outline" size={12} color={COLORS.primary} />
-                <Text style={styles.editProfileText}>Edit Profile</Text>
-              </TouchableOpacity>
+              <View style={styles.masterInfo}>
+                <Text style={styles.masterName}>{user?.name || 'EasyAuto User'}</Text>
+                <Text style={styles.masterEmail}>{user?.email}</Text>
+                <TouchableOpacity
+                  style={styles.editProfilePill}
+                  onPress={() => handleMenuItemPress('/profile/edit-profile')}
+                >
+                  <Ionicons name="create-outline" size={12} color={COLORS.primary} />
+                  <Text style={styles.editProfilePillText}>Edit Profile</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
 
-        {/* Aesthetic Stats Section */}
-        <View style={styles.statsContainer}>
-          <StatCard
-            icon="car-multiple"
-            value={loading ? '..' : stats.listings}
-            label="Ads"
-            color={COLORS.primary}
-          />
-          <StatCard
-            icon="heart"
-            value={loading ? '..' : stats.saved}
-            label="Saved"
-            color={COLORS.primary}
-          />
-          <StatCard
-            icon="eye"
-            value={loading ? '..' : stats.views}
-            label="Views"
-            color={COLORS.primary}
-          />
+        {/* Packed Stats Section */}
+        <View style={styles.statsPackedCard}>
+          <View style={styles.statItemPacked}>
+            <Text style={styles.statValuePacked}>{loading ? '..' : stats.listings}</Text>
+            <Text style={styles.statLabelPacked}>Ads</Text>
+          </View>
+          <View style={styles.statLine} />
+          <View style={styles.statItemPacked}>
+            <Text style={styles.statValuePacked}>{loading ? '..' : stats.saved}</Text>
+            <Text style={styles.statLabelPacked}>Saved</Text>
+          </View>
+          <View style={styles.statLine} />
+          <View style={styles.statItemPacked}>
+            <Text style={styles.statValuePacked}>{loading ? '..' : stats.views}</Text>
+            <Text style={styles.statLabelPacked}>Views</Text>
+          </View>
         </View>
 
         {/* Clean Settings List */}
@@ -217,17 +205,15 @@ export default function ProfileScreen() {
               title="Saved Addresses"
               onPress={() => handleMenuItemPress('/profile/address')}
             />
-            <SettingItem
-              icon="shield-checkmark-outline"
-              title="Identity Verification"
-              onPress={() => { }}
-            />
             <View style={styles.itemDivider} />
+
             <SettingItem
               icon="notifications-outline"
               title="Notifications"
               onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
             />
+            <View style={styles.itemDivider} />
+
             <SettingItem
               icon="moon-outline"
               title="Dark Mode"
@@ -243,17 +229,22 @@ export default function ProfileScreen() {
                 />
               }
             />
+            <View style={styles.itemDivider} />
+
             <SettingItem
               icon="globe-outline"
               title="App Language"
               onPress={() => handleMenuItemPress('/settings/select-language')}
             />
             <View style={styles.itemDivider} />
+
             <SettingItem
               icon="lock-closed-outline"
               title="Privacy & Security"
               onPress={() => handleMenuItemPress('/settings/privacy-policy')}
             />
+            <View style={styles.itemDivider} />
+
             <SettingItem
               icon="chatbubbles-outline"
               title="Help & Support"
@@ -307,19 +298,25 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
-  profileMasterCard: {
-    marginHorizontal: 16,
-    backgroundColor: '#fff',
-    borderRadius: 28,
-    padding: 24,
+  headerHero: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  headerBackground: {
+    position: 'absolute',
+    top: -100, // Extend up behind header
+    left: 0,
+    right: 0,
+    height: 180, // Height of the blue section
+  },
+  profileInfoCard: {
+    marginHorizontal: 10,
+    padding: 8,
+    borderRadius: 5,
+    backgroundColor: '#FFFFFF', // White as requested
     borderWidth: 1,
-    borderColor: '#F1F5F9',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    marginBottom: 24,
+    borderColor: '#BFDBFE',
+    marginTop: -15, // Move slightly down as requested
   },
   profileMasterContent: {
     flexDirection: 'row',
@@ -330,21 +327,29 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   masterAvatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 4,
-    borderColor: '#F8FAFC',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   masterStatusDot: {
     position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 3,
+    bottom: 0,
+    right: 0,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
     borderColor: '#fff',
+  },
+  masterStatusDotText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '900',
   },
   masterInfo: {
     flex: 1,
@@ -356,10 +361,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   masterName: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: -0.5,
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#334155', // Darker gray-black mix
+    letterSpacing: -0.4,
   },
   masterProTag: {
     flexDirection: 'row',
@@ -375,41 +380,84 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   masterEmail: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#64748B',
     fontWeight: '500',
-    marginBottom: 12,
+    marginBottom: 4,
   },
   editProfilePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: `${COLORS.primary}10`,
+    backgroundColor: '#EBF2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 50,
+    alignSelf: 'flex-start',
+    gap: 4,
+  },
+  editProfilePillText: {
+    fontSize: 11,
+    color: COLORS.primary,
+    fontWeight: '700',
+  },
+  premiumBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 20,
+    borderRadius: 5,
     alignSelf: 'flex-start',
-    gap: 6,
+    gap: 4,
+    marginTop: 4,
+  },
+  premiumBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#fff',
   },
   editProfileText: {
     fontSize: 11,
     fontWeight: '700',
     color: COLORS.primary,
   },
-  statsContainer: {
+  statsPackedCard: {
     flexDirection: 'row',
-    marginHorizontal: 16,
-    marginBottom: 24,
-    gap: 12,
+    marginHorizontal: 10,
+    marginTop: 16,
+    marginBottom: 32,
+    paddingVertical: 12,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    alignItems: 'center',
   },
   statCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
+    padding: 10,
+  },
+  statItemPacked: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statValuePacked: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#334155',
+  },
+  statLabelPacked: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
+  statLine: {
+    width: 1,
+    height: '60%',
+    backgroundColor: '#BFDBFE',
   },
   statIconBoxMinimal: {
     width: 32,
@@ -424,23 +472,20 @@ const styles = StyleSheet.create({
   },
   statValueMinimal: {
     fontSize: 18,
-    fontWeight: '900',
-    color: '#1E293B',
-    letterSpacing: -0.5,
+    fontWeight: '800',
+    color: '#334155',
   },
   statLabelMinimal: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#94A3B8',
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748B',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
     marginTop: 2,
   },
   itemDivider: {
     height: 1,
     backgroundColor: '#F1F5F9',
     marginHorizontal: 16,
-    marginVertical: 4,
   },
   section: {
     marginBottom: 28,
@@ -456,18 +501,15 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   settingsWrapper: {
-    marginHorizontal: 16,
+    marginHorizontal: 10,
     marginBottom: 24,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
     paddingVertical: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    borderRadius: 5,
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   settingItem: {
     flexDirection: 'row',
@@ -482,7 +524,7 @@ const styles = StyleSheet.create({
   },
   settingIconBox: {
     width: 36, height: 36,
-    borderRadius: 12,
+    borderRadius: 5,
     alignItems: 'center', justifyContent: 'center',
     marginRight: 16,
   },
@@ -492,7 +534,7 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1E293B',
+    color: '#334155',
   },
   settingSubtitle: {
     fontSize: 11,
@@ -508,8 +550,8 @@ const styles = StyleSheet.create({
   },
   logoutFullBtn: {
     marginTop: 16,
-    height: 48,
-    borderRadius: 16,
+    paddingVertical: 10,
+    borderRadius: 5,
     backgroundColor: '#FEF2F2',
     flexDirection: 'row',
     alignItems: 'center',

@@ -67,23 +67,12 @@ export default function Button({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 14,
+    borderRadius: 5,
     overflow: "hidden",
     marginVertical: 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
   },
   gradient: {
-    paddingVertical: 12,
+    paddingVertical: 12, // Packed height
     alignItems: "center",
     justifyContent: "center",
     width: '100%',

@@ -30,13 +30,13 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     const router = useRouter();
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
- 
+
     // Calculate tab width (excluding margins)
     const MARGIN_H = 20;
     const barWidth = width - (MARGIN_H * 2);
 
     const visibleRoutes = state.routes.filter((r: any) => r.name !== "compare" && r.name !== "my-ads");
-    
+
     // Construct the visual slots: [Home, Search, FAB, Chat, Profile]
     const slots = [
         visibleRoutes.find((r: any) => r.name === "index"),
@@ -50,8 +50,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
     // Determine the visual index of the focused route
     const activeRouteName = state.routes[state.index].name;
-    const activeVisualIndex = slots.findIndex((s: any) => 
-        (s !== "MY_ADS_FAB" && s?.name === activeRouteName) || 
+    const activeVisualIndex = slots.findIndex((s: any) =>
+        (s !== "MY_ADS_FAB" && s?.name === activeRouteName) ||
         (s === "MY_ADS_FAB" && activeRouteName === "my-ads")
     );
 
@@ -70,11 +70,17 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     }, [activeVisualIndex]);
 
     return (
-        <View 
-            pointerEvents="box-none" 
-            style={[styles.floatingContainer, { bottom: insets.bottom + 10 }]}
+        <View
+            pointerEvents="box-none"
+            style={[styles.floatingContainer, { height: insets.bottom + 90, bottom: 0 }]}
         >
-            <View style={[styles.barWrapper, { width: barWidth }]}>
+            <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFill} />
+            <LinearGradient
+                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', '#FFFFFF']}
+                style={StyleSheet.absoluteFill}
+                pointerEvents="none"
+            />
+            <View style={[styles.barWrapper, { width: barWidth, marginBottom: insets.bottom + 10 }]}>
                 <View style={styles.glassBar}>
                     {/* Active Tab Indicator */}
                     {activeVisualIndex !== -1 && (
@@ -83,14 +89,14 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                                 styles.indicator,
                                 {
                                     left: 0,
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: 24,
+                                    width: 42,
+                                    height: 42,
+                                    borderRadius: 21,
                                     transform: [
-                                        { translateX: Animated.add(translateX, (tabWidth - 48) / 2) },
-                                        { 
+                                        { translateX: Animated.add(translateX, (tabWidth - 42) / 2) },
+                                        {
                                             // Lift the indicator if the active slot is the FAB
-                                            translateY: activeRouteName === "my-ads" ? -10 : 0 
+                                            translateY: activeRouteName === "my-ads" ? -10 : 0
                                         }
                                     ]
                                 }
@@ -102,7 +108,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                         if (item === "MY_ADS_FAB") {
                             return (
                                 <View key="fab-slot" style={styles.fabSlot}>
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         activeOpacity={0.8}
                                         onPress={() => {
                                             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -219,16 +225,17 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
     floatingContainer: {
         position: "absolute",
-        left: 20,
-        right: 20,
+        left: 0,
+        right: 0,
         alignItems: "center",
+        justifyContent: "flex-end",
         zIndex: 1000,
     },
     barWrapper: {
         flexDirection: "row",
-        height: 64,
+        height: 56,
         backgroundColor: "#FFFFFF",
-        borderRadius: 32,
+        borderRadius: 28,
         borderWidth: 1,
         borderColor: "rgba(0, 0, 0, 0.04)",
         // Premium Floating Shadow
@@ -246,7 +253,7 @@ const styles = StyleSheet.create({
     },
     indicator: {
         position: "absolute",
-        top: 8, // Center vertically in the 64px bar
+        top: 7, // Center vertically in the 56px bar
         backgroundColor: PRIMARY,
         zIndex: -1,
         // Indicator Shadow
@@ -268,15 +275,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     fabContainer: {
-        width: 52,
-        height: 52,
-        transform: [{ translateY: -10 }],
+        width: 48,
+        height: 48,
+        transform: [{ translateY: -12 }],
         zIndex: 1001,
     },
     simpleFab: {
         width: '100%',
         height: '100%',
-        borderRadius: 26,
+        borderRadius: 24,
         backgroundColor: PRIMARY,
         alignItems: 'center',
         justifyContent: 'center',

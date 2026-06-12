@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
         elevation: 7,
     },
-    iconBox: { width: 38, height: 38, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
+    iconBox: { width: 38, height: 38, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
     label: { color: "#fff", fontSize: 14, fontWeight: "800", letterSpacing: -0.3 },
     sub: { color: "rgba(255,255,255,0.75)", fontSize: 11, fontWeight: "600", marginTop: -8 },
     arrow: { alignSelf: "flex-end", marginTop: -6 },

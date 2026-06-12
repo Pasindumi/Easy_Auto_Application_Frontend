@@ -1,39 +1,59 @@
 import Header from "@/components/Header";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
   Switch,
   Text,
-  View
+  View,
 } from "react-native";
-import { headerSectionStyles } from '../../styles/headerSectionStyles';
 
 export default function NotificationsSetting() {
+<<<<<<< HEAD
   const router = useRouter();
 
+=======
+  const [pushEnabled, setPushEnabled] = useState(true);
+>>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [smsEnabled, setSmsEnabled] = useState(false);
+
+  const NotificationItem = ({ icon, title, desc, value, onValueChange, isLast }: any) => (
+    <View style={[styles.itemContainer, !isLast && styles.itemBorder]}>
+      <View style={styles.iconWrapper}>
+        <Ionicons name={icon} size={16} color={COLORS.primary} />
+      </View>
+      <View style={styles.textGroup}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.subText}>{desc}</Text>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        trackColor={{ false: '#E2E8F0', true: COLORS.primary }}
+        thumbColor="#FFFFFF"
+        ios_backgroundColor="#E2E8F0"
+        style={{ transform: [{ scale: 0.95 }] }} // slightly smaller native switch for elegance
+      />
+    </View>
+  );
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Header showBack={true} />
+      <Header title="Notifications" showBack={true} />
 
-      {/* Unified Sub-Header */}
-      <View style={headerSectionStyles.headerWrap}>
-        <View style={headerSectionStyles.header}>
-          <Ionicons name="notifications-outline" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={headerSectionStyles.headerTitle}>Notifications Setting</Text>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.headerSection}>
+          <Text style={styles.mainTitle}>Notification Preferences</Text>
+          <Text style={styles.subTitle}>Choose how you want to receive updates, promotions, and important alerts from EasyAuto.</Text>
         </View>
-      </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Notifications Card */}
         <View style={styles.card}>
+<<<<<<< HEAD
           {/* Email Alerts */}
           <View style={styles.row}>
             <View style={styles.textGroup}>
@@ -69,6 +89,30 @@ export default function NotificationsSetting() {
               thumbColor={COLORS.white}
             />
           </View>
+=======
+          <NotificationItem
+            icon="notifications"
+            title="Push Notifications"
+            desc="New messages, offers and app updates"
+            value={pushEnabled}
+            onValueChange={setPushEnabled}
+          />
+          <NotificationItem
+            icon="mail"
+            title="Email Alerts"
+            desc="Weekly summaries and special promotions"
+            value={emailEnabled}
+            onValueChange={setEmailEnabled}
+          />
+          <NotificationItem
+            icon="chatbubble-ellipses"
+            title="SMS Alerts"
+            desc="Price drops and critical security updates"
+            value={smsEnabled}
+            onValueChange={setSmsEnabled}
+            isLast={true}
+          />
+>>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
         </View>
       </ScrollView>
     </View>
@@ -78,41 +122,74 @@ export default function NotificationsSetting() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F8FAFC', // Sleek off-white app background
   },
   content: {
-    padding: 20,
+    paddingTop: 16,
+    paddingBottom: 40,
+    paddingHorizontal: 10,
+  },
+  headerSection: {
+    marginBottom: 32,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  mainTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#334155',
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  subTitle: {
+    fontSize: 14,
+    color: '#334155',
+    textAlign: 'center',
+    lineHeight: 22,
+    fontWeight: '500',
   },
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 18,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 5,
+    paddingVertical: 4,
     borderWidth: 1,
-    borderColor: COLORS.divider,
+    borderColor: '#BFDBFE',
+    marginHorizontal: 10,
   },
-  row: {
+  itemContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  itemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#BFDBFE',
+  },
+  iconWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 5,
+    backgroundColor: `${COLORS.primary}10`, // 10% opacity primary color
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
   },
   textGroup: {
     flex: 1,
-    paddingRight: 10,
+    paddingRight: 16,
   },
   title: {
     fontSize: 15,
-    fontWeight: "700",
-    color: COLORS.text.primary,
+    fontWeight: "800",
+    color: '#334155',
+    marginBottom: 2,
   },
   subText: {
     fontSize: 12,
-    color: COLORS.text.muted,
-    marginTop: 3,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.divider,
-    marginVertical: 10,
+    color: '#334155',
+    fontWeight: '500',
+    lineHeight: 18,
+    opacity: 0.8,
   },
 });

@@ -27,6 +27,9 @@ import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
 import SearchBar from '@/components/SearchBar';
 
+import Loading from '@/components/ui/Loading';
+import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
+
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
 
@@ -150,17 +153,16 @@ export default function SearchScreen() {
 
   // Fetch brands when category changes
   useEffect(() => {
-    if (selectedCategory && selectedCategory !== 'all') {
-      fetchBrands();
-    } else {
-      setBrands([]);
-      setSelectedBrand('');
-    }
+    fetchBrands();
   }, [selectedCategory]);
 
   const fetchBrands = async () => {
     try {
-      const res: any = await api.get(`/api/vehicle-config/brands/${selectedCategory}`);
+      const endpoint = selectedCategory && selectedCategory !== 'all'
+        ? `/api/vehicle-config/brands/${selectedCategory}`
+        : `/api/vehicle-config/brands`; // Fetch all brands if category is "all"
+
+      const res: any = await api.get(endpoint);
       if (Array.isArray(res)) {
         setBrands(res.map(b => ({ label: b.brand_name, value: b.id })));
       }
@@ -197,35 +199,33 @@ export default function SearchScreen() {
       const params: any = {};
 
       if (searchQuery) params.search = searchQuery;
-      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory; // Γ£à was: vehicle_type_id
+      if (selectedCategory !== 'all') params.vehicleTypeId = selectedCategory;
       if (locationFilter) params.location = locationFilter;
 
-      // Brand: backend expects brand NAME, not ID ΓÇö resolve from list
       if (selectedBrand) {
         const brandObj = brands.find((b: any) => b.value === selectedBrand);
-        if (brandObj) params.brand = brandObj.label; // Γ£à was: brand_id
+        if (brandObj) params.brand = brandObj.label;
       }
 
-      // Model: backend expects model NAME, not ID ΓÇö resolve from list
       if (selectedModel) {
         const modelObj = models.find((m: any) => m.value === selectedModel);
-        if (modelObj) params.model = modelObj.label; // Γ£à was: model_id
+        if (modelObj) params.model = modelObj.label;
       }
 
       if (selectedCondition) {
         const condObj = conditions.find((c: any) => c.value === selectedCondition);
         if (condObj) params.condition = condObj.label;
       }
-      if (selectedFuelType) params.fuelType = selectedFuelType;     // ✅ was: fuel_type
+      if (selectedFuelType) params.fuelType = selectedFuelType;
       if (selectedTransmission) params.transmission = selectedTransmission;
 
       const priceRange = PRICE_RANGES[selectedPriceRange];
-      if (priceRange.min) params.minPrice = priceRange.min; // Γ£à was: min_price
-      if (priceRange.max) params.maxPrice = priceRange.max; // Γ£à was: max_price
+      if (priceRange.min) params.minPrice = priceRange.min;
+      if (priceRange.max) params.maxPrice = priceRange.max;
 
       const yearRange = YEAR_RANGES[selectedYearRange];
-      if (yearRange.min) params.minYear = yearRange.min; // Γ£à was: min_year
-      if (yearRange.max) params.maxYear = yearRange.max; // Γ£à was: max_year
+      if (yearRange.min) params.minYear = yearRange.min;
+      if (yearRange.max) params.maxYear = yearRange.max;
 
       if (selectedSort !== 'relevance') params.sort = selectedSort;
 
@@ -247,14 +247,13 @@ export default function SearchScreen() {
     selectedFuelType, selectedTransmission, locationFilter, selectedPriceRange,
     selectedYearRange, selectedSort, brands, models]);
 
-  // Auto-search on ANY filter change (Fix 4: was missing brand/model/condition/fuel/transmission/location)
+  // Auto-search on ANY filter change
   useEffect(() => {
     const timer = setTimeout(() => {
       performSearch();
     }, 500);
     return () => clearTimeout(timer);
-  }, [performSearch]); // Γ£à performSearch already has all deps via useCallback
-
+  }, [performSearch]);
 
   // Calculate active filters
   useEffect(() => {
@@ -411,6 +410,7 @@ export default function SearchScreen() {
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
+          backgroundColor="#F1F5F9"
         />
 
         {/* Filter and stats section */}
@@ -470,222 +470,227 @@ export default function SearchScreen() {
             <Text style={styles.resultsCount}>
               {isSearching ? 'Searching...' : `${searchResults.length} ${t("buy_car_screen.results", "results found")}`}
             </Text>
-            <TouchableOpacity
-              style={styles.sortButton}
-              onPress={() => {
-                // Could open a sort modal here
-              }}
-            >
-              <Ionicons name="swap-vertical" size={16} color={COLORS.primary} />
-              <Text style={styles.sortText}>{t("buy_car_screen.sort_by", "Sort")}</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
         {/* Search Results */}
-        <FlatList
-          data={searchResults}
-          renderItem={renderSearchCard}
-          keyExtractor={(item) => String(item.id)}
-          numColumns={2}
-          contentContainerStyle={styles.resultsGrid}
-          columnWrapperStyle={styles.columnWrapper}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                performSearch();
-              }}
-              tintColor={COLORS.primary}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              {isSearching ? (
-                <ActivityIndicator size="large" color={COLORS.primary} />
-              ) : (
-                <>
-                  <View style={styles.emptyIcon}>
-                    <Ionicons name="search-outline" size={64} color={COLORS.border} />
-                  </View>
-                  <Text style={styles.emptyTitle}>{t("buy_car_screen.no_vehicles_found", "No results found")}</Text>
-                  <Text style={styles.emptyText}>
-                    Try adjusting your search or filters
-                  </Text>
-                  {activeFilterCount > 0 && (
-                    <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
-                      <Text style={styles.clearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
-                    </TouchableOpacity>
-                  )}
-                </>
-              )}
+        <View style={{ flex: 1, position: 'relative' }}>
+          <BrandedRefreshOverlay refreshing={refreshing} top={20} />
+          <FlatList
+            data={searchResults}
+            renderItem={renderSearchCard}
+            keyExtractor={(item) => String(item.id)}
+            numColumns={2}
+            contentContainerStyle={styles.resultsGrid}
+            columnWrapperStyle={styles.columnWrapper}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => {
+                  setRefreshing(true);
+                  performSearch();
+                }}
+                tintColor="transparent"
+                colors={['transparent']}
+                progressBackgroundColor="transparent"
+                progressViewOffset={-500}
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                {isSearching && !refreshing ? (
+                  <Loading />
+                ) : (
+                  <>
+                    <View style={styles.premiumEmptyIconContainer}>
+                      <View style={styles.premiumEmptyIconInner}>
+                        <Ionicons name="car-sport-outline" size={48} color={COLORS.primary} />
+                        <View style={styles.premiumSearchBadge}>
+                          <Ionicons name="search" size={14} color={COLORS.white} />
+                        </View>
+                      </View>
+                    </View>
+
+                    <Text style={styles.premiumEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
+                    <Text style={styles.premiumEmptyText}>
+                      We couldn't find any matches. Try adjusting your search or resetting the filters.
+                    </Text>
+                    {activeFilterCount > 0 && (
+                      <TouchableOpacity style={styles.premiumClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
+                        <Text style={styles.premiumClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </>
+                )}
+              </View>
+            }
+          />
+        </View>
+
+      </View>
+
+      {/* Advanced Filters Modal */}
+      <Modal
+        visible={showFilters}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={toggleFilters}
+        statusBarTranslucent
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.filterModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
+              <TouchableOpacity onPress={toggleFilters}>
+                <Ionicons name="close" size={24} color={COLORS.text.primary} />
+              </TouchableOpacity>
             </View>
-          }
-        />
 
-        {/* Advanced Filters Modal */}
-        <Modal
-          visible={showFilters}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={toggleFilters}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.filterModal}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
-                <TouchableOpacity onPress={toggleFilters}>
-                  <Ionicons name="close" size={24} color={COLORS.text.primary} />
-                </TouchableOpacity>
+            <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
+              {/* Price Range */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.rangeChips}>
+                    {PRICE_RANGES.map((range, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.rangeChip,
+                          selectedPriceRange === index && styles.rangeChipActive
+                        ]}
+                        onPress={() => setSelectedPriceRange(index)}
+                      >
+                        <Text
+                          style={[
+                            styles.rangeChipText,
+                            selectedPriceRange === index && styles.rangeChipTextActive
+                          ]}
+                        >
+                          {range.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
               </View>
 
-              <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
-                {/* Price Range */}
-                <View style={styles.filterSection}>
-                  <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={styles.rangeChips}>
-                      {PRICE_RANGES.map((range, index) => (
-                        <TouchableOpacity
-                          key={index}
+              {/* Year Range */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>Year</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.rangeChips}>
+                    {YEAR_RANGES.map((range, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.rangeChip,
+                          selectedYearRange === index && styles.rangeChipActive
+                        ]}
+                        onPress={() => setSelectedYearRange(index)}
+                      >
+                        <Text
                           style={[
-                            styles.rangeChip,
-                            selectedPriceRange === index && styles.rangeChipActive
+                            styles.rangeChipText,
+                            selectedYearRange === index && styles.rangeChipTextActive
                           ]}
-                          onPress={() => setSelectedPriceRange(index)}
                         >
-                          <Text
-                            style={[
-                              styles.rangeChipText,
-                              selectedPriceRange === index && styles.rangeChipTextActive
-                            ]}
-                          >
-                            {range.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </ScrollView>
-                </View>
-
-                {/* Year Range */}
-                <View style={styles.filterSection}>
-                  <Text style={styles.filterLabel}>Year</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={styles.rangeChips}>
-                      {YEAR_RANGES.map((range, index) => (
-                        <TouchableOpacity
-                          key={index}
-                          style={[
-                            styles.rangeChip,
-                            selectedYearRange === index && styles.rangeChipActive
-                          ]}
-                          onPress={() => setSelectedYearRange(index)}
-                        >
-                          <Text
-                            style={[
-                              styles.rangeChipText,
-                              selectedYearRange === index && styles.rangeChipTextActive
-                            ]}
-                          >
-                            {range.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </ScrollView>
-                </View>
-
-                {/* Brand */}
-                {brands.length > 0 && (
-                  <View style={styles.filterSection}>
-                    <SelectField
-                      label="Brand"
-                      value={selectedBrand}
-                      onSelect={setSelectedBrand}
-                      options={[{ label: 'All Brands', value: '' }, ...brands]}
-                    />
+                          {range.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                )}
-
-                {/* Model */}
-                {models.length > 0 && (
-                  <View style={styles.filterSection}>
-                    <SelectField
-                      label="Model"
-                      value={selectedModel}
-                      onSelect={setSelectedModel}
-                      options={[{ label: 'All Models', value: '' }, ...models]}
-                    />
-                  </View>
-                )}
-
-                {/* Condition */}
-                {conditions.length > 0 && (
-                  <View style={styles.filterSection}>
-                    <SelectField
-                      label="Condition"
-                      value={selectedCondition}
-                      onSelect={setSelectedCondition}
-                      options={[{ label: 'Any Condition', value: '' }, ...conditions]}
-                    />
-                  </View>
-                )}
-
-                {/* Fuel Type */}
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Fuel Type"
-                    value={selectedFuelType}
-                    onSelect={setSelectedFuelType}
-                    options={[
-                      { label: 'Any Fuel Type', value: '' },
-                      { label: 'Petrol', value: 'Petrol' },
-                      { label: 'Diesel', value: 'Diesel' },
-                      { label: 'Electric', value: 'Electric' },
-                      { label: 'Hybrid', value: 'Hybrid' },
-                    ]}
-                  />
-                </View>
-
-                {/* Transmission */}
-                <View style={styles.filterSection}>
-                  <SelectField
-                    label="Transmission"
-                    value={selectedTransmission}
-                    onSelect={setSelectedTransmission}
-                    options={[
-                      { label: 'Any Transmission', value: '' },
-                      { label: 'Automatic', value: 'Automatic' },
-                      { label: 'Manual', value: 'Manual' },
-                    ]}
-                  />
-                </View>
-              </ScrollView>
-
-              <View style={styles.modalFooter}>
-                <TouchableOpacity
-                  style={styles.clearFiltersBtn}
-                  onPress={clearAllFilters}
-                >
-                  <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.applyFiltersBtn}
-                  onPress={() => {
-                    performSearch();
-                    toggleFilters();
-                  }}
-                >
-                  <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
-                </TouchableOpacity>
+                </ScrollView>
               </View>
+
+              {/* Brand */}
+              {brands.length > 0 && (
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Brand"
+                    value={selectedBrand}
+                    onSelect={setSelectedBrand}
+                    options={[{ label: 'All Brands', value: '' }, ...brands]}
+                  />
+                </View>
+              )}
+
+              {/* Model */}
+              {models.length > 0 && (
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Model"
+                    value={selectedModel}
+                    onSelect={setSelectedModel}
+                    options={[{ label: 'All Models', value: '' }, ...models]}
+                  />
+                </View>
+              )}
+
+              {/* Condition */}
+              {conditions.length > 0 && (
+                <View style={styles.filterSection}>
+                  <SelectField
+                    label="Condition"
+                    value={selectedCondition}
+                    onSelect={setSelectedCondition}
+                    options={[{ label: 'Any Condition', value: '' }, ...conditions]}
+                  />
+                </View>
+              )}
+
+              {/* Fuel Type */}
+              <View style={styles.filterSection}>
+                <SelectField
+                  label="Fuel Type"
+                  value={selectedFuelType}
+                  onSelect={setSelectedFuelType}
+                  options={[
+                    { label: 'Any Fuel Type', value: '' },
+                    { label: 'Petrol', value: 'Petrol' },
+                    { label: 'Diesel', value: 'Diesel' },
+                    { label: 'Electric', value: 'Electric' },
+                    { label: 'Hybrid', value: 'Hybrid' },
+                  ]}
+                />
+              </View>
+
+              {/* Transmission */}
+              <View style={styles.filterSection}>
+                <SelectField
+                  label="Transmission"
+                  value={selectedTransmission}
+                  onSelect={setSelectedTransmission}
+                  options={[
+                    { label: 'Any Transmission', value: '' },
+                    { label: 'Automatic', value: 'Automatic' },
+                    { label: 'Manual', value: 'Manual' },
+                  ]}
+                />
+              </View>
+            </ScrollView>
+
+            <View style={[styles.modalFooter, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+              <TouchableOpacity
+                style={styles.clearFiltersBtn}
+                onPress={clearAllFilters}
+              >
+                <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.applyFiltersBtn}
+                onPress={() => {
+                  performSearch();
+                  toggleFilters();
+                }}
+              >
+                <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
-      </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -714,7 +719,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
-    borderRadius: 20,
+    borderRadius: 5,
     paddingHorizontal: 16,
     paddingVertical: 8,
     gap: 6,
@@ -755,6 +760,7 @@ const styles = StyleSheet.create({
   },
   resultsGrid: {
     padding: 16,
+    paddingBottom: 130,
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -763,17 +769,16 @@ const styles = StyleSheet.create({
   resultCard: {
     width: CARD_WIDTH,
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 5,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+    elevation: 0,
+    shadowOpacity: 0,
   },
   cardImageContainer: {
     width: '100%',
-    height: 140,
+    height: 110,
     position: 'relative',
   },
   cardImage: {
@@ -860,7 +865,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 60,
   },
-  emptyIcon: {
+  emptyIconContainer: {
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -935,7 +940,7 @@ const styles = StyleSheet.create({
   rangeChip: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: 5,
     borderWidth: 1.5,
     borderColor: COLORS.border,
     backgroundColor: COLORS.white,
@@ -961,8 +966,8 @@ const styles = StyleSheet.create({
   },
   clearFiltersBtn: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 5,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
     alignItems: 'center',
@@ -974,8 +979,8 @@ const styles = StyleSheet.create({
   },
   applyFiltersBtn: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 5,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
   },
@@ -983,5 +988,62 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.white,
+  },
+  premiumEmptyIconContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(35, 92, 248, 0.04)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  premiumEmptyIconInner: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(35, 92, 248, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  premiumSearchBadge: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: COLORS.primary,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#F9FAFB',
+  },
+  premiumEmptyTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: COLORS.text.primary,
+    marginBottom: 10,
+    letterSpacing: -0.5,
+  },
+  premiumEmptyText: {
+    fontSize: 15,
+    color: COLORS.text.muted,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 30,
+    paddingHorizontal: 20,
+  },
+  premiumClearButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 5,
+  },
+  premiumClearButtonText: {
+    color: COLORS.white,
+    fontWeight: '600',
+    fontSize: 15,
   },
 });

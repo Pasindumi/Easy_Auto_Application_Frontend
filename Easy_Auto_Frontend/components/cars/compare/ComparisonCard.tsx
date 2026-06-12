@@ -46,17 +46,11 @@ const ComparisonCard: React.FC<ComparisonCardProps> = ({ item }) => {
                 </View>
 
                 <View style={styles.vsCenter}>
-                    <LinearGradient
-                        colors={['#F1F5F9', '#F8FAFC']}
-                        style={styles.vsLine}
-                    />
+                    <View style={styles.vsLine} />
                     <View style={styles.vsCircle}>
                         <Text style={styles.vsText}>VS</Text>
                     </View>
-                    <LinearGradient
-                        colors={['#F8FAFC', '#F1F5F9']}
-                        style={styles.vsLine}
-                    />
+                    <View style={styles.vsLine} />
                 </View>
 
                 <View style={styles.carSide}>
@@ -79,17 +73,11 @@ const ComparisonCard: React.FC<ComparisonCardProps> = ({ item }) => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
-        borderRadius: 24,
         padding: 16,
-        marginHorizontal: 20,
-        marginBottom: 16,
-        borderWidth: 1,
+        width: '100%',
+        marginBottom: 12,
+        borderBottomWidth: 1,
         borderColor: "#F1F5F9",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.02,
-        shadowRadius: 10,
-        elevation: 2,
     },
     cardHeader: {
         flexDirection: 'row',
@@ -100,7 +88,7 @@ const styles = StyleSheet.create({
     badge: {
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 6,
+        borderRadius: 5,
     },
     badgeText: {
         fontSize: 10,
@@ -121,6 +109,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
+        paddingVertical: 8,
     },
     carSide: {
         flex: 1,
@@ -128,11 +117,11 @@ const styles = StyleSheet.create({
     },
     imgWrapper: {
         width: '100%',
-        height: 70,
-        borderRadius: 16,
+        height: 80,
+        borderRadius: 5,
         backgroundColor: '#F8FAFC',
         overflow: 'hidden',
-        marginBottom: 10,
+        marginBottom: 8,
         borderWidth: 1,
         borderColor: '#F1F5F9',
     },
@@ -141,30 +130,31 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     carName: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: "800",
         color: "#1E293B",
         textAlign: "center"
     },
     carYear: {
-        fontSize: 11,
+        fontSize: 10,
         color: "#94A3B8",
         fontWeight: '600',
         marginTop: 2
     },
     vsCenter: {
-        width: 50,
+        width: 40,
         alignItems: "center",
         justifyContent: 'center',
     },
     vsLine: {
         width: 1,
-        height: 20,
+        height: 15,
+        backgroundColor: '#F1F5F9',
     },
     vsCircle: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         backgroundColor: "#F8FAFC",
         borderWidth: 1,
         borderColor: "#F1F5F9",
@@ -173,8 +163,8 @@ const styles = StyleSheet.create({
         marginVertical: 4,
     },
     vsText: {
-        color: "#CBD5E1",
-        fontSize: 10,
+        color: "#94A3B8",
+        fontSize: 9,
         fontWeight: "900"
     },
     cardFooter: {

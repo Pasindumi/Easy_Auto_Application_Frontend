@@ -132,8 +132,7 @@ const Loading: React.FC<LoadingProps> = ({
                 <View style={styles.logoContainer}>
                     <Animated.View style={{
                         transform: [
-                            { scale: pulseAnim },
-                            { rotate: rotationInterpolation } // Logo also rotates
+                            { scale: pulseAnim }
                         ]
                     }}>
                         <Image

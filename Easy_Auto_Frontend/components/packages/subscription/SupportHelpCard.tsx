@@ -11,7 +11,7 @@ const SupportHelpCard: React.FC<SupportHelpCardProps> = ({ onContactSupport }) =
     return (
         <View style={styles.helpCard}>
             <View style={styles.helpIconContainer}>
-                <Ionicons name="chatbubble-ellipses-outline" size={32} color={COLORS.primary} />
+                <Ionicons name="chatbubble-ellipses-outline" size={24} color={COLORS.primary} />
             </View>
             <View style={styles.helpContent}>
                 <Text style={styles.helpTitle}>Need Assistance?</Text>
@@ -36,23 +36,18 @@ const styles = StyleSheet.create({
     helpCard: {
         backgroundColor: '#fff',
         padding: 24,
-        borderRadius: 24,
+        borderRadius: 5,
         marginBottom: 40,
         flexDirection: 'row',
         alignItems: 'flex-start',
         gap: 20,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.04,
-        shadowRadius: 10,
-        elevation: 2,
+        borderColor: '#BFDBFE',
     },
     helpIconContainer: {
-        width: 60,
-        height: 60,
-        borderRadius: 20,
+        width: 48,
+        height: 48,
+        borderRadius: 5,
         backgroundColor: '#eff6ff',
         alignItems: 'center',
         justifyContent: 'center',

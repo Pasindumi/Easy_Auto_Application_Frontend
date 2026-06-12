@@ -16,7 +16,6 @@ import {
     TouchableOpacity,
     View,
     ActivityIndicator,
-    SafeAreaView,
     Alert,
 } from "react-native";
 import api from "@/utils/api";
@@ -81,7 +80,7 @@ export default function ContactUsScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <Header title={mode === "INQUIRY" ? "Contact Support" : "Submit Complaint"} showBack={true} />
 
-            <SafeAreaView style={styles.safe}>
+            <View style={styles.safe}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : undefined}
                     style={{ flex: 1 }}
@@ -135,13 +134,11 @@ export default function ContactUsScreen() {
                                     <View style={[styles.chipIcon, { backgroundColor: '#eff6ff' }]}>
                                         <Ionicons name="call" size={16} color={COLORS.primary} />
                                     </View>
-                                    <Text style={styles.chipText}>Call Us</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.chip}>
                                     <View style={[styles.chipIcon, { backgroundColor: '#ecfdf5' }]}>
                                         <Ionicons name="mail" size={16} color="#10b981" />
                                     </View>
-                                    <Text style={styles.chipText}>Email Us</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -239,7 +236,7 @@ export default function ContactUsScreen() {
                         <View style={{ height: 40 }} />
                     </ScrollView>
                 </KeyboardAvoidingView>
-            </SafeAreaView>
+            </View>
         </View>
     );
 }
@@ -254,29 +251,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8fafc',
     },
     scrollContent: {
-        padding: 20,
+        padding: 12,
         paddingTop: 24, // Fix overlap
     },
     toggleContainer: {
         flexDirection: 'row',
         backgroundColor: '#fff',
-        borderRadius: 20,
+        borderRadius: 5,
         padding: 6,
         marginBottom: 24,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.02,
-        shadowRadius: 10,
-        elevation: 2,
+        borderColor: '#BFDBFE',
     },
     toggleButton: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 10,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 16,
+        borderRadius: 5,
         flexDirection: 'row',
         gap: 8,
     },
@@ -293,21 +285,17 @@ const styles = StyleSheet.create({
     },
     introCard: {
         backgroundColor: '#fff',
-        borderRadius: 28,
+        borderRadius: 5,
         padding: 24,
         marginBottom: 24,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.01,
-        shadowRadius: 5,
+        borderColor: '#BFDBFE',
     },
     introHeader: {
         marginBottom: 20,
     },
     introTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: '900',
         color: '#1e293b',
         marginBottom: 6,
@@ -320,23 +308,23 @@ const styles = StyleSheet.create({
     },
     contactChips: {
         flexDirection: 'row',
+        justifyContent: 'center',
         gap: 12,
     },
     chip: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: '#f8fafc',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
-        gap: 8,
+        paddingVertical: 6,
+        borderRadius: 5,
+        borderWidth: 0,
     },
     chipIcon: {
         width: 28,
         height: 28,
-        borderRadius: 8,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -347,16 +335,9 @@ const styles = StyleSheet.create({
     },
     formSection: {
         backgroundColor: '#fff',
-        borderRadius: 28,
-        padding: 24,
+        borderRadius: 5,
+        padding: 16,
         marginBottom: 24,
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.03,
-        shadowRadius: 20,
-        elevation: 5,
     },
     sectionTitle: {
         fontSize: 16,
@@ -381,10 +362,10 @@ const styles = StyleSheet.create({
     categoryItem: {
         paddingHorizontal: 14,
         paddingVertical: 10,
-        borderRadius: 10,
+        borderRadius: 5,
         backgroundColor: '#f8fafc',
         borderWidth: 1,
-        borderColor: '#f1f5f9',
+        borderColor: '#BFDBFE',
     },
     categoryItemActive: {
         backgroundColor: '#eff6ff',
@@ -401,11 +382,11 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         marginTop: 10,
-        borderRadius: 16,
+        borderRadius: 5,
         overflow: 'hidden',
     },
     gradientButton: {
-        paddingVertical: 16,
+        paddingVertical: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -413,7 +394,7 @@ const styles = StyleSheet.create({
     },
     submitButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '800',
     },
 });

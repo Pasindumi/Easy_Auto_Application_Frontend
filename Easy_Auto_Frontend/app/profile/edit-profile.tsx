@@ -17,7 +17,6 @@ import {
   Platform,
 } from "react-native";
 import Loading from "@/components/ui/Loading";
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from "@/contexts/AuthContext";
 import * as ImagePicker from "expo-image-picker";
 import { api } from "@/utils/api";
@@ -94,6 +93,18 @@ export default function EditProfileScreen() {
       console.error('[EditProfile] Error picking image:', error);
       showToast({ message: 'Failed to select image', type: 'error' });
     }
+  };
+
+  const handleBirthdayChange = (text: string) => {
+    const cleaned = text.replace(/[^0-9]/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = cleaned.slice(0, 4) + '-' + cleaned.slice(4);
+    }
+    if (cleaned.length > 6) {
+      formatted = formatted.slice(0, 7) + '-' + cleaned.slice(6, 8);
+    }
+    setBirthday(formatted);
   };
 
   const handleSaveChanges = async () => {
@@ -205,7 +216,7 @@ export default function EditProfileScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Loading />
           <Text style={styles.loadingText}>Loading your profile...</Text>
           <Loading />
         </View>
@@ -220,10 +231,7 @@ export default function EditProfileScreen() {
           >
             {/* Premium Photo Uploader */}
             <View style={styles.photoCanvas}>
-              <LinearGradient
-                colors={['#F1F5F9', '#F8FAFC']}
-                style={styles.photoPlate}
-              >
+              <View style={styles.photoPlate}>
                 <View style={styles.avatarMaster}>
                   <Image
                     source={
@@ -235,30 +243,38 @@ export default function EditProfileScreen() {
                   />
                   <TouchableOpacity style={styles.camPill} onPress={pickImage}>
                     <LinearGradient colors={[COLORS.primary, '#1E40AF']} style={styles.camGrad}>
-                      <Ionicons name="camera" size={18} color="#fff" />
+                      <Ionicons name="camera" size={14} color="#fff" />
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.photoHint}>High-resolution PNG or JPG preferred</Text>
-              </LinearGradient>
+                <View style={styles.photoInfo}>
+                   <Text style={styles.photoHint}>High-resolution PNG or JPG preferred</Text>
+                </View>
+              </View>
             </View>
 
             {/* Form Sections */}
             <View style={styles.formFlow}>
 
               <View style={styles.formSection}>
-                <Text style={styles.sectionSlug}>Identity & Bio</Text>
+                <View style={styles.sectionHeaderRow}>
+                  <View style={styles.sectionBlueBar} />
+                  <Text style={styles.sectionSlug}>Identity & Bio</Text>
+                </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Display Name</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="person-outline" size={18} color="#64748B" />
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="person" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Display Name</Text>
+                  </View>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
                         value={name}
                         onChangeText={setName}
                         placeholder="Your full name"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{name || "Not set"}</Text>
@@ -268,16 +284,20 @@ export default function EditProfileScreen() {
 
                 <View style={styles.fieldItem}>
                   <View style={styles.labelRow}>
-                    <Text style={styles.fieldLabel}>Tell us about yourself</Text>
+                    <View style={styles.labelIconRow}>
+                      <Ionicons name="information-circle" size={14} color={COLORS.primary} />
+                      <Text style={styles.fieldLabel}>Tell us about yourself</Text>
+                    </View>
                     <Text style={styles.charCount}>{bio.length}/150</Text>
                   </View>
-                  <View style={[styles.fieldBox, styles.bioBox]}>
+                  <View style={[styles.fieldBox, styles.bioBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
                     {isEditing ? (
                       <TextInput
                         style={[styles.fieldInput, styles.bioInput]}
                         value={bio}
                         onChangeText={setBio}
                         placeholder="Write a short bio..."
+                        placeholderTextColor="#94A3B8"
                         multiline
                         maxLength={150}
                       />
@@ -289,12 +309,17 @@ export default function EditProfileScreen() {
               </View>
 
               <View style={styles.formSection}>
-                <Text style={styles.sectionSlug}>Contact Details</Text>
+                <View style={styles.sectionHeaderRow}>
+                  <View style={styles.sectionBlueBar} />
+                  <Text style={styles.sectionSlug}>Contact Details</Text>
+                </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Email Address</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="mail-outline" size={18} color="#64748B" />
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="mail" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Email Address</Text>
+                  </View>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
@@ -302,6 +327,7 @@ export default function EditProfileScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{email || "Not set"}</Text>
@@ -310,15 +336,18 @@ export default function EditProfileScreen() {
                 </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Phone Number</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="call-outline" size={18} color="#64748B" />
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="call" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Phone Number</Text>
+                  </View>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
                         value={phone}
                         onChangeText={setPhone}
                         keyboardType="phone-pad"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{phone || "Not set"}</Text>
@@ -328,18 +357,24 @@ export default function EditProfileScreen() {
               </View>
 
               <View style={styles.formSection}>
-                <Text style={styles.sectionSlug}>Regional & Preferences</Text>
+                <View style={styles.sectionHeaderRow}>
+                  <View style={styles.sectionBlueBar} />
+                  <Text style={styles.sectionSlug}>Regional & Preferences</Text>
+                </View>
 
                 <View style={styles.fieldItem}>
-                  <Text style={styles.fieldLabel}>Home/Office Location</Text>
-                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                    <Ionicons name="location-outline" size={18} color="#64748B" />
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="location" size={14} color={COLORS.primary} />
+                    <Text style={styles.fieldLabel}>Home/Office Location</Text>
+                  </View>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
                     {isEditing ? (
                       <TextInput
                         style={styles.fieldInput}
                         value={location}
                         onChangeText={setLocation}
                         placeholder="Colombo, Sri Lanka"
+                        placeholderTextColor="#94A3B8"
                       />
                     ) : (
                       <Text style={styles.fieldInput}>{location || "Not set"}</Text>
@@ -347,36 +382,45 @@ export default function EditProfileScreen() {
                   </View>
                 </View>
 
-                <View style={styles.rowFieldContainer}>
-                  <View style={[styles.fieldItem, { flex: 1 }]}>
+                <View style={styles.fieldItem}>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="people" size={14} color={COLORS.primary} />
                     <Text style={styles.fieldLabel}>Gender</Text>
-                    <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                      {isEditing ? (
-                        <TextInput
-                          style={styles.fieldInput}
-                          value={gender}
-                          onChangeText={setGender}
-                          placeholder="e.g. Male"
-                        />
-                      ) : (
-                        <Text style={styles.fieldInput}>{gender || "Not set"}</Text>
-                      )}
-                    </View>
                   </View>
-                  <View style={[styles.fieldItem, { flex: 1 }]}>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={gender}
+                        onChangeText={setGender}
+                        placeholder="e.g. Male"
+                        placeholderTextColor="#94A3B8"
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{gender || "Not set"}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <View style={styles.fieldItem}>
+                  <View style={styles.labelIconRow}>
+                    <Ionicons name="calendar" size={14} color={COLORS.primary} />
                     <Text style={styles.fieldLabel}>Birthday</Text>
-                    <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly]}>
-                      {isEditing ? (
-                        <TextInput
-                          style={styles.fieldInput}
-                          value={birthday}
-                          onChangeText={setBirthday}
-                          placeholder="YYYY-MM-DD"
-                        />
-                      ) : (
-                        <Text style={styles.fieldInput}>{birthday || "Not set"}</Text>
-                      )}
-                    </View>
+                  </View>
+                  <View style={[styles.fieldBox, !isEditing && styles.fieldBoxReadOnly, isEditing && styles.fieldBoxEditing]}>
+                    {isEditing ? (
+                      <TextInput
+                        style={styles.fieldInput}
+                        value={birthday}
+                        onChangeText={handleBirthdayChange}
+                        placeholder="YYYY-MM-DD"
+                        placeholderTextColor="#94A3B8"
+                        keyboardType="numeric"
+                        maxLength={10}
+                      />
+                    ) : (
+                      <Text style={styles.fieldInput}>{birthday || "Not set"}</Text>
+                    )}
                   </View>
                 </View>
               </View>
@@ -449,40 +493,46 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   photoCanvas: {
-    padding: 20,
-    marginTop: 8,
+    marginHorizontal: 10,
+    marginTop: 16,
+    marginBottom: 8,
   },
   photoPlate: {
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 5,
+    padding: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#BFDBFE',
   },
   avatarMaster: {
     position: 'relative',
-    marginBottom: 16,
+  },
+  photoInfo: {
+    marginLeft: 16,
+    flex: 1,
   },
   masterImg: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
     borderColor: '#fff',
     backgroundColor: '#fff',
   },
   camPill: {
     position: 'absolute',
-    bottom: 2,
-    right: 2,
+    bottom: 0,
+    right: 0,
   },
   camGrad: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#fff',
   },
   photoHint: {
@@ -491,49 +541,72 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   formFlow: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   formSection: {
-    marginBottom: 28,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 5,
+    padding: 16,
+    marginHorizontal: 10,
+    marginBottom: 16,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  sectionBlueBar: {
+    width: 4,
+    height: 18,
+    backgroundColor: COLORS.primary,
+    borderRadius: 2,
   },
   sectionSlug: {
-    fontSize: 11,
-    color: '#64748B',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    fontWeight: '800',
-    marginBottom: 16,
-    marginLeft: 4,
+    fontSize: 16,
+    color: '#0F172A',
+    fontWeight: '900',
+    letterSpacing: -0.3,
   },
   fieldItem: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   fieldLabel: {
     fontSize: 13,
-    color: '#1E293B',
+    color: '#475569',
     fontWeight: '700',
-    marginBottom: 8,
+  },
+  labelIconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+    gap: 6,
     marginLeft: 2,
   },
   fieldBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    borderWidth: 1.5,
-    borderColor: '#F1F5F9',
-    height: 54,
+    borderRadius: 5,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    height: 44,
+  },
+  fieldBoxEditing: {
+    borderColor: `${COLORS.primary}80`, // subtle blue border when editing
+    backgroundColor: '#FFFFFF',
   },
   fieldBoxReadOnly: {
-    backgroundColor: '#F8FAFC',
-    borderColor: 'transparent',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#BFDBFE',
   },
+
   fieldInput: {
     flex: 1,
-    paddingLeft: 12,
+    paddingLeft: 0,
     fontSize: 14,
-    color: '#0F172A',
+    color: '#334155',
     fontWeight: '600',
   },
   labelRow: {
@@ -550,11 +623,11 @@ const styles = StyleSheet.create({
   bioBox: {
     height: 100,
     alignItems: 'flex-start',
-    paddingTop: 12,
+    paddingTop: 8,
   },
   bioInput: {
     height: '100%',
-    paddingTop: 0,
+    paddingTop: 4,
     textAlignVertical: 'top',
   },
   rowFieldContainer: {
@@ -566,19 +639,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   saveButton: {
-    borderRadius: 18,
+    borderRadius: 5,
     overflow: 'hidden',
-    elevation: 4,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
   },
   saveButtonDisabled: {
     opacity: 0.7,
   },
   saveGradient: {
-    height: 58,
+    height: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -590,8 +658,8 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     marginTop: 12,
-    height: 54,
-    borderRadius: 18,
+    height: 44,
+    borderRadius: 5,
     backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',

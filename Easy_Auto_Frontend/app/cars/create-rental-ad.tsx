@@ -35,6 +35,8 @@ import RentalConditionsSection from '../../components/cars/rental/RentalConditio
 import RentalDocumentSection from '../../components/cars/rental/RentalDocumentSection';
 import RentalCalendarSection from '../../components/cars/rental/RentalCalendarSection';
 
+import Loading from '@/components/ui/Loading';
+
 export default function CreateRentalAdScreen() {
     useProtectedRoute();
     const router = useRouter();
@@ -213,7 +215,7 @@ export default function CreateRentalAdScreen() {
                         allowSmoking: ad.allow_smoking || false,
                         allowPets: ad.allow_pets || false,
                         reqDeposit: ad.req_deposit || true,
-                        other_conditions: ad.other_conditions || ''
+                        otherConditions: ad.other_conditions || ''
                     });
 
                     setRentalDocuments({
@@ -304,8 +306,22 @@ export default function CreateRentalAdScreen() {
     };
 
     const handleSubmit = async () => {
-        if (!carDetails.title || !rentalPricing.pricePerDay || !carDetails.brand) {
-            Alert.alert("Missing Fields", "Please enter Ad Title, Brand, and Daily Price.");
+        // Validate Primary Inputs
+        if (!carDetails.title || !rentalPricing.pricePerDay || !carDetails.brand || !carDetails.mileage) {
+            Alert.alert("Missing Fields", `Please fill in Ad Title, Brand, Daily Price${!carDetails.mileage ? ', and Mileage' : ''}.`);
+            return;
+        }
+
+        // Check required dynamic attributes (excluding already handled static fields like mileage)
+        const missingRequired = attributes && Array.isArray(attributes)
+            ? (attributes as any[]).filter(attr => attr.is_required && !['mileage', 'milage', 'millage'].includes(attr.attribute_name?.toLowerCase().trim())).find(attr => {
+                const val = carDetails.dynamicAttributes?.find((a: any) => a.attribute_id === attr.id)?.value;
+                return val === undefined || val === '' || val === null;
+            })
+            : null;
+
+        if (missingRequired) {
+            Alert.alert("Missing Detail", `Please fill in ${(missingRequired as any).attribute_name}`);
             return;
         }
 
@@ -544,7 +560,7 @@ export default function CreateRentalAdScreen() {
 
                     {loading && (
                         <View style={styles.overlay}>
-                            <ActivityIndicator size="large" color={COLORS.primary} />
+                            <Loading />
                             <Text style={styles.overlayText}>Creating your Ad...</Text>
                         </View>
                     )}

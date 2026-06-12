@@ -66,7 +66,7 @@ const PhotoUploadSection: React.FC<Props> = ({
                 {/* Render all selected images */}
                 {selectedImages.map((uri, i) => (
                     <View key={i} style={styles.photoContainerUniform}>
-                        <Image source={{ uri }} style={styles.carPhotoUniform} />
+                        <Image source={{ uri }} style={styles.carPhotoUniform} resizeMode="contain" />
                         <TouchableOpacity
                             style={styles.removePhotoButtonUniform}
                             onPress={() => removeImage(i)}
@@ -111,17 +111,7 @@ const PhotoUploadSection: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
     section: {
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        padding: 20,
         marginBottom: 16,
-        elevation: 2,
-        shadowColor: COLORS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        borderWidth: 1,
-        borderColor: COLORS.border
     },
     sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text.primary },
     sectionSubtitle: { fontSize: 13, color: COLORS.text.muted, marginBottom: 20, lineHeight: 20 },
@@ -138,7 +128,7 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
     },
-    carPhotoUniform: { width: 80, height: 80, borderRadius: 12 },
+    carPhotoUniform: { width: 80, height: 80, borderRadius: 5 },
     removePhotoButtonUniform: {
         position: 'absolute',
         top: -6,
@@ -158,7 +148,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         backgroundColor: '#EFF6FF',
-        borderRadius: 12,
+        borderRadius: 5,
         borderWidth: 2,
         borderColor: '#BFDBFE',
         borderStyle: 'dashed',
@@ -171,9 +161,9 @@ const styles = StyleSheet.create({
     pricePill: { backgroundColor: '#E0F2FE', borderRadius: 16, paddingVertical: 4, paddingHorizontal: 12, marginLeft: 8 },
     pricePillText: { fontSize: 12, color: '#0A4D92', fontWeight: '600' },
 
-    upsellContainer: { marginTop: 16, padding: 16, backgroundColor: '#FFF7ED', borderRadius: 12, borderWidth: 1, borderColor: '#FED7AA' },
+    upsellContainer: { marginTop: 16, padding: 16, backgroundColor: '#FFF7ED', borderRadius: 5, borderWidth: 1, borderColor: '#FED7AA' },
     upsellText: { fontSize: 14, color: '#9A3412', marginBottom: 12, lineHeight: 20 },
-    upsellButton: { backgroundColor: '#EA580C', paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+    upsellButton: { backgroundColor: '#EA580C', paddingVertical: 10, borderRadius: 5, alignItems: 'center' },
     upsellButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 14 },
 });
 

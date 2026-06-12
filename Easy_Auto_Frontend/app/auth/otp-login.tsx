@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   otpInput: {
     width: 48,
     height: 56,
-    borderRadius: 12,
+    borderRadius: 5,
     borderWidth: 2,
     borderColor: COLORS.divider,
     backgroundColor: COLORS.white,

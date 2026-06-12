@@ -16,6 +16,7 @@ import RecommendedCars from "@/components/home/RecommendedCars";
 import TrendingCars from "@/components/home/TrendingCars";
 import ValueProps from "@/components/home/ValueProps";
 import BoostPopup from "@/components/home/BoostPopup";
+import SectionHeader from "@/components/home/SectionHeader";
 import COLORS from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/utils/api";
@@ -119,10 +120,10 @@ export default function HomeScreen() {
             >
                 <View style={styles.inner}>
                     {/* 1. Explore Easyauto */}
-                    <View style={styles.sectionHeaderContainer}>
-                        <Text style={styles.sectionTitle}>{t("home_screen.explore", "Explore EasyAuto")}</Text>
-                    </View>
                     <View style={styles.section}>
+                        <SectionHeader
+                            title={t("home_screen.explore", "Explore EasyAuto")}
+                        />
                         <ActionGrid fadeAnim={fadeAnim} slideAnim={slideAnim} compareCount={0} newListingsCount={0} />
                     </View>
 
@@ -194,18 +195,17 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: "#F8FAFF" },
+    root: { flex: 1, backgroundColor: "#FFFFFF" },
     scroll: { flex: 1 },
-    scrollContent: { paddingBottom: 110 },
+    scrollContent: { paddingBottom: 130 },
     inner: {
-        backgroundColor: "#F8FAFF",
-        gap: 12, 
+        backgroundColor: "#FFFFFF",
+        gap: 48, 
+        paddingTop: 12,
     },
     section: {
-        backgroundColor: "#fff",
-        paddingVertical: 8,
-        borderBottomWidth: 1.5,
-        borderBottomColor: 'rgba(0,0,0,0.05)', 
+        paddingVertical: 0,
+        paddingBottom: 10,
     },
     sectionHeaderContainer: {
         paddingHorizontal: 20,
