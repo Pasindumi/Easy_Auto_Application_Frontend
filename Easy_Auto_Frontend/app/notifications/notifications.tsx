@@ -119,11 +119,7 @@ export default function NotificationsScreen() {
         return (
             <TouchableOpacity
                 style={styles.deleteAction}
-<<<<<<< HEAD
                 onPress={() => handleRead(id)}
-=======
-                onPress={() => remove(id)}
->>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
                 activeOpacity={0.8}
             >
                 <Animated.View style={[styles.deleteActionInner, { transform: [{ scale }] }]}>
@@ -234,15 +230,11 @@ export default function NotificationsScreen() {
                             <Ionicons name="notifications-off-outline" size={56} color="#CBD5E1" />
                         </View>
                         <Text style={styles.emptyTitle}>Nothing to show</Text>
-<<<<<<< HEAD
                         <Text style={styles.emptyText}>
                             {filter === "unread"
                                 ? "You have no unread notifications."
                                 : "You'll be notified about messages, ad status, and payments here."}
                         </Text>
-=======
-                        <Text style={styles.emptyText}>You've read all your notifications. We'll update you when there's something new.</Text>
->>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
                         <TouchableOpacity
                             style={styles.backHomeBtn}
                             onPress={() => router.replace("/(tabs)")}

@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -12,12 +12,8 @@ import {
 } from "react-native";
 
 export default function NotificationsSetting() {
-<<<<<<< HEAD
   const router = useRouter();
 
-=======
-  const [pushEnabled, setPushEnabled] = useState(true);
->>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [smsEnabled, setSmsEnabled] = useState(false);
 
@@ -53,66 +49,21 @@ export default function NotificationsSetting() {
         </View>
 
         <View style={styles.card}>
-<<<<<<< HEAD
-          {/* Email Alerts */}
-          <View style={styles.row}>
-            <View style={styles.textGroup}>
-              <Text style={styles.title}>Email Alerts</Text>
-              <Text style={styles.subText}>
-                Weekly summaries and promotions
-              </Text>
-            </View>
-
-            <Switch
-              value={emailEnabled}
-              onValueChange={setEmailEnabled}
-              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
-              thumbColor={COLORS.white}
-            />
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* SMS Alerts */}
-          <View style={styles.row}>
-            <View style={styles.textGroup}>
-              <Text style={styles.title}>SMS Alerts</Text>
-              <Text style={styles.subText}>
-                Price drops and bid updates
-              </Text>
-            </View>
-
-            <Switch
-              value={smsEnabled}
-              onValueChange={setSmsEnabled}
-              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
-              thumbColor={COLORS.white}
-            />
-          </View>
-=======
           <NotificationItem
-            icon="notifications"
-            title="Push Notifications"
-            desc="New messages, offers and app updates"
-            value={pushEnabled}
-            onValueChange={setPushEnabled}
-          />
-          <NotificationItem
-            icon="mail"
+            icon="mail-outline"
             title="Email Alerts"
-            desc="Weekly summaries and special promotions"
+            desc="Weekly summaries, promotions, and deals"
             value={emailEnabled}
             onValueChange={setEmailEnabled}
           />
           <NotificationItem
-            icon="chatbubble-ellipses"
+            icon="chatbubble-ellipses-outline"
             title="SMS Alerts"
-            desc="Price drops and critical security updates"
+            desc="Instant updates about price drops and bids"
             value={smsEnabled}
             onValueChange={setSmsEnabled}
             isLast={true}
           />
->>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
         </View>
       </ScrollView>
     </View>

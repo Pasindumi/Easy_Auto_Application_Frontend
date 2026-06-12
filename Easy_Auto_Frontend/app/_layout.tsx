@@ -20,6 +20,7 @@ import { usePathname, useRouter } from "expo-router";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 import { CustomThemeProvider, useTheme } from "../contexts/ThemeContext";
+import { NotificationProvider } from "../contexts/NotificationContext";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -82,7 +83,9 @@ export default function RootLayout() {
             <ToastProvider>
               <LoadingProvider>
                 <CustomThemeProvider>
-                  <InnerLayout />
+                  <NotificationProvider>
+                    <InnerLayout />
+                  </NotificationProvider>
                 </CustomThemeProvider>
               </LoadingProvider>
             </ToastProvider>
