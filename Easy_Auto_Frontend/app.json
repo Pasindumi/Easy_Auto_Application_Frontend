@@ -21,8 +21,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.Easy_Auto_Frontend",
-      "googleServicesFile": "./google-services.json"
+      "package": "com.anonymous.Easy_Auto_Frontend"
     },
     "web": {
       "output": "static",
@@ -43,12 +42,8 @@
         }
       ],
       [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/notification-icon.png",
-          "color": "#1E88E5",
-          "sounds": []
-        }
+        "expo-notifications"
+        
       ]
     ],
     "experiments": {

@@ -12,7 +12,12 @@ import {
 } from "react-native";
 
 export default function NotificationsSetting() {
+<<<<<<< HEAD
+  const router = useRouter();
+
+=======
   const [pushEnabled, setPushEnabled] = useState(true);
+>>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [smsEnabled, setSmsEnabled] = useState(false);
 
@@ -48,6 +53,43 @@ export default function NotificationsSetting() {
         </View>
 
         <View style={styles.card}>
+<<<<<<< HEAD
+          {/* Email Alerts */}
+          <View style={styles.row}>
+            <View style={styles.textGroup}>
+              <Text style={styles.title}>Email Alerts</Text>
+              <Text style={styles.subText}>
+                Weekly summaries and promotions
+              </Text>
+            </View>
+
+            <Switch
+              value={emailEnabled}
+              onValueChange={setEmailEnabled}
+              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
+              thumbColor={COLORS.white}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          {/* SMS Alerts */}
+          <View style={styles.row}>
+            <View style={styles.textGroup}>
+              <Text style={styles.title}>SMS Alerts</Text>
+              <Text style={styles.subText}>
+                Price drops and bid updates
+              </Text>
+            </View>
+
+            <Switch
+              value={smsEnabled}
+              onValueChange={setSmsEnabled}
+              trackColor={{ false: COLORS.divider, true: COLORS.primary }}
+              thumbColor={COLORS.white}
+            />
+          </View>
+=======
           <NotificationItem
             icon="notifications"
             title="Push Notifications"
@@ -70,6 +112,7 @@ export default function NotificationsSetting() {
             onValueChange={setSmsEnabled}
             isLast={true}
           />
+>>>>>>> 9c8de36d9ebb0b832ade56713c55d32f04a892e4
         </View>
       </ScrollView>
     </View>
