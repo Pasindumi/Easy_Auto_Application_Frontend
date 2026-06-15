@@ -8,28 +8,31 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import COLORS from '@/constants/Colors';
+import { COLORS } from '@/constants/Colors';
 import StatusBadge from '../status/StatusBadge';
 
 interface AdCardProps {
   ad: any;
   selected: boolean;
   toggleSelect: (id: string) => void;
+  onResume?: (ad: any) => void;
 }
 
-export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
+export default function AdCard({ ad, selected, toggleSelect, onResume }: AdCardProps) {
   const router = useRouter();
 
-  const mapStatus: 'active' | 'draft' | 'paused' | 'expired' | 'banned' =
+  const mapStatus: 'active' | 'draft' | 'paused' | 'expired' | 'banned' | 'deleted' =
     ad.status === 'active'
       ? 'active'
       : (ad.status === 'draft' || ad.status === 'pending_payment')
         ? 'draft'
         : ad.status === 'paused'
           ? 'paused'
-          : ad.status === 'banned'
-            ? 'banned'
-            : 'expired';
+          : ad.status === 'deleted'
+            ? 'deleted'
+            : ad.status === 'banned'
+              ? 'banned'
+              : 'expired';
 
   return (
     <View style={[styles.card, selected && styles.cardSelected]}>
@@ -131,6 +134,14 @@ export default function AdCard({ ad, selected, toggleSelect }: AdCardProps) {
                   <Ionicons name="rocket" size={16} color="#0891B2" />
                 </View>
                 <Text style={[styles.mainActionText, { color: '#0891B2' }]}>Boost Ad</Text>
+              </TouchableOpacity>
+            ) : mapStatus === 'paused' ? (
+              <TouchableOpacity
+                style={[styles.mainAction, styles.resumeAction]}
+                onPress={() => onResume?.(ad)}
+              >
+                <Ionicons name="play-circle-outline" size={18} color={COLORS.status.success} />
+                <Text style={[styles.mainActionText, { color: COLORS.status.success }]}>Resume Ad</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -353,5 +364,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#0891B215',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  resumeAction: {
+    backgroundColor: COLORS.status.successLight,
+    borderRadius: 5,
+    marginHorizontal: 4,
+    paddingVertical: 4,
   },
 });

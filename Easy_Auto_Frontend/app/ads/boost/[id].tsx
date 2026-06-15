@@ -1,8 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useCallback, useEffect, useState } from 'react';
 import Loading from '../../../components/ui/Loading';
 import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import {
@@ -12,32 +10,29 @@ import {
     Text,
     View,
     Alert,
-    TouchableOpacity
+    TouchableOpacity,
+    TextInput
 } from 'react-native';
 
 import Header from '../../../components/Header';
 import PackagePlanCard from '../../../components/packages/packages/PackagePlanCard';
 import { api } from '@/utils/api';
-import COLORS from '../../../constants/Colors';
-import { headerSectionStylesWhite } from '../../../styles/headerSectionStyles';
+import { COLORS } from '../../../constants/Colors';
 
 export default function BoostSelectionScreen() {
     const router = useRouter();
     const { id: adId } = useLocalSearchParams();
-    const insets = useSafeAreaInsets();
 
     const [loading, setLoading] = useState(true);
     const [packages, setPackages] = useState<any[]>([]);
     const [adDetails, setAdDetails] = useState<any>(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showFilters, setShowFilters] = useState(false);
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
 
-    useEffect(() => {
-        if (adId) {
-            fetchData();
-        }
-    }, [adId]);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             // 1. Fetch Ad Details to get Vehicle Type
@@ -72,7 +67,13 @@ export default function BoostSelectionScreen() {
             setLoading(false);
             setRefreshing(false);
         }
-    };
+    }, [adId, router]);
+
+    useEffect(() => {
+        if (adId) {
+            fetchData();
+        }
+    }, [adId, fetchData]);
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -90,82 +91,41 @@ export default function BoostSelectionScreen() {
         });
     };
 
-    const initiateBoostPayment = async (pkg: any) => {
-        try {
-            setLoading(true);
-            const price = parseFloat(pkg.rules?.[0]?.price || "0");
+    const getPackagePrice = (pkg: any) => parseFloat(pkg.rules?.[0]?.price || "0");
+    const getPackageDuration = (pkg: any) => parseInt(pkg.config?.DURATION_DAYS || "0");
+    const getPackageFeatures = (pkg: any) => {
+        const features = pkg.included_items?.map((item: any) => item.price_items?.name).filter(Boolean) || [];
+        if (pkg.description) features.push(pkg.description);
+        return features;
+    };
 
-            // If price is 0, we can apply directly (if logic supports free boosts)
-            // But for now let's assume all boosts are paid or go through gateway even for 0 (PayHere might fail for 0).
+    const minPriceValue = minPrice.trim() ? parseFloat(minPrice) : null;
+    const maxPriceValue = maxPrice.trim() ? parseFloat(maxPrice) : null;
+    const activeFilterCount = [searchQuery.trim(), minPrice.trim(), maxPrice.trim()].filter(Boolean).length;
+    const filteredPackages = packages.filter((pkg) => {
+        const price = getPackagePrice(pkg);
+        const searchableText = [
+            pkg.name,
+            pkg.code,
+            pkg.description,
+            ...getPackageFeatures(pkg),
+        ].filter(Boolean).join(' ').toLowerCase();
+        const matchesSearch = !searchQuery.trim() || searchableText.includes(searchQuery.trim().toLowerCase());
+        const matchesMin = minPriceValue === null || Number.isNaN(minPriceValue) || price >= minPriceValue;
+        const matchesMax = maxPriceValue === null || Number.isNaN(maxPriceValue) || price <= maxPriceValue;
+        return matchesSearch && matchesMin && matchesMax;
+    }).sort((a, b) => getPackagePrice(a) - getPackagePrice(b));
 
-            // Calculate amount
-            const amount = price;
-            const orderId = `BOOST-${adId}-${pkg.id}-${Date.now()}`;
-            const items = `Boost: ${pkg.name}`;
-
-            // User details - we need to fetch user details or assume backend handles it via auth token?
-            // backend initiatePayment needs: first_name, last_name, email, phone...
-            // effectively we need user profile.
-            // We can fetch profile or pass what we have. adDetails.users has some info.
-
-            const user = adDetails.users;
-
-            const paymentObj = {
-                order_id: orderId,
-                items: items,
-                amount: amount,
-                currency: "LKR",
-                first_name: user?.name?.split(' ')[0] || "User",
-                last_name: user?.name?.split(' ')[1] || "User",
-                email: user?.email || "user@example.com",
-                phone: user?.phone || "0771234567",
-                address: adDetails?.location || "Sri Lanka",
-                city: "Colombo",
-                country: "Sri Lanka",
-                packageId: pkg.id,
-                adId: adId, // Pass adId for backend to link
-                sandbox: true
-            };
-
-            console.log("Initiating Boost Payment:", JSON.stringify(paymentObj));
-
-            const response = await api.post<{ success: boolean; html: string }>(
-                '/api/payment/initiate',
-                paymentObj
-            );
-
-            if (!response.success || !response.html) {
-                throw new Error("Failed to initiate payment.");
-            }
-
-            // 2. Navigate to Gateway with HTML content
-            router.push({
-                pathname: '/payments/payhere-gateway',
-                params: { html: response.html },
-            });
-
-        } catch (error: any) {
-            console.error("Payment Error:", error);
-            Alert.alert("Payment Error", error.message || "Failed to initiate payment");
-        } finally {
-            setLoading(false);
-        }
+    const clearFilters = () => {
+        setSearchQuery('');
+        setMinPrice('');
+        setMaxPrice('');
     };
 
     return (
         <View style={styles.safe}>
             <Stack.Screen options={{ headerShown: false }} />
             <Header title="Boost Ad" showBack={true} />
-
-            <View style={styles.boostIntroSection}>
-                <View style={styles.boostIntroContent}>
-                    <Text style={styles.boostIntroTitle}>Premium Visibility</Text>
-                    <Text style={styles.boostIntroSub}>Boost your ad to reach thousands of buyers and sell faster than ever.</Text>
-                </View>
-                <View style={styles.boostIntroIcon}>
-                    <Ionicons name="rocket" size={32} color={COLORS.primary} />
-                </View>
-            </View>
 
             <BrandedRefreshOverlay refreshing={refreshing} top={200} />
             <ScrollView
@@ -181,6 +141,81 @@ export default function BoostSelectionScreen() {
                     />
                 }
             >
+                <View style={styles.summaryPanel}>
+                    <View style={styles.summaryIcon}>
+                        <Ionicons name="trending-up-outline" size={22} color={COLORS.primary} />
+                    </View>
+                    <View style={styles.summaryContent}>
+                        <Text style={styles.summaryTitle}>Boost Packages</Text>
+                        <Text style={styles.summaryText}>Choose a visibility package for {adDetails?.title || 'your advertisement'}.</Text>
+                    </View>
+                </View>
+
+                <View style={styles.toolBar}>
+                    <View style={styles.searchBox}>
+                        <Ionicons name="search-outline" size={18} color={COLORS.text.placeholder} />
+                        <TextInput
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            placeholder="Search packages"
+                            placeholderTextColor={COLORS.text.placeholder}
+                            style={styles.searchInput}
+                            returnKeyType="search"
+                        />
+                        {searchQuery ? (
+                            <TouchableOpacity onPress={() => setSearchQuery('')} activeOpacity={0.75}>
+                                <Ionicons name="close-circle" size={18} color={COLORS.text.placeholder} />
+                            </TouchableOpacity>
+                        ) : null}
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.filterButton, showFilters && styles.filterButtonActive]}
+                        onPress={() => setShowFilters((value) => !value)}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="options-outline" size={18} color={showFilters ? COLORS.white : COLORS.primary} />
+                        {activeFilterCount > 0 && <View style={styles.filterDot} />}
+                    </TouchableOpacity>
+                </View>
+
+                {showFilters && (
+                    <View style={styles.filterPanel}>
+                        <View style={styles.filterHeader}>
+                            <Text style={styles.filterTitle}>Price Range</Text>
+                            {activeFilterCount > 0 && (
+                                <TouchableOpacity onPress={clearFilters} activeOpacity={0.75}>
+                                    <Text style={styles.clearText}>Clear</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                        <View style={styles.priceInputs}>
+                            <View style={styles.priceInputBox}>
+                                <Text style={styles.priceInputLabel}>Minimum</Text>
+                                <TextInput
+                                    value={minPrice}
+                                    onChangeText={setMinPrice}
+                                    placeholder="LKR 0"
+                                    placeholderTextColor={COLORS.text.placeholder}
+                                    keyboardType="numeric"
+                                    style={styles.priceInput}
+                                />
+                            </View>
+                            <View style={styles.priceInputBox}>
+                                <Text style={styles.priceInputLabel}>Maximum</Text>
+                                <TextInput
+                                    value={maxPrice}
+                                    onChangeText={setMaxPrice}
+                                    placeholder="Any price"
+                                    placeholderTextColor={COLORS.text.placeholder}
+                                    keyboardType="numeric"
+                                    style={styles.priceInput}
+                                />
+                            </View>
+                        </View>
+                    </View>
+                )}
+
                 {loading ? (
                     <View style={styles.loaderContainer}>
                         <Loading size="large" message="Loading boost packages..." />
@@ -190,17 +225,21 @@ export default function BoostSelectionScreen() {
                         <Ionicons name="alert-circle-outline" size={48} color="#999" />
                         <Text style={styles.emptyText}>No boost packages available for this vehicle type.</Text>
                     </View>
+                ) : filteredPackages.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <Ionicons name="search-outline" size={44} color={COLORS.text.placeholder} />
+                        <Text style={styles.emptyTitle}>No matching packages</Text>
+                        <Text style={styles.emptyText}>Adjust the search or price range to see available boost packages.</Text>
+                    </View>
                 ) : (
-                    packages.map((pkg) => {
+                    filteredPackages.map((pkg) => {
                         // Extract price from first rule
-                        const price = parseFloat(pkg.rules?.[0]?.price || "0");
+                        const price = getPackagePrice(pkg);
                         // Duration
-                        const duration = parseInt(pkg.config?.DURATION_DAYS || "0");
+                        const duration = getPackageDuration(pkg);
 
                         // Features from Included Items
-                        const features = pkg.included_items?.map((item: any) => item.price_items?.name) || [];
-                        // Add description if any
-                        if (pkg.description) features.push(pkg.description);
+                        const features = getPackageFeatures(pkg);
 
                         return (
                             <PackagePlanCard
@@ -210,8 +249,8 @@ export default function BoostSelectionScreen() {
                                 days={duration}
                                 price={price}
                                 perDay={duration > 0 ? `LKR ${(price / duration).toFixed(0)}/day` : ''}
-                                backgroundColor={pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}15` : "#FFF5EB"} // Orange tint for boosts
-                                themeColor={pkg.config?.COLOR_THEME || "#F97316"} // Orange for boosts
+                                backgroundColor={COLORS.white}
+                                themeColor={pkg.config?.COLOR_THEME || COLORS.primary}
                                 features={features}
                                 isPopular={pkg.code.includes('GOLD') || pkg.code.includes('POPULAR')}
                                 btnText="Select Boost"
@@ -228,57 +267,144 @@ export default function BoostSelectionScreen() {
 const styles = StyleSheet.create({
     safe: {
         flex: 1,
-        backgroundColor: '#F8FAFF',
-    },
-    boostIntroSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#fff',
-        margin: 20,
-        marginBottom: 10,
-        padding: 20,
-        borderRadius: 28,
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.06,
-        shadowRadius: 12,
-        elevation: 3,
-    },
-    boostIntroContent: {
-        flex: 1,
-        paddingRight: 16,
-    },
-    boostIntroTitle: {
-        fontSize: 22,
-        fontWeight: '900',
-        color: '#0f172a',
-        letterSpacing: -0.6,
-    },
-    boostIntroSub: {
-        fontSize: 13,
-        color: '#64748b',
-        marginTop: 6,
-        lineHeight: 19,
-        fontWeight: '500',
-    },
-    boostIntroIcon: {
-        width: 60,
-        height: 60,
-        borderRadius: 20,
-        backgroundColor: COLORS.primary + '10',
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: COLORS.background,
     },
     scrollView: {
         flex: 1,
     },
     container: {
-        padding: 20,
-        paddingTop: 10,
+        padding: 16,
+        paddingTop: 16,
         paddingBottom: 40,
+    },
+    summaryPanel: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.white,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 12,
+    },
+    summaryIcon: {
+        width: 42,
+        height: 42,
+        borderRadius: 10,
+        backgroundColor: COLORS.primaryLight,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    summaryContent: {
+        flex: 1,
+    },
+    summaryTitle: {
+        fontSize: 17,
+        fontWeight: '600',
+        color: COLORS.text.primary,
+    },
+    summaryText: {
+        fontSize: 13,
+        color: COLORS.text.muted,
+        marginTop: 3,
+        lineHeight: 18,
+    },
+    toolBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 12,
+    },
+    searchBox: {
+        flex: 1,
+        height: 46,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: COLORS.white,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderRadius: 10,
+        paddingHorizontal: 12,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 14,
+        color: COLORS.text.primary,
+        paddingVertical: 0,
+    },
+    filterButton: {
+        width: 46,
+        height: 46,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: COLORS.white,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    filterButtonActive: {
+        backgroundColor: COLORS.primary,
+        borderColor: COLORS.primary,
+    },
+    filterDot: {
+        position: 'absolute',
+        top: 9,
+        right: 9,
+        width: 7,
+        height: 7,
+        borderRadius: 4,
+        backgroundColor: COLORS.status.warning,
+        borderWidth: 1,
+        borderColor: COLORS.white,
+    },
+    filterPanel: {
+        backgroundColor: COLORS.white,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 14,
+    },
+    filterHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    filterTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: COLORS.text.primary,
+    },
+    clearText: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: COLORS.primary,
+    },
+    priceInputs: {
+        flexDirection: 'row',
+        gap: 10,
+    },
+    priceInputBox: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: COLORS.background,
+    },
+    priceInputLabel: {
+        fontSize: 11,
+        color: COLORS.text.muted,
+        marginBottom: 2,
+    },
+    priceInput: {
+        fontSize: 14,
+        color: COLORS.text.primary,
+        paddingVertical: 0,
     },
     loaderContainer: {
         flex: 1,
@@ -293,12 +419,19 @@ const styles = StyleSheet.create({
         paddingTop: 60,
         paddingHorizontal: 40,
     },
-    emptyText: {
-        marginTop: 16,
-        color: '#94A3B8',
-        fontSize: 15,
+    emptyTitle: {
+        marginTop: 14,
+        color: COLORS.text.primary,
+        fontSize: 16,
         textAlign: 'center',
-        lineHeight: 22,
-        fontWeight: '500',
+        fontWeight: '600',
+    },
+    emptyText: {
+        marginTop: 8,
+        color: COLORS.text.muted,
+        fontSize: 14,
+        textAlign: 'center',
+        lineHeight: 20,
+        fontWeight: '400',
     },
 });
