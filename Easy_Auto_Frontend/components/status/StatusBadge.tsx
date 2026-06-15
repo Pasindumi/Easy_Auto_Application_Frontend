@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-export type StatusType = 'active' | 'draft' | 'paused' | 'expired' | 'banned';
+export type StatusType = 'active' | 'draft' | 'paused' | 'expired' | 'banned' | 'deleted';
 
 interface StatusBadgeProps {
   status: StatusType;
@@ -50,6 +50,13 @@ const STATUS_CONFIG: Record<StatusType, StatusConfig> = {
     icon: 'close-circle-outline',
     color: '#111827',
     bgColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
+  },
+  deleted: {
+    label: 'Deleted',
+    icon: 'trash-outline',
+    color: '#6B7280',
+    bgColor: '#F9FAFB',
     borderColor: '#E5E7EB',
   },
 };

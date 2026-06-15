@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Loading from '../../../components/ui/Loading';
 import {
     Alert,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 
 import Header from '../../../components/Header';
-import COLORS from '../../../constants/Colors';
+import { COLORS } from '../../../constants/Colors';
 import { api } from '@/utils/api';
 
 export default function BoostPackageDetailScreen() {
@@ -22,15 +22,9 @@ export default function BoostPackageDetailScreen() {
     const [pkg, setPkg] = useState<any | null>(null);
     const [adDetails, setAdDetails] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
-    const [activating, setActivating] = useState(false);
+    const activating = false;
 
-    useEffect(() => {
-        if (adId && packageId) {
-            fetchData();
-        }
-    }, [adId, packageId]);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             // 1. Fetch Ad Details
@@ -53,7 +47,13 @@ export default function BoostPackageDetailScreen() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [adId, packageId]);
+
+    useEffect(() => {
+        if (adId && packageId) {
+            fetchData();
+        }
+    }, [adId, packageId, fetchData]);
 
     const handleActivate = () => {
         router.push({
@@ -109,8 +109,8 @@ export default function BoostPackageDetailScreen() {
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollView}
             >
-                {/* Hero Package Info */}
-                <View style={[styles.heroCard, { backgroundColor: pkg.config?.COLOR_THEME ? `${pkg.config.COLOR_THEME}15` : '#EEF2FF' }]}>
+                {/* Package Info */}
+                <View style={styles.heroCard}>
                     <View style={styles.heroHeader}>
                         <View style={styles.heroInfo}>
                             <Text style={[styles.packageCode, { color: pkg.config?.COLOR_THEME || COLORS.primary }]}>{pkg.code}</Text>
@@ -121,16 +121,14 @@ export default function BoostPackageDetailScreen() {
                         </View>
                     </View>
 
-                    <View style={styles.divider} />
-
                     <View style={styles.priceContainer}>
                         <View>
-                            <Text style={styles.priceLabel}>Total Investment</Text>
+                            <Text style={styles.priceLabel}>Total amount</Text>
                             <Text style={styles.priceValue}>LKR {price.toLocaleString()}</Text>
                         </View>
                         <View style={styles.durationBadge}>
                             <Ionicons name="time-outline" size={14} color="#64748b" />
-                            <Text style={styles.durationValue}>{duration} Days</Text>
+                            <Text style={styles.durationValue}>{duration} days</Text>
                         </View>
                     </View>
                 </View>
@@ -153,7 +151,7 @@ export default function BoostPackageDetailScreen() {
 
                 {/* Features */}
                 <View style={styles.featuresSection}>
-                    <Text style={styles.sectionHeading}>Performance Features</Text>
+                    <Text style={styles.sectionHeading}>Package Includes</Text>
                     {pkg.included_items && pkg.included_items.length > 0 ? (
                         pkg.included_items.map((it: any) => (
                             <View key={it.id} style={styles.featureItem}>
@@ -178,7 +176,7 @@ export default function BoostPackageDetailScreen() {
                 {/* Description */}
                 {pkg.description ? (
                     <View style={styles.descriptionSection}>
-                        <Text style={styles.sectionHeading}>Strategic Overview</Text>
+                        <Text style={styles.sectionHeading}>Overview</Text>
                         <Text style={styles.descriptionText}>{pkg.description}</Text>
                     </View>
                 ) : null}
@@ -204,47 +202,50 @@ export default function BoostPackageDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: '#F8FAFF' },
+    safe: { flex: 1, backgroundColor: COLORS.background },
     scrollView: { flex: 1 },
-    scrollContent: { padding: 20, paddingBottom: 40 },
+    scrollContent: { padding: 16, paddingBottom: 32 },
     centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
     heroCard: {
-        padding: 24,
-        borderRadius: 32,
-        marginBottom: 24,
+        padding: 18,
+        borderRadius: 14,
+        marginBottom: 22,
+        backgroundColor: COLORS.white,
         borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.03)',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.05,
-        shadowRadius: 20,
-        elevation: 5,
+        borderColor: COLORS.border,
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        elevation: 2,
     },
     heroHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 18,
     },
     heroInfo: {
         flex: 1,
     },
     packageCode: {
         fontSize: 12,
-        fontWeight: '800',
+        fontWeight: '600',
         textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 0,
         marginBottom: 4,
     },
     packageName: {
-        fontSize: 26,
-        fontWeight: '900',
-        color: '#0f172a',
-        letterSpacing: -0.8,
+        fontSize: 22,
+        fontWeight: '600',
+        color: COLORS.text.primary,
+        lineHeight: 28,
+        textTransform: 'capitalize',
     },
     badgeIcon: {
-        width: 64,
-        height: 64,
-        borderRadius: 22,
+        width: 54,
+        height: 54,
+        borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -256,60 +257,62 @@ const styles = StyleSheet.create({
     priceContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-end',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: COLORS.divider,
+        paddingTop: 16,
     },
     priceLabel: {
         fontSize: 12,
-        color: '#64748b',
-        fontWeight: '600',
+        color: COLORS.text.muted,
+        fontWeight: '400',
         marginBottom: 4,
     },
     priceValue: {
-        fontSize: 28,
-        fontWeight: '900',
-        color: '#0f172a',
+        fontSize: 26,
+        fontWeight: '600',
+        color: COLORS.text.primary,
     },
     durationBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        backgroundColor: '#fff',
-        borderRadius: 12,
+        backgroundColor: COLORS.background,
+        borderRadius: 999,
         gap: 6,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
+        borderColor: COLORS.border,
     },
     durationValue: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: '#64748b',
+        fontSize: 13,
+        fontWeight: '500',
+        color: COLORS.text.secondary,
     },
     contextSection: {
         marginBottom: 24,
     },
     sectionHeading: {
-        fontSize: 14,
-        fontWeight: '800',
-        color: '#94a3b8',
+        fontSize: 13,
+        fontWeight: '600',
+        color: COLORS.text.secondary,
         textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 0,
         marginBottom: 12,
-        marginLeft: 4,
     },
     adRefCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.white,
         padding: 16,
-        borderRadius: 20,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
+        borderColor: COLORS.border,
     },
     adIconBox: {
         width: 40,
         height: 40,
-        borderRadius: 12,
+        borderRadius: 10,
         backgroundColor: COLORS.primary + '10',
         alignItems: 'center',
         justifyContent: 'center',
@@ -320,12 +323,12 @@ const styles = StyleSheet.create({
     },
     adRefTitle: {
         fontSize: 16,
-        fontWeight: '700',
-        color: '#1e293b',
+        fontWeight: '600',
+        color: COLORS.text.primary,
     },
     adRefLocation: {
         fontSize: 13,
-        color: '#64748b',
+        color: COLORS.text.muted,
         marginTop: 2,
     },
     featuresSection: {
@@ -334,12 +337,12 @@ const styles = StyleSheet.create({
     featureItem: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.white,
         padding: 16,
-        borderRadius: 20,
+        borderRadius: 12,
         marginBottom: 10,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
+        borderColor: COLORS.border,
     },
     checkCircle: {
         width: 28,
@@ -355,12 +358,12 @@ const styles = StyleSheet.create({
     },
     featureName: {
         fontSize: 15,
-        fontWeight: '700',
-        color: '#1e293b',
+        fontWeight: '600',
+        color: COLORS.text.primary,
     },
     featureDescription: {
         fontSize: 13,
-        color: '#64748b',
+        color: COLORS.text.muted,
         marginTop: 2,
         lineHeight: 18,
     },
@@ -369,56 +372,56 @@ const styles = StyleSheet.create({
     },
     descriptionText: {
         fontSize: 15,
-        color: '#475569',
-        lineHeight: 24,
-        backgroundColor: '#fff',
+        color: COLORS.text.secondary,
+        lineHeight: 22,
+        backgroundColor: COLORS.white,
         padding: 16,
-        borderRadius: 20,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
+        borderColor: COLORS.border,
     },
     primaryButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 18,
-        borderRadius: 20,
+        paddingVertical: 16,
+        borderRadius: 10,
         gap: 12,
         shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 15,
-        elevation: 8,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.16,
+        shadowRadius: 10,
+        elevation: 4,
         marginBottom: 20,
     },
     primaryButtonText: {
         color: '#fff',
-        fontSize: 18,
-        fontWeight: '800',
+        fontSize: 16,
+        fontWeight: '600',
     },
     emptyBox: {
         padding: 20,
-        backgroundColor: '#fff',
-        borderRadius: 20,
+        backgroundColor: COLORS.white,
+        borderRadius: 12,
         alignItems: 'center',
         borderWidth: 1,
         borderStyle: 'dashed',
         borderColor: '#cbd5e1',
     },
     emptyText: {
-        color: '#94a3b8',
+        color: COLORS.text.muted,
         fontSize: 14,
-        fontWeight: '500',
+        fontWeight: '400',
     },
     backButton: {
         marginTop: 20,
         paddingVertical: 12,
         paddingHorizontal: 24,
-        borderRadius: 14,
+        borderRadius: 10,
         backgroundColor: COLORS.primary,
     },
     backText: {
         color: '#fff',
-        fontWeight: '700',
+        fontWeight: '600',
     },
 });

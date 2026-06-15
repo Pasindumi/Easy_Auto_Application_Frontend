@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from '@/constants/Colors';
 
 interface PackagePlanCardProps {
@@ -64,55 +63,55 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
         <TouchableOpacity 
             style={styles.card} 
             onPress={handleSelect}
-            activeOpacity={0.9}
+            activeOpacity={0.86}
         >
             <View style={[styles.innerCard, { backgroundColor }]}>
+                <View style={[styles.accentLine, { backgroundColor: themeColor }]} />
                 <View style={styles.cardHeader}>
-                    <View>
+                    <View style={styles.titleBlock}>
                         <Text style={styles.cardTitle}>{title}</Text>
-                        <View style={styles.daysBadge}>
+                        <View style={[styles.daysBadge, { backgroundColor: themeColor + '10' }]}>
                             <Ionicons name="time-outline" size={12} color={themeColor} />
-                            <Text style={[styles.daysText, { color: themeColor }]}>{days} Days Boost</Text>
+                            <Text style={[styles.daysText, { color: themeColor }]}>{days} days</Text>
                         </View>
                     </View>
                     {isPopular && (
-                        <LinearGradient
-                            colors={['#FFD84D', '#F59E0B']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.popularBadge}
-                        >
-                            <Ionicons name="star" size={10} color="#fff" />
+                        <View style={styles.popularBadge}>
+                            <Ionicons name="star-outline" size={11} color={COLORS.status.warning} />
                             <Text style={styles.popularText}>Most Popular</Text>
-                        </LinearGradient>
+                        </View>
                     )}
                 </View>
 
                 <View style={styles.priceContainer}>
+                    <Text style={styles.priceLabel}>Package price</Text>
                     <View style={styles.priceRow}>
-                        <Text style={styles.currency}>Rs.</Text>
+                        <Text style={styles.currency}>LKR</Text>
                         <Text style={styles.price}>{price.toLocaleString()}</Text>
                     </View>
-                    <Text style={styles.perDay}>{perDay}</Text>
+                    {!!perDay && <Text style={styles.perDay}>{perDay}</Text>}
                 </View>
 
                 <View style={styles.featuresList}>
-                    {features.slice(0, 3).map((feature, index) => (
+                    {features.slice(0, 4).map((feature, index) => (
                         <View key={index} style={styles.featureRow}>
-                            <View style={[styles.checkContainer, { backgroundColor: themeColor + '20' }]}>
-                                <Ionicons name="checkmark" size={12} color={themeColor} />
+                            <View style={[styles.checkContainer, { borderColor: themeColor + '55' }]}>
+                                <Ionicons name="checkmark" size={11} color={themeColor} />
                             </View>
-                            <Text style={styles.featureText} numberOfLines={1}>{feature}</Text>
+                            <Text style={styles.featureText} numberOfLines={2}>{feature}</Text>
                         </View>
                     ))}
-                    {features.length > 3 && (
-                        <Text style={styles.moreText}>+{features.length - 3} more exclusive features</Text>
+                    {features.length > 4 && (
+                        <Text style={styles.moreText}>+{features.length - 4} more features</Text>
                     )}
                 </View>
 
-                <View style={[styles.selectButton, { backgroundColor: themeColor }]}>
-                    <Text style={styles.selectText}>{btnText || "Select Plan"}</Text>
-                    <Ionicons name="arrow-forward" size={16} color="#fff" />
+                <View style={styles.footerRow}>
+                    <Text style={styles.footerHint}>Review details before payment</Text>
+                    <View style={[styles.selectButton, { backgroundColor: themeColor }]}>
+                        <Text style={styles.selectText}>{btnText || "Select Plan"}</Text>
+                        <Ionicons name="arrow-forward" size={15} color="#fff" />
+                    </View>
                 </View>
             </View>
         </TouchableOpacity>
@@ -121,121 +120,164 @@ const PackagePlanCard: React.FC<PackagePlanCardProps> = ({
 
 const styles = StyleSheet.create({
     card: {
-        marginBottom: 20,
-        borderRadius: 5,
+        marginBottom: 14,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#BFDBFE',
-        backgroundColor: '#fff',
+        borderColor: COLORS.border,
+        backgroundColor: COLORS.white,
         overflow: 'hidden',
+        shadowColor: COLORS.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        elevation: 2,
     },
     innerCard: {
-        padding: 24,
+        padding: 16,
+        position: 'relative',
+    },
+    accentLine: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 3,
     },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 20,
+        gap: 12,
+        marginBottom: 16,
+    },
+    titleBlock: {
+        flex: 1,
     },
     cardTitle: {
-        fontSize: 20,
-        fontWeight: '900',
-        color: '#1e293b',
-        marginBottom: 4,
+        fontSize: 17,
+        fontWeight: '600',
+        color: COLORS.text.primary,
+        marginBottom: 8,
+        lineHeight: 22,
+        textTransform: 'capitalize',
     },
     daysBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        backgroundColor: '#eff6ff',
         alignSelf: 'flex-start',
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 5,
+        paddingHorizontal: 9,
+        paddingVertical: 4,
+        borderRadius: 999,
     },
     daysText: {
-        fontSize: 11,
-        fontWeight: '800',
-        textTransform: 'uppercase',
+        fontSize: 12,
+        fontWeight: '500',
     },
     popularBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 5,
+        paddingHorizontal: 9,
+        paddingVertical: 5,
+        borderRadius: 999,
+        backgroundColor: COLORS.status.warning + '12',
+        borderWidth: 1,
+        borderColor: COLORS.status.warning + '30',
     },
     popularText: {
-        fontSize: 10,
-        fontWeight: '900',
-        color: '#fff',
-        textTransform: 'uppercase',
+        fontSize: 11,
+        fontWeight: '500',
+        color: '#92400E',
     },
     priceContainer: {
-        marginBottom: 24,
+        paddingVertical: 14,
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: COLORS.divider,
+        marginBottom: 16,
+    },
+    priceLabel: {
+        fontSize: 12,
+        color: COLORS.text.muted,
+        marginBottom: 4,
     },
     priceRow: {
         flexDirection: 'row',
         alignItems: 'baseline',
-        gap: 4,
+        gap: 6,
     },
     currency: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: '#64748b',
+        fontSize: 13,
+        fontWeight: '500',
+        color: COLORS.text.muted,
     },
     price: {
-        fontSize: 32,
-        fontWeight: '900',
-        color: '#0f172a',
+        fontSize: 28,
+        fontWeight: '600',
+        color: COLORS.text.primary,
     },
     perDay: {
         fontSize: 12,
-        color: '#64748b',
-        fontWeight: '600',
+        color: COLORS.text.muted,
+        fontWeight: '400',
         marginTop: 2,
     },
     featuresList: {
-        gap: 12,
-        marginBottom: 24,
+        gap: 10,
+        marginBottom: 16,
     },
     featureRow: {
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
+        alignItems: 'flex-start',
+        gap: 10,
     },
     checkContainer: {
-        width: 22,
-        height: 22,
-        borderRadius: 5,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
+        marginTop: 1,
     },
     featureText: {
         fontSize: 14,
-        color: '#475569',
-        fontWeight: '600',
+        color: COLORS.text.secondary,
+        fontWeight: '400',
         flex: 1,
+        lineHeight: 19,
     },
     moreText: {
         fontSize: 12,
-        color: '#94a3b8',
-        fontWeight: '600',
-        marginLeft: 34,
+        color: COLORS.text.muted,
+        fontWeight: '400',
+        marginLeft: 30,
+    },
+    footerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+    footerHint: {
+        flex: 1,
+        fontSize: 12,
+        color: COLORS.text.muted,
     },
     selectButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 10,
-        borderRadius: 5,
-        gap: 8,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        gap: 7,
     },
     selectText: {
         color: '#fff',
-        fontWeight: '800',
-        fontSize: 15,
+        fontWeight: '600',
+        fontSize: 14,
     },
 });
 
