@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
     Animated,
     Dimensions,
@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import SectionHeader from "./SectionHeader";
 import { getComparisonHistory } from "@/utils/comparisonHistory";
 import { SimilarComparison } from "@/types/compare-detail.types";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const CARD_W = width - 40;
@@ -30,6 +31,7 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
     const router = useRouter();
     const [latest, setLatest] = useState<SimilarComparison | null>(null);
     const [loading, setLoading] = useState(true);
+    const { colors, isDarkMode } = useTheme();
 
     useFocusEffect(
         React.useCallback(() => {
@@ -41,7 +43,7 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
         try {
             const history = await getComparisonHistory();
             if (history && history.length > 0) {
-                setLatest(history[0]); // Take the newest one
+                setLatest(history[0]);
             }
         } catch (error) {
             console.error("Home comparison load error:", error);
@@ -53,7 +55,6 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
     const handlePress = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         if (latest) {
-            // Navigate to detail with these IDs
             router.push({
                 pathname: "/cars/compare-cars-detail",
                 params: { id1: latest.id1, id2: latest.id2 }
@@ -63,98 +64,100 @@ const CarComparison: React.FC<CarComparisonProps> = ({ fadeAnim, slideAnim }) =>
         }
     };
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     const renderPlaceholder = () => (
-        <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={handlePress}>
+        <TouchableOpacity style={themeStyles.card} activeOpacity={0.8} onPress={handlePress}>
             <LinearGradient
-                colors={["#F8FAFF", "#F1F5F9"]}
+                colors={isDarkMode ? [colors.backgroundSecondary, colors.backgroundSecondary] : ["#F8FAFF", "#F1F5F9"]}
                 style={StyleSheet.absoluteFillObject}
             />
-            <View style={styles.placeholderRow}>
-                <View style={styles.plusBox}>
-                    <Ionicons name="add" size={32} color="#94A3B8" />
+            <View style={themeStyles.placeholderRow}>
+                <View style={themeStyles.plusBox}>
+                    <Ionicons name="add" size={32} color={isDarkMode ? colors.text.muted : "#94A3B8"} />
                 </View>
-                <View style={styles.vsCircleMin}>
-                    <Text style={styles.vsTextMin}>VS</Text>
+                <View style={themeStyles.vsCircleMin}>
+                    <Text style={themeStyles.vsTextMin}>VS</Text>
                 </View>
-                <View style={styles.plusBox}>
-                    <Ionicons name="add" size={32} color="#94A3B8" />
+                <View style={themeStyles.plusBox}>
+                    <Ionicons name="add" size={32} color={isDarkMode ? colors.text.muted : "#94A3B8"} />
                 </View>
             </View>
-            <Text style={styles.placeholderLabel}>Start New Comparison</Text>
-            <View style={styles.ctaBar}>
+            <Text style={themeStyles.placeholderLabel}>Start New Comparison</Text>
+            <View style={themeStyles.ctaBar}>
                 <LinearGradient
-                    colors={[COLORS.primary, COLORS.primaryDark]}
+                    colors={[colors.primary, colors.primaryDark]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
-                    style={styles.ctaGrad}
+                    style={themeStyles.ctaGrad}
                 >
                     <Ionicons name="git-compare" size={16} color="#FFF" />
-                    <Text style={styles.ctaBarText}>Pick Two Cars to Compare</Text>
+                    <Text style={themeStyles.ctaBarText}>Pick Two Cars to Compare</Text>
                 </LinearGradient>
             </View>
         </TouchableOpacity>
     );
 
     const renderComparison = (cmp: SimilarComparison) => (
-        <TouchableOpacity style={styles.card} activeOpacity={0.9} onPress={handlePress}>
+        <TouchableOpacity style={themeStyles.card} activeOpacity={0.9} onPress={handlePress}>
             <LinearGradient
-                colors={["#F8FAFF", "#EEF3FF"]}
+                colors={isDarkMode ? [colors.backgroundSecondary, colors.backgroundSecondary] : ["#F8FAFF", "#EEF3FF"]}
                 style={StyleSheet.absoluteFillObject}
             />
-            <View style={styles.comparisonRow}>
+            <View style={themeStyles.comparisonRow}>
                 {/* Car 1 */}
-                <View style={styles.carSide}>
-                    <View style={styles.imgWrap}>
-                        <Image source={{ uri: cmp.leftImage }} style={styles.carImg} contentFit="cover" transition={300} />
+                <View style={themeStyles.carSide}>
+                    <View style={themeStyles.imgWrap}>
+                        <Image source={{ uri: cmp.leftImage }} style={themeStyles.carImg} contentFit="cover" transition={300} />
                     </View>
-                    <Text style={styles.carName} numberOfLines={1}>{cmp.leftName}</Text>
+                    <Text style={themeStyles.carName} numberOfLines={1}>{cmp.leftName}</Text>
                 </View>
 
                 {/* VS */}
-                <View style={styles.vsWrap}>
-                    <View style={styles.vsBadge}>
-                        <Text style={styles.vsText}>VS</Text>
+                <View style={themeStyles.vsWrap}>
+                    <View style={themeStyles.vsBadge}>
+                        <Text style={themeStyles.vsText}>VS</Text>
                     </View>
                 </View>
 
                 {/* Car 2 */}
-                <View style={styles.carSide}>
-                    <View style={styles.imgWrap}>
-                        <Image source={{ uri: cmp.rightImage }} style={styles.carImg} contentFit="cover" transition={300} />
+                <View style={themeStyles.carSide}>
+                    <View style={themeStyles.imgWrap}>
+                        <Image source={{ uri: cmp.rightImage }} style={themeStyles.carImg} contentFit="cover" transition={300} />
                     </View>
-                    <Text style={styles.carName} numberOfLines={1}>{cmp.rightName}</Text>
+                    <Text style={themeStyles.carName} numberOfLines={1}>{cmp.rightName}</Text>
                 </View>
             </View>
 
             {/* CTA bar */}
-            <View style={styles.ctaBar}>
+            <View style={themeStyles.ctaBar}>
                 <LinearGradient
-                    colors={[COLORS.primary, "#1E40AF"]}
-                    style={styles.ctaGrad}
+                    colors={[colors.primary, colors.primaryDark]}
+                    style={themeStyles.ctaGrad}
                 >
                     <Ionicons name="eye-outline" size={16} color="#FFF" />
-                    <Text style={styles.ctaBarText}>Re-analyze Comparison</Text>
+                    <Text style={themeStyles.ctaBarText}>Re-analyze Comparison</Text>
                 </LinearGradient>
             </View>
         </TouchableOpacity>
     );
 
     return (
-        <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View style={[themeStyles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <SectionHeader
                 title="Latest Comparison"
                 subtitle={latest ? "Continue where you left off" : "Smart head-to-head analysis"}
                 onViewAll={() => router.push("/compare" as any)}
             />
-            <View style={styles.mainPadding}>
+            <View style={themeStyles.mainPadding}>
                 {latest ? renderComparison(latest) : renderPlaceholder()}
             </View>
         </Animated.View>
     );
 };
 
-const styles = StyleSheet.create({
-    container: { },
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
+    container: {},
     mainPadding: { paddingHorizontal: 20 },
     card: {
         width: CARD_W,
@@ -164,7 +167,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         overflow: "hidden",
         borderWidth: 1,
-        borderColor: "#DBEAFE",
+        borderColor: isDarkMode ? colors.border : "#DBEAFE",
         position: "relative",
     },
     comparisonRow: {
@@ -185,9 +188,9 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 5,
-        backgroundColor: "#F1F5F9",
+        backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "#F1F5F9",
         borderWidth: 2,
-        borderColor: "#E2E8F0",
+        borderColor: isDarkMode ? colors.border : "#E2E8F0",
         borderStyle: "dashed",
         alignItems: "center",
         justifyContent: "center",
@@ -196,7 +199,7 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: "#94A3B8",
+        backgroundColor: colors.primary,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
     placeholderLabel: {
         fontSize: 15,
         fontWeight: "700",
-        color: "#64748B",
+        color: colors.text.muted,
         marginTop: 12,
         textAlign: "center",
         width: "100%",
@@ -223,21 +226,21 @@ const styles = StyleSheet.create({
         aspectRatio: 1.6,
         borderRadius: 5,
         overflow: "hidden",
-        backgroundColor: "#E8EEFF",
+        backgroundColor: isDarkMode ? "rgba(255,255,255,0.1)" : "#E8EEFF",
         marginBottom: 10,
     },
     carImg: { width: "100%", height: "100%" },
-    carName: { fontSize: 13, fontWeight: "700", color: "#0F172A", textAlign: "center", marginBottom: 3 },
+    carName: { fontSize: 13, fontWeight: "700", color: colors.text.primary, textAlign: "center", marginBottom: 3 },
     vsWrap: { width: 40, alignItems: "center", zIndex: 1 },
     vsBadge: {
         width: 36,
         height: 36,
         borderRadius: 18,
-        backgroundColor: COLORS.primary,
+        backgroundColor: colors.primary,
         alignItems: "center",
         justifyContent: "center",
         borderWidth: 2,
-        borderColor: "#fff",
+        borderColor: colors.white,
     },
     vsText: { color: "#fff", fontWeight: "900", fontSize: 11, fontStyle: "italic" },
     ctaBar: {

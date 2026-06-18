@@ -26,6 +26,7 @@ import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import SelectField from '@/components/ui/SelectField';
 import SearchBar from '@/components/SearchBar';
+import { useTheme } from '@/contexts/ThemeContext';
 
 import Loading from '@/components/ui/Loading';
 import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
@@ -77,6 +78,7 @@ export default function SearchScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { colors, isDarkMode } = useTheme();
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -318,6 +320,8 @@ export default function SearchScreen() {
     }
   };
 
+  const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
   // Render search result card
   const renderSearchCard = ({ item }: { item: any }) => {
     const mainImage = item.AdImage?.find((img: any) => img.is_main)?.image_url ||
@@ -332,28 +336,28 @@ export default function SearchScreen() {
 
     return (
       <TouchableOpacity
-        style={styles.resultCard}
+        style={themeStyles.resultCard}
         activeOpacity={0.9}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           router.push(`/cars/${item.id}` as any);
         }}
       >
-        <View style={styles.cardImageContainer}>
+        <View style={themeStyles.cardImageContainer}>
           {mainImage ? (
             <Image
               source={{ uri: mainImage }}
-              style={styles.cardImage}
+              style={themeStyles.cardImage}
               contentFit="cover"
               transition={200}
             />
           ) : (
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="car-outline" size={40} color={COLORS.border} />
+            <View style={themeStyles.imagePlaceholder}>
+              <Ionicons name="car-outline" size={40} color={colors.border} />
             </View>
           )}
           <TouchableOpacity
-            style={styles.favoriteBtn}
+            style={themeStyles.favoriteBtn}
             onPress={() => toggleFavorite(String(item.id))}
           >
             <Ionicons
@@ -363,35 +367,35 @@ export default function SearchScreen() {
             />
           </TouchableOpacity>
           {item.is_featured && (
-            <View style={styles.featuredBadge}>
+            <View style={themeStyles.featuredBadge}>
               <Ionicons name="star" size={12} color="#FFD700" />
-              <Text style={styles.featuredText}>Featured</Text>
+              <Text style={themeStyles.featuredText}>Featured</Text>
             </View>
           )}
         </View>
 
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle} numberOfLines={1}>
+        <View style={themeStyles.cardContent}>
+          <Text style={themeStyles.cardTitle} numberOfLines={1}>
             {item.title}
           </Text>
-          <Text style={styles.cardPrice}>{formattedPrice}</Text>
+          <Text style={themeStyles.cardPrice}>{formattedPrice}</Text>
 
-          <View style={styles.cardMeta}>
-            <View style={styles.metaItem}>
-              <Ionicons name="calendar-outline" size={12} color={COLORS.text.muted} />
-              <Text style={styles.metaText}>{details.year || 'N/A'}</Text>
+          <View style={themeStyles.cardMeta}>
+            <View style={themeStyles.metaItem}>
+              <Ionicons name="calendar-outline" size={12} color={colors.text.muted} />
+              <Text style={themeStyles.metaText}>{details.year || 'N/A'}</Text>
             </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="speedometer-outline" size={12} color={COLORS.text.muted} />
-              <Text style={styles.metaText}>
+            <View style={themeStyles.metaItem}>
+              <Ionicons name="speedometer-outline" size={12} color={colors.text.muted} />
+              <Text style={themeStyles.metaText}>
                 {details.mileage ? `${Number(details.mileage).toLocaleString()}km` : 'N/A'}
               </Text>
             </View>
           </View>
 
-          <View style={styles.cardLocation}>
-            <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
-            <Text style={styles.locationText} numberOfLines={1}>
+          <View style={themeStyles.cardLocation}>
+            <Ionicons name="location-outline" size={12} color={colors.text.muted} />
+            <Text style={themeStyles.locationText} numberOfLines={1}>
               {item.location}
             </Text>
           </View>
@@ -401,37 +405,37 @@ export default function SearchScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={themeStyles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header title={t("buy_car_screen.search", "Search Vehicles")} />
 
-      <View style={styles.mainContentContainer}>
+      <View style={themeStyles.mainContentContainer}>
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={t("home.search_placeholder", "Search cars, brands, models...")}
-          backgroundColor="#F1F5F9"
+          backgroundColor={isDarkMode ? colors.backgroundSecondary : "#F1F5F9"}
         />
 
         {/* Filter and stats section */}
-        <View style={styles.filterStatsSection}>
+        <View style={themeStyles.filterStatsSection}>
 
           {/* Quick Filters */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.quickFilters}
+            contentContainerStyle={themeStyles.quickFilters}
           >
             <TouchableOpacity
-              style={[styles.filterChip, activeFilterCount > 0 && styles.filterChipActive]}
+              style={[themeStyles.filterChip, activeFilterCount > 0 && themeStyles.filterChipActive]}
               onPress={toggleFilters}
             >
               <Ionicons
                 name="options-outline"
                 size={16}
-                color={activeFilterCount > 0 ? COLORS.white : COLORS.primary}
+                color={activeFilterCount > 0 ? COLORS.white : colors.primary}
               />
-              <Text style={[styles.filterChipText, activeFilterCount > 0 && styles.filterChipTextActive]}>
+              <Text style={[themeStyles.filterChipText, activeFilterCount > 0 && themeStyles.filterChipTextActive]}>
                 {t("buy_car_screen.filter_vehicles", "Filters")} {activeFilterCount > 0 && `(${activeFilterCount})`}
               </Text>
             </TouchableOpacity>
@@ -440,8 +444,8 @@ export default function SearchScreen() {
               <TouchableOpacity
                 key={type.key}
                 style={[
-                  styles.filterChip,
-                  selectedCategory === type.key && styles.filterChipActive
+                  themeStyles.filterChip,
+                  selectedCategory === type.key && themeStyles.filterChipActive
                 ]}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -451,12 +455,12 @@ export default function SearchScreen() {
                 <Ionicons
                   name={type.icon as any}
                   size={16}
-                  color={selectedCategory === type.key ? COLORS.white : COLORS.primary}
+                  color={selectedCategory === type.key ? COLORS.white : colors.primary}
                 />
                 <Text
                   style={[
-                    styles.filterChipText,
-                    selectedCategory === type.key && styles.filterChipTextActive
+                    themeStyles.filterChipText,
+                    selectedCategory === type.key && themeStyles.filterChipTextActive
                   ]}
                 >
                   {type.label}
@@ -466,8 +470,8 @@ export default function SearchScreen() {
           </ScrollView>
 
           {/* Sort & Results Count */}
-          <View style={styles.resultsBar}>
-            <Text style={styles.resultsCount}>
+          <View style={themeStyles.resultsBar}>
+            <Text style={themeStyles.resultsCount}>
               {isSearching ? 'Searching...' : `${searchResults.length} ${t("buy_car_screen.results", "results found")}`}
             </Text>
           </View>
@@ -481,8 +485,8 @@ export default function SearchScreen() {
             renderItem={renderSearchCard}
             keyExtractor={(item) => String(item.id)}
             numColumns={2}
-            contentContainerStyle={styles.resultsGrid}
-            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={themeStyles.resultsGrid}
+            columnWrapperStyle={themeStyles.columnWrapper}
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
@@ -498,27 +502,27 @@ export default function SearchScreen() {
               />
             }
             ListEmptyComponent={
-              <View style={styles.emptyState}>
+              <View style={themeStyles.emptyState}>
                 {isSearching && !refreshing ? (
                   <Loading />
                 ) : (
                   <>
-                    <View style={styles.premiumEmptyIconContainer}>
-                      <View style={styles.premiumEmptyIconInner}>
-                        <Ionicons name="car-sport-outline" size={48} color={COLORS.primary} />
-                        <View style={styles.premiumSearchBadge}>
+                    <View style={themeStyles.premiumEmptyIconContainer}>
+                      <View style={themeStyles.premiumEmptyIconInner}>
+                        <Ionicons name="car-sport-outline" size={48} color={colors.primary} />
+                        <View style={themeStyles.premiumSearchBadge}>
                           <Ionicons name="search" size={14} color={COLORS.white} />
                         </View>
                       </View>
                     </View>
 
-                    <Text style={styles.premiumEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
-                    <Text style={styles.premiumEmptyText}>
+                    <Text style={themeStyles.premiumEmptyTitle}>{t("buy_car_screen.no_vehicles_found", "No vehicles found")}</Text>
+                    <Text style={themeStyles.premiumEmptyText}>
                       We couldn't find any matches. Try adjusting your search or resetting the filters.
                     </Text>
                     {activeFilterCount > 0 && (
-                      <TouchableOpacity style={styles.premiumClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
-                        <Text style={styles.premiumClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
+                      <TouchableOpacity style={themeStyles.premiumClearButton} onPress={clearAllFilters} activeOpacity={0.8}>
+                        <Text style={themeStyles.premiumClearButtonText}>{t("buy_car_screen.clear_filters", "Clear All Filters")}</Text>
                       </TouchableOpacity>
                     )}
                   </>
@@ -538,34 +542,34 @@ export default function SearchScreen() {
         onRequestClose={toggleFilters}
         statusBarTranslucent
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.filterModal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
+        <View style={themeStyles.modalOverlay}>
+          <View style={themeStyles.filterModal}>
+            <View style={themeStyles.modalHeader}>
+              <Text style={themeStyles.modalTitle}>{t("buy_car_screen.filter_vehicles", "Advanced Filters")}</Text>
               <TouchableOpacity onPress={toggleFilters}>
-                <Ionicons name="close" size={24} color={COLORS.text.primary} />
+                <Ionicons name="close" size={24} color={colors.text.primary} />
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
+            <ScrollView style={themeStyles.filterContent} showsVerticalScrollIndicator={false}>
               {/* Price Range */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
+              <View style={themeStyles.filterSection}>
+                <Text style={themeStyles.filterLabel}>{t("buy_car_screen.price_range", "Price Range")}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
+                  <View style={themeStyles.rangeChips}>
                     {PRICE_RANGES.map((range, index) => (
                       <TouchableOpacity
                         key={index}
                         style={[
-                          styles.rangeChip,
-                          selectedPriceRange === index && styles.rangeChipActive
+                          themeStyles.rangeChip,
+                          selectedPriceRange === index && themeStyles.rangeChipActive
                         ]}
                         onPress={() => setSelectedPriceRange(index)}
                       >
                         <Text
                           style={[
-                            styles.rangeChipText,
-                            selectedPriceRange === index && styles.rangeChipTextActive
+                            themeStyles.rangeChipText,
+                            selectedPriceRange === index && themeStyles.rangeChipTextActive
                           ]}
                         >
                           {range.label}
@@ -577,23 +581,23 @@ export default function SearchScreen() {
               </View>
 
               {/* Year Range */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Year</Text>
+              <View style={themeStyles.filterSection}>
+                <Text style={themeStyles.filterLabel}>Year</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={styles.rangeChips}>
+                  <View style={themeStyles.rangeChips}>
                     {YEAR_RANGES.map((range, index) => (
                       <TouchableOpacity
                         key={index}
                         style={[
-                          styles.rangeChip,
-                          selectedYearRange === index && styles.rangeChipActive
+                          themeStyles.rangeChip,
+                          selectedYearRange === index && themeStyles.rangeChipActive
                         ]}
                         onPress={() => setSelectedYearRange(index)}
                       >
                         <Text
                           style={[
-                            styles.rangeChipText,
-                            selectedYearRange === index && styles.rangeChipTextActive
+                            themeStyles.rangeChipText,
+                            selectedYearRange === index && themeStyles.rangeChipTextActive
                           ]}
                         >
                           {range.label}
@@ -606,7 +610,7 @@ export default function SearchScreen() {
 
               {/* Brand */}
               {brands.length > 0 && (
-                <View style={styles.filterSection}>
+                <View style={themeStyles.filterSection}>
                   <SelectField
                     label="Brand"
                     value={selectedBrand}
@@ -618,7 +622,7 @@ export default function SearchScreen() {
 
               {/* Model */}
               {models.length > 0 && (
-                <View style={styles.filterSection}>
+                <View style={themeStyles.filterSection}>
                   <SelectField
                     label="Model"
                     value={selectedModel}
@@ -630,7 +634,7 @@ export default function SearchScreen() {
 
               {/* Condition */}
               {conditions.length > 0 && (
-                <View style={styles.filterSection}>
+                <View style={themeStyles.filterSection}>
                   <SelectField
                     label="Condition"
                     value={selectedCondition}
@@ -641,7 +645,7 @@ export default function SearchScreen() {
               )}
 
               {/* Fuel Type */}
-              <View style={styles.filterSection}>
+              <View style={themeStyles.filterSection}>
                 <SelectField
                   label="Fuel Type"
                   value={selectedFuelType}
@@ -657,7 +661,7 @@ export default function SearchScreen() {
               </View>
 
               {/* Transmission */}
-              <View style={styles.filterSection}>
+              <View style={themeStyles.filterSection}>
                 <SelectField
                   label="Transmission"
                   value={selectedTransmission}
@@ -671,21 +675,21 @@ export default function SearchScreen() {
               </View>
             </ScrollView>
 
-            <View style={[styles.modalFooter, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+            <View style={[themeStyles.modalFooter, { paddingBottom: Math.max(insets.bottom, 24) }]}>
               <TouchableOpacity
-                style={styles.clearFiltersBtn}
+                style={themeStyles.clearFiltersBtn}
                 onPress={clearAllFilters}
               >
-                <Text style={styles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
+                <Text style={themeStyles.clearFiltersText}>{t("buy_car_screen.reset_all", "Clear All")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.applyFiltersBtn}
+                style={themeStyles.applyFiltersBtn}
                 onPress={() => {
                   performSearch();
                   toggleFilters();
                 }}
               >
-                <Text style={styles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
+                <Text style={themeStyles.applyFiltersText}>{t("buy_car_screen.apply_filters", "Apply Filters")}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -695,19 +699,19 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   mainContentContainer: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.background,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
   },
   filterStatsSection: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.background,
     paddingBottom: 4,
   },
   quickFilters: {
@@ -718,20 +722,23 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 5,
     paddingHorizontal: 16,
     paddingVertical: 8,
     gap: 6,
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   filterChipActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   filterChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#64748B',
+    color: colors.text.secondary,
   },
   filterChipTextActive: {
     color: COLORS.white,
@@ -746,7 +753,7 @@ const styles = StyleSheet.create({
   resultsCount: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
   },
   sortButton: {
     flexDirection: 'row',
@@ -756,7 +763,7 @@ const styles = StyleSheet.create({
   sortText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   resultsGrid: {
     padding: 16,
@@ -768,11 +775,11 @@ const styles = StyleSheet.create({
   },
   resultCard: {
     width: CARD_WIDTH,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 5,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: "#DBEAFE",
+    borderColor: colors.border,
     elevation: 0,
     shadowOpacity: 0,
   },
@@ -788,7 +795,7 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.backgroundMuted,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -826,13 +833,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     marginBottom: 4,
   },
   cardPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 8,
   },
   cardMeta: {
@@ -847,7 +854,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11,
-    color: COLORS.text.muted,
+    color: colors.text.muted,
   },
   cardLocation: {
     flexDirection: 'row',
@@ -856,7 +863,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 11,
-    color: COLORS.text.muted,
+    color: colors.text.muted,
     flex: 1,
   },
   emptyState: {
@@ -869,7 +876,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -877,17 +884,17 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.text.muted,
+    color: colors.text.muted,
     textAlign: 'center',
     marginBottom: 24,
   },
   clearButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
@@ -903,7 +910,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   filterModal: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.background,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '80%',
@@ -914,12 +921,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.divider,
+    borderBottomColor: colors.border,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
+    color: colors.text.primary,
   },
   filterContent: {
     padding: 20,
@@ -930,7 +937,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
     marginBottom: 12,
   },
   rangeChips: {
@@ -942,17 +949,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    borderColor: colors.border,
+    backgroundColor: colors.backgroundSecondary,
   },
   rangeChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   rangeChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
   },
   rangeChipTextActive: {
     color: COLORS.white,
@@ -962,26 +969,26 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.divider,
+    borderTopColor: colors.border,
   },
   clearFiltersBtn: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     alignItems: 'center',
   },
   clearFiltersText: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   applyFiltersBtn: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 5,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
   },
   applyFiltersText: {
@@ -993,7 +1000,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: 'rgba(35, 92, 248, 0.04)',
+    backgroundColor: isDarkMode ? 'rgba(35, 92, 248, 0.1)' : 'rgba(35, 92, 248, 0.04)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -1002,7 +1009,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: 'rgba(35, 92, 248, 0.08)',
+    backgroundColor: isDarkMode ? 'rgba(35, 92, 248, 0.2)' : 'rgba(35, 92, 248, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -1011,32 +1018,32 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 8,
     right: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     width: 28,
     height: 28,
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#F9FAFB',
+    borderColor: colors.background,
   },
   premiumEmptyTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     marginBottom: 10,
     letterSpacing: -0.5,
   },
   premiumEmptyText: {
     fontSize: 15,
-    color: COLORS.text.muted,
+    color: colors.text.muted,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 30,
     paddingHorizontal: 20,
   },
   premiumClearButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 5,

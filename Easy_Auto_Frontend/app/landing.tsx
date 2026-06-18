@@ -14,6 +14,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -153,14 +154,15 @@ function SplashScreen({ onContinue }: { onContinue: () => void }) {
 export default function LandingPage() {
     const router = useRouter();
     const navigating = useRef(false);
+    const { colors, isDarkMode } = useTheme();
 
     const handleContinue = () => {
         // Provide immediate feedback
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => { });
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: isDarkMode ? colors.background : "#235CF8" }]}>
             <StatusBar style="light" />
             <SplashScreen onContinue={handleContinue} />
         </View>
@@ -170,7 +172,6 @@ export default function LandingPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#235CF8",
     },
 });
 

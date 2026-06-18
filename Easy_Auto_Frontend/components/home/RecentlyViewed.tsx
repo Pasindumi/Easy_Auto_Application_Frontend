@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
     Animated,
     Dimensions,
@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import SectionHeader from "./SectionHeader";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const CARD_W = 190;
@@ -40,6 +41,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
     const router = useRouter();
     const [ads, setAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const { colors, isDarkMode } = useTheme();
 
     useEffect(() => {
         (async () => {
@@ -51,24 +53,26 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
         })();
     }, []);
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     if (!loading && ads.length === 0) return null;
 
     return (
-        <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View style={[themeStyles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <SectionHeader
                 title="New Arrivals"
                 subtitle="Just added to the marketplace"
                 onViewAll={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/cars/buy-car" as any); }}
             />
             {loading ? (
-                <View style={styles.loader}>
+                <View style={themeStyles.loader}>
                     <Loading size="small" />
                 </View>
             ) : (
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.scroll}
+                    contentContainerStyle={themeStyles.scroll}
                     decelerationRate="fast"
                     snapToInterval={CARD_W + 12}
                 >
@@ -78,35 +82,35 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
                         return (
                             <TouchableOpacity
                                 key={car.id}
-                                style={styles.card}
+                                style={themeStyles.card}
                                 activeOpacity={0.9}
                                 onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push(`/cars/${car.id}` as any); }}
                             >
-                                <View style={styles.imgWrap}>
+                                <View style={themeStyles.imgWrap}>
                                     <Image
                                         source={imgUrl ? { uri: imgUrl } : require("@/assets/images/car.jpg")}
-                                        style={styles.img}
+                                        style={themeStyles.img}
                                         contentFit="cover"
                                         transition={300}
                                     />
-                                    <View style={styles.priceTag}>
-                                        <Text style={styles.priceText}>{formatPrice(car.price)}</Text>
+                                    <View style={themeStyles.priceTag}>
+                                        <Text style={themeStyles.priceText}>{formatPrice(car.price)}</Text>
                                     </View>
-                                    <View style={styles.newBadge}>
-                                        <Text style={styles.newBadgeText}>NEW</Text>
+                                    <View style={themeStyles.newBadge}>
+                                        <Text style={themeStyles.newBadgeText}>NEW</Text>
                                     </View>
-                                    <TouchableOpacity style={styles.wishBtn}>
+                                    <TouchableOpacity style={themeStyles.wishBtn}>
                                         <Ionicons name="heart-outline" size={14} color="#fff" />
                                     </TouchableOpacity>
                                 </View>
-                                <View style={styles.body}>
-                                    <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
-                                    <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                <View style={themeStyles.body}>
+                                    <Text style={themeStyles.cardTitle} numberOfLines={1}>{title}</Text>
+                                    <Text style={themeStyles.cardSubTitle} numberOfLines={1}>
                                         {car.CarDetails?.model} {car.CarDetails?.year}
                                     </Text>
-                                    <View style={styles.metaRow}>
-                                        <Ionicons name="location-outline" size={12} color="#94A3B8" />
-                                        <Text style={styles.meta} numberOfLines={1}>
+                                    <View style={themeStyles.metaRow}>
+                                        <Ionicons name="location-outline" size={12} color={colors.text.muted} />
+                                        <Text style={themeStyles.meta} numberOfLines={1}>
                                             {car.location?.split(",")[0] || "Sri Lanka"}
                                         </Text>
                                     </View>
@@ -120,17 +124,17 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ fadeAnim, slideAnim }) 
     );
 };
 
-const styles = StyleSheet.create({
-    container: { backgroundColor: "#FFFFFF" },
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
+    container: { backgroundColor: colors.background },
     loader: { height: 200, justifyContent: "center", alignItems: "center" },
     scroll: { paddingHorizontal: 20, gap: 12, paddingBottom: 4 },
     card: {
         width: CARD_W,
-        backgroundColor: "#fff",
+        backgroundColor: colors.backgroundSecondary,
         borderRadius: 5,
         overflow: "hidden",
         borderWidth: 1,
-        borderColor: "#DBEAFE",
+        borderColor: isDarkMode ? colors.border : "#DBEAFE",
     },
     imgWrap: { height: 110, position: "relative" },
     img: { width: "100%", height: "100%" },
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.2)',
     },
     priceText: {
-        color: COLORS.white,
+        color: colors.white,
         fontWeight: "700",
         fontSize: 11,
     },
@@ -172,15 +176,15 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     body: { padding: 12 },
-    cardTitle: { fontSize: 14, fontWeight: "700", color: "#0F172A", marginBottom: 4 },
+    cardTitle: { fontSize: 14, fontWeight: "700", color: colors.text.primary, marginBottom: 4 },
     cardSubTitle: {
         fontSize: 12,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         fontWeight: "500",
         marginBottom: 6,
     },
     metaRow: { flexDirection: "row", alignItems: "center", gap: 3 },
-    meta: { fontSize: 11, color: "#94A3B8", fontWeight: "500", flex: 1 },
+    meta: { fontSize: 11, color: colors.text.muted, fontWeight: "500", flex: 1 },
 });
 
 export default RecentlyViewed;

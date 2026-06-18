@@ -3,7 +3,7 @@
  * Use these constants instead of hardcoded hex values to ensure consistency.
  */
 
-export const COLORS = {
+export const LIGHT_COLORS = {
     // Primary Brand Colors
     primary: "#235CF8",      // Vibrant Blue (Header, Primary Buttons)
     primaryDark: "#1E4DB7",  // Slightly darker blue for pressed states
@@ -86,4 +86,36 @@ export const COLORS = {
     },
 };
 
+export const DARK_COLORS = {
+    ...LIGHT_COLORS,
+    primaryLight: "#1E3A8A",
+    primaryFaint: "#172554",
+    white: "#1E293B",
+    black: "#F8FAFC",
+    background: "#0F172A",
+    backgroundSecondary: "#1E293B",
+    backgroundMuted: "#334155",
+    text: {
+        primary: "#F8FAFC",
+        secondary: "#CBD5E1",
+        gray: "#94A3B8",
+        muted: "#64748B",
+        placeholder: "#475569",
+        light: "#334155",
+        white: "#FFFFFF",
+        blue: "#3B82F6",
+    },
+    border: "#334155",
+    borderDark: "#475569",
+    divider: "#1E293B",
+    dividerLegacy: "#334155",
+    inputBg: "#0F172A",
+    inputBorder: "#334155",
+    shadow: "#000000",
+    overlay: "rgba(0, 0, 0, 0.7)",
+};
+
+export const COLORS = LIGHT_COLORS;
+
 export default COLORS;
+

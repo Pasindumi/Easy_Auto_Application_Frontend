@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { useEffect, useState, memo, useMemo } from "react";
 import {
     Animated,
     StyleSheet,
@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import COLORS from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface PriceDropAlertProps {
     fadeAnim: Animated.Value;
@@ -24,18 +25,17 @@ const PriceDropAlert: React.FC<PriceDropAlertProps> = memo(({
     slideAnim,
 }) => {
     const router = useRouter();
+    const { colors, isDarkMode } = useTheme();
     const [alertCar, setAlertCar] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const fetchPriceDrop = async () => {
         setLoading(true);
         try {
-            // Ideally an endpoint for price drops. Simulated via recent discounts/ads
-            const res: any = await api.get('/api/cars?limit=1&sort=updated_at'); 
+            const res: any = await api.get('/api/cars?limit=1&sort=updated_at');
             if (res.success && res.data?.length > 0) {
-                // Simulate a price drop for the UI demonstration
                 const car = res.data[0];
-                const dropAmount = Math.floor(car.price * 0.05); // 5% drop
+                const dropAmount = Math.floor(car.price * 0.05);
                 setAlertCar({ ...car, originalPrice: car.price + dropAmount, priceDrop: dropAmount });
             }
         } catch (error) {
@@ -60,6 +60,8 @@ const PriceDropAlert: React.FC<PriceDropAlertProps> = memo(({
         }).format(val);
     };
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     if (loading || !alertCar) return null;
 
     const details = Array.isArray(alertCar.CarDetails) ? alertCar.CarDetails?.[0] : alertCar.CarDetails;
@@ -71,7 +73,7 @@ const PriceDropAlert: React.FC<PriceDropAlertProps> = memo(({
     return (
         <Animated.View
             style={[
-                styles.container,
+                themeStyles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
@@ -85,50 +87,47 @@ const PriceDropAlert: React.FC<PriceDropAlertProps> = memo(({
                     router.push(`/cars/${alertCar.id}` as any);
                 }}
             >
-                <LinearGradient
-                    colors={['#FEF2F2', '#FEF2F2']} // Very subtle red/error background
-                    style={styles.card}
-                >
-                    <View style={styles.headerRow}>
-                        <View style={styles.badge}>
+                <View style={themeStyles.card}>
+                    <View style={themeStyles.headerRow}>
+                        <View style={themeStyles.badge}>
                             <Ionicons name="trending-down" size={14} color="#DC2626" />
-                            <Text style={styles.badgeText}>Price Drop Alert</Text>
+                            <Text style={themeStyles.badgeText}>Price Drop Alert</Text>
                         </View>
-                        <Text style={styles.timeText}>Just now</Text>
+                        <Text style={themeStyles.timeText}>Just now</Text>
                     </View>
 
-                    <View style={styles.contentRow}>
-                        <View style={styles.imageContainer}>
+                    <View style={themeStyles.contentRow}>
+                        <View style={themeStyles.imageContainer}>
                             <Image
                                 source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
-                                style={styles.image}
+                                style={themeStyles.image}
                                 contentFit="cover"
                                 transition={300}
                                 cachePolicy="memory-disk"
                             />
                         </View>
-                        
-                        <View style={styles.detailsContainer}>
-                            <Text style={styles.title} numberOfLines={2}>{title}</Text>
-                            
-                            <View style={styles.priceContainer}>
-                                <Text style={styles.originalPrice}>{formatPrice(alertCar.originalPrice)}</Text>
-                                <View style={styles.newPriceRow}>
-                                    <Text style={styles.newPrice}>{formatPrice(alertCar.price)}</Text>
-                                    <View style={styles.dropPill}>
-                                        <Text style={styles.dropText}>↓ {formatPrice(alertCar.priceDrop)}</Text>
+
+                        <View style={themeStyles.detailsContainer}>
+                            <Text style={themeStyles.title} numberOfLines={2}>{title}</Text>
+
+                            <View style={themeStyles.priceContainer}>
+                                <Text style={themeStyles.originalPrice}>{formatPrice(alertCar.originalPrice)}</Text>
+                                <View style={themeStyles.newPriceRow}>
+                                    <Text style={themeStyles.newPrice}>{formatPrice(alertCar.price)}</Text>
+                                    <View style={themeStyles.dropPill}>
+                                        <Text style={themeStyles.dropText}>↓ {formatPrice(alertCar.priceDrop)}</Text>
                                     </View>
                                 </View>
                             </View>
                         </View>
                     </View>
-                </LinearGradient>
+                </View>
             </TouchableOpacity>
         </Animated.View>
     );
 });
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
         paddingHorizontal: 20,
         marginBottom: 24,
@@ -136,9 +135,10 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: 10,
         padding: 16,
+        backgroundColor: isDarkMode ? colors.backgroundSecondary : '#FEF2F2',
         borderWidth: 1,
-        borderColor: '#FECACA',
-        shadowColor: '#DC2626',
+        borderColor: isDarkMode ? colors.border : '#FECACA',
+        shadowColor: isDarkMode ? colors.primary : '#DC2626',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 12,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     badge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FEE2E2',
+        backgroundColor: isDarkMode ? "rgba(220, 38, 38, 0.1)" : '#FEE2E2',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 10,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     },
     timeText: {
         fontSize: 12,
-        color: '#9CA3AF',
+        color: colors.text.muted,
         fontWeight: '500',
     },
     contentRow: {
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 15,
         fontWeight: '700',
-        color: COLORS.text.primary,
+        color: colors.text.primary,
         marginBottom: 8,
     },
     priceContainer: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     },
     originalPrice: {
         fontSize: 12,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         textDecorationLine: 'line-through',
         fontWeight: '500',
     },

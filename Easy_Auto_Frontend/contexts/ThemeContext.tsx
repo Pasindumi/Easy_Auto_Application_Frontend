@@ -1,15 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'react-native';
+import { LIGHT_COLORS, DARK_COLORS } from '../constants/Colors';
 
 interface ThemeContextType {
     isDarkMode: boolean;
     toggleTheme: (value: boolean) => void;
+    colors: typeof LIGHT_COLORS;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
     isDarkMode: false,
     toggleTheme: () => { },
+    colors: LIGHT_COLORS,
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -47,9 +50,12 @@ export const CustomThemeProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     if (!isLoaded) return null;
 
+    const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS;
+
     return (
-        <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
+        <ThemeContext.Provider value={{ isDarkMode, toggleTheme, colors }}>
             {children}
         </ThemeContext.Provider>
     );
 };
+

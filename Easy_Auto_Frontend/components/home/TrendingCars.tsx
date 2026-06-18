@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
     Animated,
@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { api } from "@/utils/api";
 import COLORS from "@/constants/Colors";
 import Loading from "../ui/Loading";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface TrendingCarsProps {
     fadeAnim: Animated.Value;
@@ -33,6 +34,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     const { t } = useTranslation();
     const [trendingAds, setTrendingAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const { colors, isDarkMode } = useTheme();
 
     useEffect(() => {
         fetchTrendingAds();
@@ -53,84 +55,85 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     };
 
     const displayAds = trendingAds.length > 0 ? trendingAds : [];
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
 
     return (
         <Animated.View
             style={[
-                styles.container,
+                themeStyles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.header}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{t("home_screen.trending", "Trending Ads 🔥")}</Text>
-                    <Text style={styles.subtitle}>Most popular this week</Text>
+            <View style={themeStyles.header}>
+                <View style={themeStyles.titleContainer}>
+                    <Text style={themeStyles.title}>{t("home_screen.trending", "Trending Ads 🔥")}</Text>
+                    <Text style={themeStyles.subtitle}>Most popular this week</Text>
                 </View>
             </View>
 
             {loading ? (
-                <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
+                <View style={[themeStyles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
                     <Loading size="small" />
                 </View>
             ) : displayAds.length === 0 ? (
-                <View style={[styles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
-                    <Text style={{ color: COLORS.text.muted, fontSize: 14 }}>No trending ads found right now.</Text>
+                <View style={[themeStyles.cardsContainer, { paddingVertical: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }]}>
+                    <Text style={{ color: colors.text.muted, fontSize: 14 }}>No trending ads found right now.</Text>
                 </View>
             ) : (
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.cardsContainer}
+                    contentContainerStyle={themeStyles.cardsContainer}
                     decelerationRate="fast"
                     snapToInterval={190 + 16}
                 >
                     {displayAds.map((ad, index) => (
                         <TouchableOpacity
                             key={`trending-${ad.id}-${index}`}
-                            style={styles.card}
+                            style={themeStyles.card}
                             activeOpacity={0.9}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                 router.push(`/cars/${ad.id}`);
                             }}
                         >
-                            <View style={styles.imageContainer}>
+                            <View style={themeStyles.imageContainer}>
                                 <Image
                                     source={{ uri: ad.AdImage?.[0]?.image_url || "https://placehold.co/600x400/png" }}
-                                    style={styles.image}
+                                    style={themeStyles.image}
                                     contentFit="cover"
                                     transition={300}
                                     cachePolicy="memory-disk"
                                 />
-                                <View style={styles.reviewBadge}>
+                                <View style={themeStyles.reviewBadge}>
                                     <Ionicons name="star" size={10} color="#FFD700" />
-                                    <Text style={styles.reviewText}>
+                                    <Text style={themeStyles.reviewText}>
                                         {ad.review_count || 0} Reviews
                                     </Text>
                                 </View>
 
-                                <View style={styles.priceTag}>
-                                    <Text style={styles.priceText}>
+                                <View style={themeStyles.priceTag}>
+                                    <Text style={themeStyles.priceText}>
                                         {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(ad.price)}
                                     </Text>
                                 </View>
                             </View>
 
-                            <View style={styles.cardContent}>
-                                <Text style={styles.cardTitle} numberOfLines={1}>
+                            <View style={themeStyles.cardContent}>
+                                <Text style={themeStyles.cardTitle} numberOfLines={1}>
                                     {ad.title}
                                 </Text>
-                                <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                <Text style={themeStyles.cardSubTitle} numberOfLines={1}>
                                     {ad.CarDetails?.model} {ad.CarDetails?.year}
                                 </Text>
 
-                                <View style={styles.detailsRow}>
-                                    <View style={styles.locationRow}>
-                                        <Ionicons name="location-outline" size={14} color={COLORS.text.muted} />
-                                        <Text style={styles.locationText} numberOfLines={1}>
+                                <View style={themeStyles.detailsRow}>
+                                    <View style={themeStyles.locationRow}>
+                                        <Ionicons name="location-outline" size={14} color={colors.text.muted} />
+                                        <Text style={themeStyles.locationText} numberOfLines={1}>
                                             {ad.location?.split(",")[0] || "Unknown"}
                                         </Text>
                                     </View>
@@ -144,7 +147,7 @@ const TrendingCars: React.FC<TrendingCarsProps> = ({
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
     },
     header: {
@@ -160,12 +163,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: "800",
-        color: COLORS.text.primary,
+        color: colors.text.primary,
         letterSpacing: -0.5,
     },
     subtitle: {
         fontSize: 13,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         marginTop: 2,
         fontWeight: "500",
     },
@@ -175,10 +178,10 @@ const styles = StyleSheet.create({
     },
     card: {
         width: 190,
-        backgroundColor: COLORS.white,
+        backgroundColor: colors.backgroundSecondary,
         borderRadius: 5,
         borderWidth: 1,
-        borderColor: '#DBEAFE',
+        borderColor: isDarkMode ? colors.border : '#DBEAFE',
         overflow: 'hidden',
     },
     imageContainer: {
@@ -202,7 +205,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.2)',
     },
     priceText: {
-        color: COLORS.white,
+        color: colors.white,
         fontWeight: "700",
         fontSize: 11,
     },
@@ -212,12 +215,12 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 14,
         fontWeight: "700",
-        color: COLORS.text.primary,
+        color: colors.text.primary,
         marginBottom: 4,
     },
     cardSubTitle: {
         fontSize: 12,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         fontWeight: "500",
         marginBottom: 8,
     },
@@ -233,7 +236,7 @@ const styles = StyleSheet.create({
     },
     locationText: {
         fontSize: 11,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         fontWeight: "500",
         flex: 1,
     },

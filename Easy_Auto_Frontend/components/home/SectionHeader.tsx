@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import COLORS from "@/constants/Colors";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface SectionHeaderProps {
     title: string;
@@ -18,33 +19,38 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
     onViewAll,
     viewAllLabel = "See All",
     rightElement,
-}) => (
-    <View style={styles.row}>
-        <View style={styles.left}>
-            <Text style={styles.title}>{title}</Text>
-            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-        </View>
-        {rightElement
-            ? rightElement
-            : onViewAll
-            ? (
-                <TouchableOpacity
-                    style={styles.btn}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        onViewAll();
-                    }}
-                    activeOpacity={0.7}
-                >
-                    <Text style={styles.btnText}>{viewAllLabel}</Text>
-                    <Ionicons name="chevron-forward" size={13} color={COLORS.primary} />
-                </TouchableOpacity>
-            )
-            : null}
-    </View>
-);
+}) => {
+    const { colors, isDarkMode } = useTheme();
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
 
-const styles = StyleSheet.create({
+    return (
+        <View style={themeStyles.row}>
+            <View style={themeStyles.left}>
+                <Text style={themeStyles.title}>{title}</Text>
+                {subtitle ? <Text style={themeStyles.subtitle}>{subtitle}</Text> : null}
+            </View>
+            {rightElement
+                ? rightElement
+                : onViewAll
+                    ? (
+                        <TouchableOpacity
+                            style={themeStyles.btn}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                onViewAll();
+                            }}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={themeStyles.btnText}>{viewAllLabel}</Text>
+                            <Ionicons name="chevron-forward" size={13} color={colors.primary} />
+                        </TouchableOpacity>
+                    )
+                    : null}
+        </View>
+    );
+};
+
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     row: {
         flexDirection: "row",
         alignItems: "center",
@@ -56,31 +62,32 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: "800",
-        color: "#0F172A",
+        color: colors.text.primary,
         letterSpacing: -0.4,
     },
     subtitle: {
         fontSize: 12,
         fontWeight: "500",
-        color: "#94A3B8",
+        color: colors.text.muted,
         marginTop: 2,
     },
     btn: {
         flexDirection: "row",
         alignItems: "center",
         gap: 2,
-        backgroundColor: "#EEF3FF",
+        backgroundColor: isDarkMode ? colors.backgroundSecondary : "#EEF3FF",
         paddingHorizontal: 20,
         paddingVertical: 6,
         borderRadius: 5,
         borderWidth: 1,
-        borderColor: "#DBEAFE",
+        borderColor: isDarkMode ? colors.border : "#DBEAFE",
     },
     btnText: {
         fontSize: 12,
         fontWeight: "700",
-        color: COLORS.primary,
+        color: colors.primary,
     },
 });
 
 export default SectionHeader;
+

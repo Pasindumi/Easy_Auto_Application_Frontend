@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
     Animated,
@@ -14,6 +14,7 @@ import {
 import * as Haptics from "expo-haptics";
 import COLORS from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface HomeHeaderProps {
     initialHeaderOpacity: Animated.Value;
@@ -32,6 +33,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 }) => {
     const router = useRouter();
     const { t } = useTranslation();
+    const { colors, isDarkMode } = useTheme();
 
     const tap = (type: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -40,29 +42,32 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         if (type === "wish") router.push("/wishlist/wishlist" as any);
     };
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+    const iconColor = isDarkMode ? colors.text.primary : "#fff";
+
     return (
-        <Animated.View style={[styles.outer, { opacity: initialHeaderOpacity, paddingTop }]}>
-            <View style={styles.px}>
+        <Animated.View style={[themeStyles.outer, { opacity: initialHeaderOpacity, paddingTop }]}>
+            <View style={themeStyles.px}>
                 {/* ── Top row: menu & actions ── */}
-                <View style={styles.topRow}>
-                    <TouchableOpacity onPress={() => tap("menu")} style={styles.iconBtn} activeOpacity={0.7}>
-                        <Ionicons name="menu-outline" size={26} color="#fff" />
+                <View style={themeStyles.topRow}>
+                    <TouchableOpacity onPress={() => tap("menu")} style={themeStyles.iconBtn} activeOpacity={0.7}>
+                        <Ionicons name="menu-outline" size={26} color={iconColor} />
                     </TouchableOpacity>
 
-                    <View style={styles.rightRow}>
-                        <TouchableOpacity onPress={() => tap("wish")} style={styles.iconBtn} activeOpacity={0.7}>
-                            <Ionicons name="heart-outline" size={24} color="#fff" />
+                    <View style={themeStyles.rightRow}>
+                        <TouchableOpacity onPress={() => tap("wish")} style={themeStyles.iconBtn} activeOpacity={0.7}>
+                            <Ionicons name="heart-outline" size={24} color={iconColor} />
                             {wishlistCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>{wishlistCount > 10 ? '9+' : wishlistCount}</Text>
+                                <View style={themeStyles.badge}>
+                                    <Text style={themeStyles.badgeText}>{wishlistCount > 10 ? '9+' : wishlistCount}</Text>
                                 </View>
                             )}
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => tap("notif")} style={styles.iconBtn} activeOpacity={0.7}>
-                            <Ionicons name="notifications-outline" size={24} color="#fff" />
+                        <TouchableOpacity onPress={() => tap("notif")} style={themeStyles.iconBtn} activeOpacity={0.7}>
+                            <Ionicons name="notifications-outline" size={24} color={iconColor} />
                             {notificationCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>{notificationCount > 10 ? '9+' : notificationCount}</Text>
+                                <View style={themeStyles.badge}>
+                                    <Text style={themeStyles.badgeText}>{notificationCount > 10 ? '9+' : notificationCount}</Text>
                                 </View>
                             )}
                         </TouchableOpacity>
@@ -70,10 +75,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 </View>
 
                 {/* ── Logo Row ── */}
-                <View style={styles.logoContainer}>
+                <View style={themeStyles.logoContainer}>
                     <Image
                         source={require("@/assets/applogonew.png")}
-                        style={styles.logo}
+                        style={[themeStyles.logo, isDarkMode && { tintColor: colors.text.primary }]}
                         contentFit="contain"
                     />
                 </View>
@@ -82,18 +87,20 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     outer: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: isDarkMode ? colors.backgroundSecondary : colors.primary,
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
         paddingBottom: 12,
-        shadowColor: "#000",
+        shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 10,
         elevation: 8,
         zIndex: 100,
+        borderBottomWidth: isDarkMode ? 1 : 0,
+        borderBottomColor: colors.border,
     },
     px: { paddingHorizontal: 20 },
 
@@ -119,16 +126,17 @@ const styles = StyleSheet.create({
     badge: {
         position: "absolute", top: 4, right: 4,
         minWidth: 15, height: 15, borderRadius: 7.5,
-        backgroundColor: "#FCD34D",
-        borderWidth: 1.5, borderColor: COLORS.primary,
+        backgroundColor: isDarkMode ? colors.primary : "#FCD34D",
+        borderWidth: 1.5, borderColor: isDarkMode ? colors.backgroundSecondary : colors.primary,
         alignItems: 'center', justifyContent: 'center',
         paddingHorizontal: 2,
     },
     badgeText: {
-        color: COLORS.primary,
+        color: isDarkMode ? "#fff" : colors.primary,
         fontSize: 8,
         fontWeight: "900",
     },
 });
+
 
 export default HomeHeader;

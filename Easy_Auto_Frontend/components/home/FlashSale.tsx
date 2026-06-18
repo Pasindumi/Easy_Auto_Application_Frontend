@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
     Animated,
     Dimensions,
@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -30,6 +31,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [discounts, setDiscounts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const { colors, isDarkMode } = useTheme();
 
     const fetchDiscounts = async () => {
         try {
@@ -52,7 +54,6 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
         return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     };
 
-    // Auto-scroll logic
     useEffect(() => {
         if (discounts.length <= 1) return;
 
@@ -75,10 +76,12 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
         router.push(`/discounts/${item.id}` as any);
     };
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     const renderItem = ({ item }: { item: any }) => (
         <TouchableOpacity
             activeOpacity={0.95}
-            style={[styles.card, { backgroundColor: item.color_theme || COLORS.primary }]}
+            style={[themeStyles.card, { backgroundColor: item.color_theme || colors.primary }]}
             onPress={() => handlePress(item)}
         >
             {item.offer_image_url ? (
@@ -95,30 +98,30 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
                     />
                 </>
             ) : (
-                <View style={styles.decorativeCircle} />
+                <View style={themeStyles.decorativeCircle} />
             )}
 
-            <View style={styles.cardContent}>
-                <View style={styles.leftContent}>
-                    <View style={styles.badgeContainer}>
-                        <Text style={styles.badgeText}>FLASH SALE</Text>
+            <View style={themeStyles.cardContent}>
+                <View style={themeStyles.leftContent}>
+                    <View style={themeStyles.badgeContainer}>
+                        <Text style={themeStyles.badgeText}>FLASH SALE</Text>
                     </View>
-                    <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
-                    <Text style={styles.discountValue}>
+                    <Text style={themeStyles.title} numberOfLines={1}>{item.name}</Text>
+                    <Text style={themeStyles.discountValue}>
                         {item.discount_type === 'PERCENTAGE' ? `${item.value}% OFF` : `LKR ${item.value} OFF`}
                     </Text>
                     {(item.start_date || item.end_date) && (
-                        <View style={styles.validityContainer}>
+                        <View style={themeStyles.validityContainer}>
                             <Ionicons name="time-outline" size={12} color="rgba(255,255,255,0.8)" />
-                            <Text style={styles.validityText}>
+                            <Text style={themeStyles.validityText}>
                                 {item.start_date ? formatDate(item.start_date) : ""} - {item.end_date ? formatDate(item.end_date) : ""}
                             </Text>
                         </View>
                     )}
                 </View>
-                <View style={styles.rightContent}>
-                    <View style={styles.shopButton}>
-                        <Ionicons name="arrow-forward" size={24} color={item.color_theme || COLORS.primary} />
+                <View style={themeStyles.rightContent}>
+                    <View style={themeStyles.shopButton}>
+                        <Ionicons name="arrow-forward" size={24} color={item.color_theme || colors.primary} />
                     </View>
                 </View>
             </View>
@@ -131,7 +134,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
     return (
         <Animated.View
             style={[
-                styles.container,
+                themeStyles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
@@ -148,7 +151,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={CARD_WIDTH + 12}
                 decelerationRate="fast"
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={themeStyles.scrollContent}
                 getItemLayout={(_, index) => ({
                     length: CARD_WIDTH + 12,
                     offset: (CARD_WIDTH + 12) * index,
@@ -156,15 +159,14 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
                 })}
             />
 
-            {/* Pagination Dots */}
             {discounts.length > 1 && (
-                <View style={styles.pagination}>
+                <View style={themeStyles.pagination}>
                     {discounts.map((_, index) => (
                         <View
                             key={`dot-${index}`}
                             style={[
-                                styles.dot,
-                                currentIndex === index && styles.activeDot,
+                                themeStyles.dot,
+                                currentIndex === index && themeStyles.activeDot,
                             ]}
                         />
                     ))}
@@ -174,7 +176,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ fadeAnim, slideAnim }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
         marginBottom: 24,
     },
@@ -183,11 +185,11 @@ const styles = StyleSheet.create({
     },
     card: {
         width: CARD_WIDTH,
-        height: 160, // Increased height
+        height: 160,
         borderRadius: 24,
         marginRight: 12,
         overflow: "hidden",
-        shadowColor: COLORS.shadow,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.25,
         shadowRadius: 16,
@@ -232,7 +234,7 @@ const styles = StyleSheet.create({
     discountValue: {
         color: COLORS.white,
         fontSize: 28,
-        fontWeight: "900", // Black weight
+        fontWeight: "900",
         letterSpacing: -1,
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 2 },
@@ -288,11 +290,11 @@ const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: COLORS.border,
+        backgroundColor: colors.border,
     },
     activeDot: {
         width: 20,
-        backgroundColor: COLORS.primary,
+        backgroundColor: colors.primary,
         borderRadius: 4,
     },
 });

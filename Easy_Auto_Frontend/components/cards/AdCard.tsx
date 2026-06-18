@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Image,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { COLORS } from '@/constants/Colors';
 import StatusBadge from '../status/StatusBadge';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AdCardProps {
   ad: any;
@@ -20,6 +21,7 @@ interface AdCardProps {
 
 export default function AdCard({ ad, selected, toggleSelect, onResume }: AdCardProps) {
   const router = useRouter();
+  const { colors, isDarkMode } = useTheme();
 
   const mapStatus: 'active' | 'draft' | 'paused' | 'expired' | 'banned' | 'deleted' =
     ad.status === 'active'
@@ -34,142 +36,144 @@ export default function AdCard({ ad, selected, toggleSelect, onResume }: AdCardP
               ? 'banned'
               : 'expired';
 
+  const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
   return (
-    <View style={[styles.card, selected && styles.cardSelected]}>
-      <View style={styles.mainContent}>
+    <View style={[themeStyles.card, selected && themeStyles.cardSelected]}>
+      <View style={themeStyles.mainContent}>
         {/* Image Section */}
-        <View style={styles.imageSection}>
+        <View style={themeStyles.imageSection}>
           <Image
             source={typeof ad.image === 'string' ? { uri: ad.image } : ad.image}
-            style={styles.image}
+            style={themeStyles.image}
           />
 
           {/* Selection Overlay */}
           <TouchableOpacity
             onPress={() => toggleSelect(ad.id)}
-            style={[styles.selectionOverlay, selected && styles.selectionOverlayActive]}
+            style={[themeStyles.selectionOverlay, selected && themeStyles.selectionOverlayActive]}
           >
             <Ionicons
               name={selected ? "checkmark-circle" : "ellipse-outline"}
               size={22}
-              color={selected ? COLORS.primary : "rgba(255,255,255,0.8)"}
+              color={selected ? colors.primary : "rgba(255,255,255,0.8)"}
             />
           </TouchableOpacity>
 
           {/* Featured/Urgent Badges */}
-          <View style={styles.badgesContainer}>
+          <View style={themeStyles.badgesContainer}>
             {ad.is_urgent && (
-              <View style={[styles.badge, styles.badgeUrgent]}>
-                <Text style={styles.badgeText}>URGENT</Text>
+              <View style={[themeStyles.badge, themeStyles.badgeUrgent]}>
+                <Text style={themeStyles.badgeText}>URGENT</Text>
               </View>
             )}
             {ad.is_featured && (
-              <View style={[styles.badge, styles.badgeFeatured]}>
-                <Text style={styles.badgeText}>FEATURED</Text>
+              <View style={[themeStyles.badge, themeStyles.badgeFeatured]}>
+                <Text style={themeStyles.badgeText}>FEATURED</Text>
               </View>
             )}
           </View>
         </View>
 
         {/* Info Section */}
-        <View style={styles.infoSection}>
-          <View style={styles.headerRow}>
-            <Text style={styles.title} numberOfLines={2}>{ad.title}</Text>
+        <View style={themeStyles.infoSection}>
+          <View style={themeStyles.headerRow}>
+            <Text style={themeStyles.title} numberOfLines={2}>{ad.title}</Text>
           </View>
 
-          <Text style={styles.price}>{ad.price}</Text>
+          <Text style={themeStyles.price}>{ad.price}</Text>
 
-          <View style={styles.locationRow}>
-            <Ionicons name="location-outline" size={12} color="#94A3B8" />
-            <Text style={styles.locationText} numberOfLines={1}>{ad.location || "Sri Lanka"}</Text>
+          <View style={themeStyles.locationRow}>
+            <Ionicons name="location-outline" size={12} color={colors.text.muted} />
+            <Text style={themeStyles.locationText} numberOfLines={1}>{ad.location || "Sri Lanka"}</Text>
           </View>
 
-          <View style={styles.statsRow}>
-            <View style={styles.stat}>
-              <Ionicons name="eye-outline" size={14} color="#64748B" />
-              <Text style={styles.statText}>{ad.views || 0}</Text>
+          <View style={themeStyles.statsRow}>
+            <View style={themeStyles.stat}>
+              <Ionicons name="eye-outline" size={14} color={colors.text.muted} />
+              <Text style={themeStyles.statText}>{ad.views || 0}</Text>
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.stat}>
-              <Ionicons name="heart-outline" size={14} color="#64748B" />
-              <Text style={styles.statText}>{ad.likes || 0}</Text>
+            <View style={themeStyles.statDivider} />
+            <View style={themeStyles.stat}>
+              <Ionicons name="heart-outline" size={14} color={colors.text.muted} />
+              <Text style={themeStyles.statText}>{ad.likes || 0}</Text>
             </View>
-            <View style={styles.statDivider} />
+            <View style={themeStyles.statDivider} />
             <StatusBadge status={mapStatus} />
           </View>
         </View>
       </View>
 
       {/* Action Buttons */}
-      <View style={styles.actionSection}>
+      <View style={themeStyles.actionSection}>
         {ad.status === 'pending_payment' ? (
           <TouchableOpacity
-            style={styles.mainAction}
+            style={themeStyles.mainAction}
             onPress={() => router.push({
               pathname: '/payments/payment' as any,
               params: ad.adType === 'rental' ? { rentalAdId: ad.id } : { adId: ad.id }
             })}
           >
-            <Ionicons name="card-outline" size={18} color={COLORS.primary} />
-            <Text style={styles.mainActionText}>Resume Payment</Text>
+            <Ionicons name="card-outline" size={18} color={colors.primary} />
+            <Text style={themeStyles.mainActionText}>Resume Payment</Text>
           </TouchableOpacity>
         ) : (
           <>
             <TouchableOpacity
-              style={styles.mainAction}
+              style={themeStyles.mainAction}
               onPress={() => router.push(ad.adType === 'rental' ? (`/cars/rental/${ad.id}` as any) : (`/cars/review?id=${ad.id}` as any))}
             >
-              <Ionicons name="eye-outline" size={18} color={COLORS.primary} />
-              <Text style={styles.mainActionText}>View Ad</Text>
+              <Ionicons name="eye-outline" size={18} color={colors.primary} />
+              <Text style={themeStyles.mainActionText}>View Ad</Text>
             </TouchableOpacity>
 
-            <View style={styles.actionDivider} />
+            <View style={themeStyles.actionDivider} />
 
             {mapStatus === 'active' ? (
               <TouchableOpacity
-                style={[styles.mainAction, styles.boostAction]}
+                style={[themeStyles.mainAction, themeStyles.boostAction]}
                 onPress={() => router.push({ pathname: '/ads/boost/[id]' as any, params: { id: ad.id } })}
               >
-                <View style={styles.boostIconContainer}>
+                <View style={themeStyles.boostIconContainer}>
                   <Ionicons name="rocket" size={16} color="#0891B2" />
                 </View>
-                <Text style={[styles.mainActionText, { color: '#0891B2' }]}>Boost Ad</Text>
+                <Text style={[themeStyles.mainActionText, { color: '#0891B2' }]}>Boost Ad</Text>
               </TouchableOpacity>
             ) : mapStatus === 'paused' ? (
               <TouchableOpacity
-                style={[styles.mainAction, styles.resumeAction]}
+                style={[themeStyles.mainAction, themeStyles.resumeAction]}
                 onPress={() => onResume?.(ad)}
               >
-                <Ionicons name="play-circle-outline" size={18} color={COLORS.status.success} />
-                <Text style={[styles.mainActionText, { color: COLORS.status.success }]}>Resume Ad</Text>
+                <Ionicons name="play-circle-outline" size={18} color={colors.status.success} />
+                <Text style={[themeStyles.mainActionText, { color: colors.status.success }]}>Resume Ad</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                style={styles.mainAction}
+                style={themeStyles.mainAction}
                 onPress={() => router.push(ad.adType === 'rental' ? (`/cars/create-rental-ad?id=${ad.id}` as any) : (`/ads/edit-car?id=${ad.id}` as any))}
               >
-                <Ionicons name="create-outline" size={18} color="#64748B" />
-                <Text style={[styles.mainActionText, { color: '#64748B' }]}>Edit</Text>
+                <Ionicons name="create-outline" size={18} color={colors.text.muted} />
+                <Text style={[themeStyles.mainActionText, { color: colors.text.muted }]}>Edit</Text>
               </TouchableOpacity>
             )}
           </>
         )}
 
-        <View style={styles.actionDivider} />
+        <View style={themeStyles.actionDivider} />
 
         <TouchableOpacity
-          style={styles.deleteAction}
+          style={themeStyles.deleteAction}
           onPress={() => router.push(ad.adType === 'rental' ? (`/ads/delete-rental?id=${ad.id}` as any) : (`/ads/delete-car?id=${ad.id}` as any))}
         >
-          <Ionicons name="trash-outline" size={18} color="#EF4444" />
+          <Ionicons name="trash-outline" size={18} color={colors.status.danger} />
         </TouchableOpacity>
       </View>
 
       {/* Banned Info */}
       {ad.status === 'banned' && (
-        <View style={styles.warningBox}>
-          <Ionicons name="alert-circle" size={16} color="#B91C1C" />
-          <Text style={styles.warningText}>
+        <View style={themeStyles.warningBox}>
+          <Ionicons name="alert-circle" size={16} color={colors.status.danger} />
+          <Text style={themeStyles.warningText}>
             Ad Banned: {ad.ban_reason || "Policy violation"}
           </Text>
         </View>
@@ -178,19 +182,19 @@ export default function AdCard({ ad, selected, toggleSelect, onResume }: AdCardP
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundSecondary,
     marginHorizontal: 12,
     marginBottom: 16,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#E0F2FE',
+    borderColor: isDarkMode ? colors.border : '#E0F2FE',
     overflow: 'hidden',
   },
   cardSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: '#FBFCFF',
+    borderColor: colors.primary,
+    backgroundColor: isDarkMode ? colors.backgroundMuted : '#FBFCFF',
     borderWidth: 1.5,
   },
   mainContent: {
@@ -206,7 +210,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 5,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.backgroundMuted,
   },
   selectionOverlay: {
     position: 'absolute',
@@ -236,10 +240,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   badgeUrgent: {
-    backgroundColor: '#EF4444',
+    backgroundColor: colors.status.danger,
   },
   badgeFeatured: {
-    backgroundColor: '#F59E0B',
+    backgroundColor: colors.status.warning,
   },
   badgeText: {
     color: '#fff',
@@ -259,14 +263,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#0F172A',
+    color: colors.text.primary,
     lineHeight: 20,
     flex: 1,
   },
   price: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: colors.primary,
     marginTop: 4,
   },
   locationRow: {
@@ -277,7 +281,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.text.muted,
     fontWeight: '500',
   },
   statsRow: {
@@ -294,20 +298,20 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 12,
-    color: '#64748B',
+    color: colors.text.muted,
     fontWeight: '600',
   },
   statDivider: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.border,
   },
   actionSection: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: '#F8FAFC',
-    backgroundColor: '#FAFBFF',
+    borderTopColor: colors.border,
+    backgroundColor: isDarkMode ? colors.backgroundMuted : '#FAFBFF',
     paddingVertical: 10,
   },
   mainAction: {
@@ -320,7 +324,7 @@ const styles = StyleSheet.create({
   mainActionText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   deleteAction: {
     paddingHorizontal: 16,
@@ -330,29 +334,29 @@ const styles = StyleSheet.create({
   actionDivider: {
     width: 1,
     height: 20,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.border,
     alignSelf: 'center',
   },
   warningBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: isDarkMode ? 'rgba(239, 68, 68, 0.1)' : '#FEF2F2',
     padding: 10,
     marginHorizontal: 12,
     marginBottom: 12,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#FEE2E2',
+    borderColor: isDarkMode ? 'rgba(239, 68, 68, 0.2)' : '#FEE2E2',
   },
   warningText: {
     fontSize: 11,
-    color: '#B91C1C',
+    color: colors.status.danger,
     fontWeight: '600',
     flex: 1,
   },
   boostAction: {
-    backgroundColor: '#0891B208',
+    backgroundColor: isDarkMode ? 'rgba(8, 145, 178, 0.1)' : '#0891B208',
     borderRadius: 5,
     marginHorizontal: 4,
     paddingVertical: 4,
@@ -361,14 +365,15 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 5,
-    backgroundColor: '#0891B215',
+    backgroundColor: isDarkMode ? 'rgba(8, 145, 178, 0.2)' : '#0891B215',
     alignItems: 'center',
     justifyContent: 'center',
   },
   resumeAction: {
-    backgroundColor: COLORS.status.successLight,
+    backgroundColor: isDarkMode ? 'rgba(16, 185, 129, 0.1)' : colors.status.successLight,
     borderRadius: 5,
     marginHorizontal: 4,
     paddingVertical: 4,
   },
 });
+

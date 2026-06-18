@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs, useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import {
     Animated,
     Dimensions,
@@ -16,10 +16,9 @@ import * as Haptics from "expo-haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { CommonActions } from "@react-navigation/native";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
-const PRIMARY = "#235CF8";
-const INACTIVE = "#94A3B8";
 
 import { useTranslation } from "react-i18next";
 
@@ -30,6 +29,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     const router = useRouter();
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
+    const { isDarkMode, colors } = useTheme();
 
     // Calculate tab width (excluding margins)
     const MARGIN_H = 20;
@@ -69,24 +69,28 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         }
     }, [activeVisualIndex]);
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     return (
         <View
             pointerEvents="box-none"
-            style={[styles.floatingContainer, { height: insets.bottom + 90, bottom: 0 }]}
+            style={[themeStyles.floatingContainer, { height: insets.bottom + 90, bottom: 0 }]}
         >
-            <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFill} />
+            <BlurView intensity={30} tint={isDarkMode ? "dark" : "light"} style={StyleSheet.absoluteFill} />
             <LinearGradient
-                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', '#FFFFFF']}
+                colors={isDarkMode
+                    ? ['rgba(15,23,42,0)', 'rgba(15,23,42,0.8)', '#0F172A']
+                    : ['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', '#FFFFFF']}
                 style={StyleSheet.absoluteFill}
                 pointerEvents="none"
             />
-            <View style={[styles.barWrapper, { width: barWidth, marginBottom: insets.bottom + 10 }]}>
-                <View style={styles.glassBar}>
+            <View style={[themeStyles.barWrapper, { width: barWidth, marginBottom: insets.bottom + 10 }]}>
+                <View style={themeStyles.glassBar}>
                     {/* Active Tab Indicator */}
                     {activeVisualIndex !== -1 && (
                         <Animated.View
                             style={[
-                                styles.indicator,
+                                themeStyles.indicator,
                                 {
                                     left: 0,
                                     width: 42,
@@ -107,16 +111,16 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                     {slots.map((item: any, index: number) => {
                         if (item === "MY_ADS_FAB") {
                             return (
-                                <View key="fab-slot" style={styles.fabSlot}>
+                                <View key="fab-slot" style={themeStyles.fabSlot}>
                                     <TouchableOpacity
                                         activeOpacity={0.8}
                                         onPress={() => {
                                             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                                             navigation.navigate("my-ads");
                                         }}
-                                        style={styles.fabContainer}
+                                        style={themeStyles.fabContainer}
                                     >
-                                        <View style={styles.simpleFab}>
+                                        <View style={themeStyles.simpleFab}>
                                             <Ionicons name="list" size={26} color="#FFF" />
                                         </View>
                                     </TouchableOpacity>
@@ -169,18 +173,18 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                             <Pressable
                                 key={route.key}
                                 onPress={onPress}
-                                style={styles.tabItem}
+                                style={themeStyles.tabItem}
                                 hitSlop={{ top: 10, bottom: 10, left: 5, right: 5 }}
                             >
                                 <Ionicons
                                     name={getIcon(isFocused) as any}
                                     size={isFocused ? 26 : 22} // Slightly larger icon when focused
-                                    color={isFocused ? "#FFF" : INACTIVE}
+                                    color={isFocused ? "#FFF" : colors.text.muted}
                                 />
                                 {!isFocused && (
                                     <Text style={[
-                                        styles.label,
-                                        { color: INACTIVE, fontWeight: "600" }
+                                        themeStyles.label,
+                                        { color: colors.text.muted, fontWeight: "600" }
                                     ]}>
                                         {getLabel(route.name, options.title)}
                                     </Text>
@@ -222,7 +226,7 @@ export default function TabLayout() {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     floatingContainer: {
         position: "absolute",
         left: 0,
@@ -234,30 +238,29 @@ const styles = StyleSheet.create({
     barWrapper: {
         flexDirection: "row",
         height: 56,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: colors.backgroundSecondary,
         borderRadius: 28,
         borderWidth: 1,
-        borderColor: "rgba(0, 0, 0, 0.04)",
+        borderColor: isDarkMode ? colors.border : "rgba(0, 0, 0, 0.04)",
         // Premium Floating Shadow
-        shadowColor: "#000",
+        shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.08,
+        shadowOpacity: isDarkMode ? 0.4 : 0.08,
         shadowRadius: 16,
         elevation: 10,
     },
     glassBar: {
         flexDirection: "row",
         flex: 1,
-        // Removed horizontal padding as it causes calculation offsets for absolute positioned children
         alignItems: "center",
     },
     indicator: {
         position: "absolute",
-        top: 7, // Center vertically in the 56px bar
-        backgroundColor: PRIMARY,
+        top: 7,
+        backgroundColor: colors.primary,
         zIndex: -1,
         // Indicator Shadow
-        shadowColor: PRIMARY,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -284,10 +287,10 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         borderRadius: 24,
-        backgroundColor: PRIMARY,
+        backgroundColor: colors.primary,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: PRIMARY,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -298,3 +301,4 @@ const styles = StyleSheet.create({
         letterSpacing: -0.2,
     }
 });
+

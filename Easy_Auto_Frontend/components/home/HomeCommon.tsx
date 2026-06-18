@@ -1,6 +1,6 @@
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import {
     Animated,
     Easing,
@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Animated Button Component
 export const AnimatedButton = ({
@@ -65,20 +66,25 @@ export const EmptyState = ({
     message: string;
     actionText?: string;
     onAction?: () => void;
-}) => (
-    <View style={styles.emptyStateContainer}>
-        <View style={styles.emptyIconCircle}>
-            <Ionicons name={icon as any} size={48} color={COLORS.text.muted} />
+}) => {
+    const { colors, isDarkMode } = useTheme();
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
+    return (
+        <View style={themeStyles.emptyStateContainer}>
+            <View style={themeStyles.emptyIconCircle}>
+                <Ionicons name={icon as any} size={48} color={colors.text.muted} />
+            </View>
+            <Text style={themeStyles.emptyStateTitle}>{title}</Text>
+            <Text style={themeStyles.emptyStateMessage}>{message}</Text>
+            {actionText && onAction && (
+                <TouchableOpacity style={themeStyles.emptyStateButton} onPress={onAction}>
+                    <Text style={themeStyles.emptyStateButtonText}>{actionText}</Text>
+                </TouchableOpacity>
+            )}
         </View>
-        <Text style={styles.emptyStateTitle}>{title}</Text>
-        <Text style={styles.emptyStateMessage}>{message}</Text>
-        {actionText && onAction && (
-            <TouchableOpacity style={styles.emptyStateButton} onPress={onAction}>
-                <Text style={styles.emptyStateButtonText}>{actionText}</Text>
-            </TouchableOpacity>
-        )}
-    </View>
-);
+    );
+};
 
 // Skeleton Loader Component
 export const SkeletonLoader = ({
@@ -91,6 +97,7 @@ export const SkeletonLoader = ({
     style?: any;
 }) => {
     const shimmerAnim = useRef(new Animated.Value(0)).current;
+    const { colors } = useTheme();
 
     useEffect(() => {
         Animated.loop(
@@ -120,7 +127,7 @@ export const SkeletonLoader = ({
                 {
                     width,
                     height,
-                    backgroundColor: COLORS.border,
+                    backgroundColor: colors.border,
                     borderRadius: 10,
                     opacity,
                 },
@@ -139,6 +146,8 @@ export const BackToTop = ({
     onPress: () => void;
 }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const { colors, isDarkMode } = useTheme();
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -151,9 +160,9 @@ export const BackToTop = ({
     if (!visible) return null;
 
     return (
-        <Animated.View style={[styles.backToTopContainer, { opacity: fadeAnim }]}>
+        <Animated.View style={[themeStyles.backToTopContainer, { opacity: fadeAnim }]}>
             <TouchableOpacity
-                style={styles.backToTopButton}
+                style={themeStyles.backToTopButton}
                 onPress={onPress}
                 activeOpacity={0.8}
             >
@@ -163,7 +172,7 @@ export const BackToTop = ({
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     emptyStateContainer: {
         paddingVertical: 60,
         paddingHorizontal: 40,
@@ -174,7 +183,7 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: COLORS.background,
+        backgroundColor: colors.backgroundSecondary,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 20,
@@ -182,24 +191,24 @@ const styles = StyleSheet.create({
     emptyStateTitle: {
         fontSize: 20,
         fontWeight: "800",
-        color: COLORS.text.primary,
+        color: colors.text.primary,
         marginBottom: 8,
         textAlign: "center",
         letterSpacing: -0.5,
     },
     emptyStateMessage: {
         fontSize: 14,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         textAlign: "center",
         lineHeight: 22,
         marginBottom: 32,
     },
     emptyStateButton: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: colors.primary,
         paddingHorizontal: 32,
         paddingVertical: 14,
         borderRadius: 10,
-        shadowColor: COLORS.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8,
@@ -220,15 +229,16 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: COLORS.primary,
+        backgroundColor: colors.primary,
         justifyContent: "center",
         alignItems: "center",
-        shadowColor: COLORS.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.4,
         shadowRadius: 12,
         elevation: 8,
         borderWidth: 2,
-        borderColor: COLORS.white,
+        borderColor: colors.white,
     },
 });
+

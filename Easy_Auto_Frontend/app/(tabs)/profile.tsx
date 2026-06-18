@@ -5,7 +5,7 @@ import COLORS from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -23,13 +23,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { api } from '@/utils/api';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import { useToast } from '@/contexts/ToastContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ProfileScreen() {
   useProtectedRoute();
 
+  const { isDarkMode, toggleTheme, colors } = useTheme();
+  const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
   const router = useRouter();
   const { user, logout } = useAuth();
-  const [darkMode, setDarkMode] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
     listings: 0,
@@ -86,7 +89,7 @@ export default function ProfileScreen() {
     subtitle,
     onPress,
     rightElement,
-    color = COLORS.primary,
+    color = colors.primary,
   }: {
     icon: any;
     title: string;
@@ -96,83 +99,83 @@ export default function ProfileScreen() {
     color?: string;
   }) => (
     <TouchableOpacity
-      style={styles.settingItem}
+      style={themeStyles.settingItem}
       onPress={onPress}
       activeOpacity={0.7}
       disabled={!onPress}
     >
-      <View style={styles.settingLeft}>
-        <View style={styles.settingIconBox}>
+      <View style={themeStyles.settingLeft}>
+        <View style={themeStyles.settingIconBox}>
           <Ionicons name={icon} size={18} color={color} />
         </View>
-        <View style={styles.settingTextContainer}>
-          <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+        <View style={themeStyles.settingTextContainer}>
+          <Text style={themeStyles.settingTitle}>{title}</Text>
+          {subtitle && <Text style={themeStyles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
 
       {rightElement ? (
         rightElement
       ) : (
-        <View style={styles.chevronBox}>
-          <Ionicons name="chevron-forward" size={14} color="#CBD5E1" />
+        <View style={themeStyles.chevronBox}>
+          <Ionicons name="chevron-forward" size={14} color={isDarkMode ? colors.text.muted : "#CBD5E1"} />
         </View>
       )}
     </TouchableOpacity>
   );
 
   const StatCard = ({ icon, value, label, color }: any) => (
-    <View style={styles.statCard}>
+    <View style={themeStyles.statCard}>
       <MaterialCommunityIcons name={icon} size={24} color={color} style={{ marginBottom: 8 }} />
-      <View style={styles.statContent}>
-        <Text style={styles.statValueMinimal}>{value}</Text>
-        <Text style={styles.statLabelMinimal}>{label}</Text>
+      <View style={themeStyles.statContent}>
+        <Text style={themeStyles.statValueMinimal}>{value}</Text>
+        <Text style={themeStyles.statLabelMinimal}>{label}</Text>
       </View>
     </View>
   );
 
   return (
-    <View style={styles.safe}>
+    <View style={themeStyles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
       <Header title="My Profile" showBack={true} />
 
       <BrandedRefreshOverlay refreshing={refreshing} top={180} />
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.container}
+        style={themeStyles.scrollView}
+        contentContainerStyle={themeStyles.container}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
-            progressBackgroundColor="#fff"
+            tintColor={colors.primary}
+            progressBackgroundColor={colors.white}
           />
         }
       >
         {/* Blue Header Section with Overlapping White Card */}
-        <View style={styles.headerHero}>
+        <View style={themeStyles.headerHero}>
           <LinearGradient
-            colors={['#235CF8', '#1A4BD3']}
-            style={styles.headerBackground}
+            colors={isDarkMode ? [colors.backgroundSecondary, colors.background] : ['#235CF8', '#1A4BD3']}
+            style={themeStyles.headerBackground}
           />
-          <View style={styles.profileInfoCard}>
-            <View style={styles.profileMasterContent}>
-              <View style={styles.avatarWrapper}>
+          <View style={themeStyles.profileInfoCard}>
+            <View style={themeStyles.profileMasterContent}>
+              <View style={themeStyles.avatarWrapper}>
                 <Image
                   source={user?.avatar ? { uri: user.avatar } : require('@/assets/images/user.jpeg')}
-                  style={styles.masterAvatar}
+                  style={themeStyles.masterAvatar}
                 />
               </View>
-              <View style={styles.masterInfo}>
-                <Text style={styles.masterName}>{user?.name || 'EasyAuto User'}</Text>
-                <Text style={styles.masterEmail}>{user?.email}</Text>
+              <View style={themeStyles.masterInfo}>
+                <Text style={themeStyles.masterName}>{user?.name || 'EasyAuto User'}</Text>
+                <Text style={themeStyles.masterEmail}>{user?.email}</Text>
                 <TouchableOpacity
-                  style={styles.editProfilePill}
+                  style={themeStyles.editProfilePill}
                   onPress={() => handleMenuItemPress('/profile/edit-profile')}
                 >
-                  <Ionicons name="create-outline" size={12} color={COLORS.primary} />
-                  <Text style={styles.editProfilePillText}>Edit Profile</Text>
+                  <Ionicons name="create-outline" size={12} color={colors.primary} />
+                  <Text style={themeStyles.editProfilePillText}>Edit Profile</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -180,70 +183,70 @@ export default function ProfileScreen() {
         </View>
 
         {/* Packed Stats Section */}
-        <View style={styles.statsPackedCard}>
-          <View style={styles.statItemPacked}>
-            <Text style={styles.statValuePacked}>{loading ? '..' : stats.listings}</Text>
-            <Text style={styles.statLabelPacked}>Ads</Text>
+        <View style={themeStyles.statsPackedCard}>
+          <View style={themeStyles.statItemPacked}>
+            <Text style={themeStyles.statValuePacked}>{loading ? '..' : stats.listings}</Text>
+            <Text style={themeStyles.statLabelPacked}>Ads</Text>
           </View>
-          <View style={styles.statLine} />
-          <View style={styles.statItemPacked}>
-            <Text style={styles.statValuePacked}>{loading ? '..' : stats.saved}</Text>
-            <Text style={styles.statLabelPacked}>Saved</Text>
+          <View style={themeStyles.statLine} />
+          <View style={themeStyles.statItemPacked}>
+            <Text style={themeStyles.statValuePacked}>{loading ? '..' : stats.saved}</Text>
+            <Text style={themeStyles.statLabelPacked}>Saved</Text>
           </View>
-          <View style={styles.statLine} />
-          <View style={styles.statItemPacked}>
-            <Text style={styles.statValuePacked}>{loading ? '..' : stats.views}</Text>
-            <Text style={styles.statLabelPacked}>Views</Text>
+          <View style={themeStyles.statLine} />
+          <View style={themeStyles.statItemPacked}>
+            <Text style={themeStyles.statValuePacked}>{loading ? '..' : stats.views}</Text>
+            <Text style={themeStyles.statLabelPacked}>Views</Text>
           </View>
         </View>
 
         {/* Clean Settings List */}
-        <View style={styles.settingsWrapper}>
-          <View style={styles.card}>
+        <View style={themeStyles.settingsWrapper}>
+          <View style={themeStyles.card}>
             <SettingItem
               icon="location-outline"
               title="Saved Addresses"
               onPress={() => handleMenuItemPress('/profile/address')}
             />
-            <View style={styles.itemDivider} />
+            <View style={themeStyles.itemDivider} />
 
             <SettingItem
               icon="notifications-outline"
               title="Notifications"
               onPress={() => handleMenuItemPress('/notifications/notifications-setting')}
             />
-            <View style={styles.itemDivider} />
+            <View style={themeStyles.itemDivider} />
 
             <SettingItem
               icon="moon-outline"
               title="Dark Mode"
               rightElement={
                 <Switch
-                  value={darkMode}
+                  value={isDarkMode}
                   onValueChange={(value) => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setDarkMode(value);
+                    toggleTheme(value);
                   }}
                   thumbColor="#fff"
-                  trackColor={{ true: COLORS.primary, false: '#E2E8F0' }}
+                  trackColor={{ true: colors.primary, false: isDarkMode ? '#1E293B' : '#E2E8F0' }}
                 />
               }
             />
-            <View style={styles.itemDivider} />
+            <View style={themeStyles.itemDivider} />
 
             <SettingItem
               icon="globe-outline"
               title="App Language"
               onPress={() => handleMenuItemPress('/settings/select-language')}
             />
-            <View style={styles.itemDivider} />
+            <View style={themeStyles.itemDivider} />
 
             <SettingItem
               icon="lock-closed-outline"
               title="Privacy & Security"
               onPress={() => handleMenuItemPress('/settings/privacy-policy')}
             />
-            <View style={styles.itemDivider} />
+            <View style={themeStyles.itemDivider} />
 
             <SettingItem
               icon="chatbubbles-outline"
@@ -252,11 +255,12 @@ export default function ProfileScreen() {
             />
           </View>
 
-          <TouchableOpacity style={styles.logoutFullBtn} onPress={handleLogout}>
+          <TouchableOpacity style={themeStyles.logoutFullBtn} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={18} color="#EF4444" />
-            <Text style={styles.logoutFullText}>Sign Out</Text>
+            <Text style={themeStyles.logoutFullText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
+
 
         <ConfirmationModal
           visible={showLogoutConfirm}
@@ -275,9 +279,9 @@ export default function ProfileScreen() {
         />
 
         {/* App Version */}
-        <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>EasyAuto Enterprise v1.2.0</Text>
-          <Text style={styles.versionSubtext}>Crafted for Excellence • Sri Lanka 🇱🇰</Text>
+        <View style={themeStyles.versionContainer}>
+          <Text style={themeStyles.versionText}>EasyAuto Enterprise v1.2.0</Text>
+          <Text style={themeStyles.versionSubtext}>Crafted for Excellence • Sri Lanka 🇱🇰</Text>
         </View>
 
         <View style={{ height: 120 }} />
@@ -286,10 +290,10 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -304,19 +308,19 @@ const styles = StyleSheet.create({
   },
   headerBackground: {
     position: 'absolute',
-    top: -100, // Extend up behind header
+    top: -100,
     left: 0,
     right: 0,
-    height: 180, // Height of the blue section
+    height: 180,
   },
   profileInfoCard: {
     marginHorizontal: 10,
     padding: 8,
     borderRadius: 5,
-    backgroundColor: '#FFFFFF', // White as requested
+    backgroundColor: colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
-    marginTop: -15, // Move slightly down as requested
+    borderColor: isDarkMode ? colors.border : '#BFDBFE',
+    marginTop: -15,
   },
   profileMasterContent: {
     flexDirection: 'row',
@@ -331,7 +335,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: isDarkMode ? colors.border : '#BFDBFE',
   },
   masterStatusDot: {
     position: 'absolute',
@@ -340,11 +344,11 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: colors.white,
   },
   masterStatusDotText: {
     color: '#fff',
@@ -363,7 +367,7 @@ const styles = StyleSheet.create({
   masterName: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#334155', // Darker gray-black mix
+    color: colors.text.primary,
     letterSpacing: -0.4,
   },
   masterProTag: {
@@ -381,14 +385,14 @@ const styles = StyleSheet.create({
   },
   masterEmail: {
     fontSize: 11,
-    color: '#64748B',
+    color: colors.text.muted,
     fontWeight: '500',
     marginBottom: 4,
   },
   editProfilePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EBF2FF',
+    backgroundColor: isDarkMode ? colors.backgroundMuted : '#EBF2FF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 50,
@@ -397,13 +401,13 @@ const styles = StyleSheet.create({
   },
   editProfilePillText: {
     fontSize: 11,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '700',
   },
   premiumBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 5,
@@ -419,7 +423,7 @@ const styles = StyleSheet.create({
   editProfileText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   statsPackedCard: {
     flexDirection: 'row',
@@ -427,10 +431,10 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 32,
     paddingVertical: 12,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: isDarkMode ? colors.backgroundSecondary : '#EFF6FF',
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: isDarkMode ? colors.border : '#BFDBFE',
     alignItems: 'center',
   },
   statCard: {
@@ -445,19 +449,19 @@ const styles = StyleSheet.create({
   statValuePacked: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#334155',
+    color: colors.text.primary,
   },
   statLabelPacked: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#64748B',
+    color: colors.text.muted,
     textTransform: 'uppercase',
     marginTop: 2,
   },
   statLine: {
     width: 1,
     height: '60%',
-    backgroundColor: '#BFDBFE',
+    backgroundColor: isDarkMode ? colors.border : '#BFDBFE',
   },
   statIconBoxMinimal: {
     width: 32,
@@ -473,18 +477,18 @@ const styles = StyleSheet.create({
   statValueMinimal: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#334155',
+    color: colors.text.primary,
   },
   statLabelMinimal: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#64748B',
+    color: colors.text.muted,
     textTransform: 'uppercase',
     marginTop: 2,
   },
   itemDivider: {
     height: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.divider,
     marginHorizontal: 16,
   },
   section: {
@@ -493,7 +497,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 12,
-    color: '#64748B',
+    color: colors.text.muted,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '800',
@@ -507,9 +511,9 @@ const styles = StyleSheet.create({
   card: {
     paddingVertical: 8,
     borderRadius: 5,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: isDarkMode ? colors.border : '#BFDBFE',
   },
   settingItem: {
     flexDirection: 'row',
@@ -534,31 +538,31 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#334155',
+    color: colors.text.primary,
   },
   settingSubtitle: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.text.muted,
     marginTop: 2,
     fontWeight: '500',
   },
   chevronBox: {
     width: 24, height: 24,
     borderRadius: 6,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: isDarkMode ? colors.backgroundMuted : '#F8FAFC',
     alignItems: 'center', justifyContent: 'center',
   },
   logoutFullBtn: {
     marginTop: 16,
     paddingVertical: 10,
     borderRadius: 5,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: isDarkMode ? 'rgba(239, 68, 68, 0.1)' : '#FEF2F2',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     borderWidth: 1,
-    borderColor: '#FEE2E2',
+    borderColor: isDarkMode ? 'rgba(239, 68, 68, 0.2)' : '#FEE2E2',
   },
   logoutFullText: {
     color: '#EF4444',
@@ -573,12 +577,13 @@ const styles = StyleSheet.create({
   versionText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#CBD5E1',
+    color: colors.text.muted,
   },
   versionSubtext: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: colors.text.muted,
     marginTop: 4,
     fontWeight: '600',
   },
 });
+

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Loading from '@/components/ui/Loading';
 import BrandedRefreshOverlay from '@/components/ui/BrandedRefreshOverlay';
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Animated, FlatList, Image as RNImage, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, RefreshControl, Alert, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -17,6 +17,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import Header from '@/components/Header';
 import { Swipeable, RectButton } from 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface User {
   id: string;
@@ -38,6 +39,7 @@ export default function ChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, accessToken } = useAuth();
+  const { colors, isDarkMode } = useTheme();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,15 +168,17 @@ export default function ChatScreen() {
     conv.last_message?.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
   const renderRightActions = (conversationId: string, otherUserName: string) => {
     return (
       <RectButton
-        style={styles.deleteAction}
+        style={themeStyles.deleteAction}
         onPress={() => handleDeleteConversation(conversationId, otherUserName)}
       >
-        <Animated.View style={styles.actionIcon}>
+        <Animated.View style={themeStyles.actionIcon}>
           <Ionicons name="trash-outline" size={30} color="#fff" />
-          <Text style={styles.actionText}>Delete</Text>
+          <Text style={themeStyles.actionText}>Delete</Text>
         </Animated.View>
       </RectButton>
     );
@@ -187,7 +191,7 @@ export default function ChatScreen() {
       rightThreshold={40}
     >
       <TouchableOpacity
-        style={styles.chatItem}
+        style={themeStyles.chatItem}
         activeOpacity={0.7}
         onPress={() => {
           // Mark as read locally and navigate
@@ -198,38 +202,38 @@ export default function ChatScreen() {
           router.push(`/chat/${item.id}` as any);
         }}
       >
-        <View style={styles.avatarContainer}>
+        <View style={themeStyles.avatarContainer}>
           {item.other_user.avatar ? (
-            <Image source={{ uri: item.other_user.avatar }} style={styles.avatar} />
+            <Image source={{ uri: item.other_user.avatar }} style={themeStyles.avatar} />
           ) : (
-            <View style={[styles.avatar, styles.placeholderAvatar]}>
-              <Text style={styles.avatarText}>{item.other_user.name[0]}</Text>
+            <View style={[themeStyles.avatar, themeStyles.placeholderAvatar]}>
+              <Text style={themeStyles.avatarText}>{item.other_user.name[0]}</Text>
             </View>
           )}
-          <View style={styles.onlineStatusRing}>
-            <View style={styles.onlineDot} />
+          <View style={themeStyles.onlineStatusRing}>
+            <View style={themeStyles.onlineDot} />
           </View>
         </View>
 
-        <View style={styles.chatContent}>
-          <View style={styles.chatHeader}>
-            <Text style={styles.name} numberOfLines={1}>{item.other_user.name}</Text>
+        <View style={themeStyles.chatContent}>
+          <View style={themeStyles.chatHeader}>
+            <Text style={themeStyles.name} numberOfLines={1}>{item.other_user.name}</Text>
             {item.last_message && (
-              <Text style={[styles.time, item.unread_count > 0 && styles.unreadTime]}>
+              <Text style={[themeStyles.time, item.unread_count > 0 && themeStyles.unreadTime]}>
                 {formatTime(item.last_message.created_at)}
               </Text>
             )}
           </View>
-          <View style={styles.chatFooter}>
+          <View style={themeStyles.chatFooter}>
             {typingDict[item.id] ? (
-              <Text style={[styles.lastMessage, { color: COLORS.primary, fontWeight: '700', fontStyle: 'italic' }]} numberOfLines={1}>
+              <Text style={[themeStyles.lastMessage, { color: colors.primary, fontWeight: '700', fontStyle: 'italic' }]} numberOfLines={1}>
                 typing...
               </Text>
             ) : (
               <Text
                 style={[
-                  styles.lastMessage,
-                  item.unread_count > 0 && styles.lastMessageBold
+                  themeStyles.lastMessage,
+                  item.unread_count > 0 && themeStyles.lastMessageBold
                 ]}
                 numberOfLines={1}
               >
@@ -238,8 +242,8 @@ export default function ChatScreen() {
             )}
 
             {item.unread_count > 0 && (
-              <View style={[styles.unreadBadge, { backgroundColor: COLORS.primary }]}>
-                <Text style={styles.unreadText}>{item.unread_count > 9 ? '9+' : item.unread_count}</Text>
+              <View style={[themeStyles.unreadBadge, { backgroundColor: colors.primary }]}>
+                <Text style={themeStyles.unreadText}>{item.unread_count > 9 ? '9+' : item.unread_count}</Text>
               </View>
             )}
           </View>
@@ -250,15 +254,15 @@ export default function ChatScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={styles.container}>
+      <View style={themeStyles.container}>
         <Stack.Screen options={{ headerShown: false }} />
-        <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
         <Header
           title="Messages"
           rightElement={
             <TouchableOpacity
-              style={styles.composeBtnHeader}
+              style={themeStyles.composeBtnHeader}
               onPress={() => setSearchVisible(true)}
             >
               <Ionicons name="create-outline" size={22} color="white" />
@@ -267,20 +271,20 @@ export default function ChatScreen() {
         />
 
 
-        <View style={styles.listContainer}>
-          <View style={styles.searchBarWrapper}>
-            <View style={styles.searchBar}>
-              <Ionicons name="search-outline" size={20} color="#94A3B8" style={{ marginRight: 10 }} />
+        <View style={themeStyles.listContainer}>
+          <View style={themeStyles.searchBarWrapper}>
+            <View style={themeStyles.searchBar}>
+              <Ionicons name="search-outline" size={20} color={colors.text.muted} style={{ marginRight: 10 }} />
               <TextInput
-                style={styles.searchInput}
+                style={themeStyles.searchInput}
                 placeholder="Search conversations..."
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.text.placeholder}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
               {searchQuery.length > 0 && (
                 <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <Ionicons name="close-circle" size={18} color="#CBD5E1" />
+                  <Ionicons name="close-circle" size={18} color={isDarkMode ? colors.text.muted : "#CBD5E1"} />
                 </TouchableOpacity>
               )}
             </View>
@@ -295,7 +299,7 @@ export default function ChatScreen() {
                 data={filteredConversations}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={themeStyles.listContent}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
                   <RefreshControl
@@ -317,8 +321,8 @@ export default function ChatScreen() {
                 )}
                 ListHeaderComponent={() => (
                   conversations.length > 0 ? (
-                    <View style={styles.listHeaderContainer}>
-                      <Text style={styles.listHeaderTitle}>Active Conversations ({conversations.length})</Text>
+                    <View style={themeStyles.listHeaderContainer}>
+                      <Text style={themeStyles.listHeaderTitle}>Active Conversations ({conversations.length})</Text>
                     </View>
                   ) : <View style={{ height: 10 }} />
                 )}
@@ -328,12 +332,12 @@ export default function ChatScreen() {
         </View>
 
         <TouchableOpacity
-          style={styles.fab}
+          style={themeStyles.fab}
           activeOpacity={0.9}
           onPress={() => setSearchVisible(true)}
         >
           <View
-            style={[styles.fabGradient, { backgroundColor: COLORS.primary }]}
+            style={[themeStyles.fabGradient, { backgroundColor: colors.primary }]}
           >
             <Ionicons name="add" size={24} color="#fff" />
           </View>
@@ -349,10 +353,10 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
 
   composeBtnHeader: {
@@ -366,12 +370,12 @@ const styles = StyleSheet.create({
   listHeaderTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#94A3B8',
+    color: colors.text.muted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   deleteAction: {
-    backgroundColor: '#EF4444',
+    backgroundColor: colors.status.danger,
     justifyContent: 'center',
     alignItems: 'center',
     width: 80,
@@ -393,29 +397,29 @@ const styles = StyleSheet.create({
 
   listContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     paddingTop: 0,
   },
   searchBarWrapper: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: isDarkMode ? colors.border : '#F1F5F9',
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 5,
     paddingHorizontal: 12,
     height: 40,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: isDarkMode ? colors.border : '#BFDBFE',
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#0F172A',
+    color: colors.text.primary,
     fontWeight: '500',
   },
   listContent: {
@@ -429,9 +433,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#F8FAFC',
+    borderBottomColor: isDarkMode ? colors.border : '#F8FAFC',
   },
   avatarContainer: {
     position: 'relative',
@@ -442,17 +446,17 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: isDarkMode ? colors.border : '#BFDBFE',
   },
   placeholderAvatar: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.backgroundSecondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   onlineStatusRing: {
     position: 'absolute',
@@ -461,7 +465,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -469,7 +473,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#10B981', 
+    backgroundColor: colors.status.success,
   },
 
   chatContent: {
@@ -486,31 +490,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 0,
   },
   name: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#1E293B',
+    color: colors.text.primary,
     letterSpacing: -0.3,
   },
   time: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.text.muted,
     fontWeight: '600',
   },
   unreadTime: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '800',
   },
   lastMessage: {
     fontSize: 13,
-    color: '#64748B',
+    color: colors.text.secondary,
     lineHeight: 18,
     flex: 1,
     marginRight: 10,
   },
   lastMessageBold: {
-    color: '#1E293B',
+    color: colors.text.primary,
     fontWeight: '700',
   },
 
@@ -543,13 +548,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#1E293B',
+    color: colors.text.primary,
     marginTop: 20,
     letterSpacing: -0.5,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#94A3B8',
+    color: colors.text.muted,
     textAlign: 'center',
     marginTop: 8,
     paddingHorizontal: 40,
@@ -577,7 +582,13 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: isDarkMode ? colors.border : '#BFDBFE',
+    backgroundColor: colors.primary,
+    elevation: 4,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   fabGradient: {
     width: '100%',
@@ -587,3 +598,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
