@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import {
     Animated,
     Dimensions,
@@ -18,6 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
 import SectionHeader from "./SectionHeader";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const GAPPING = 22;
@@ -38,6 +39,7 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
     const [vehicleTypes, setVehicleTypes] = useState<any[]>([]);
     const [selectedType, setSelectedType] = useState("All");
     const [loading, setLoading] = useState(true);
+    const { colors, isDarkMode } = useTheme();
 
     useEffect(() => {
         const init = async () => {
@@ -68,23 +70,18 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
         }
     };
 
-    const handleTypeSelect = (typeId: string, typeName: string) => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setSelectedType(typeName); // Determine active state by name or ID
-        // Note: state update is async, but we pass ID directly
-        fetchBrands(typeId);
-    };
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
 
     if (loading && vehicleTypes.length === 0) {
         return (
-            <View style={[styles.container, { height: 200, justifyContent: 'center' }]}>
+            <View style={[themeStyles.container, { height: 200, justifyContent: 'center' }]}>
                 <Loading size="small" />
             </View>
         );
     }
 
     return (
-        <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View style={[themeStyles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <SectionHeader
                 title="Explore by Brand"
                 subtitle="Find your favourite manufacturer"
@@ -95,21 +92,21 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.tabs}
+                contentContainerStyle={themeStyles.tabs}
             >
                 {vehicleTypes.map((t) => {
                     const active = selectedType === t.type_name;
                     return (
                         <TouchableOpacity
                             key={t.id}
-                            style={[styles.tab, active && styles.tabActive]}
+                            style={[themeStyles.tab, active && themeStyles.tabActive]}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                 setSelectedType(t.type_name);
                                 fetchBrands(t.id);
                             }}
                         >
-                            <Text style={[styles.tabText, active && styles.tabTextActive]}>{t.type_name}</Text>
+                            <Text style={[themeStyles.tabText, active && themeStyles.tabTextActive]}>{t.type_name}</Text>
                         </TouchableOpacity>
                     );
                 })}
@@ -120,30 +117,30 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
                     <Loading size="small" />
                 </View>
             ) : (
-                <View style={styles.grid}>
+                <View style={themeStyles.grid}>
                     {brands.map((brand) => (
                         <TouchableOpacity
                             key={brand.id}
-                            style={styles.brandCell}
+                            style={themeStyles.brandCell}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                 router.push({ pathname: "/cars/buy-car", params: { brandId: brand.id, brandName: brand.brand_name } } as any);
                             }}
                             activeOpacity={0.8}
                         >
-                            <View style={styles.brandCard}>
+                            <View style={themeStyles.brandCard}>
                                 {brand.brand_image ? (
-                                    <Image source={{ uri: brand.brand_image }} style={styles.brandImg} contentFit="contain" transition={200} />
+                                    <Image source={{ uri: brand.brand_image }} style={themeStyles.brandImg} contentFit="contain" transition={200} />
                                 ) : (
                                     <LinearGradient
-                                        colors={[COLORS.primary, COLORS.primaryDark]}
-                                        style={styles.placeholderGradient}
+                                        colors={[colors.primary, colors.primaryDark]}
+                                        style={themeStyles.placeholderGradient}
                                     >
-                                        <Text style={styles.brandInitial}>{brand.brand_name.substring(0, 1).toUpperCase()}</Text>
+                                        <Text style={themeStyles.brandInitial}>{brand.brand_name.substring(0, 1).toUpperCase()}</Text>
                                     </LinearGradient>
                                 )}
                             </View>
-                            <Text style={styles.brandName} numberOfLines={1}>{brand.brand_name}</Text>
+                            <Text style={themeStyles.brandName} numberOfLines={1}>{brand.brand_name}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -152,8 +149,8 @@ const ExploreByBrand: React.FC<ExploreByBrandProps> = ({ fadeAnim, slideAnim }) 
     );
 };
 
-const styles = StyleSheet.create({
-    container: { },
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
+    container: {},
     tabs: {
         paddingHorizontal: 20,
         gap: 8,
@@ -163,17 +160,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 22,
         paddingVertical: 4,
         borderRadius: 5,
-        backgroundColor: "#EEF2FF",
+        backgroundColor: isDarkMode ? colors.backgroundSecondary : "#EEF2FF",
     },
     tabActive: {
-        backgroundColor: COLORS.primary,
-        shadowColor: COLORS.primary,
+        backgroundColor: colors.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.3,
         shadowRadius: 6,
         elevation: 4,
     },
-    tabText: { fontSize: 13, fontWeight: "600", color: COLORS.primary },
+    tabText: { fontSize: 13, fontWeight: "600", color: colors.primary },
     tabTextActive: { color: "#fff" },
     loader: { height: 140, justifyContent: "center", alignItems: "center" },
     grid: {
@@ -190,8 +187,8 @@ const styles = StyleSheet.create({
     brandCard: {
         width: COL_W,
         height: COL_W,
-        backgroundColor: COLORS.white,
-        borderRadius: 5, // Consistent 5px radius for brand cells
+        backgroundColor: isDarkMode ? colors.backgroundSecondary : colors.white,
+        borderRadius: 5,
         justifyContent: "center",
         alignItems: "center",
         borderWidth: 0,
@@ -207,8 +204,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     brandImg: { width: "60%", height: "60%" },
-    brandInitial: { fontSize: 18, fontWeight: "800", color: COLORS.white },
-    brandName: { fontSize: 12, fontWeight: "600", color: COLORS.text.secondary, textAlign: "center" },
+    brandInitial: { fontSize: 18, fontWeight: "800", color: colors.white },
+    brandName: { fontSize: 12, fontWeight: "600", color: colors.text.secondary, textAlign: "center" },
 });
 
 export default ExploreByBrand;

@@ -1,9 +1,10 @@
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Animated, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { api } from "@/utils/api";
 import SectionHeader from "./SectionHeader";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ValuePropsProps {
     fadeAnim: Animated.Value;
@@ -13,6 +14,7 @@ interface ValuePropsProps {
 const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const { colors, isDarkMode } = useTheme();
 
     useEffect(() => {
         fetchStats();
@@ -36,42 +38,44 @@ const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
             value: stats ? (stats.listings >= 1000 ? `${(stats.listings / 1000).toFixed(1)}k+` : stats.listings) : "0",
             label: "Listings",
             icon: "car-outline" as const,
-            color: COLORS.primary,
-            bg: "#EEF2FF"
+            color: colors.primary,
+            bg: isDarkMode ? "rgba(255,255,255,0.05)" : "#EEF2FF"
         },
         {
             value: stats ? (stats.dealers >= 1000 ? `${(stats.dealers / 1000).toFixed(1)}k+` : stats.dealers) : "0",
             label: "Dealers",
             icon: "business-outline" as const,
-            color: "#475569", // Slate Gray
-            bg: "#F1F5F9"
+            color: isDarkMode ? colors.text.muted : "#475569",
+            bg: isDarkMode ? "rgba(255,255,255,0.05)" : "#F1F5F9"
         },
         {
             value: stats ? (stats.rating ? `${stats.rating}★` : "No rating") : "N/A",
             label: "Rating",
             icon: "star-outline" as const,
-            color: COLORS.primary,
-            bg: "#EEF2FF"
+            color: colors.primary,
+            bg: isDarkMode ? "rgba(255,255,255,0.05)" : "#EEF2FF"
         },
         {
             value: stats ? (stats.users >= 1000 ? `${(stats.users / 1000).toFixed(1)}k+` : stats.users) : "0",
             label: "Users",
             icon: "people-outline" as const,
-            color: "#475569", // Slate Gray
-            bg: "#F1F5F9"
+            color: isDarkMode ? colors.text.muted : "#475569",
+            bg: isDarkMode ? "rgba(255,255,255,0.05)" : "#F1F5F9"
         },
     ];
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     return (
-        <Animated.View style={[styles.wrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View style={[themeStyles.wrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <SectionHeader
                 title="EasyAuto by the Numbers"
                 subtitle="Trusted by thousands across Sri Lanka"
             />
-            <View style={styles.row}>
+            <View style={themeStyles.row}>
                 {STAT_ITEMS.map((s, i) => (
-                    <View key={i} style={styles.card}>
-                        <View style={[styles.iconWrap, { backgroundColor: s.bg }]}>
+                    <View key={i} style={themeStyles.card}>
+                        <View style={[themeStyles.iconWrap, { backgroundColor: s.bg }]}>
                             {loading && !stats ? (
                                 <ActivityIndicator size="small" color={s.color} />
                             ) : (
@@ -79,13 +83,13 @@ const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
                             )}
                         </View>
                         <Text
-                            style={[styles.val, { color: s.color, fontSize: s.value.toString().length > 5 ? 12 : 16 }]}
+                            style={[themeStyles.val, { color: s.color, fontSize: s.value.toString().length > 5 ? 12 : 16 }]}
                             numberOfLines={1}
                             adjustsFontSizeToFit
                         >
                             {s.value}
                         </Text>
-                        <Text style={styles.lbl}>{s.label}</Text>
+                        <Text style={themeStyles.lbl}>{s.label}</Text>
                     </View>
                 ))}
             </View>
@@ -93,7 +97,7 @@ const ValueProps: React.FC<ValuePropsProps> = ({ fadeAnim, slideAnim }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     wrap: {
         backgroundColor: "transparent",
         paddingVertical: 0,
@@ -105,12 +109,12 @@ const styles = StyleSheet.create({
     },
     card: {
         flex: 1,
-        backgroundColor: "#F8FAFF",
+        backgroundColor: colors.backgroundSecondary,
         borderRadius: 5,
         alignItems: "center",
         paddingVertical: 12,
         borderWidth: 1,
-        borderColor: "#DBEAFE",
+        borderColor: isDarkMode ? colors.border : "#DBEAFE",
         gap: 4,
     },
     iconWrap: {
@@ -128,7 +132,7 @@ const styles = StyleSheet.create({
     lbl: {
         fontSize: 10,
         fontWeight: "600",
-        color: "#94A3B8",
+        color: colors.text.muted,
     },
 });
 

@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import {
     Animated,
     Dimensions,
@@ -16,6 +16,7 @@ import {
 import { api } from "@/utils/api";
 import { useRouter } from "expo-router";
 import COLORS from "@/constants/Colors";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 
@@ -57,6 +58,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+    const { colors, isDarkMode } = useTheme();
 
     useEffect(() => {
         fetchAllBanners();
@@ -64,7 +66,6 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 
     const fetchAllBanners = async () => {
         try {
-            // Fetch boosted ads, announcements, and active discounts in parallel
             const [adsRes, announcementsRes, discountsRes] = await Promise.all([
                 api.get<{ success: boolean; data: any[] }>('/api/cars?isHomepageBanner=true&limit=5'),
                 api.get<{ success: boolean; data: any[] }>('/api/announcements/active'),
@@ -73,7 +74,6 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
 
             let combinedBanners: any[] = [];
 
-            // Add Boosted Ads
             if (adsRes.success && adsRes.data.length > 0) {
                 const boostedBanners = adsRes.data.map((ad: any) => ({
                     id: `ad-${ad.id}`,
@@ -83,14 +83,9 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     isAd: true,
                     adId: ad.id
                 }));
-                // Interleave or just append? Let's append for now, or maybe prioritize ads?
-                // existing logic was ads + static.
                 combinedBanners = [...combinedBanners, ...boostedBanners];
             }
 
-            // Add Discounts (Offers)
-            // The user specifically asked for "Offers" to be displayed.
-            // We map them to the banner structure.
             if (discountsRes.data && discountsRes.data.length > 0) {
                 const discountBanners = discountsRes.data.map((discount: any) => ({
                     id: `discount-${discount.id}`,
@@ -98,15 +93,14 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     subtitle: discount.discount_type === 'PERCENTAGE'
                         ? `${discount.value}% OFF`
                         : `Rs. ${discount.value} OFF`,
-                    image: discount.offer_image_url || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=400&fit=crop", // Default offer image
+                    image: discount.offer_image_url || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=400&fit=crop",
                     isDiscount: true,
                     discountId: discount.id,
-                    link: null // Discounts navigate via discountId
+                    link: null
                 }));
                 combinedBanners = [...combinedBanners, ...discountBanners];
             }
 
-            // Add Announcements
             if (announcementsRes.data && announcementsRes.data.length > 0) {
                 const announcements = announcementsRes.data.map((ann: any) => ({
                     id: `ann-${ann.id}`,
@@ -114,22 +108,16 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                     subtitle: ann.content || '',
                     image: ann.image_url || "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80",
                     isAd: false,
-                    isDiscount: false, // Explicitly false
+                    isDiscount: false,
                     link: ann.link
                 }));
                 combinedBanners = [...combinedBanners, ...announcements];
             }
 
-            // Add Static Banners if we don't have enough content (optional, but good for filling space)
-            // or just always add them at the end? 
-            // The original code did: setBanners([...boostedBanners, ...STATIC_BANNERS]); 
-            // Let's keep a few static ones if the total is low, or just append them to ensure there's always something.
-            // If combinedBanners is empty, we definitely need defaults.
             if (combinedBanners.length < 3) {
                 combinedBanners = [...combinedBanners, ...STATIC_BANNERS];
             }
 
-            // If still empty (shouldn't happen with static banners, but good safety)
             if (combinedBanners.length === 0) {
                 combinedBanners = [
                     {
@@ -145,12 +133,10 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             setBanners(combinedBanners);
         } catch (error) {
             console.error("Error fetching banner data:", error);
-            // Fallback to static banners on error
             setBanners(STATIC_BANNERS);
         }
     };
 
-    // Auto-play functionality
     useEffect(() => {
         if (banners.length <= 1) return;
 
@@ -158,7 +144,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
             setCurrentBannerIndex((prevIndex) => {
                 const nextIndex = (prevIndex + 1) % banners.length;
                 scrollViewRef.current?.scrollTo({
-                    x: nextIndex * width, // Perfectly snap to screen width intervals
+                    x: nextIndex * width,
                     animated: true,
                 });
                 return nextIndex;
@@ -185,31 +171,22 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
         }
     };
 
-    const handleDotPress = (index: number) => {
-        setCurrentBannerIndex(index);
-        scrollViewRef.current?.scrollTo({
-            x: index * width,
-            animated: true,
-        });
-    };
-
     const handleBannerPress = (banner: any) => {
         if (banner.isAd && banner.adId) {
             router.push(`/cars/${banner.adId}` as any);
-            router.push(`/cars/${banner.adId}`);
         } else if (banner.link) {
-            // Handle external or internal link if needed
-            // For now just navigate to search if no link
             console.log("Announcement link:", banner.link);
         } else {
             router.push('/(tabs)/search');
         }
     };
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     return (
         <Animated.View
             style={[
-                styles.container,
+                themeStyles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ scale: scaleAnim }],
@@ -223,47 +200,46 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 showsHorizontalScrollIndicator={false}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={themeStyles.scrollContent}
                 decelerationRate="fast"
                 snapToInterval={width}
             >
                 {banners.map((banner, index) => (
-                    <View key={`banner-${banner.id}-${index}`} style={styles.bannerWrapper}>
+                    <View key={`banner-${banner.id}-${index}`} style={themeStyles.bannerWrapper}>
                         <TouchableOpacity
                             activeOpacity={0.9}
                             onPress={() => handleBannerPress(banner)}
-                            style={styles.bannerCard}
+                            style={themeStyles.bannerCard}
                         >
                             <Image
                                 source={banner.image}
-                                style={styles.bannerImage}
+                                style={themeStyles.bannerImage}
                                 contentFit="cover"
                                 transition={500}
                             />
 
-                            {/* Premium Gradient Overlay */}
                             <LinearGradient
                                 colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
-                                style={styles.gradient}
+                                style={themeStyles.gradient}
                             />
 
-                            <View style={styles.contentContainer}>
+                            <View style={themeStyles.contentContainer}>
                                 {banner.isAd && (
-                                    <View style={styles.adBadge}>
-                                        <Text style={styles.adBadgeText}>Featured</Text>
+                                    <View style={themeStyles.adBadge}>
+                                        <Text style={themeStyles.adBadgeText}>Featured</Text>
                                     </View>
                                 )}
                                 {banner.isDiscount && (
-                                    <View style={[styles.adBadge, { backgroundColor: '#EF4444' }]}>
-                                        <Text style={styles.adBadgeText}>Offer</Text>
+                                    <View style={[themeStyles.adBadge, { backgroundColor: '#EF4444' }]}>
+                                        <Text style={themeStyles.adBadgeText}>Offer</Text>
                                     </View>
                                 )}
-                                <Text style={styles.title} numberOfLines={2}>{banner.title}</Text>
-                                <Text style={styles.subtitle} numberOfLines={1}>{banner.subtitle}</Text>
+                                <Text style={themeStyles.title} numberOfLines={2}>{banner.title}</Text>
+                                <Text style={themeStyles.subtitle} numberOfLines={1}>{banner.subtitle}</Text>
 
-                                <View style={styles.ctaButton}>
-                                    <Text style={styles.ctaText}>{banner.isAd ? "View Details" : "Explore"}</Text>
-                                    <MaterialIcons name="arrow-forward" size={16} color={COLORS.white} />
+                                <View style={themeStyles.ctaButton}>
+                                    <Text style={themeStyles.ctaText}>{banner.isAd ? "View Details" : "Explore"}</Text>
+                                    <MaterialIcons name="arrow-forward" size={16} color={colors.white} />
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -271,14 +247,13 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
                 ))}
             </ScrollView>
 
-            {/* Pagination Dots */}
-            <View style={styles.pagination}>
+            <View style={themeStyles.pagination}>
                 {banners.map((_, index) => (
                     <Animated.View
                         key={`dot-${index}`}
                         style={[
-                            styles.dot,
-                            index === currentBannerIndex ? styles.dotActive : styles.dotInactive
+                            themeStyles.dot,
+                            index === currentBannerIndex ? themeStyles.dotActive : themeStyles.dotInactive
                         ]}
                     />
                 ))}
@@ -287,7 +262,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({ fadeAnim, scaleAnim }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
     },
     scrollContent: {
@@ -302,10 +277,10 @@ const styles = StyleSheet.create({
         flex: 1,
         borderRadius: 5,
         overflow: 'hidden',
-        backgroundColor: COLORS.secondary,
+        backgroundColor: colors.secondary,
         position: 'relative',
         borderWidth: 1,
-        borderColor: '#BFDBFE',
+        borderColor: isDarkMode ? colors.border : '#BFDBFE',
     },
     bannerImage: {
         width: '100%',
@@ -327,7 +302,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     adBadge: {
-        backgroundColor: COLORS.accent,
+        backgroundColor: colors.accent,
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 5,
@@ -335,7 +310,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     adBadgeText: {
-        color: COLORS.white,
+        color: colors.white,
         fontSize: 10,
         fontWeight: 'bold',
         textTransform: 'uppercase',
@@ -343,7 +318,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontWeight: '800',
-        color: COLORS.white,
+        color: colors.white,
         marginBottom: 4,
         letterSpacing: -0.5,
         textShadowColor: 'rgba(0,0,0,0.3)',
@@ -369,7 +344,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.3)',
     },
     ctaText: {
-        color: COLORS.white,
+        color: colors.white,
         fontSize: 13,
         fontWeight: '700',
     },
@@ -386,11 +361,11 @@ const styles = StyleSheet.create({
     },
     dotActive: {
         width: 24,
-        backgroundColor: COLORS.primary,
+        backgroundColor: colors.primary,
     },
     dotInactive: {
         width: 6,
-        backgroundColor: COLORS.border,
+        backgroundColor: colors.border,
     },
 });
 

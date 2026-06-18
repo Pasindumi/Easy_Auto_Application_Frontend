@@ -1,6 +1,6 @@
 import { DAILY_DEALS } from "@/constants/dummydata/homedummydata";
 import { Image } from "expo-image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
     Animated,
     ScrollView,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import COLORS from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface DailyDealsProps {
     fadeAnim: Animated.Value;
@@ -18,13 +19,13 @@ interface DailyDealsProps {
 }
 
 export default function DailyDeals({ fadeAnim, slideAnim }: DailyDealsProps) {
+    const { colors, isDarkMode } = useTheme();
     const [timeLeft, setTimeLeft] = useState({
         hours: 5,
         minutes: 23,
         seconds: 45,
     });
 
-    // Countdown timer
     useEffect(() => {
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
@@ -45,41 +46,43 @@ export default function DailyDeals({ fadeAnim, slideAnim }: DailyDealsProps) {
         return () => clearInterval(timer);
     }, []);
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     return (
         <Animated.View
             style={[
-                styles.container,
+                themeStyles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.header}>
-                <View style={styles.headerTextContainer}>
-                    <View style={styles.titleRow}>
-                        <Text style={styles.title}>Daily Deals</Text>
-                        <View style={styles.fireIconContainer}>
-                             <Ionicons name="flame" size={18} color="#FF4444" />
+            <View style={themeStyles.header}>
+                <View style={themeStyles.headerTextContainer}>
+                    <View style={themeStyles.titleRow}>
+                        <Text style={themeStyles.title}>Daily Deals</Text>
+                        <View style={themeStyles.fireIconContainer}>
+                            <Ionicons name="flame" size={18} color="#FF4444" />
                         </View>
                     </View>
-                    <Text style={styles.subtitle}>Limited time offers ending soon</Text>
+                    <Text style={themeStyles.subtitle}>Limited time offers ending soon</Text>
                 </View>
-                
-                <View style={styles.timerContainer}>
-                    <View style={styles.timerBlock}>
-                        <Text style={styles.timerValue}>{String(timeLeft.hours).padStart(2, "0")}</Text>
-                        <Text style={styles.timerLabel}>Hr</Text>
+
+                <View style={themeStyles.timerContainer}>
+                    <View style={themeStyles.timerBlock}>
+                        <Text style={themeStyles.timerValue}>{String(timeLeft.hours).padStart(2, "0")}</Text>
+                        <Text style={themeStyles.timerLabel}>Hr</Text>
                     </View>
-                    <Text style={styles.timerSeparator}>:</Text>
-                    <View style={styles.timerBlock}>
-                        <Text style={styles.timerValue}>{String(timeLeft.minutes).padStart(2, "0")}</Text>
-                        <Text style={styles.timerLabel}>Min</Text>
+                    <Text style={themeStyles.timerSeparator}>:</Text>
+                    <View style={themeStyles.timerBlock}>
+                        <Text style={themeStyles.timerValue}>{String(timeLeft.minutes).padStart(2, "0")}</Text>
+                        <Text style={themeStyles.timerLabel}>Min</Text>
                     </View>
-                    <Text style={styles.timerSeparator}>:</Text>
-                    <View style={styles.timerBlock}>
-                        <Text style={styles.timerValue}>{String(timeLeft.seconds).padStart(2, "0")}</Text>
-                        <Text style={styles.timerLabel}>Sec</Text>
+                    <Text style={themeStyles.timerSeparator}>:</Text>
+                    <View style={themeStyles.timerBlock}>
+                        <Text style={themeStyles.timerValue}>{String(timeLeft.seconds).padStart(2, "0")}</Text>
+                        <Text style={themeStyles.timerLabel}>Sec</Text>
                     </View>
                 </View>
             </View>
@@ -87,40 +90,40 @@ export default function DailyDeals({ fadeAnim, slideAnim }: DailyDealsProps) {
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={themeStyles.scrollContent}
                 decelerationRate="fast"
                 snapToInterval={200}
             >
                 {DAILY_DEALS.map((deal) => (
                     <TouchableOpacity
                         key={`deal-${deal.id}`}
-                        style={styles.card}
+                        style={themeStyles.card}
                         activeOpacity={0.9}
                     >
-                        <View style={styles.imageContainer}>
+                        <View style={themeStyles.imageContainer}>
                             <Image
                                 source={{ uri: deal.image }}
-                                style={styles.image}
+                                style={themeStyles.image}
                                 contentFit="cover"
                                 transition={300}
                             />
-                            <View style={styles.discountBadge}>
-                                <Text style={styles.discountText}>{deal.discount}</Text>
+                            <View style={themeStyles.discountBadge}>
+                                <Text style={themeStyles.discountText}>{deal.discount}</Text>
                             </View>
                         </View>
-                        
-                        <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle} numberOfLines={2}>{deal.name}</Text>
-                            <View style={styles.priceContainer}>
-                                <Text style={styles.dealPrice}>{deal.dealPrice}</Text>
-                                <Text style={styles.originalPrice}>{deal.originalPrice}</Text>
+
+                        <View style={themeStyles.cardContent}>
+                            <Text style={themeStyles.cardTitle} numberOfLines={2}>{deal.name}</Text>
+                            <View style={themeStyles.priceContainer}>
+                                <Text style={themeStyles.dealPrice}>{deal.dealPrice}</Text>
+                                <Text style={themeStyles.originalPrice}>{deal.originalPrice}</Text>
                             </View>
-                            
-                            <View style={styles.progressBarContainer}>
-                                <View style={styles.progressBarBackground}>
-                                    <View style={[styles.progressBarFill, { width: '75%' }]} />
+
+                            <View style={themeStyles.progressBarContainer}>
+                                <View style={themeStyles.progressBarBackground}>
+                                    <View style={[themeStyles.progressBarFill, { width: '75%' }]} />
                                 </View>
-                                <Text style={styles.stockText}>5 left</Text>
+                                <Text style={themeStyles.stockText}>5 left</Text>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -130,11 +133,11 @@ export default function DailyDeals({ fadeAnim, slideAnim }: DailyDealsProps) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
         marginBottom: 24,
         paddingVertical: 16,
-        backgroundColor: '#FFF0F0', // Very light red background for urgency
+        backgroundColor: isDarkMode ? colors.backgroundMuted : '#FFF0F0',
     },
     header: {
         flexDirection: "row",
@@ -152,19 +155,19 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     fireIconContainer: {
-        backgroundColor: '#FFE5E5',
+        backgroundColor: isDarkMode ? "rgba(255, 68, 68, 0.1)" : '#FFE5E5',
         padding: 4,
         borderRadius: 10,
     },
     title: {
         fontSize: 20,
         fontWeight: "800",
-        color: COLORS.text.primary,
+        color: colors.text.primary,
         letterSpacing: -0.5,
     },
     subtitle: {
         fontSize: 13,
-        color: COLORS.text.muted, // Muted text or red-ish?
+        color: colors.text.muted,
         marginTop: 2,
         fontWeight: "500",
     },
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
     },
     timerValue: {
         fontSize: 16,
-        fontWeight: "800", // Extra bold
+        fontWeight: "800",
         color: COLORS.white,
         fontVariant: ['tabular-nums'],
     },
@@ -197,7 +200,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "800",
         color: "#FF4444",
-        marginBottom: 10, // Align with numbers
+        marginBottom: 10,
     },
     scrollContent: {
         paddingHorizontal: 20,
@@ -205,16 +208,16 @@ const styles = StyleSheet.create({
     },
     card: {
         width: 180,
-        backgroundColor: COLORS.white,
+        backgroundColor: colors.background,
         borderRadius: 10,
         overflow: "hidden",
-        shadowColor: COLORS.shadow,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 12,
         elevation: 4,
         borderWidth: 1,
-        borderColor: 'rgba(255, 68, 68, 0.1)', // Subtle red border
+        borderColor: isDarkMode ? colors.border : 'rgba(255, 68, 68, 0.1)',
     },
     imageContainer: {
         height: 120,
@@ -245,9 +248,9 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 14,
         fontWeight: "700",
-        color: COLORS.text.primary,
+        color: colors.text.primary,
         marginBottom: 8,
-        height: 40, // Fixed height for 2 lines
+        height: 40,
     },
     priceContainer: {
         flexDirection: "row",
@@ -262,7 +265,7 @@ const styles = StyleSheet.create({
     },
     originalPrice: {
         fontSize: 12,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         textDecorationLine: "line-through",
         fontWeight: "500",
     },
@@ -274,7 +277,7 @@ const styles = StyleSheet.create({
     progressBarBackground: {
         flex: 1,
         height: 6,
-        backgroundColor: '#FFE5E5',
+        backgroundColor: isDarkMode ? "rgba(255, 68, 68, 0.1)" : '#FFE5E5',
         borderRadius: 3,
         overflow: 'hidden',
     },
@@ -289,3 +292,4 @@ const styles = StyleSheet.create({
         color: '#FF4444',
     },
 });
+

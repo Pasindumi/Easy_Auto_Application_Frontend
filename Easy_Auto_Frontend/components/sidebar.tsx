@@ -6,7 +6,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import {
   Alert,
   Animated,
@@ -21,6 +21,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ConfirmationModal from "./ui/ConfirmationModal";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const DRAWER_W = width * 0.7; // Adjusted for better usability while keeping content readable
@@ -30,42 +31,43 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const USER_ITEMS = [
-  { icon: "list",                 label: "My Ads",          sub: "Manage your listings",    route: "/(tabs)/my-ads",             color: COLORS.primary, bg: "#EEF2FF" },
-  { icon: "wallet",               label: "Payments",         sub: "Transaction history",     route: "/payments/payment-history",  color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "ribbon",               label: "Subscriptions",    sub: "Your active plans",       route: "/packages/subscriptions",    color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "rocket",               label: "Boost an Ad",      sub: "Get more visibility",     route: "/packages/boost-ad",         color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "help-circle",          label: "Help Centre",      sub: "FAQs & guides",           route: "/support/help-center",        color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "shield-checkmark",     label: "Privacy & Policy", sub: "Data & terms",            route: "/support/privacy-policy",     color: COLORS.primary, bg: "#F8FAFC" },
-];
-
-const GUEST_ITEMS = [
-  { icon: "search-outline",      label: "Find Cars",   sub: "Search new & used",       route: "/(tabs)/search",     color: COLORS.primary, bg: "#EEF2FF" },
-  { icon: "car-sport-outline",   label: "Buy a Car",   sub: "Browse our collection",   route: "/cars/buy-car",      color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "add-circle-outline",  label: "Sell a Car",  sub: "Post an ad quickly",      route: "/cars/select-type",  color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "pricetag-outline",    label: "Offers",      sub: "View latest deals",       route: "/offers",            color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "call-outline",        label: "Contact Us",  sub: "We're here to help",      route: "/support/contact-us",color: COLORS.primary, bg: "#F8FAFC" },
-  { icon: "information-outline", label: "About App",   sub: "Learn about EasyAuto",    route: "/support/about",     color: COLORS.primary, bg: "#F8FAFC" },
-];
-
 export default function Sidebar({ visible, onClose }: SidebarProps) {
   const { user, isAuthenticated, logout } = useAuth();
   const { showToast } = useToast();
-  const insets    = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const slideAnim = useRef(new Animated.Value(-DRAWER_W)).current;
   const bgOpacity = useRef(new Animated.Value(0)).current;
+  const { colors, isDarkMode } = useTheme();
+
+  const USER_ITEMS = useMemo(() => [
+    { icon: "list", label: "My Ads", sub: "Manage your listings", route: "/(tabs)/my-ads", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#EEF2FF" },
+    { icon: "wallet", label: "Payments", sub: "Transaction history", route: "/payments/payment-history", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "ribbon", label: "Subscriptions", sub: "Your active plans", route: "/packages/subscriptions", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "rocket", label: "Boost an Ad", sub: "Get more visibility", route: "/packages/boost-ad", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "help-circle", label: "Help Centre", sub: "FAQs & guides", route: "/support/help-center", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "shield-checkmark", label: "Privacy & Policy", sub: "Data & terms", route: "/support/privacy-policy", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+  ], [colors, isDarkMode]);
+
+  const GUEST_ITEMS = useMemo(() => [
+    { icon: "search-outline", label: "Find Cars", sub: "Search new & used", route: "/(tabs)/search", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#EEF2FF" },
+    { icon: "car-sport-outline", label: "Buy a Car", sub: "Browse our collection", route: "/cars/buy-car", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "add-circle-outline", label: "Sell a Car", sub: "Post an ad quickly", route: "/cars/select-type", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "pricetag-outline", label: "Offers", sub: "View latest deals", route: "/offers", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "call-outline", label: "Contact Us", sub: "We're here to help", route: "/support/contact-us", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+    { icon: "information-outline", label: "About App", sub: "Learn about EasyAuto", route: "/support/about", color: colors.primary, bg: isDarkMode ? colors.backgroundMuted : "#F8FAFC" },
+  ], [colors, isDarkMode]);
 
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(slideAnim, { toValue: 0,          duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(bgOpacity,  { toValue: 1,          duration: 300, easing: Easing.out(Easing.ease),  useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(bgOpacity, { toValue: 1, duration: 300, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(slideAnim, { toValue: -DRAWER_W,  duration: 280, easing: Easing.in(Easing.cubic),  useNativeDriver: true }),
-        Animated.timing(bgOpacity,  { toValue: 0,          duration: 260, easing: Easing.in(Easing.ease),   useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: -DRAWER_W, duration: 280, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(bgOpacity, { toValue: 0, duration: 260, easing: Easing.in(Easing.ease), useNativeDriver: true }),
       ]).start();
     }
   }, [visible]);
@@ -81,45 +83,47 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     setShowLogoutConfirm(true);
   };
 
+  const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <View style={styles.root}>
+      <View style={themeStyles.root}>
 
         {/* ── Drawer ─────────────────────────────────────────────────────── */}
-        <Animated.View style={[styles.drawer, { transform: [{ translateX: slideAnim }] }]}>
+        <Animated.View style={[themeStyles.drawer, { transform: [{ translateX: slideAnim }] }]}>
           <View style={{ flex: 1 }}>
             {/* ── FIXED HEADER ────────────────────────────────────────── */}
             {isAuthenticated ? (
-              <View style={styles.authHeaderWrapper}>
+              <View style={themeStyles.authHeaderWrapper}>
                 <LinearGradient
-                  colors={[COLORS.primary, "#2563EB"]}
+                  colors={isDarkMode ? [colors.backgroundSecondary, colors.backgroundMuted] : [colors.primary, "#2563EB"]}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                  style={[styles.authHeaderFull, { paddingTop: insets.top + 20 }]}
+                  style={[themeStyles.authHeaderFull, { paddingTop: insets.top + 20 }]}
                 >
-                  <View style={styles.headerAbstractDecor} />
-                  
-                  <View style={styles.profileSection}>
-                    <TouchableOpacity onPress={() => go("/(tabs)/profile")} activeOpacity={0.9} style={styles.profileAvatarFrame}>
+                  <View style={themeStyles.headerAbstractDecor} />
+
+                  <View style={themeStyles.profileSection}>
+                    <TouchableOpacity onPress={() => go("/(tabs)/profile")} activeOpacity={0.9} style={themeStyles.profileAvatarFrame}>
                       <Image
                         source={user?.avatar ? { uri: user.avatar } : require('@/assets/images/user.jpeg')}
-                        style={styles.avatarCircle}
+                        style={themeStyles.avatarCircle}
                         contentFit="cover"
                       />
                       <LinearGradient
                         colors={["#FCD34D", "#F59E0B"]}
-                        style={styles.premiumBadgeOverlay}
+                        style={themeStyles.premiumBadgeOverlay}
                       >
                         <Ionicons name="star" size={8} color="#fff" />
                       </LinearGradient>
                     </TouchableOpacity>
-                    
-                    <View style={styles.profileInfo}>
-                      <View style={styles.nameRow}>
-                        <Text style={styles.profileName} numberOfLines={1}>{user?.name || "Premium Member"}</Text>
+
+                    <View style={themeStyles.profileInfo}>
+                      <View style={themeStyles.nameRow}>
+                        <Text style={themeStyles.profileName} numberOfLines={1}>{user?.name || "Premium Member"}</Text>
                       </View>
-                      <View style={styles.emailRow}>
-                        <Ionicons name="mail" size={10} color="rgba(255,255,255,0.6)" />
-                        <Text style={styles.profileEmail} numberOfLines={1}>{user?.email}</Text>
+                      <View style={themeStyles.emailRow}>
+                        <Ionicons name="mail" size={10} color={isDarkMode ? colors.text.muted : "rgba(255,255,255,0.6)"} />
+                        <Text style={themeStyles.profileEmail} numberOfLines={1}>{user?.email}</Text>
                       </View>
                     </View>
                   </View>
@@ -127,27 +131,27 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
               </View>
             ) : (
               <LinearGradient
-                colors={["#235CF8", "#1346C8", "#0D3AAD"]}
+                colors={isDarkMode ? [colors.backgroundSecondary, colors.backgroundMuted] : ["#235CF8", "#1346C8", "#0D3AAD"]}
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1.2 }}
-                style={[styles.guestHeader, { paddingTop: insets.top + 20 }]}
+                style={[themeStyles.guestHeader, { paddingTop: insets.top + 20 }]}
               >
-                <View style={styles.decorCircle1} />
-                <View style={styles.decorCircle2} />
-                <View style={styles.guestLogoContainer}>
+                <View style={themeStyles.decorCircle1} />
+                <View style={themeStyles.decorCircle2} />
+                <View style={themeStyles.guestLogoContainer}>
                   <Image
                     source={require("@/assets/logoHome.png")}
-                    style={styles.guestLogo}
+                    style={themeStyles.guestLogo}
                     contentFit="contain"
                   />
                 </View>
-                <Text style={styles.guestSub}>Sri Lanka's #1 Car Marketplace</Text>
-                
-                <View style={styles.guestAuthBtnRow}>
-                  <TouchableOpacity style={styles.btnSignIn} onPress={() => go("/auth/login")}>
-                    <Text style={styles.btnSignInTxt}>Sign In</Text>
+                <Text style={themeStyles.guestSub}>Sri Lanka's #1 Car Marketplace</Text>
+
+                <View style={themeStyles.guestAuthBtnRow}>
+                  <TouchableOpacity style={themeStyles.btnSignIn} onPress={() => go("/auth/login")}>
+                    <Text style={themeStyles.btnSignInTxt}>Sign In</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.btnRegister} onPress={() => go("/auth/signup")}>
-                    <Text style={styles.btnRegisterTxt}>Register</Text>
+                  <TouchableOpacity style={themeStyles.btnRegister} onPress={() => go("/auth/signup")}>
+                    <Text style={themeStyles.btnRegisterTxt}>Register</Text>
                   </TouchableOpacity>
                 </View>
               </LinearGradient>
@@ -156,70 +160,70 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
             {/* ── SCROLLABLE MENU ─────────────────────────────────────── */}
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
+              contentContainerStyle={themeStyles.scrollContent}
               style={{ flex: 1 }}
               bounces={true}
             >
 
-              <View style={styles.menuSection}>
+              <View style={themeStyles.menuSection}>
                 {(isAuthenticated ? USER_ITEMS : GUEST_ITEMS).map((item: any, i: number) => (
                   <TouchableOpacity
                     key={item.route}
                     style={[
-                      styles.menuRow,
-                      i < (isAuthenticated ? USER_ITEMS.length : GUEST_ITEMS.length) - 1 && styles.menuDivider
+                      themeStyles.menuRow,
+                      i < (isAuthenticated ? USER_ITEMS.length : GUEST_ITEMS.length) - 1 && themeStyles.menuDivider
                     ]}
                     onPress={() => go(item.route)}
                     activeOpacity={0.7}
                   >
-                    <View style={[styles.menuIconBox, { backgroundColor: item.bg }]}>
+                    <View style={[themeStyles.menuIconBox, { backgroundColor: item.bg }]}>
                       <Ionicons name={item.icon as any} size={19} color={item.color} />
                     </View>
-                    <View style={styles.menuMeta}>
-                      <Text style={styles.menuLabel}>{item.label}</Text>
-                      {item.sub && <Text style={styles.menuSub}>{item.sub}</Text>}
+                    <View style={themeStyles.menuMeta}>
+                      <Text style={themeStyles.menuLabel}>{item.label}</Text>
+                      {item.sub && <Text style={themeStyles.menuSub}>{item.sub}</Text>}
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color="#CBD5E1" />
+                    <Ionicons name="chevron-forward" size={16} color={colors.text.muted} />
                   </TouchableOpacity>
                 ))}
 
                 {isAuthenticated && (
                   <TouchableOpacity
-                    style={[styles.menuRow, { marginTop: 8 }]}
+                    style={[themeStyles.menuRow, { marginTop: 8 }]}
                     onPress={() => go("/settings/settings")}
                     activeOpacity={0.7}
                   >
-                    <View style={[styles.menuIconBox, { backgroundColor: "#F8FAFC" }]}>
-                      <Ionicons name="settings-outline" size={19} color={COLORS.primary} />
+                    <View style={[themeStyles.menuIconBox, { backgroundColor: isDarkMode ? colors.backgroundMuted : "#F8FAFC" }]}>
+                      <Ionicons name="settings-outline" size={19} color={colors.primary} />
                     </View>
-                    <View style={styles.menuMeta}>
-                      <Text style={styles.menuLabel}>App Settings</Text>
-                      <Text style={styles.menuSub}>Preferences & privacy</Text>
+                    <View style={themeStyles.menuMeta}>
+                      <Text style={themeStyles.menuLabel}>App Settings</Text>
+                      <Text style={themeStyles.menuSub}>Preferences & privacy</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={14} color="#E2E8F0" />
+                    <Ionicons name="chevron-forward" size={14} color={colors.text.muted} />
                   </TouchableOpacity>
                 )}
               </View>
             </ScrollView>
 
             {/* ── FIXED BOTTOM AREA ───────────────────────────────────── */}
-            <View style={[styles.bottomArea, { paddingBottom: insets.bottom + 16 }]}>
+            <View style={[themeStyles.bottomArea, { paddingBottom: insets.bottom + 16 }]}>
               {isAuthenticated && (
-                <TouchableOpacity style={styles.logoutBtnFixed} onPress={confirmLogout} activeOpacity={0.8}>
+                <TouchableOpacity style={themeStyles.logoutBtnFixed} onPress={confirmLogout} activeOpacity={0.8}>
                   <LinearGradient
-                    colors={["#F8FAFC", "#F1F5F9"]}
-                    style={styles.logoutGradientFixed}
+                    colors={isDarkMode ? [colors.backgroundMuted, colors.backgroundSecondary] : ["#F8FAFC", "#F1F5F9"]}
+                    style={themeStyles.logoutGradientFixed}
                   >
-                    <View style={styles.logoutIconFrameFixed}>
-                      <Ionicons name="log-out-outline" size={18} color="#64748B" />
+                    <View style={themeStyles.logoutIconFrameFixed}>
+                      <Ionicons name="log-out-outline" size={18} color={colors.text.muted} />
                     </View>
-                    <Text style={styles.logoutTxtFixed}>Sign Out</Text>
+                    <Text style={themeStyles.logoutTxtFixed}>Sign Out</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               )}
-              
-              <View style={styles.footerMin}>
-                <Text style={styles.footerTxtMin}>EasyAuto v1.0.0 · Sri Lanka 🇱🇰</Text>
+
+              <View style={themeStyles.footerMin}>
+                <Text style={themeStyles.footerTxtMin}>EasyAuto v1.0.0 · Sri Lanka 🇱🇰</Text>
               </View>
             </View>
           </View>
@@ -243,7 +247,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         />
 
         {/* ── Backdrop ───────────────────────────────────────────────────── */}
-        <Animated.View style={[styles.backdrop, { opacity: bgOpacity }]} pointerEvents={visible ? "auto" : "none"}>
+        <Animated.View style={[themeStyles.backdrop, { opacity: bgOpacity }]} pointerEvents={visible ? "auto" : "none"}>
           <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onClose} />
         </Animated.View>
 
@@ -253,16 +257,16 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
-  root:    { flex: 1, flexDirection: "row" },
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
+  root: { flex: 1, flexDirection: "row" },
   backdrop: { flex: 1, backgroundColor: "rgba(15,23,42,0.4)" }, // Slightly lighter backdrop for premium feel
 
   drawer: {
     width: DRAWER_W,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     height: "100%",
     zIndex: 50,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 10, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 30,
@@ -271,12 +275,12 @@ const styles = StyleSheet.create({
 
   // ── Auth Header ─────────────────
   authHeaderWrapper: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: isDarkMode ? colors.backgroundSecondary : colors.primary,
     borderBottomLeftRadius: 36,
     borderBottomRightRadius: 36,
     overflow: "hidden",
     elevation: 10,
-    shadowColor: COLORS.primary,
+    shadowColor: isDarkMode ? colors.shadow : colors.primary,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
@@ -292,7 +296,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: isDarkMode ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.06)",
   },
   premiumBadgeOverlay: {
     position: "absolute",
@@ -302,7 +306,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: isDarkMode ? colors.backgroundSecondary : colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -316,7 +320,7 @@ const styles = StyleSheet.create({
     height: 68,
     borderRadius: 34,
     borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.25)",
+    borderColor: isDarkMode ? colors.border : "rgba(255,255,255,0.25)",
     position: "relative",
   },
   avatarCircle: {
@@ -332,7 +336,7 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   profileInfo: {
     flex: 1,
@@ -341,7 +345,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#fff",
+    color: colors.text.primary,
     letterSpacing: -0.4,
   },
   nameRow: {
@@ -357,7 +361,7 @@ const styles = StyleSheet.create({
   },
   profileEmail: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.65)",
+    color: colors.text.secondary,
     fontWeight: "500",
   },
   quickStatsRow: {
@@ -394,7 +398,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: "center",
     overflow: "hidden",
-    backgroundColor: COLORS.primary,
+    backgroundColor: isDarkMode ? colors.backgroundSecondary : colors.primary,
     borderBottomLeftRadius: 36,
     borderBottomRightRadius: 36,
   },
@@ -409,7 +413,7 @@ const styles = StyleSheet.create({
   },
   guestSub: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.7)",
+    color: colors.text.secondary,
     marginBottom: 20,
     textAlign: "center",
     fontWeight: "500",
@@ -421,26 +425,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   btnSignIn: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     paddingHorizontal: 28,
     paddingVertical: 10,
     borderRadius: 14,
     minWidth: 100,
     alignItems: 'center',
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
   },
   btnSignInTxt: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: "900",
     fontSize: 14,
   },
   btnRegister: {
     borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.4)",
+    borderColor: isDarkMode ? colors.border : "rgba(255,255,255,0.4)",
     paddingHorizontal: 28,
     paddingVertical: 10,
     borderRadius: 14,
@@ -448,7 +452,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   btnRegisterTxt: {
-    color: "#fff",
+    color: isDarkMode ? colors.text.primary : "#fff",
     fontWeight: "800",
     fontSize: 14,
   },
@@ -467,7 +471,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: isDarkMode ? "rgba(255,255,255,0.01)" : "rgba(255,255,255,0.06)",
     top: -60,
     right: -50,
   },
@@ -476,7 +480,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "rgba(255,255,255,0.04)",
+    backgroundColor: isDarkMode ? "rgba(255,255,255,0.01)" : "rgba(255,255,255,0.04)",
     bottom: -20,
     left: -30,
   },
@@ -490,7 +494,7 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
+    borderBottomColor: colors.border,
   },
   menuIconBox: {
     width: 40,
@@ -499,7 +503,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.03)",
+    borderColor: colors.border,
   },
   menuMeta: {
     flex: 1,
@@ -507,12 +511,12 @@ const styles = StyleSheet.create({
   menuLabel: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#334155",
+    color: colors.text.primary,
     letterSpacing: -0.3,
   },
   menuSub: {
     fontSize: 10,
-    color: "#94A3B8",
+    color: colors.text.muted,
     fontWeight: "500",
     marginTop: 1,
   },
@@ -523,7 +527,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   menuSection: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
   guestAuthRow: {
     flexDirection: "row",
@@ -535,16 +539,16 @@ const styles = StyleSheet.create({
   // ── Bottom Area ───────────────────
   bottomArea: {
     paddingHorizontal: 20,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    borderTopColor: colors.border,
     paddingTop: 16,
   },
   logoutBtnFixed: {
     borderRadius: 20,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
     marginBottom: 16,
   },
   logoutGradientFixed: {
@@ -557,16 +561,16 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: colors.backgroundSecondary,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
   },
   logoutTxtFixed: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#475569",
+    color: colors.text.primary,
     letterSpacing: -0.2,
   },
   footerMin: {
@@ -574,8 +578,9 @@ const styles = StyleSheet.create({
   },
   footerTxtMin: {
     fontSize: 10,
-    color: "#CBD5E1",
+    color: colors.text.muted,
     fontWeight: "600",
     letterSpacing: 0.5,
   },
 });
+

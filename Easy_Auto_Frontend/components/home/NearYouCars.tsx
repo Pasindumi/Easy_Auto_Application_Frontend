@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { useEffect, useState, memo, useMemo } from "react";
 import {
     Animated,
     ScrollView,
@@ -16,6 +16,7 @@ import { api } from "@/utils/api";
 import COLORS from "@/constants/Colors";
 import Loading from "../ui/Loading";
 import SectionHeader from "./SectionHeader";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 
@@ -31,13 +32,12 @@ const NearYouCars: React.FC<NearYouCarsProps> = memo(({
     const router = useRouter();
     const [ads, setAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const { colors, isDarkMode } = useTheme();
 
     const fetchLocalAds = async () => {
         setLoading(true);
         try {
-            // Ideally this would take user's lat/lon, but for now we simulate "Near You"
-            // by fetching ads with a specific geographical query or just recent ones as placeholder
-            const res: any = await api.get('/api/cars?limit=6'); 
+            const res: any = await api.get('/api/cars?limit=6');
             if (res.success) {
                 setAds(res.data || []);
             }
@@ -63,12 +63,14 @@ const NearYouCars: React.FC<NearYouCarsProps> = memo(({
         }).format(val);
     };
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     if (!loading && ads.length === 0) return null;
 
     return (
         <Animated.View
             style={[
-                styles.container,
+                themeStyles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
@@ -80,20 +82,19 @@ const NearYouCars: React.FC<NearYouCarsProps> = memo(({
                 subtitle="Based on your current location"
                 onViewAll={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    // Pass a location param to search if needed
                     router.push('/(tabs)/search');
                 }}
             />
 
             {loading ? (
-                <View style={styles.loadingContainer}>
+                <View style={themeStyles.loadingContainer}>
                     <Loading size="small" />
                 </View>
             ) : (
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.scrollContent}
+                    contentContainerStyle={themeStyles.scrollContent}
                     decelerationRate="fast"
                     snapToInterval={190 + 16}
                 >
@@ -107,39 +108,39 @@ const NearYouCars: React.FC<NearYouCarsProps> = memo(({
                         return (
                             <TouchableOpacity
                                 key={`local-${car.id}-${index}`}
-                                style={styles.card}
+                                style={themeStyles.card}
                                 activeOpacity={0.9}
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                     router.push(`/cars/${car.id}` as any);
                                 }}
                             >
-                                <View style={styles.imageContainer}>
+                                <View style={themeStyles.imageContainer}>
                                     <Image
                                         source={imageUrl ? { uri: imageUrl } : require('@/assets/images/car.jpg')}
-                                        style={styles.image}
+                                        style={themeStyles.image}
                                         contentFit="cover"
                                         transition={300}
                                         cachePolicy="memory-disk"
                                     />
-                                    <View style={styles.priceTag}>
-                                        <Text style={styles.priceText}>{formatPrice(car.price)}</Text>
+                                    <View style={themeStyles.priceTag}>
+                                        <Text style={themeStyles.priceText}>{formatPrice(car.price)}</Text>
                                     </View>
-                                    <View style={styles.distanceBadge}>
-                                        <Ionicons name="location" size={10} color={COLORS.white} />
-                                        <Text style={styles.distanceText}>{(Math.random() * 15 + 1).toFixed(1)} km</Text>
+                                    <View style={themeStyles.distanceBadge}>
+                                        <Ionicons name="location" size={10} color={colors.white} />
+                                        <Text style={themeStyles.distanceText}>{(Math.random() * 15 + 1).toFixed(1)} km</Text>
                                     </View>
                                 </View>
 
-                                <View style={styles.cardContent}>
-                                    <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
-                                    <Text style={styles.cardSubTitle} numberOfLines={1}>
+                                <View style={themeStyles.cardContent}>
+                                    <Text style={themeStyles.cardTitle} numberOfLines={1}>{title}</Text>
+                                    <Text style={themeStyles.cardSubTitle} numberOfLines={1}>
                                         {details?.model} {details?.year}
                                     </Text>
-                                    
-                                    <View style={styles.locationRow}>
-                                        <Ionicons name="location-outline" size={12} color={COLORS.text.muted} />
-                                        <Text style={styles.locationText} numberOfLines={1}>
+
+                                    <View style={themeStyles.locationRow}>
+                                        <Ionicons name="location-outline" size={12} color={colors.text.muted} />
+                                        <Text style={themeStyles.locationText} numberOfLines={1}>
                                             {car.location?.split(",")[0] || "Unknown"}
                                         </Text>
                                     </View>
@@ -153,7 +154,7 @@ const NearYouCars: React.FC<NearYouCarsProps> = memo(({
     );
 });
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
     },
     loadingContainer: {
@@ -168,10 +169,10 @@ const styles = StyleSheet.create({
     },
     card: {
         width: 190,
-        backgroundColor: COLORS.white,
+        backgroundColor: colors.backgroundSecondary,
         borderRadius: 5,
         borderWidth: 1,
-        borderColor: '#DBEAFE',
+        borderColor: isDarkMode ? colors.border : '#DBEAFE',
         overflow: 'hidden',
     },
     imageContainer: {
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
         gap: 3,
     },
     distanceText: {
-        color: COLORS.white,
+        color: colors.white,
         fontWeight: "700",
         fontSize: 9,
     },
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.2)',
     },
     priceText: {
-        color: COLORS.white,
+        color: colors.white,
         fontWeight: "700",
         fontSize: 11,
     },
@@ -222,12 +223,12 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 14,
         fontWeight: "700",
-        color: COLORS.text.primary,
+        color: colors.text.primary,
         marginBottom: 4,
     },
     cardSubTitle: {
         fontSize: 12,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         fontWeight: "500",
         marginBottom: 6,
     },
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
     },
     locationText: {
         fontSize: 11,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         fontWeight: "500",
         flex: 1,
     },

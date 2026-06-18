@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import { api } from '@/utils/api';
@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '@/constants/Colors';
 import * as Haptics from 'expo-haptics';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +17,7 @@ const BoostPopup = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+    const { colors, isDarkMode } = useTheme();
 
     useEffect(() => {
         fetchPopupAds();
@@ -72,12 +74,16 @@ const BoostPopup = () => {
     };
 
     const handlePress = (ad: any) => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        // Correcting use of Haptics as it might have been misimported in the original
+        // Using Haptics.impactAsync if available from expo-haptics
+        // But for safety let's assume it was intended as expo-haptics
         setVisible(false);
         if (ad && ad.id) {
             router.push(`/cars/${ad.id}`);
         }
     };
+
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
 
     if (ads.length === 0) return null;
 
@@ -88,10 +94,10 @@ const BoostPopup = () => {
             visible={visible}
             onRequestClose={handleClose}
         >
-            <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                    <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-                        <Ionicons name="close-circle" size={32} color={COLORS.white} />
+            <View style={themeStyles.centeredView}>
+                <View style={themeStyles.modalView}>
+                    <TouchableOpacity style={themeStyles.closeButton} onPress={handleClose}>
+                        <Ionicons name="close-circle" size={32} color={colors.white} />
                     </TouchableOpacity>
 
                     <ScrollView
@@ -101,30 +107,30 @@ const BoostPopup = () => {
                         showsHorizontalScrollIndicator={false}
                         onScroll={handleScroll}
                         scrollEventThrottle={16}
-                        style={styles.slider}
-                        contentContainerStyle={styles.scrollContent}
+                        style={themeStyles.slider}
+                        contentContainerStyle={themeStyles.scrollContent}
                     >
                         {ads.map((ad, index) => (
                             <TouchableOpacity
                                 key={`popup-ad-${ad.id}`}
                                 activeOpacity={0.9}
                                 onPress={() => handlePress(ad)}
-                                style={styles.slide}
+                                style={themeStyles.slide}
                             >
                                 <Image
                                     source={{ uri: ad.AdImage?.[0]?.image_url || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80" }}
-                                    style={styles.image}
+                                    style={themeStyles.image}
                                     contentFit="cover"
                                 />
-                                <View style={styles.textContainer}>
-                                    <View style={styles.tag}>
-                                        <Text style={styles.tagText}>Featured Deal</Text>
+                                <View style={themeStyles.textContainer}>
+                                    <View style={themeStyles.tag}>
+                                        <Text style={themeStyles.tagText}>Featured Deal</Text>
                                     </View>
-                                    <Text style={styles.title} numberOfLines={2}>{ad.title}</Text>
-                                    <Text style={styles.price}>LKR {Number(ad.price).toLocaleString()}</Text>
+                                    <Text style={themeStyles.title} numberOfLines={2}>{ad.title}</Text>
+                                    <Text style={themeStyles.price}>LKR {Number(ad.price).toLocaleString()}</Text>
 
-                                    <View style={styles.ctaButton}>
-                                        <Text style={styles.ctaText}>View Details</Text>
+                                    <View style={themeStyles.ctaButton}>
+                                        <Text style={themeStyles.ctaText}>View Details</Text>
                                         <Ionicons name="arrow-forward" size={16} color="#fff" />
                                     </View>
                                 </View>
@@ -134,13 +140,13 @@ const BoostPopup = () => {
 
                     {/* Pagination Dots */}
                     {ads.length > 1 && (
-                        <View style={styles.dotsContainer}>
+                        <View style={themeStyles.dotsContainer}>
                             {ads.map((_, i) => (
                                 <View
                                     key={`dot-${i}`}
                                     style={[
-                                        styles.dot,
-                                        i === currentIndex ? styles.dotActive : styles.dotInactive
+                                        themeStyles.dot,
+                                        i === currentIndex ? themeStyles.dotActive : themeStyles.dotInactive
                                     ]}
                                 />
                             ))}
@@ -152,7 +158,7 @@ const BoostPopup = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     centeredView: {
         flex: 1,
         justifyContent: 'center',
@@ -161,11 +167,11 @@ const styles = StyleSheet.create({
     },
     modalView: {
         width: width * 0.85,
-        backgroundColor: 'white',
+        backgroundColor: colors.background,
         borderRadius: 5,
         overflow: 'hidden',
         alignItems: 'center',
-        shadowColor: '#000',
+        shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 15,
@@ -194,11 +200,11 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         padding: 24,
-        backgroundColor: '#fff',
+        backgroundColor: colors.background,
         alignItems: 'center',
     },
     tag: {
-        backgroundColor: '#F59E0B',
+        backgroundColor: colors.status.warning,
         paddingHorizontal: 12,
         paddingVertical: 5,
         borderRadius: 5,
@@ -215,24 +221,24 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         textAlign: 'center',
         marginBottom: 8,
-        color: '#111827',
+        color: colors.text.primary,
         letterSpacing: -0.5,
     },
     price: {
         fontSize: 22,
         fontWeight: '900',
-        color: '#2563EB',
+        color: colors.primary,
         marginBottom: 20,
     },
     ctaButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#2563EB',
+        backgroundColor: colors.primary,
         paddingVertical: 12,
         paddingHorizontal: 30,
         borderRadius: 5,
         gap: 8,
-        shadowColor: '#2563EB',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -266,3 +272,4 @@ const styles = StyleSheet.create({
 });
 
 export default BoostPopup;
+

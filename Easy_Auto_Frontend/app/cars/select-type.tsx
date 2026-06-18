@@ -1,21 +1,17 @@
 import Header from '@/components/Header';
 import Loading from '@/components/ui/Loading';
-import COLORS from "@/constants/Colors";
-import { MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import SearchBar from '@/components/SearchBar';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     FlatList,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
-    Alert,
-    Dimensions,
-    Image as RNImage,
     Animated,
-    Pressable,
-    StatusBar as RNStatusBar,
+    Image as RNImage,
     Platform
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -25,39 +21,28 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ENDPOINTS } from '../../constants/API';
 import { useAuth } from '../../contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-
-const { width } = Dimensions.get('window');
-
-const CATEGORY_IMAGES: { [key: string]: any } = {
-    'Car': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600&auto=format&fit=crop',
-    'Bike': 'https://images.unsplash.com/photo-1558981403-c5f91cbba527?q=80&w=600&auto=format&fit=crop',
-    'Motorbike': 'https://images.unsplash.com/photo-1558981403-c5f91cbba527?q=80&w=600&auto=format&fit=crop',
-    'Van': 'https://images.unsplash.com/photo-1542385151-efd9000785a0?q=80&w=600&auto=format&fit=crop',
-    'Bus': 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=600&auto=format&fit=crop',
-    'Truck': 'https://images.unsplash.com/photo-1586191582056-a60d0069f232?q=80&w=600&auto=format&fit=crop',
-    'Lorry': 'https://images.unsplash.com/photo-1586191582056-a60d0069f232?q=80&w=600&auto=format&fit=crop',
-    'Three Wheeler': 'https://images.unsplash.com/photo-1594140062402-463870629735?q=80&w=600&auto=format&fit=crop',
-    'Heavy Machinery': 'https://images.unsplash.com/photo-1579412690850-bd41ec0ca047?q=80&w=600&auto=format&fit=crop',
-    'default': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600&auto=format&fit=crop'
-};
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SelectVehicleTypeScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { mode } = useLocalSearchParams(); // 'sell' or 'rent'
     const { isAuthenticated, isLoading: authLoading } = useAuth();
+    const { colors, isDarkMode } = useTheme();
+
     const [vehicleTypes, setVehicleTypes] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
 
     const fetchTypes = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const response = await fetch(ENDPOINTS.VEHICLE_CONFIG.TYPES, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             });
             if (!response.ok) throw new Error(`Server returned ${response.status}`);
             const data = await response.json();
@@ -66,13 +51,9 @@ export default function SelectVehicleTypeScreen() {
                 const sorted = [...data].sort((a, b) => {
                     const nameA = (a?.type_name || '').toLowerCase();
                     const nameB = (b?.type_name || '').toLowerCase();
-
                     if (nameA === nameB) return 0;
                     if (nameA === 'car') return -1;
                     if (nameB === 'car') return 1;
-                    if (nameA === 'van') return -1;
-                    if (nameB === 'van') return 1;
-
                     return nameA.localeCompare(nameB);
                 });
                 setVehicleTypes(sorted);
@@ -82,11 +63,10 @@ export default function SelectVehicleTypeScreen() {
         } catch (error: any) {
             console.error("Error fetching vehicle types:", error);
             setError(error.message || "Failed to fetch vehicle types");
-            Alert.alert("Connection Error", "Could not reach the server. Please check your internet and if the server is running.");
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [colors]);
 
     useFocusEffect(
         useCallback(() => {
@@ -94,8 +74,16 @@ export default function SelectVehicleTypeScreen() {
         }, [fetchTypes])
     );
 
+    const filteredTypes = useMemo(() => {
+        if (!searchQuery.trim()) return vehicleTypes;
+        return vehicleTypes.filter(type =>
+            type.type_name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [vehicleTypes, searchQuery]);
+
     const handleSelect = (type: any) => {
         const pathname = mode === 'rent' ? '/cars/create-rental-ad' : '/cars/sell-car';
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         router.push({
             pathname: pathname as any,
             params: {
@@ -105,92 +93,43 @@ export default function SelectVehicleTypeScreen() {
         });
     };
 
-    // Helper to get icon family/name safely
     const getIcon = (name: string) => {
         const n = (name || '').toLowerCase();
-        if (n.includes('car')) return { lib: Ionicons, name: 'car-sport' };
-        if (n.includes('bike') || n.includes('motor')) return { lib: MaterialCommunityIcons, name: 'motorbike' };
-        if (n.includes('three')) return { lib: MaterialCommunityIcons, name: 'rickshaw' };
-        if (n.includes('van')) return { lib: MaterialCommunityIcons, name: 'van-passenger' };
-        if (n.includes('bus')) return { lib: Ionicons, name: 'bus' };
-        if (n.includes('lorry') || n.includes('truck')) return { lib: MaterialCommunityIcons, name: 'truck' };
-        if (n.includes('heavy') || n.includes('machinery')) return { lib: MaterialCommunityIcons, name: 'excavator' };
-        return { lib: Ionicons, name: 'car' };
+        if (n.includes('car')) return { lib: Ionicons, name: 'car-sport' as const };
+        if (n.includes('bike') || n.includes('motor')) return { lib: MaterialCommunityIcons, name: 'motorbike' as const };
+        if (n.includes('three')) return { lib: MaterialCommunityIcons, name: 'rickshaw' as const };
+        if (n.includes('van')) return { lib: MaterialCommunityIcons, name: 'van-passenger' as const };
+        if (n.includes('bus')) return { lib: Ionicons, name: 'bus' as const };
+        if (n.includes('lorry') || n.includes('truck')) return { lib: MaterialCommunityIcons, name: 'truck' as const };
+        if (n.includes('heavy') || n.includes('machinery')) return { lib: MaterialCommunityIcons, name: 'excavator' as const };
+        return { lib: Ionicons, name: 'car' as const };
     };
 
-    const CategoryCard = ({ item, onSelect }: { item: any, onSelect: (item: any) => void }) => {
-        const scaleAnim = React.useRef(new Animated.Value(1)).current;
+    const CategoryItem = ({ item }: { item: any }) => {
         const iconData = getIcon(item?.type_name);
         const IconLib = iconData.lib;
 
-        const handlePressIn = () => {
-            Animated.spring(scaleAnim, {
-                toValue: 0.95,
-                useNativeDriver: true,
-                speed: 20
-            }).start();
-        };
-
-        const handlePressOut = () => {
-            Animated.spring(scaleAnim, {
-                toValue: 1,
-                useNativeDriver: true,
-                friction: 4,
-                tension: 40
-            }).start();
-        };
-
-        const onPress = () => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            onSelect(item);
-        };
-
         return (
-            <Animated.View style={[styles.cardContainer, { transform: [{ scale: scaleAnim }] }]}>
-                <Pressable
-                    style={styles.card}
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                    onPress={onPress}
-                >
-                    <View style={styles.cardImageContainer}>
-                        <RNImage
-                            source={{ uri: item.type_image || CATEGORY_IMAGES[item.type_name] || CATEGORY_IMAGES['default'] }}
-                            style={styles.cardImage}
-                        />
-                        <LinearGradient
-                            colors={['transparent', 'rgba(0,0,0,0.6)']}
-                            style={styles.imageOverlay}
-                        />
-                    </View>
-
-                    <View style={styles.cardContent}>
-                        <View style={styles.categoryIconCircle}>
-                            <IconLib name={iconData.name as any} size={22} color={COLORS.primary} />
-                        </View>
-                        <View style={styles.textContainer}>
-                            <Text style={styles.cardTitle}>{item?.type_name || 'Unknown'}</Text>
-                            <Text style={styles.cardSubtitle}>{mode === 'rent' ? 'Rent' : 'Sell'} Category</Text>
-                        </View>
-                        <View style={styles.arrowIcon}>
-                            <MaterialIcons name="chevron-right" size={20} color={COLORS.text.muted} />
-                        </View>
-                    </View>
-                </Pressable>
-            </Animated.View>
+            <TouchableOpacity
+                style={themeStyles.itemRow}
+                onPress={() => handleSelect(item)}
+                activeOpacity={0.7}
+            >
+                <View style={[themeStyles.iconBox, { backgroundColor: isDarkMode ? colors.backgroundMuted : colors.primaryLight }]}>
+                    <IconLib name={iconData.name as any} size={22} color={colors.primary} />
+                </View>
+                <View style={themeStyles.itemTextContainer}>
+                    <Text style={themeStyles.itemTitle}>{item?.type_name || 'Unknown'}</Text>
+                    <Text style={themeStyles.itemSubtitle}>{mode === 'rent' ? 'Rental' : 'Selling'} category</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
+            </TouchableOpacity>
         );
     };
 
-    const renderItem = ({ item }: { item: any }) => (
-        <CategoryCard
-            item={item}
-            onSelect={handleSelect}
-        />
-    );
-
     if (authLoading) {
         return (
-            <View style={styles.centerContainer}>
+            <View style={themeStyles.centerContainer}>
                 <Loading message="Checking session..." />
             </View>
         );
@@ -198,28 +137,28 @@ export default function SelectVehicleTypeScreen() {
 
     if (!isAuthenticated) {
         return (
-            <View style={styles.container}>
+            <View style={themeStyles.container}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <Header showBack={true} title="Sell Your Vehicle" />
-                <View style={styles.authGuardContainer}>
-                    <View style={styles.iconCircle}>
-                        <Ionicons name="lock-closed" size={30} color={COLORS.primary} />
+                <Header showBack={true} title={mode === 'rent' ? "Rent Your Vehicle" : "Sell Your Vehicle"} />
+                <View style={themeStyles.authGuardContainer}>
+                    <View style={themeStyles.iconCircle}>
+                        <Ionicons name="lock-closed" size={32} color={colors.primary} />
                     </View>
-                    <Text style={styles.authGuardTitle}>Login Required</Text>
-                    <Text style={styles.authGuardMessage}>Please login or create an account to sell your vehicle on Easy Auto.</Text>
+                    <Text style={themeStyles.authGuardTitle}>Login Required</Text>
+                    <Text style={themeStyles.authGuardMessage}>Please login or create an account to proceed with your listing.</Text>
 
-                    <View style={styles.authButtonGroup}>
+                    <View style={themeStyles.authButtonGroup}>
                         <TouchableOpacity
-                            style={[styles.authButton, styles.loginButton]}
+                            style={[themeStyles.authButton, themeStyles.loginButton]}
                             onPress={() => router.push('/auth/login')}
                         >
-                            <Text style={styles.loginButtonText}>Login</Text>
+                            <Text style={themeStyles.loginButtonText}>Login</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.authButton, styles.signupButton]}
+                            style={[themeStyles.authButton, themeStyles.signupButton]}
                             onPress={() => router.push('/auth/signup')}
                         >
-                            <Text style={styles.signupButtonText}>Sign Up</Text>
+                            <Text style={themeStyles.signupButtonText}>Sign Up</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -228,83 +167,91 @@ export default function SelectVehicleTypeScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <StatusBar style="light" />
+        <View style={themeStyles.container}>
+            <StatusBar style={isDarkMode ? "light" : "dark"} />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* ─── NEW PREMIUM BRANDED HEADER ─── */}
             <LinearGradient
-                colors={[COLORS.primary, COLORS.primary]}
-                style={[styles.header, { paddingTop: insets.top + 4 }]}
+                colors={isDarkMode ? [colors.backgroundSecondary, colors.background] : [colors.primary, colors.primary]}
+                style={[themeStyles.header, { paddingTop: insets.top + 4 }]}
             >
-                <View style={styles.headerTopRow}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                <View style={themeStyles.headerTopRow}>
+                    <TouchableOpacity style={themeStyles.backBtn} onPress={() => router.back()}>
                         <Ionicons name="chevron-back" size={24} color="white" />
                     </TouchableOpacity>
 
-                    <View style={styles.headerTitleArea}>
-                        <Text style={styles.headerTitleText}>
-                            {mode === 'rent' ? 'What are you renting?' : 'What are you selling?'}
+                    <View style={themeStyles.headerTitleArea}>
+                        <Text style={themeStyles.headerTitleText}>
+                            {mode === 'rent' ? 'Vehicle for Rent' : 'Vehicle for Sale'}
                         </Text>
                     </View>
 
-                    <View pointerEvents="none" style={styles.headerLogoContainer}>
+                    <View pointerEvents="none" style={themeStyles.headerLogoContainer}>
                         <RNImage
                             source={require("@/assets/logoHome.png")}
                             resizeMode="contain"
-                            style={styles.logoImg}
+                            style={themeStyles.logoImg}
                         />
                     </View>
                 </View>
-                <View style={styles.headerSubtitleArea}>
-                    <Text style={styles.headerSubtitleText}>Choose a vehicle category to proceed</Text>
+                <View style={themeStyles.headerSubtitleArea}>
+                    <Text style={themeStyles.headerSubtitleText}>Choose a vehicle category to proceed</Text>
                 </View>
             </LinearGradient>
 
-            {loading ? (
-                <View style={styles.centerContainer}>
-                    <Loading message="Loading vehicle types..." />
+            <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search vehicle type..."
+            />
+
+            {loading && vehicleTypes.length === 0 ? (
+                <View style={themeStyles.centerContainer}>
+                    <Loading message="Loading categories..." />
                 </View>
             ) : error ? (
-                <View style={styles.centerContainer}>
-                    <Ionicons name="alert-circle-outline" size={48} color={COLORS.status.danger} />
-                    <Text style={styles.errorText}>{error}</Text>
-                    <TouchableOpacity style={styles.retryButton} onPress={fetchTypes}>
-                        <Text style={styles.retryButtonText}>Try Again</Text>
+                <View style={themeStyles.centerContainer}>
+                    <Ionicons name="alert-circle-outline" size={48} color={colors.status.danger} />
+                    <Text style={themeStyles.errorText}>{error}</Text>
+                    <TouchableOpacity style={themeStyles.retryButton} onPress={fetchTypes}>
+                        <Text style={themeStyles.retryButtonText}>Try Again</Text>
                     </TouchableOpacity>
                 </View>
             ) : (
                 <FlatList
-                    data={vehicleTypes}
+                    data={filteredTypes}
                     ListEmptyComponent={() => (
-                        <View style={{ padding: 40, alignItems: 'center' }}>
-                            <Text style={{ color: COLORS.text.muted, textAlign: 'center', fontSize: 16 }}>No vehicle categories available at the moment.</Text>
+                        <View style={themeStyles.emptyContainer}>
+                            <Ionicons name="search" size={48} color={colors.text.muted} />
+                            <Text style={themeStyles.emptyText}>No categories match your search</Text>
+                            <TouchableOpacity onPress={() => setSearchQuery('')}>
+                                <Text style={{ color: colors.primary, fontWeight: '700', marginTop: 8 }}>Clear search</Text>
+                            </TouchableOpacity>
                         </View>
                     )}
-                    renderItem={renderItem}
+                    renderItem={({ item }) => <CategoryItem item={item} />}
                     keyExtractor={item => item?.id?.toString() || Math.random().toString()}
-                    contentContainerStyle={styles.listContent}
+                    contentContainerStyle={themeStyles.listContent}
                     showsVerticalScrollIndicator={false}
-                    numColumns={1}
                 />
             )}
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.background,
+        backgroundColor: colors.background,
     },
     header: {
         paddingHorizontal: 16,
-        paddingBottom: 12,
-        elevation: 8,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.3,
-        shadowRadius: 15,
+        paddingBottom: 16,
+        elevation: 4,
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
         zIndex: 100,
     },
     headerTopRow: {
@@ -324,89 +271,57 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         justifyContent: 'center',
     },
-    logoImg: { width: 100, height: 26 },
+    logoImg: { width: 100, height: 26, tintColor: isDarkMode ? colors.text.primary : '#fff' },
     headerTitleArea: {
         flex: 1,
         alignItems: 'flex-start',
         justifyContent: 'center',
         marginLeft: 8,
     },
-    headerTitleText: { color: 'white', fontSize: 18, fontWeight: '800', letterSpacing: -0.5 },
+    headerTitleText: { color: isDarkMode ? colors.text.primary : 'white', fontSize: 18, fontWeight: '800', letterSpacing: -0.5 },
     headerSubtitleArea: {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 4,
-        marginBottom: 8,
     },
-    headerSubtitleText: { color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: '600' },
+    headerSubtitleText: { color: isDarkMode ? colors.text.muted : 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: '600' },
     listContent: {
-        padding: 20,
+        paddingHorizontal: 16,
         paddingBottom: 40,
     },
-    cardContainer: {
-        width: width - 40, // 20px padding * 2
-        marginBottom: 30,
-    },
-    card: {
-        borderRadius: 5,
-        backgroundColor: COLORS.white,
-        borderWidth: 1,
-        borderColor: '#BFDBFE',
-        overflow: 'hidden',
-    },
-    cardImageContainer: {
-        height: 160,
-        backgroundColor: '#F1F5F9',
-        position: 'relative',
-    },
-    cardImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
-    },
-    imageOverlay: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    cardContent: {
-        padding: 12,
+    itemRow: {
+        flexDirection: 'row',
         alignItems: 'center',
-        position: 'relative',
-    },
-    categoryIconCircle: {
-        width: 48,
-        height: 48,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        backgroundColor: colors.backgroundSecondary,
         borderRadius: 5,
-        backgroundColor: COLORS.primaryLight,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    iconBox: {
+        width: 44,
+        height: 44,
+        borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: -38,
-        borderWidth: 2,
-        borderColor: COLORS.white,
-        zIndex: 10,
+        marginRight: 12,
     },
-    textContainer: {
-        alignItems: 'center',
-        marginTop: 8,
+    itemTextContainer: {
+        flex: 1,
     },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: COLORS.text.primary,
-        marginBottom: 2,
-        letterSpacing: -0.5,
-    },
-    cardSubtitle: {
-        fontSize: 11,
-        color: COLORS.text.muted,
+    itemTitle: {
+        fontSize: 16,
         fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        color: colors.text.primary,
+        letterSpacing: -0.3,
     },
-    arrowIcon: {
-        position: 'absolute',
-        bottom: 12,
-        right: 12,
-        opacity: 0.3,
+    itemSubtitle: {
+        fontSize: 12,
+        color: colors.text.muted,
+        fontWeight: '500',
+        marginTop: 1,
     },
     centerContainer: {
         flex: 1,
@@ -424,7 +339,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 5,
-        backgroundColor: 'rgba(35, 92, 248, 0.1)',
+        backgroundColor: isDarkMode ? colors.backgroundSecondary : 'rgba(35, 92, 248, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 20,
@@ -432,12 +347,12 @@ const styles = StyleSheet.create({
     authGuardTitle: {
         fontSize: 22,
         fontWeight: '800',
-        color: '#64748B', // Gray color
+        color: colors.text.primary,
         marginBottom: 10,
     },
     authGuardMessage: {
         fontSize: 15,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         textAlign: 'center',
         lineHeight: 22,
         marginBottom: 32,
@@ -449,32 +364,32 @@ const styles = StyleSheet.create({
     },
     authButton: {
         flex: 1,
-        height: 44,
+        height: 48,
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
     },
     loginButton: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: colors.primary,
     },
     signupButton: {
-        backgroundColor: COLORS.white,
+        backgroundColor: 'transparent',
         borderWidth: 1.5,
-        borderColor: COLORS.primary,
+        borderColor: colors.primary,
     },
     loginButtonText: {
         fontSize: 16,
         fontWeight: '700',
-        color: COLORS.white,
+        color: '#fff',
     },
     signupButtonText: {
         fontSize: 16,
         fontWeight: '700',
-        color: COLORS.primary,
+        color: colors.primary,
     },
     errorText: {
         fontSize: 16,
-        color: COLORS.text.muted,
+        color: colors.text.muted,
         textAlign: 'center',
         marginTop: 12,
         marginBottom: 24,
@@ -482,11 +397,23 @@ const styles = StyleSheet.create({
     retryButton: {
         paddingHorizontal: 24,
         paddingVertical: 12,
-        backgroundColor: COLORS.primary,
+        backgroundColor: colors.primary,
         borderRadius: 5,
     },
     retryButtonText: {
-        color: COLORS.white,
+        color: '#fff',
         fontWeight: '700',
     },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 60,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: colors.text.muted,
+        marginTop: 12,
+        fontWeight: '600',
+    }
 });
+

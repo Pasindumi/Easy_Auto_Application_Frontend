@@ -1,7 +1,8 @@
 // components/SearchBar.tsx
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { useTheme } from "@/contexts/ThemeContext";
 
 type Props = {
   value: string;
@@ -10,27 +11,32 @@ type Props = {
   backgroundColor?: string;
 };
 
-export default function SearchBar({ 
-  value, 
-  onChange, 
+export default function SearchBar({
+  value,
+  onChange,
   placeholder = "Search listings...",
-  backgroundColor = "#E0F2FE"
+  backgroundColor
 }: Props) {
+  const { colors, isDarkMode } = useTheme();
+  const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
+  const finalBackgroundColor = backgroundColor || (isDarkMode ? colors.backgroundSecondary : "#E0F2FE");
+
   return (
-    <View style={styles.searchWrapper}>
-      <View style={[styles.searchContainer, { backgroundColor }]}>
-        <Ionicons name="search-outline" size={18} color="#9CA3AF" />
+    <View style={themeStyles.searchWrapper}>
+      <View style={[themeStyles.searchContainer, { backgroundColor: finalBackgroundColor }]}>
+        <Ionicons name="search-outline" size={18} color={isDarkMode ? colors.text.muted : "#9CA3AF"} />
         <TextInput
-          style={styles.searchInput}
+          style={themeStyles.searchInput}
           placeholder={placeholder}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={isDarkMode ? colors.text.muted : "#9CA3AF"}
           value={value}
           onChangeText={onChange}
           returnKeyType="search"
         />
         {value.length > 0 && (
           <TouchableOpacity onPress={() => onChange("")}>
-            <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+            <Ionicons name="close-circle" size={18} color={isDarkMode ? colors.text.muted : "#9CA3AF"} />
           </TouchableOpacity>
         )}
       </View>
@@ -38,7 +44,7 @@ export default function SearchBar({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
   searchWrapper: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 10 },
   searchContainer: {
     flexDirection: "row",
@@ -51,7 +57,8 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: "#0F172A",
+    color: colors.text.primary,
     fontWeight: "500",
   },
 });
+

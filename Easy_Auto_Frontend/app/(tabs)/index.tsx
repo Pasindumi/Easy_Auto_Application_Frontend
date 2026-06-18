@@ -21,7 +21,7 @@ import COLORS from "@/constants/Colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/utils/api";
 import { useNotifications } from "@/hooks/useNotifications";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
     Animated,
@@ -37,11 +37,13 @@ import {
     View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
     const { isAuthenticated } = useAuth();
     const { t } = useTranslation();
+    const { isDarkMode, colors } = useTheme();
 
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [searchFocused, setSearchFocused] = useState(false);
@@ -89,9 +91,11 @@ export default function HomeScreen() {
         ]).start();
     }, []);
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     return (
-        <View style={styles.root}>
-            <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+        <View style={themeStyles.root}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={isDarkMode ? colors.backgroundSecondary : colors.white} />
 
             <BoostPopup />
             <HomeDrawers
@@ -109,18 +113,18 @@ export default function HomeScreen() {
 
             <ScrollView
                 ref={scrollRef}
-                style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
+                style={themeStyles.scroll}
+                contentContainerStyle={themeStyles.scrollContent}
                 showsVerticalScrollIndicator={false}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />
                 }
             >
-                <View style={styles.inner}>
+                <View style={themeStyles.inner}>
                     {/* 1. Explore Easyauto */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <SectionHeader
                             title={t("home_screen.explore", "Explore EasyAuto")}
                         />
@@ -128,7 +132,7 @@ export default function HomeScreen() {
                     </View>
 
                     {/* 2. Trending Now */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <TrendingCars
                             fadeAnim={fadeAnim}
                             slideAnim={slideAnim}
@@ -143,47 +147,47 @@ export default function HomeScreen() {
                     </View> */}
 
                     {/* 4. Near You Cars */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <NearYouCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
                     {/* 5. Recommended for you */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <RecommendedCars fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
                     {/* 6. Advertisement section */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <PromoBanner fadeAnim={fadeAnim} scaleAnim={scaleAnim} />
                     </View>
 
                     {/* 7. New Arrivals */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <RecentlyViewed fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
                     {/* 8. Compare Cars */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <CarComparison fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
                     {/* 9. Easy Auto by Numbers */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <ValueProps fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
                     {/* 10. Explore by Brand */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <ExploreByBrand fadeAnim={fadeAnim} slideAnim={slideAnim} />
                     </View>
 
                     {/* 11. Why EasyAuto Section */}
-                    <View style={styles.section}>
+                    <View style={themeStyles.section}>
                         <MarketInsightsBanner fadeAnim={fadeAnim} />
                     </View>
 
                     {/* 12. User Testimonials */}
-                    <View style={[styles.section, { marginBottom: 20 }]}>
+                    <View style={[themeStyles.section, { marginBottom: 20 }]}>
                         <HomeReviewsSlider />
                     </View>
                 </View>
@@ -194,13 +198,13 @@ export default function HomeScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: "#FFFFFF" },
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.background },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 130 },
     inner: {
-        backgroundColor: "#FFFFFF",
-        gap: 48, 
+        backgroundColor: colors.background,
+        gap: 48,
         paddingTop: 12,
     },
     section: {
@@ -215,7 +219,8 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: "800",
-        color: "#0F172A",
+        color: colors.text.primary,
         letterSpacing: -0.4,
     },
 });
+

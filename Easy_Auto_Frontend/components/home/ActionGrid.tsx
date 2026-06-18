@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import {
     Animated,
     Dimensions,
@@ -12,8 +12,8 @@ import {
     View,
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
-import COLORS from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ActionGridProps {
     fadeAnim: Animated.Value;
@@ -27,10 +27,12 @@ const ActionCard = ({
     children,
     onPress,
     delay = 0,
+    themeStyles,
 }: {
     children: React.ReactNode;
     onPress?: () => void;
     delay?: number;
+    themeStyles: any;
 }) => {
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -84,7 +86,7 @@ const ActionCard = ({
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 activeOpacity={1}
-                style={styles.cardContainer}
+                style={themeStyles.cardContainer}
             >
                 {children}
             </TouchableOpacity>
@@ -100,20 +102,21 @@ const ActionGrid: React.FC<ActionGridProps> = ({
 }) => {
     const router = useRouter();
     const { isAuthenticated } = useAuth();
+    const { colors, isDarkMode } = useTheme();
 
     const actions = [
         {
             label: "Buy Vehicle",
             icon: "car-sport",
             iconFamily: Ionicons,
-            colors: ["#60A5FA", "#2563EB"], // Blue Gradient
+            gradientColors: isDarkMode ? [colors.primary, '#1E40AF' as any] : ["#60A5FA", "#2563EB"],
             route: "/cars/buy-car",
         },
         {
             label: "Sell Vehicle",
             icon: "cash-outline",
             iconFamily: Ionicons,
-            colors: ["#60A5FA", "#2563EB"], // Blue Gradient
+            gradientColors: isDarkMode ? [colors.primary, '#1E40AF' as any] : ["#60A5FA", "#2563EB"],
             onPress: () => {
                 if (isAuthenticated) {
                     router.push("/cars/select-type");
@@ -126,49 +129,52 @@ const ActionGrid: React.FC<ActionGridProps> = ({
             label: "Rentals",
             icon: "key-outline",
             iconFamily: Ionicons,
-            colors: ["#60A5FA", "#2563EB"], // Blue Gradient
+            gradientColors: isDarkMode ? [colors.primary, '#1E40AF' as any] : ["#60A5FA", "#2563EB"],
             route: "/cars/rent-car",
         },
         {
             label: "Compare",
             icon: "git-compare-outline",
             iconFamily: Ionicons,
-            colors: ["#60A5FA", "#2563EB"], // Blue Gradient
+            gradientColors: isDarkMode ? [colors.primary, '#1E40AF' as any] : ["#60A5FA", "#2563EB"],
             route: "/(tabs)/compare",
             badge: compareCount > 0 ? (compareCount > 9 ? "9+" : compareCount) : null,
-            badgeColor: COLORS.status.danger
+            badgeColor: colors.status.danger
         },
         {
             label: "Dealers",
             icon: "storefront-outline",
             iconFamily: Ionicons,
-            colors: ["#60A5FA", "#2563EB"], // Blue Gradient
+            gradientColors: isDarkMode ? [colors.primary, '#1E40AF' as any] : ["#60A5FA", "#2563EB"],
             route: "/find-dealers",
         },
         {
             label: "Packages",
             icon: "rocket-outline",
             iconFamily: Ionicons,
-            colors: ["#60A5FA", "#2563EB"], // Blue Gradient
+            gradientColors: isDarkMode ? [colors.primary, '#1E40AF' as any] : ["#60A5FA", "#2563EB"],
             route: "/packages/packages",
         },
     ];
 
+    const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
     return (
         <Animated.View
             style={[
-                styles.container,
+                themeStyles.container,
                 {
                     opacity: fadeAnim,
                     transform: [{ translateY: slideAnim }],
                 },
             ]}
         >
-            <View style={styles.grid}>
+            <View style={themeStyles.grid}>
                 {actions.map((action, index) => (
                     <ActionCard
                         key={index}
                         delay={100 + index * 50}
+                        themeStyles={themeStyles}
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             if (action.onPress) {
@@ -178,22 +184,22 @@ const ActionGrid: React.FC<ActionGridProps> = ({
                             }
                         }}
                     >
-                        <View style={styles.cardContent}>
+                        <View style={themeStyles.cardContent}>
                             <LinearGradient
-                                colors={action.colors as [string, string]}
+                                colors={action.gradientColors as [string, string]}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 1 }}
-                                style={styles.iconGradient}
+                                style={themeStyles.iconGradient}
                             >
                                 <action.iconFamily name={action.icon as any} size={26} color="#FFFFFF" />
                                 {action.badge && (
-                                    <View style={[styles.badge, { backgroundColor: action.badgeColor }]}>
-                                        <Text style={styles.badgeText}>{action.badge}</Text>
+                                    <View style={[themeStyles.badge, { backgroundColor: action.badgeColor }]}>
+                                        <Text style={themeStyles.badgeText}>{action.badge}</Text>
                                     </View>
                                 )}
                             </LinearGradient>
 
-                            <Text style={styles.label}>{action.label}</Text>
+                            <Text style={themeStyles.label}>{action.label}</Text>
                         </View>
                     </ActionCard>
                 ))}
@@ -202,7 +208,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
     container: {
         marginBottom: 10,
         backgroundColor: "transparent",
@@ -213,34 +219,34 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         justifyContent: 'space-between',
-        rowGap: 10, // Reduced from 16
+        rowGap: 10,
     },
     cardContainer: {
-        width: (Dimensions.get("window").width - 32 - 20) / 3, // 3 columns, 16px horizontal padding, 10px gap
-        backgroundColor: "#FFFFFF",
+        width: (Dimensions.get("window").width - 32 - 20) / 3,
+        backgroundColor: colors.backgroundSecondary,
         borderRadius: 5,
-        paddingVertical: 12, // Reduced from 16
+        paddingVertical: 12,
         paddingHorizontal: 8,
         alignItems: "center",
         borderWidth: 1,
-        borderColor: "#BFDBFE",
+        borderColor: isDarkMode ? colors.border : "#BFDBFE",
     },
     cardContent: {
         alignItems: "center",
         justifyContent: "flex-start",
     },
     iconGradient: {
-        width: 44, // Reduced from 54
-        height: 44, // Reduced from 54
-        borderRadius: 22, // Restored to circular
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 8, // Reduced from 12
+        marginBottom: 8,
     },
     label: {
-        fontSize: 12, // Slightly smaller
+        fontSize: 12,
         fontWeight: "700",
-        color: "#334155", // Gray mix black
+        color: colors.text.primary,
         textAlign: 'center',
         letterSpacing: -0.2,
     },
@@ -255,13 +261,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 5,
         borderWidth: 2,
-        borderColor: COLORS.white,
+        borderColor: isDarkMode ? colors.backgroundSecondary : "#FFFFFF",
     },
     badgeText: {
-        color: COLORS.white,
+        color: "#FFFFFF",
         fontSize: 10,
         fontWeight: '900',
     },
 });
 
 export default ActionGrid;
+
+

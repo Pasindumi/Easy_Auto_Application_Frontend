@@ -2,7 +2,7 @@ import COLORS from "@/constants/Colors";
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Image,
   Platform,
@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type ProfileHeaderProps = {
   title: string;
@@ -30,6 +31,7 @@ export default function ProfileHeader({
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { colors, isDarkMode } = useTheme();
 
   const handleProfilePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -40,74 +42,76 @@ export default function ProfileHeader({
     }
   };
 
+  const themeStyles = useMemo(() => getStyles(colors, isDarkMode), [colors, isDarkMode]);
+
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View style={themeStyles.container} pointerEvents="box-none">
       {/* Status Bar */}
       {Platform.OS === 'android' ? (
-        <RNStatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
+        <RNStatusBar backgroundColor={isDarkMode ? colors.backgroundSecondary : colors.primary} barStyle="light-content" />
       ) : null}
 
       <LinearGradient
-        colors={[COLORS.primary, '#1E40AF', '#111827']}
+        colors={isDarkMode ? [colors.backgroundSecondary, colors.background] : [colors.primary, '#1E40AF', '#111827']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}
+        style={[themeStyles.header, { paddingTop: Math.max(insets.top, 20) }]}
       >
-        <View style={styles.decorCircle1} />
-        <View style={styles.decorCircle2} />
-        
-        <View style={styles.topRow}>
-          <Text style={styles.headerTitle}>{title}</Text>
-          <TouchableOpacity style={styles.headerHelpBtn} onPress={() => router.push('/support/contact-us')}>
+        <View style={themeStyles.decorCircle1} />
+        <View style={themeStyles.decorCircle2} />
+
+        <View style={themeStyles.topRow}>
+          <Text style={themeStyles.headerTitle}>{title}</Text>
+          <TouchableOpacity style={themeStyles.headerHelpBtn} onPress={() => router.push('/support/contact-us')}>
             <Ionicons name="help-circle-outline" size={24} color={COLORS.white} />
           </TouchableOpacity>
         </View>
 
         {showProfileCard && (
           <TouchableOpacity
-            style={styles.profileCard}
+            style={themeStyles.profileCard}
             onPress={handleProfilePress}
             activeOpacity={0.9}
           >
-            <View style={styles.profileCardGlass}>
-              <View style={styles.profileCardContent}>
-                <View style={styles.avatarContainer}>
+            <View style={themeStyles.profileCardGlass}>
+              <View style={themeStyles.profileCardContent}>
+                <View style={themeStyles.avatarContainer}>
                   <Image
                     source={
                       user?.avatar
                         ? { uri: user.avatar }
                         : require('@/assets/images/user.jpeg')
                     }
-                    style={styles.avatar}
+                    style={themeStyles.avatar}
                   />
                   <LinearGradient
                     colors={user?.is_premium ? ["#FCD34D", "#F59E0B"] : ["#10B981", "#059669"]}
-                    style={styles.statusDot}
+                    style={themeStyles.statusDot}
                   />
                 </View>
 
-                <View style={styles.profileInfo}>
-                  <View style={styles.nameRow}>
-                    <Text style={styles.username} numberOfLines={1}>
+                <View style={themeStyles.profileInfo}>
+                  <View style={themeStyles.nameRow}>
+                    <Text style={themeStyles.username} numberOfLines={1}>
                       {user?.name || 'User'}
                     </Text>
                     {user?.is_premium && (
-                      <View style={styles.proTag}>
+                      <View style={themeStyles.proTag}>
                         <Ionicons name="star" size={10} color="#fff" />
-                        <Text style={styles.proTagText}>PRO</Text>
+                        <Text style={themeStyles.proTagText}>PRO</Text>
                       </View>
                     )}
                   </View>
-                  <Text style={styles.email} numberOfLines={1}>
+                  <Text style={themeStyles.email} numberOfLines={1}>
                     {user?.email || 'No email'}
                   </Text>
-                  
-                  <View style={styles.memberSinceContainer}>
-                    <Text style={styles.memberSinceText}>Member since 2024</Text>
+
+                  <View style={themeStyles.memberSinceContainer}>
+                    <Text style={themeStyles.memberSinceText}>Member since 2024</Text>
                   </View>
                 </View>
-                
-                <View style={styles.chevronFrame}>
+
+                <View style={themeStyles.chevronFrame}>
                   <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.7)" />
                 </View>
               </View>
@@ -119,7 +123,7 @@ export default function ProfileHeader({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDarkMode: boolean) => StyleSheet.create({
   container: {
     position: 'absolute',
     top: 0, left: 0, right: 0,
@@ -168,8 +172,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: isDarkMode ? colors.border : 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: isDarkMode ? colors.backgroundSecondary : 'rgba(255, 255, 255, 0.08)',
     elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
@@ -178,7 +182,7 @@ const styles = StyleSheet.create({
   },
   profileCardGlass: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: isDarkMode ? 'transparent' : 'rgba(255, 255, 255, 0.12)',
   },
   profileCardContent: {
     flexDirection: 'row',
@@ -194,7 +198,7 @@ const styles = StyleSheet.create({
     height: 68,
     borderRadius: 34,
     borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: isDarkMode ? colors.border : 'rgba(255,255,255,0.25)',
   },
   statusDot: {
     position: 'absolute',
@@ -202,7 +206,7 @@ const styles = StyleSheet.create({
     width: 16, height: 16,
     borderRadius: 8,
     borderWidth: 3,
-    borderColor: '#1E40AF',
+    borderColor: isDarkMode ? colors.backgroundSecondary : '#1E40AF',
   },
   profileInfo: {
     flex: 1,
@@ -234,20 +238,20 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   email: {
-    color: 'rgba(255,255,255,0.7)',
+    color: isDarkMode ? colors.text.muted : 'rgba(255,255,255,0.7)',
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 8,
   },
   memberSinceContainer: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: isDarkMode ? colors.backgroundMuted : 'rgba(255,255,255,0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
   },
   memberSinceText: {
-    color: 'rgba(255,255,255,0.5)',
+    color: isDarkMode ? colors.text.muted : 'rgba(255,255,255,0.5)',
     fontSize: 10,
     fontWeight: '600',
   },
@@ -259,3 +263,4 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 });
+
